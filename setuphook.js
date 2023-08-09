@@ -3,11 +3,13 @@ class RelewiseSearchBox extends HTMLElement {
         super();
 
         const input = document.createElement('input');
+        input.addEventListener('keydown', () => { button.style.color = Math.floor(Math.random()*16777215).toString(16) });
         const button = document.createElement('button');
-        button.textContent = "search"
+        button.addEventListener("click", () => { button.style.backgroundColor = "red"; })            ;
+        button.textContent = "search";
 
         const shadowRoot = this.attachShadow({ mode: 'open' });
-        shadowRoot.appendChild(input)
+        shadowRoot.appendChild(input);
         shadowRoot.appendChild(button);
     }
 }
