@@ -1,2 +1,2 @@
 # relewise-ui-web-components
-Playground for web component POC
+UI components for Relewise
