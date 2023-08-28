@@ -1,1 +1,2 @@
-export * from '../src/my-element.ts';
+export * from './popular-products.ts';
+export { relewise } from '../src/relewise.ts';

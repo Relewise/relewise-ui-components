@@ -3,17 +3,37 @@
 
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" href="/favicon.svg">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Web components</title>
 </head>
 
 <body>
-  <div id="app"></div>
-  <div id="modal"></div>
-  <div id="navigationmodal"></div>
   <script type="module" src="../src/index.ts"></script>
-  <my-element></my-element>
+  <script type="module">
+    import { relewise } from "../src/index.ts";
+    relewise(
+      {
+        getUser: (userFactory) => {
+          return userFactory.anonymous();
+        },
+        datasetId: "",
+        apiKey: "",
+        language: "da-dk",
+        currency: "DKK",
+        displayedAtLocation: "Relewise Demo Store",
+        selectedProductPropertiesSettings: {
+          displayName: true,
+          categoryPaths: true,
+          assortments: true,
+          pricing: true,
+          brand: true,
+        },
+        clientOptions: {
+          serverUrl: "https://api.relewise.com/"
+        }
+      }
+    );
+  </script>
+  <popular-products></popular-products>
 </body>
 
 </html>
