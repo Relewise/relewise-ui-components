@@ -3,11 +3,11 @@ import { customElement } from 'lit/decorators.js'
 
 @customElement('my-element')
 export class MyElement extends LitElement {
-  render() {
-    return html`
+    render() {
+        return html`
      <h1>Hello world!</h1> 
     `
-  }
+    }
 }
 
 declare global {

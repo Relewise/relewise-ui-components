@@ -1,1 +1,1 @@
-export  * from "../src/my-element.ts";
+export * from '../src/my-element.ts';
