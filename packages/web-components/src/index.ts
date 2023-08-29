@@ -1,1 +1,2 @@
-export * from '../src/my-element.ts';
+export * from './popular-products.ts';
+export { initializeRelewiseUI } from './relewiseUI.ts';

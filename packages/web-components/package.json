@@ -10,6 +10,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@relewise/client": "^1.15.0",
     "lit": "^2.7.6"
   },
   "devDependencies": {
