@@ -7,34 +7,7 @@
 </head>
 
 <body>
-  <script type="module" src="../src/index.ts"></script>
-  <script type="module">
-    import { relewise } from "../src/index.ts";
-    relewise(
-      {
-        contextSettings: {
-          getUser: (userFactory) => {
-            return userFactory.anonymous();
-          },
-          language: "da-dk",
-          currency: "DKK",
-          displayedAtLocation: "Relewise Demo Store",
-        },
-        datasetId: "",
-        apiKey: "",
-        selectedProductPropertiesSettings: {
-          displayName: true,
-          categoryPaths: true,
-          assortments: true,
-          pricing: true,
-          brand: true,
-        },
-        clientOptions: {
-          serverUrl: "https://api.relewise.com/"
-        }
-      }
-    );
-  </script>
+  <script type="module" src="index.ts"></script>
   <relewise-popular-products></relewise-popular-products>
 </body>
 
