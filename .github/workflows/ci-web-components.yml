@@ -1,4 +1,4 @@
-name: CI
+name: CI Web Components
 
 on: pull_request
 
@@ -14,7 +14,9 @@ jobs:
           node-version: 18
 
       - name: Install Node Modules
+        working-directory: ./packages/web-components
         run: npm install
 
       - name: Build Web Components
+        working-directory: ./packages/web-components
         run: npm run build
