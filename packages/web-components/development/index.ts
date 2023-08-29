@@ -1,6 +1,6 @@
-import { registerRelewiseUI } from '../src/index';
+import { initializeRelewiseUI } from '../src/index';
 
-registerRelewiseUI(
+initializeRelewiseUI(
     {
         contextSettings: {
             getUser: (userFactory: any) => {

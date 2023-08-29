@@ -19,7 +19,7 @@ interface RelewiseUISettings {
     clientOptions?: RelewiseClientOptions;
 }
 
-export function registerRelewiseUI(
+export function initializeRelewiseUI(
     {
         datasetId,
         apiKey,
