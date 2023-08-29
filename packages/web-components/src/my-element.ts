@@ -1,7 +1,7 @@
 import { LitElement, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-@customsdfsdafsadfasdElement('my-element')
+@customElement('my-element')
 export class MyElement extends LitElement {
     render() {
         return html`
