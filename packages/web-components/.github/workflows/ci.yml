@@ -1,0 +1,20 @@
+name: CI
+
+on: pull_request
+
+jobs:
+  build_web_components:
+    runs-on: ubuntu-latest
+    name: Build Web Components
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Node Modules
+        run: npm install
+
+      - name: Build Web Components
+        run: npm run build
