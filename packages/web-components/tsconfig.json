@@ -27,5 +27,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "development/vite-env.d.ts", ".src/types"]
+  "include": ["src", "development/vite-env.d.ts", ".src/types", "vite/client"]
 }

@@ -1,17 +1,18 @@
+import { UserFactory } from '@relewise/client';
 import { initializeRelewiseUI } from '../src/index';
 
 initializeRelewiseUI(
     {
         contextSettings: {
-            getUser: (userFactory: any) => {
+            getUser: (userFactory: UserFactory) => {
                 return userFactory.anonymous();
             },
             language: 'da-dk',
             currency: 'DKK',
             displayedAtLocation: 'Relewise Demo Store',
         },
-        datasetId: '',
-        apiKey: '',
+        datasetId: import.meta.env.VITE_DATASET_ID,
+        apiKey: import.meta.env.VITE_API_KEY,
         selectedPropertiesSettings: {
             product: {
                 displayName: true,

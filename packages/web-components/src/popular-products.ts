@@ -11,7 +11,6 @@ export class PopularProducts extends LitElement {
 
     async fetchProducts() {
         const relewiseUISettings = getRelewiseUISettings();
-        console.log(relewiseUISettings.selectedPropertiesSettings?.product);
         const recommender = getRecommender();
         const builder = new PopularProductsBuilder(getRelewiseBuilderSettings()).sinceMinutesAgo(1).basedOn('MostPurchased')
             .setSelectedProductProperties(relewiseUISettings.selectedPropertiesSettings?.product ?? {}); // TODO: find a better way to handle no selected properties when implementing this element!

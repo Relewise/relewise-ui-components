@@ -48,7 +48,7 @@ export function getRelewiseUISettings(): RelewiseUISettings {
         !relewiseSettingsFromWindow.datasetId ||
         !relewiseSettingsFromWindow.apiKey ||
         !relewiseSettingsFromWindow.contextSettings ) {
-        throw new Error('Relewise UI not correctly configured')
+        throw new Error('Relewise UI not correctly configured');
     }
 
     return relewiseSettingsFromWindow;
