@@ -1,5 +1,7 @@
 import { Recommender } from '@relewise/client';
+import { getRelewiseSettings } from './relewise';
 
 export function getRecommender() {
-    return new Recommender(window.relewiseSettings.datasetId, window.relewiseSettings.apiKey);
+    const settings = getRelewiseSettings();
+    return new Recommender(settings.datasetId, settings.apiKey, settings.clientOptions);
 }

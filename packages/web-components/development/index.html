@@ -12,14 +12,16 @@
     import { relewise } from "../src/index.ts";
     relewise(
       {
-        getUser: (userFactory) => {
-          return userFactory.anonymous();
+        contextSettings: {
+          getUser: (userFactory) => {
+            return userFactory.anonymous();
+          },
+          language: "da-dk",
+          currency: "DKK",
+          displayedAtLocation: "Relewise Demo Store",
         },
         datasetId: "",
         apiKey: "",
-        language: "da-dk",
-        currency: "DKK",
-        displayedAtLocation: "Relewise Demo Store",
         selectedProductPropertiesSettings: {
           displayName: true,
           categoryPaths: true,
@@ -33,7 +35,7 @@
       }
     );
   </script>
-  <popular-products></popular-products>
+  <relewise-popular-products></relewise-popular-products>
 </body>
 
 </html>

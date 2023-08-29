@@ -1,2 +1,2 @@
 export * from './popular-products.ts';
-export { relewise } from '../src/relewise.ts';
+export { initRelewiseUI as relewise } from '../src/relewise.ts';

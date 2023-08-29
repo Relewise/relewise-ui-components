@@ -1,33 +1,33 @@
 import { PopularProductsBuilder, ProductResult } from '@relewise/client';
 import { LitElement, html } from 'lit';
-import { property } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
 import { getRecommender } from './recommender';
+import { getRelewiseBuilderSettings } from './relewise';
 
+@customElement('relewise-popular-products')
 export class PopularProducts extends LitElement {
-    @property({attribute: false})
-        products: ProductResult[] = []
 
-    fetchProducts() {
+    @state()
+        products: ProductResult[] | null = null;
+
+    async fetchProducts() {
         const recommender = getRecommender();
-        const builder = new PopularProductsBuilder(window.relewiseSettings.settings)
+        const builder = new PopularProductsBuilder(getRelewiseBuilderSettings())
             .setSelectedProductProperties(window.relewiseSettings.selectedProductPropertiesSettings);
-      
-        recommender
-            .recommendPopularProducts(builder.build())
-            .then(result => {
-                if(result?.recommendations) {
-                    this.products = result.recommendations;    
-                }
-            })
+        
+        const result = await recommender.recommendPopularProducts(builder.build());
+        this.products = result?.recommendations ?? null;
     }
     
     connectedCallback(): void {
         super.connectedCallback();
-        this.fetchProducts();        
+        this.addEventListener('relewise-ui-initialized', () => {
+            this.fetchProducts();        
+        })
     }
 
     render() {
-        if(this.products.length > 0) {
+        if(this.products) {
             return this.products.map(product => 
                 html`<h1>${product.displayName}</h1>`,
             )
@@ -36,3 +36,9 @@ export class PopularProducts extends LitElement {
         }
     }
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+      'relewise-popular-products': PopularProducts;
+    }
+  }

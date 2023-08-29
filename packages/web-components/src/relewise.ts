@@ -1,46 +1,73 @@
 import { RelewiseClientOptions, SelectedProductPropertiesSettings, Settings, User, UserFactory } from '@relewise/client';
-import { PopularProducts } from '.';
 
-interface RelewiseSettings {
+
+interface ContextSettings {
     getUser: (userFactory: UserFactory) => User
-    datasetId: string;    
-    apiKey: string;
     language: string;
     currency: string;
     displayedAtLocation: string;
+}
+
+interface RelewiseSettings {
+    datasetId: string;    
+    apiKey: string;
+    contextSettings: ContextSettings;
     selectedProductPropertiesSettings: SelectedProductPropertiesSettings;
     clientOptions?: RelewiseClientOptions;
 }
 
-export function relewise(
+export function initRelewiseUI(
     {
-        getUser,
         datasetId,
         apiKey,
-        language,
-        currency,
-        displayedAtLocation,
+        contextSettings,
         selectedProductPropertiesSettings,
         clientOptions,
     }: RelewiseSettings ) {
-    const user = getUser(UserFactory)
-    
-    const settings = {
-        currency: currency,
-        language: language,
-        displayedAtLocation: displayedAtLocation,
-        user: user,
-    } as Settings
-
-    window.relewiseSettings = { 
+    window.relewiseSettings = {
         datasetId: datasetId,
         apiKey: apiKey,
-        settings: settings,
+        contextSettings: contextSettings,
         selectedProductPropertiesSettings: selectedProductPropertiesSettings,
         clientOptions: clientOptions,
     }
 
-    if (customElements.get('popular-products') === undefined) {
-        customElements.define('popular-products', PopularProducts);
+    const event = new Event('relewise-ui-initialized');
+    const elements = document.querySelectorAll('*');
+    elements.forEach((element) => {
+        if(element.tagName.toLowerCase().startsWith('relewise-')) {
+            element.dispatchEvent(event);
+        }
+    }) 
+}
+
+export function getRelewiseSettings(): RelewiseSettings {
+    const relewiseSettingsFromWindow  = window.relewiseSettings;
+
+    if(!relewiseSettingsFromWindow ||
+        !relewiseSettingsFromWindow.datasetId ||
+        !relewiseSettingsFromWindow.apiKey ||
+        !relewiseSettingsFromWindow.contextSettings ||
+        !relewiseSettingsFromWindow.selectedProductPropertiesSettings ) {
+        throw new Error('Relewise UI not correctly configured')
+    }
+
+    return {
+        datasetId: relewiseSettingsFromWindow.datasetId,
+        apiKey: relewiseSettingsFromWindow.apiKey,
+        contextSettings: relewiseSettingsFromWindow.contextSettings,
+        selectedProductPropertiesSettings: relewiseSettingsFromWindow.selectedProductPropertiesSettings,
+        clientOptions: relewiseSettingsFromWindow.clientOptions,
+    }
+}
+
+export function getRelewiseBuilderSettings(): Settings {
+    const contextSettings = getRelewiseSettings().contextSettings;
+
+    return {
+        currency: contextSettings.currency,
+        displayedAtLocation: contextSettings.displayedAtLocation,
+        language: contextSettings.language,
+        user: contextSettings.getUser(UserFactory),
     }
 }
