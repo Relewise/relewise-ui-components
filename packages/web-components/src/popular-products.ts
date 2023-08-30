@@ -7,7 +7,7 @@ import { getProductRecommendationBuilderWithDefaults } from './relewiseUI';
 export class PopularProducts extends LitElement {
 
     @property({ type: Number })
-    sinceMinutesAgo: number = 43200; // 30 days
+    sinceMinutesAgo: number = 20160 ; // 14 days
 
     @property({ type: Number })
     numberOfRecommendations: number = 5;
@@ -15,14 +15,12 @@ export class PopularProducts extends LitElement {
     @property()
     basedOn: 'MostPurchased' | 'MostViewed' = 'MostPurchased';
 
-
     @state()
     products: ProductResult[] | null = null;
 
     async fetchProducts() {
         const recommender = getRecommender();
-        const builder = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>
-        (settings => new PopularProductsBuilder(settings))
+        const builder = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(settings => new PopularProductsBuilder(settings))
             .sinceMinutesAgo(this.sinceMinutesAgo)
             .basedOn(this.basedOn)
             .setNumberOfRecommendations(this.numberOfRecommendations);
