@@ -4,10 +4,12 @@ module.exports = {
         'es2021': true,
     },
     'extends': [
+        'plugin:wc/recommended',
         'plugin:lit/recommended',
         'eslint:recommended',
         'plugin:@typescript-eslint/recommended',
     ],
+    'root': true,
     'overrides': [
         {
             'env': {
@@ -30,9 +32,9 @@ module.exports = {
         '@typescript-eslint',
     ],
     'rules': {
+        indent: ['error', 4, { 'ignoredNodes': ['PropertyDefinition'] }],
         'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-        indent: ['error', 4],
         quotes: ['error', 'single'],
         semi: 0,
         'no-extra-semi': 0,

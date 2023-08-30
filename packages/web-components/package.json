@@ -1,8 +1,6 @@
 {
   "name": "web-components",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite ",
     "build": "tsc && vite build",
@@ -22,6 +20,7 @@
     "eslint-plugin-lit": "^1.9.1",
     "eslint-plugin-n": "^16.0.2",
     "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-wc": "^1.5.0",
     "ts-lit-plugin": "^1.2.1",
     "typescript": "^5.2.2",
     "typescript-lit-html-plugin": "^0.9.0",

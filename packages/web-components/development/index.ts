@@ -4,8 +4,8 @@ import { initializeRelewiseUI } from '../src/index';
 initializeRelewiseUI(
     {
         contextSettings: {
-            getUser: (userFactory: UserFactory) => {
-                return userFactory.anonymous();
+            getUser: () => {
+                return UserFactory.anonymous();
             },
             language: 'da-dk',
             currency: 'DKK',
@@ -16,6 +16,7 @@ initializeRelewiseUI(
         selectedPropertiesSettings: {
             product: {
                 displayName: true,
+                brand: true,
             },
         },
         clientOptions: {
