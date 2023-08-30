@@ -1,6 +1,6 @@
 import { assert } from '@esm-bundle/chai';
 import { PopularProducts, initializeRelewiseUI } from '../src';
-import { UserFactory } from '@relewise/client';
+import { mockRelewiseSettings } from './util/mockRelewiseUISettings';
 
 it('is not intance of when relewise not instantiated', () => {
     const el = document.createElement('relewise-popular-products');
@@ -9,18 +9,7 @@ it('is not intance of when relewise not instantiated', () => {
 
 it('is intance of when relewise is instantiated', async() => {
 
-    initializeRelewiseUI({
-        contextSettings: {
-            getUser: () => {
-                return UserFactory.anonymous();
-            },
-            language: '',
-            currency: '',   
-            displayedAtLocation: '',
-        },
-        datasetId: '',
-        apiKey: '',
-    });
+    initializeRelewiseUI(mockRelewiseSettings());
 
     const el = document.createElement('relewise-popular-products');
     assert.instanceOf(el, PopularProducts);
