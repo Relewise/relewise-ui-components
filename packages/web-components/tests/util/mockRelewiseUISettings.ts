@@ -1,17 +1,25 @@
 import { UserFactory } from '@relewise/client';
-import { RelewiseUISettings } from '../../src/relewiseUI';
+import { RelewiseUIOptions } from '../../src/initialize';
 
-export function mockRelewiseSettings(): RelewiseUISettings {
+export function mockRelewiseOptions(): RelewiseUIOptions {
     return {
         contextSettings: {
             getUser: () => {
                 return UserFactory.anonymous();
             },
-            language: '',
-            currency: '',   
-            displayedAtLocation: '',
+            language: 'language',
+            currency: 'currency',   
+            displayedAtLocation: 'displayedAtLocation',
         },
-        datasetId: '',
-        apiKey: '',
+        clientOptions: {
+            serverUrl: 'server url',
+        },
+        selectedPropertiesSettings: {
+            product: {
+                displayName: true,
+            },
+        },
+        datasetId: 'datasetId',
+        apiKey: 'apiKey',
     }
 }

@@ -3,6 +3,7 @@ import { TemplateResult } from 'lit';
 import { PopularProducts } from './recommendations/products/popular-products';
 import { ProductsViewedAfterViewingProduct } from './recommendations/products/products-viewed-after-viewing-product';
 import { PurchasedWithProduct } from './recommendations/products/purchased-with-product';
+import { defaultProductProperties } from './defaultProductProperties';
 
 export interface RelewiseUIOptions {
     datasetId: string;
@@ -20,7 +21,7 @@ interface Filters {
     product?: (builder: FilterBuilder) => void
 }
 
-interface ContextSettings {
+export interface ContextSettings {
     getUser: (userFactory: UserFactory) => User;
     language: string;
     currency: string;
@@ -50,6 +51,43 @@ function tryRegisterElement(name: string, constructor: CustomElementConstructor)
     if (customElements.get(name) === undefined) {
         customElements.define(name, constructor);
     }
+}
+
+export function getRelewiseUIOptions(): RelewiseUIOptions {
+    const options = window.relewiseUIOptions;
+
+    if (!options ||
+        !options.datasetId ||
+        !options.apiKey ||
+        !options.contextSettings) {
+        throw new Error('Relewise UI not correctly configured');
+    }
+
+    return options;
+}
+
+export function getRelewiseContextSettings(): Settings {
+    const contextSettings = getRelewiseUIOptions().contextSettings;
+
+    return {
+        currency: contextSettings.currency,
+        displayedAtLocation: contextSettings.displayedAtLocation,
+        language: contextSettings.language,
+        user: contextSettings.getUser(UserFactory),
+    }
+}
+
+export function getProductRecommendationBuilderWithDefaults<T extends ProductSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T): T {
+    const settings = getRelewiseContextSettings();
+    const relewiseUIOptions = getRelewiseUIOptions();
+
+    return createBuilder(settings)
+        .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
+        .filters(builder => {
+            if (relewiseUIOptions.filters?.product) {
+                relewiseUIOptions.filters.product(builder);
+            }
+        });
 }
 
 declare global {
