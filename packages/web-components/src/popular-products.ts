@@ -1,42 +1,52 @@
 import { PopularProductsBuilder, ProductResult } from '@relewise/client';
 import { LitElement, html } from 'lit';
-import { state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 import { getRecommender } from './recommender';
-import { getRelewiseBuilderSettings, getRelewiseUISettings } from './relewiseUI';
+import { getProductRecommendationBuilderWithDefaults } from './relewiseUI';
 
 export class PopularProducts extends LitElement {
 
+    @property({ type: Number })
+    sinceMinutesAgo: number = 43200; // 30 days
+
+    @property({ type: Number })
+    numberOfRecommendations: number = 5;
+
+    @property()
+    basedOn: 'MostPurchased' | 'MostViewed' = 'MostPurchased';
+
+
     @state()
-        products: ProductResult[] | null = null;
+    products: ProductResult[] | null = null;
 
     async fetchProducts() {
-        const relewiseUISettings = getRelewiseUISettings();
         const recommender = getRecommender();
-        const builder = new PopularProductsBuilder(getRelewiseBuilderSettings()).sinceMinutesAgo(1).basedOn('MostPurchased')
-            .setSelectedProductProperties(relewiseUISettings.selectedPropertiesSettings?.product ?? {}); // TODO: find a better way to handle no selected properties when implementing this element!
-        
+        const builder = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>
+        (settings => new PopularProductsBuilder(settings))
+            .sinceMinutesAgo(this.sinceMinutesAgo)
+            .basedOn(this.basedOn)
+            .setNumberOfRecommendations(this.numberOfRecommendations);
+
         const result = await recommender.recommendPopularProducts(builder.build());
         this.products = result?.recommendations ?? null;
     }
-    
+
     connectedCallback(): void {
         super.connectedCallback();
-        this.fetchProducts();        
+        this.fetchProducts();
     }
 
     render() {
-        if(this.products) {
-            return this.products.map(product => 
+        if (this.products) {
+            return this.products.map(product =>
                 html`<h1>${product.displayName}</h1>`,
             )
-        } else {
-            return html`<h1>Loading...</h1>`
         }
     }
 }
 
 declare global {
     interface HTMLElementTagNameMap {
-      'relewise-popular-products': PopularProducts;
+        'relewise-popular-products': PopularProducts;
     }
-  }
+}
