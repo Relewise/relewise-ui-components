@@ -43,7 +43,7 @@ export class PopularProducts extends LitElement {
             grid-auto-rows: 1fr;
         }
 
-       @media screen and (min-width:481px) and (max-width:768px) {
+       @media screen and (max-width:768px) {
         .grid{
           grid-template-columns:var(--relewise-mobile-grid-template-columns, repeat(2,1fr));
         }
