@@ -1,7 +1,7 @@
 import { ProductResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import renderPrice from './util/price';
+import formatPrice from './util/price';
 
 @customElement('relewise-product-tile')
 export class ProductTile extends LitElement {
@@ -85,11 +85,11 @@ export class ProductTile extends LitElement {
                     }
                     <div class='information-container'>
                         <h5 class="display-name">${this.product.displayName}</h5>
-                        <div class='price'><p><span>${renderPrice(this.product.salesPrice)}</span></p> ${(this.product.salesPrice &&
+                        <div class='price'><p><span>${formatPrice(this.product.salesPrice)}</span></p> ${(this.product.salesPrice &&
                             this.product.listPrice &&
                             this.product.listPrice === this.product.salesPrice) ?
                             
-                            html`<span class='list-price'>${renderPrice(this.product.listPrice)}</span>` :
+                            html`<span class='list-price'>${formatPrice(this.product.listPrice)}</span>` :
                             nothing
                         }</div>
                     </div>

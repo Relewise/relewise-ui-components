@@ -1,12 +1,12 @@
 import { getRelewiseContextSettings } from './relewiseUI';
 
-export default function renderPrice(price: string | number | null | undefined) {
-    const contextSettings = getRelewiseContextSettings();
+export default function formatPrice(price: string | number | null | undefined) {
 
     if (!price) {
         return '';
     }
-  
+
+    const contextSettings = getRelewiseContextSettings();
     try {
         return new Intl.NumberFormat(contextSettings.language, {
             style: 'currency',
