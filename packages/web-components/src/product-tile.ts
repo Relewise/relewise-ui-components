@@ -75,28 +75,39 @@ export class ProductTile extends LitElement {
         }
     `;
 
+    renderTileContent(product: ProductResult) {
+        return html`
+            ${(product.data && 'ImageUrl' in product.data) ?
+                html`<div class="image-container"><img class="object-cover" src=${product.data['ImageUrl'].value} /></div>` :
+                nothing
+            }
+            <div class='information-container'>
+                <h5 class="display-name">${product.displayName}</h5>
+                <div class='price'><p><span>${formatPrice(product.salesPrice)}</span></p> ${(product.salesPrice &&
+                    product.listPrice &&
+                    product.listPrice !== product.salesPrice) ?
+                    html`<span class='list-price'>${formatPrice(product.listPrice)}</span>` :
+                    nothing
+                }</div>
+            </div>`
+    }
+
     render() {
-        if (this.product && this.product.data && this.product.data['Url']) {
-            return html`
-                <a class='tile' href=${this.product.data['Url'].value ?? ''}>
-                    ${(this.product.data && 'ImageUrl' in this.product.data) ?
-                        html`<div class="image-container"><img class="object-cover" src=${this.product.data['ImageUrl'].value} /></div>` :
-                        nothing
-                    }
-                    <div class='information-container'>
-                        <h5 class="display-name">${this.product.displayName}</h5>
-                        <div class='price'><p><span>${formatPrice(this.product.salesPrice)}</span></p> ${(this.product.salesPrice &&
-                            this.product.listPrice &&
-                            this.product.listPrice === this.product.salesPrice) ?
-                            
-                            html`<span class='list-price'>${formatPrice(this.product.listPrice)}</span>` :
-                            nothing
-                        }</div>
-                    </div>
-                </a>
-            `;
+        if(!this.product) {
+            return;
         }
 
+        if (this.product.data && 'Url' in this.product.data) {
+            return html`
+                <a class='tile' href=${this.product.data['Url'].value ?? ''}>
+                    ${this.renderTileContent(this.product)}
+                </a>`;
+        }
+
+        return html`
+            <div class='tile'>
+                ${this.renderTileContent(this.product)}
+            </div>`;
     }
 }
 
