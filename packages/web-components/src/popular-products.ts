@@ -3,7 +3,7 @@ import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import './product-tile';
 import { getRecommender } from './util/recommender';
-import { getProductRecommendationBuilderWithDefaults } from './util/relewiseUI';
+import { getProductRecommendationBuilderWithDefaults } from './initialize';
 
 export class PopularProducts extends LitElement {
 

@@ -1,5 +1,5 @@
 import { Recommender } from '@relewise/client';
-import { getRelewiseUISettings } from './relewiseUI';
+import { getRelewiseUISettings } from '../initialize';
 
 export function getRecommender() {
     const settings = getRelewiseUISettings();

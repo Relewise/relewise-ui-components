@@ -1,5 +1,5 @@
 import { ProductSettingsRecommendationBuilder, RelewiseClientOptions, SelectedProductPropertiesSettings, Settings, User, UserFactory } from '@relewise/client';
-import { PopularProducts } from '..';
+import { PopularProducts } from '.';
 
 interface ContextSettings {
     getUser: (userFactory: UserFactory) => User
