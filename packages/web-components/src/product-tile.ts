@@ -33,7 +33,6 @@ export class ProductTile extends LitElement {
         }
 
         .image-container {
-            justify-content: center;
             display: flex;
             position: relative;
             margin: .75rem;
@@ -67,7 +66,6 @@ export class ProductTile extends LitElement {
             font-size: var(--relewise-display-name-font-size, 1.25rem);
             margin-top: 0rem;
             margin-bottom: 0rem;
-            white-space: normal;
         }
 
         .list-price {

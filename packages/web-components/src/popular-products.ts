@@ -38,14 +38,14 @@ export class PopularProducts extends LitElement {
     static styles = css`
         .grid {
             display: grid;
-            grid-template-columns: repeat(5,1fr);
+            grid-template-columns: var(--relewise-grid-template-columns, repeat(5,1fr));
             gap: .75rem;
             grid-auto-rows: 1fr;
         }
 
        @media screen and (min-width:481px) and (max-width:768px) {
         .grid{
-          grid-template-columns: repeat(2,1fr);
+          grid-template-columns:var(--relewise-mobile-grid-template-columns, repeat(2,1fr));
         }
       }
     `;
