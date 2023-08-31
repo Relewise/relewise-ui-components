@@ -11,7 +11,6 @@ export class ProductTile extends LitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
-        console.log(this.product)
     }
 
     static styles = css`

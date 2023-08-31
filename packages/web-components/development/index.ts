@@ -7,14 +7,14 @@ initializeRelewiseUI(
             getUser: () => {
                 return UserFactory.anonymous();
             },
-            language: 'da',
-            currency: 'DKK',
-            displayedAtLocation: 'Relewise Demo Store',
+            language: import.meta.env.VITE_LANGUAGE,
+            currency: import.meta.env.VITE_CURRENCY,
+            displayedAtLocation: 'Relewise Web Components',
         },
         datasetId: import.meta.env.VITE_DATASET_ID,
         apiKey: import.meta.env.VITE_API_KEY,
         clientOptions: {
-            serverUrl: 'https://sandbox-api.relewise.com/',
+            serverUrl: import.meta.env.VITE_SERVER_URL,
         },
     },
 );
