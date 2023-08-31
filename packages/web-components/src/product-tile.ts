@@ -9,17 +9,12 @@ export class ProductTile extends LitElement {
     @property({ type: Object })
     product: ProductResult | null = null;
 
-
     connectedCallback(): void {
         super.connectedCallback();
         console.log(this.product)
     }
 
     static styles = css`
-        a {
-            color: #212427;
-        }
-
         .tile {
             border-radius: .25rem;
             display: flex;
@@ -56,34 +51,29 @@ export class ProductTile extends LitElement {
         }
 
         .price {
+            color: var(--relewise-price-color, #212427);
             line-height: 1;
             font-weight: 600;
-            font-size: 1.5rem;
+            font-size: var(--relewise-price-font-size, 1.5rem);
             align-items: center;
             display: flex;
         }
 
         .display-name {
+            color: var(--relewise-display-name-color, #212427);
             letter-spacing: -0.025rem;
             line-height: 1.25;
             font-weight: 600;
-            font-size: 1.25rem;
+            font-size: var(--relewise-display-name-font-size, 1.25rem);
             margin-top: 0rem;
             margin-bottom: 0rem;
             white-space: normal;
         }
 
-        .brand {
+        .list-price {
             font-size: 1rem;
-            font-weight: 300;
-            line-height: 1.25rem;
-            color: darkgray;
-        }
-
-        .line-through {
-            font-size: 1rem;
-            text-decoration: line-through;
-            color: darkgray;
+            text-decoration: var(--relewise-list-price-text-decoration, line-through);
+            color: var(--relewise-list-price-color, darkgray);
             margin: .25rem;
         }
     `;
@@ -102,7 +92,7 @@ export class ProductTile extends LitElement {
                             this.product.listPrice &&
                             this.product.listPrice === this.product.salesPrice) ?
                             
-                            html`<span class='line-through'>${renderPrice(this.product.listPrice)}</span>` :
+                            html`<span class='list-price'>${renderPrice(this.product.listPrice)}</span>` :
                             nothing
                         }</div>
                     </div>
