@@ -1,5 +1,6 @@
 import { ProductSettingsRecommendationBuilder, RelewiseClientOptions, SelectedProductPropertiesSettings, Settings, User, UserFactory } from '@relewise/client';
 import { PopularProducts } from '.';
+import { ProductsViewedAfterViewingProduct } from './products-viewed-after-viewing-product';
 
 interface ContextSettings {
     getUser: (userFactory: UserFactory) => User
@@ -37,6 +38,10 @@ export function initializeRelewiseUI(
 
     if (customElements.get('relewise-popular-products') === undefined) {
         customElements.define('relewise-popular-products', PopularProducts);
+    }
+
+    if (customElements.get('relewise-products-viewed-after-viewing-product') === undefined) {
+        customElements.define('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);
     }
 }
 
