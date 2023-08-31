@@ -1,5 +1,5 @@
 import { ProductSettingsRecommendationBuilder, RelewiseClientOptions, SelectedProductPropertiesSettings, Settings, User, UserFactory } from '@relewise/client';
-import { PopularProducts } from '.';
+import { PopularProducts } from '..';
 
 interface ContextSettings {
     getUser: (userFactory: UserFactory) => User
@@ -66,7 +66,11 @@ export function getRelewiseContextSettings(): Settings {
 
 export function getProductRecommendationBuilderWithDefaults<T extends ProductSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T): T {
     const settings = getRelewiseContextSettings();
-    const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = { displayName: true };
+    const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = {
+        displayName: true,
+        pricing: true,
+        dataKeys: ['ImageUrl', 'Url'],
+    };
 
     return createBuilder(settings).setSelectedProductProperties(
         getRelewiseUISettings().selectedPropertiesSettings?.product ?? defaultProductProperties,

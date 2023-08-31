@@ -1,8 +1,9 @@
 import { PopularProductsBuilder, ProductResult } from '@relewise/client';
-import { LitElement, html } from 'lit';
+import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { getRecommender } from './recommender';
-import { getProductRecommendationBuilderWithDefaults } from './relewiseUI';
+import './product-tile';
+import { getRecommender } from './util/recommender';
+import { getProductRecommendationBuilderWithDefaults } from './util/relewiseUI';
 
 export class PopularProducts extends LitElement {
 
@@ -34,11 +35,28 @@ export class PopularProducts extends LitElement {
         this.fetchProducts();
     }
 
+    static styles = css`
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5,1fr);
+            gap: .75rem;
+            grid-auto-rows: 1fr;
+        }
+
+       @media screen and (min-width:481px) and (max-width:768px) {
+        .grid{
+          grid-template-columns: repeat(2,1fr);
+        }
+      }
+    `;
+
     render() {
         if (this.products) {
-            return this.products.map(product =>
-                html`<h1>${product.displayName}</h1>`,
-            )
+            return html`<div class="grid">
+            ${this.products.map(product => 
+                html`<relewise-product-tile .product=${product}></relewise-product-tile>`)
+            }
+            </div>`
         }
     }
 }
