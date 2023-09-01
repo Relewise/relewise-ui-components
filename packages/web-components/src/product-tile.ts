@@ -40,7 +40,7 @@ export class ProductTile extends LitElement {
             <div class='information-container'>
                 <h5 class="display-name">${product.displayName}</h5>
                 <div class='price'>
-                    <p><span>${formatPrice(product.salesPrice)}</span></p>
+                    <p>${formatPrice(product.salesPrice)}</p>
 
                     ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
                         ? html`<span class='list-price'>${formatPrice(product.listPrice)}</span>`
