@@ -4,14 +4,14 @@ import { ProductsViewedAfterViewingProduct } from './recommendationElements/prod
 import { PurchasedWithProduct } from './recommendationElements/purchased-with-product';
 
 interface ContextSettings {
-    getUser: (userFactory: UserFactory) => User
+    getUser: (userFactory: UserFactory) => User;
     language: string;
     currency: string;
     displayedAtLocation: string;
 }
 
 interface RelewiseUISettings {
-    datasetId: string;    
+    datasetId: string;
     apiKey: string;
     contextSettings: ContextSettings;
     selectedPropertiesSettings?: {
@@ -20,43 +20,27 @@ interface RelewiseUISettings {
     clientOptions?: RelewiseClientOptions;
 }
 
-export function initializeRelewiseUI(
-    {
-        datasetId,
-        apiKey,
-        contextSettings,
-        selectedPropertiesSettings,
-        clientOptions,
-    }: RelewiseUISettings ) {
-        
-    window.relewiseUISettings = {
-        datasetId: datasetId,
-        apiKey: apiKey,
-        contextSettings: contextSettings,
-        selectedPropertiesSettings: selectedPropertiesSettings,
-        clientOptions: clientOptions,
-    }
+export function initializeRelewiseUI(settings: RelewiseUISettings) {
+    window.relewiseUISettings = settings;
 
-    if (customElements.get('relewise-popular-products') === undefined) {
-        customElements.define('relewise-popular-products', PopularProducts);
-    }
+    tryRegisterElement('relewise-popular-products', PopularProducts);
+    tryRegisterElement('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);
+    tryRegisterElement('relewise-purchased-with-product', PurchasedWithProduct);
+}
 
-    if (customElements.get('relewise-products-viewed-after-viewing-product') === undefined) {
-        customElements.define('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);
-    }
-
-    if (customElements.get('relewise-purchased-with-product') === undefined) {
-        customElements.define('relewise-purchased-with-product', PurchasedWithProduct);
+function tryRegisterElement(name: string, constructor: CustomElementConstructor) {
+    if (customElements.get(name) === undefined) {
+        customElements.define(name, constructor);
     }
 }
 
 export function getRelewiseUISettings(): RelewiseUISettings {
-    const relewiseSettingsFromWindow  = window.relewiseUISettings;
+    const relewiseSettingsFromWindow = window.relewiseUISettings;
 
     if (!relewiseSettingsFromWindow ||
         !relewiseSettingsFromWindow.datasetId ||
         !relewiseSettingsFromWindow.apiKey ||
-        !relewiseSettingsFromWindow.contextSettings ) {
+        !relewiseSettingsFromWindow.contextSettings) {
         throw new Error('Relewise UI not correctly configured');
     }
 

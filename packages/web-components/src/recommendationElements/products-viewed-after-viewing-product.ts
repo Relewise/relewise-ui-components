@@ -15,7 +15,7 @@ export class ProductsViewedAfterViewingProduct extends RelewiseProductRecommenda
     @property()
     variantId: string | undefined = undefined;
   
-    fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined{
+    fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
         if (!this.productId) {
             console.error('No productId provided!')
             return;
@@ -31,7 +31,6 @@ export class ProductsViewedAfterViewingProduct extends RelewiseProductRecommenda
 
         return recommender.recommendProductsViewedAfterViewingProduct(builder.build());
     }
-
 }
 
 declare global {
