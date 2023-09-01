@@ -1,10 +1,10 @@
-import { ProductsViewedAfterViewingProductBuilder } from '@relewise/client';
+import { PurchasedWithProductBuilder } from '@relewise/client';
 import { property } from 'lit/decorators.js';
-import { getProductRecommendationBuilderWithDefaults } from './initialize';
-import { RelewiseProductRecommendationElement } from './relewiseUIComponent';
-import { getRecommender } from './util/recommender';
+import { getProductRecommendationBuilderWithDefaults } from '../initialize';
+import { RelewiseProductRecommendationElement } from '../RelewiseProductRecommendationElement';
+import { getRecommender } from '../util/recommender';
 
-export class ProductsViewedAfterViewingProduct extends RelewiseProductRecommendationElement {
+export class PurchasedWithProduct extends RelewiseProductRecommendationElement {
 
     @property({ type: Number })
     numberOfRecommendations: number = 5;
@@ -22,20 +22,20 @@ export class ProductsViewedAfterViewingProduct extends RelewiseProductRecommenda
         }
 
         const recommender = getRecommender();
-        const builder = getProductRecommendationBuilderWithDefaults<ProductsViewedAfterViewingProductBuilder>(settings => new ProductsViewedAfterViewingProductBuilder(settings))
+        const builder = getProductRecommendationBuilderWithDefaults<PurchasedWithProductBuilder>(settings => new PurchasedWithProductBuilder(settings))
             .product({
                 productId: this.productId,
                 variantId: this.variantId,
             })
             .setNumberOfRecommendations(this.numberOfRecommendations);
 
-        const result = await recommender.recommendProductsViewedAfterViewingProduct(builder.build());
+        const result = await recommender.recommendPurchasedWithProduct(builder.build());
         this.products = result?.recommendations ?? null;
     }
 }
 
 declare global {
     interface HTMLElementTagNameMap {
-        'relewise-products-viewed-after-viewing-product': ProductsViewedAfterViewingProduct;
+        'relewise-purchased-with-product': PurchasedWithProduct;
     }
 }
