@@ -29,7 +29,7 @@ export abstract class RelewiseProductRecommendationElement extends LitElement {
         .grid {
             display: grid;
             grid-template-columns: var(--relewise-grid-template-columns, repeat(5,1fr));
-            gap: .75rem;
+            gap: 1rem;
             grid-auto-rows: 1fr;
         }
 
