@@ -72,7 +72,6 @@ export function getProductRecommendationBuilderWithDefaults<T extends ProductSet
         dataKeys: ['ImageUrl', 'Url'],
     };
 
-    return createBuilder(settings).setSelectedProductProperties(
-        getRelewiseUISettings().selectedPropertiesSettings?.product ?? defaultProductProperties,
-    );
+    return createBuilder(settings)
+        .setSelectedProductProperties(getRelewiseUISettings().selectedPropertiesSettings?.product ?? defaultProductProperties);
 }

@@ -13,6 +13,43 @@ export class ProductTile extends LitElement {
         super.connectedCallback();
     }
 
+    render() {
+        if (!this.product) {
+            return;
+        }
+
+        if (this.product.data && 'Url' in this.product.data) {
+            return html`
+                <a class='tile' href=${this.product.data['Url'].value ?? ''}>
+                    ${this.renderTileContent(this.product)}
+                </a>`;
+        }
+
+        return html`
+            <div class='tile'>
+                ${this.renderTileContent(this.product)}
+            </div>`;
+    }
+
+    renderTileContent(product: ProductResult) {
+        return html`
+            ${(product.data && 'ImageUrl' in product.data)
+                ? html`<div class="image-container"><img class="object-cover" src=${product.data['ImageUrl'].value} /></div>`
+                : nothing
+            }
+            <div class='information-container'>
+                <h5 class="display-name">${product.displayName}</h5>
+                <div class='price'>
+                    <p><span>${formatPrice(product.salesPrice)}</span></p>
+
+                    ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
+                        ? html`<span class='list-price'>${formatPrice(product.listPrice)}</span>`
+                        : nothing
+                    }
+                </div>
+            </div>`
+    }
+
     static styles = css`
         .tile {
             border-radius: .25rem;
@@ -74,41 +111,6 @@ export class ProductTile extends LitElement {
             margin: .25rem;
         }
     `;
-
-    renderTileContent(product: ProductResult) {
-        return html`
-            ${(product.data && 'ImageUrl' in product.data) ?
-                html`<div class="image-container"><img class="object-cover" src=${product.data['ImageUrl'].value} /></div>` :
-                nothing
-            }
-            <div class='information-container'>
-                <h5 class="display-name">${product.displayName}</h5>
-                <div class='price'><p><span>${formatPrice(product.salesPrice)}</span></p> ${(product.salesPrice &&
-                    product.listPrice &&
-                    product.listPrice !== product.salesPrice) ?
-                    html`<span class='list-price'>${formatPrice(product.listPrice)}</span>` :
-                    nothing
-                }</div>
-            </div>`
-    }
-
-    render() {
-        if(!this.product) {
-            return;
-        }
-
-        if (this.product.data && 'Url' in this.product.data) {
-            return html`
-                <a class='tile' href=${this.product.data['Url'].value ?? ''}>
-                    ${this.renderTileContent(this.product)}
-                </a>`;
-        }
-
-        return html`
-            <div class='tile'>
-                ${this.renderTileContent(this.product)}
-            </div>`;
-    }
 }
 
 declare global {

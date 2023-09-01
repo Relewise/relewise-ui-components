@@ -8,7 +8,7 @@ import { getProductRecommendationBuilderWithDefaults } from './initialize';
 export class PopularProducts extends LitElement {
 
     @property({ type: Number })
-    sinceMinutesAgo: number = 20160 ; // 14 days
+    sinceMinutesAgo: number = 20160; // 14 days
 
     @property({ type: Number })
     numberOfRecommendations: number = 5;
@@ -18,6 +18,21 @@ export class PopularProducts extends LitElement {
 
     @state()
     products: ProductResult[] | null = null;
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.fetchProducts();
+    }
+
+    render() {
+        if (this.products) {
+            return html`<div class="grid">
+                ${this.products.map(product =>
+                    html`<relewise-product-tile .product=${product}></relewise-product-tile>`)
+                }
+            </div>`
+        }
+    }
 
     async fetchProducts() {
         const recommender = getRecommender();
@@ -30,11 +45,6 @@ export class PopularProducts extends LitElement {
         this.products = result?.recommendations ?? null;
     }
 
-    connectedCallback(): void {
-        super.connectedCallback();
-        this.fetchProducts();
-    }
-
     static styles = css`
         .grid {
             display: grid;
@@ -43,22 +53,11 @@ export class PopularProducts extends LitElement {
             grid-auto-rows: 1fr;
         }
 
-       @media screen and (max-width:768px) {
-        .grid{
-          grid-template-columns:var(--relewise-mobile-grid-template-columns, repeat(2,1fr));
-        }
-      }
-    `;
-
-    render() {
-        if (this.products) {
-            return html`<div class="grid">
-            ${this.products.map(product => 
-                html`<relewise-product-tile .product=${product}></relewise-product-tile>`)
+        @media screen and (max-width:768px) {
+            .grid {
+                grid-template-columns:var(--relewise-mobile-grid-template-columns, repeat(2,1fr));
             }
-            </div>`
-        }
-    }
+        }`;
 }
 
 declare global {
