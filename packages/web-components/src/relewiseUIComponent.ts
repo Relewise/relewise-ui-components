@@ -3,7 +3,7 @@ import { LitElement, css, html } from 'lit';
 import { state } from 'lit/decorators.js';
 import './product-tile';
 
-export abstract class RelewiseUIComponent extends LitElement {
+export abstract class RelewiseProductRecommendationElement extends LitElement {
 
     @state()
     products: ProductResult[] | null = null;

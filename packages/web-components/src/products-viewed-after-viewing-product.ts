@@ -1,10 +1,10 @@
 import { ProductsViewedAfterViewingProductBuilder } from '@relewise/client';
 import { property } from 'lit/decorators.js';
 import { getProductRecommendationBuilderWithDefaults } from './initialize';
-import { RelewiseUIComponent } from './relewiseUIComponent';
+import { RelewiseProductRecommendationElement } from './relewiseUIComponent';
 import { getRecommender } from './util/recommender';
 
-export class ProductsViewedAfterViewingProduct extends RelewiseUIComponent {
+export class ProductsViewedAfterViewingProduct extends RelewiseProductRecommendationElement {
 
     @property({ type: Number })
     numberOfRecommendations: number = 5;

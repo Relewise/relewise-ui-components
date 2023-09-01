@@ -2,10 +2,10 @@ import { PopularProductsBuilder } from '@relewise/client';
 import { property } from 'lit/decorators.js';
 import { getProductRecommendationBuilderWithDefaults } from './initialize';
 import './product-tile';
-import { RelewiseUIComponent } from './relewiseUIComponent';
+import { RelewiseProductRecommendationElement } from './relewiseUIComponent';
 import { getRecommender } from './util/recommender';
 
-export class PopularProducts extends RelewiseUIComponent {
+export class PopularProducts extends RelewiseProductRecommendationElement {
 
     @property({ type: Number })
     sinceMinutesAgo: number = 20160; // 14 days
