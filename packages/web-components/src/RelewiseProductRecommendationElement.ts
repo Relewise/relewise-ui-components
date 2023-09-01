@@ -5,6 +5,8 @@ import './product-tile';
 
 export abstract class RelewiseProductRecommendationElement extends LitElement {
 
+    abstract fetchProducts(): void;
+
     @state()
     products: ProductResult[] | null = null;
 
@@ -22,8 +24,6 @@ export abstract class RelewiseProductRecommendationElement extends LitElement {
             </div>`
         }
     }
-
-    abstract fetchProducts(): void;
 
     static styles = css`
         .grid {
