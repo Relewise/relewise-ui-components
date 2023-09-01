@@ -11,6 +11,10 @@ interface ContextSettings {
     displayedAtLocation: string;
 }
 
+interface Templates {
+    productTemplate?: (product: ProductResult, html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>) => TemplateResult<1>;
+}
+
 interface RelewiseUISettings {
     datasetId: string;
     apiKey: string;
@@ -19,8 +23,9 @@ interface RelewiseUISettings {
         product?: Partial<SelectedProductPropertiesSettings>;
     };
     clientOptions?: RelewiseClientOptions;
-    productTemplate?: (product: ProductResult) => TemplateResult<1>;
+    templates?: Templates
 }
+
 
 export function initializeRelewiseUI(settings: RelewiseUISettings) {
     window.relewiseUISettings = settings;

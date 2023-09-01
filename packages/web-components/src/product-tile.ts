@@ -19,8 +19,8 @@ export class ProductTile extends LitElement {
             return;
         }
         const settings = getRelewiseUISettings(); 
-        if (settings.productTemplate) {
-            return settings.productTemplate(this.product);
+        if (settings.templates?.productTemplate) {
+            return settings.templates.productTemplate(this.product, html);
         }
 
         if (this.product.data && 'Url' in this.product.data) {
