@@ -15,10 +15,10 @@ export class PurchasedWithProduct extends RelewiseProductRecommendationElement {
     @property()
     variantId: string | undefined = undefined;
   
-    fetchProducts(): Promise<ProductRecommendationResponse | undefined> {
+    fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
         if (!this.productId) {
             console.error('No productId provided!')
-            return new Promise(() => undefined);
+            return;
         }
 
         const recommender = getRecommender();

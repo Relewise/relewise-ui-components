@@ -16,7 +16,7 @@ export class PopularProducts extends RelewiseProductRecommendationElement {
     @property()
     basedOn: 'MostPurchased' | 'MostViewed' = 'MostPurchased';
 
-    fetchProducts(): Promise<ProductRecommendationResponse | undefined> {
+    fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
         const recommender = getRecommender();
         const builder = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(settings => new PopularProductsBuilder(settings))
             .sinceMinutesAgo(this.sinceMinutesAgo)

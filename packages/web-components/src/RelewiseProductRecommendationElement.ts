@@ -5,7 +5,7 @@ import './product-tile';
 
 export abstract class RelewiseProductRecommendationElement extends LitElement {
 
-    abstract fetchProducts(): Promise<ProductRecommendationResponse | undefined>;
+    abstract fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined;
 
     @state()
     products: ProductResult[] | null = null;
