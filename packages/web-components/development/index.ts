@@ -1,4 +1,5 @@
 import { UserFactory } from '@relewise/client';
+import { html, nothing } from 'lit';
 import { initializeRelewiseUI } from '../src/index';
 
 initializeRelewiseUI(
@@ -15,6 +16,19 @@ initializeRelewiseUI(
         apiKey: import.meta.env.VITE_API_KEY,
         clientOptions: {
             serverUrl: import.meta.env.VITE_SERVER_URL,
+        },
+        productTemplate: (product) => {
+            return html`
+                <div style="border:1px solid black;">
+                    <div style='height: 5rem'>
+                        <h5>${product.displayName}</h5>
+                        <span>${product.salesPrice} NOK</span>
+                    </div>
+                    ${(product.data && 'ImageUrl' in product.data)
+                        ? html`<div><img src=${product.data['ImageUrl'].value} /></div>`
+                        : nothing}
+                </div>
+        `;
         },
     },
 );
