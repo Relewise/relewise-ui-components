@@ -1,7 +1,7 @@
 import { ProductResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import formatPrice from './util/price';
+import formatPrice from './util/formatPrice';
 import { getRelewiseUISettings } from './initialize';
 
 @customElement('relewise-product-tile')
@@ -19,8 +19,8 @@ export class ProductTile extends LitElement {
             return;
         }
         const settings = getRelewiseUISettings(); 
-        if (settings.templates?.productTemplate) {
-            return settings.templates.productTemplate(this.product, html);
+        if (settings.templates?.product) {
+            return settings.templates.product(this.product, { html, helpers: { formatPrice } });
         }
 
         if (this.product.data && 'Url' in this.product.data) {
