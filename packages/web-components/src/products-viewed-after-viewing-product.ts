@@ -1,10 +1,10 @@
-import { ProductResult, ProductsViewedAfterViewingProductBuilder } from '@relewise/client';
-import { LitElement, html } from 'lit';
-import { property, state } from 'lit/decorators.js';
-import { getRecommender } from './util/recommender';
+import { ProductsViewedAfterViewingProductBuilder } from '@relewise/client';
+import { property } from 'lit/decorators.js';
 import { getProductRecommendationBuilderWithDefaults } from './initialize';
+import { RelewiseUIComponent } from './relewiseUIComponent';
+import { getRecommender } from './util/recommender';
 
-export class ProductsViewedAfterViewingProduct extends LitElement {
+export class ProductsViewedAfterViewingProduct extends RelewiseUIComponent {
 
     @property({ type: Number })
     numberOfRecommendations: number = 5;
@@ -14,23 +14,7 @@ export class ProductsViewedAfterViewingProduct extends LitElement {
 
     @property()
     variantId: string | undefined = undefined;
-
-    @state()
-    products: ProductResult[] | null = null;
-
-    connectedCallback(): void {
-        super.connectedCallback();
-        this.fetchProducts();
-    }
-    
-    render() {
-        if (this.products) {
-            return this.products.map(product =>
-                html`<h1>${product.displayName}</h1>`,
-            )
-        }
-    }
-
+  
     async fetchProducts() {
         if (!this.productId) {
             console.error('No productId provided!')
