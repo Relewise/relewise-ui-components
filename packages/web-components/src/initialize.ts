@@ -11,8 +11,15 @@ interface ContextSettings {
     displayedAtLocation: string;
 }
 
+interface TemplateExtensions {
+    html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>;
+    helpers: {
+        formatPrice: (price: string | number | null | undefined) => string | number | null | undefined;
+    }
+}
+
 interface Templates {
-    productTemplate?: (product: ProductResult, html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>) => TemplateResult<1>;
+    product?: (product: ProductResult, extensions: TemplateExtensions) => TemplateResult<1>;
 }
 
 interface RelewiseUISettings {
@@ -23,7 +30,7 @@ interface RelewiseUISettings {
         product?: Partial<SelectedProductPropertiesSettings>;
     };
     clientOptions?: RelewiseClientOptions;
-    templates?: Templates
+    templates?: Templates;
 }
 
 

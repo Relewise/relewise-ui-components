@@ -18,13 +18,14 @@ initializeRelewiseUI(
             serverUrl: import.meta.env.VITE_SERVER_URL,
         },
         templates: {
-            productTemplate: (product, html) => {
+            product: (product, { html, helpers }) => {
                 return html`
                     <div style="border:1px solid black;">
                         <div style='height: 5rem'>
                             <h5>${product.displayName}</h5>
                             <span>${product.salesPrice} NOK</span>
                         </div>
+                        <div>${helpers.formatPrice(product.salesPrice)}</div>
                         ${(product.data && 'ImageUrl' in product.data)
                             ? html`<div><img src=${product.data['ImageUrl'].value} /></div>`
                             : nothing}
