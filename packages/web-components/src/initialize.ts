@@ -1,4 +1,5 @@
-import { ProductSettingsRecommendationBuilder, RelewiseClientOptions, SelectedProductPropertiesSettings, Settings, User, UserFactory } from '@relewise/client';
+import { ProductResult, ProductSettingsRecommendationBuilder, RelewiseClientOptions, SelectedProductPropertiesSettings, Settings, User, UserFactory } from '@relewise/client';
+import { TemplateResult } from 'lit';
 import { PopularProducts } from '.';
 import { ProductsViewedAfterViewingProduct } from './recommendationElements/products-viewed-after-viewing-product';
 import { PurchasedWithProduct } from './recommendationElements/purchased-with-product';
@@ -18,6 +19,7 @@ interface RelewiseUISettings {
         product?: Partial<SelectedProductPropertiesSettings>;
     };
     clientOptions?: RelewiseClientOptions;
+    productTemplate?: (product: ProductResult) => TemplateResult<1>;
 }
 
 export function initializeRelewiseUI(settings: RelewiseUISettings) {
