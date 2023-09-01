@@ -66,9 +66,12 @@ export function getRelewiseContextSettings(): Settings {
 
 export function getProductRecommendationBuilderWithDefaults<T extends ProductSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T): T {
     const settings = getRelewiseContextSettings();
-    const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = { displayName: true };
+    const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = {
+        displayName: true,
+        pricing: true,
+        dataKeys: ['ImageUrl', 'Url'],
+    };
 
-    return createBuilder(settings).setSelectedProductProperties(
-        getRelewiseUISettings().selectedPropertiesSettings?.product ?? defaultProductProperties,
-    );
+    return createBuilder(settings)
+        .setSelectedProductProperties(getRelewiseUISettings().selectedPropertiesSettings?.product ?? defaultProductProperties);
 }

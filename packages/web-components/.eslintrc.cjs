@@ -12,14 +12,9 @@ module.exports = {
     'root': true,
     'overrides': [
         {
+            'files': ['rollup.config.js', 'web-test-runner-config.js', '.eslintrc.cjs'],
             'env': {
                 'node': true,
-            },
-            'files': [
-                '.eslintrc.{js,cjs}',
-            ],
-            'parserOptions': {
-                'sourceType': 'script',
             },
         },
     ],
@@ -32,7 +27,7 @@ module.exports = {
         '@typescript-eslint',
     ],
     'rules': {
-        indent: ['error', 4, { 'ignoredNodes': ['PropertyDefinition'] }],
+        indent: ['error', 4, { 'ignoredNodes': ['PropertyDefinition', 'TemplateLiteral *'] }],
         'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
         quotes: ['error', 'single'],

@@ -1,13 +1,14 @@
 import { PopularProductsBuilder, ProductResult } from '@relewise/client';
-import { LitElement, html } from 'lit';
+import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { getRecommender } from './recommender';
-import { getProductRecommendationBuilderWithDefaults } from './relewiseUI';
+import './product-tile';
+import { getRecommender } from './util/recommender';
+import { getProductRecommendationBuilderWithDefaults } from './initialize';
 
 export class PopularProducts extends LitElement {
 
     @property({ type: Number })
-    sinceMinutesAgo: number = 20160 ; // 14 days
+    sinceMinutesAgo: number = 20160; // 14 days
 
     @property({ type: Number })
     numberOfRecommendations: number = 5;
@@ -17,6 +18,21 @@ export class PopularProducts extends LitElement {
 
     @state()
     products: ProductResult[] | null = null;
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.fetchProducts();
+    }
+
+    render() {
+        if (this.products) {
+            return html`<div class="grid">
+                ${this.products.map(product =>
+                    html`<relewise-product-tile .product=${product}></relewise-product-tile>`)
+                }
+            </div>`
+        }
+    }
 
     async fetchProducts() {
         const recommender = getRecommender();
@@ -29,18 +45,19 @@ export class PopularProducts extends LitElement {
         this.products = result?.recommendations ?? null;
     }
 
-    connectedCallback(): void {
-        super.connectedCallback();
-        this.fetchProducts();
-    }
-
-    render() {
-        if (this.products) {
-            return this.products.map(product =>
-                html`<h1>${product.displayName}</h1>`,
-            )
+    static styles = css`
+        .grid {
+            display: grid;
+            grid-template-columns: var(--relewise-grid-template-columns, repeat(5,1fr));
+            gap: .75rem;
+            grid-auto-rows: 1fr;
         }
-    }
+
+        @media screen and (max-width:768px) {
+            .grid {
+                grid-template-columns:var(--relewise-mobile-grid-template-columns, repeat(2,1fr));
+            }
+        }`;
 }
 
 declare global {
