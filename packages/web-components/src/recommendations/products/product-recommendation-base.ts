@@ -1,9 +1,8 @@
 import { ProductRecommendationResponse, ProductResult } from '@relewise/client';
 import { LitElement, css, html } from 'lit';
 import { state } from 'lit/decorators.js';
-import './product-tile';
 
-export abstract class RelewiseProductRecommendationElement extends LitElement {
+export abstract class ProductRecommendationBase extends LitElement {
 
     abstract fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined;
 
@@ -34,7 +33,7 @@ export abstract class RelewiseProductRecommendationElement extends LitElement {
             grid-auto-rows: 1fr;
         }
 
-        @media screen and (max-width:768px) {
+        @media screen and (max-width: 768px) {
             .grid {
                 grid-template-columns:var(--relewise-mobile-grid-template-columns, repeat(2,1fr));
             }

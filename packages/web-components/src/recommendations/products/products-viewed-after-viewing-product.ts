@@ -1,10 +1,10 @@
 import { ProductRecommendationResponse, ProductsViewedAfterViewingProductBuilder } from '@relewise/client';
 import { property } from 'lit/decorators.js';
-import { RelewiseProductRecommendationElement } from '../RelewiseProductRecommendationElement';
-import { getProductRecommendationBuilderWithDefaults } from '../initialize';
-import { getRecommender } from '../util/recommender';
+import { getProductRecommendationBuilderWithDefaults } from '../../initialize';
+import { getRecommender } from '../recommender';
+import { ProductRecommendationBase } from './product-recommendation-base';
 
-export class ProductsViewedAfterViewingProduct extends RelewiseProductRecommendationElement {
+export class ProductsViewedAfterViewingProduct extends ProductRecommendationBase {
     
     @property({ type: Number })
     numberOfRecommendations: number = 5;
