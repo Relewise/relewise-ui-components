@@ -1,4 +1,4 @@
-import { PurchasedWithProductBuilder } from '@relewise/client';
+import { ProductRecommendationResponse, PurchasedWithProductBuilder } from '@relewise/client';
 import { property } from 'lit/decorators.js';
 import { getProductRecommendationBuilderWithDefaults } from '../initialize';
 import { RelewiseProductRecommendationElement } from '../RelewiseProductRecommendationElement';
@@ -15,10 +15,10 @@ export class PurchasedWithProduct extends RelewiseProductRecommendationElement {
     @property()
     variantId: string | undefined = undefined;
   
-    async fetchProducts() {
+    fetchProducts(): Promise<ProductRecommendationResponse | undefined> {
         if (!this.productId) {
             console.error('No productId provided!')
-            return;
+            return new Promise(() => undefined);
         }
 
         const recommender = getRecommender();
@@ -29,8 +29,7 @@ export class PurchasedWithProduct extends RelewiseProductRecommendationElement {
             })
             .setNumberOfRecommendations(this.numberOfRecommendations);
 
-        const result = await recommender.recommendPurchasedWithProduct(builder.build());
-        this.products = result?.recommendations ?? null;
+        return recommender.recommendPurchasedWithProduct(builder.build());
     }
 }
 

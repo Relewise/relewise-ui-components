@@ -1,18 +1,19 @@
-import { ProductResult } from '@relewise/client';
+import { ProductRecommendationResponse, ProductResult } from '@relewise/client';
 import { LitElement, css, html } from 'lit';
 import { state } from 'lit/decorators.js';
 import './product-tile';
 
 export abstract class RelewiseProductRecommendationElement extends LitElement {
 
-    abstract fetchProducts(): void;
+    abstract fetchProducts(): Promise<ProductRecommendationResponse | undefined>;
 
     @state()
     products: ProductResult[] | null = null;
 
-    connectedCallback(): void {
+    async connectedCallback() {
         super.connectedCallback();
-        this.fetchProducts();
+        const result = await this.fetchProducts();
+        this.products = result?.recommendations ?? null;
     }
 
     render() {
