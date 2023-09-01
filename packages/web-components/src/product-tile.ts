@@ -40,7 +40,7 @@ export class ProductTile extends LitElement {
             <div class='information-container'>
                 <h5 class="display-name">${product.displayName}</h5>
                 <div class='price'>
-                    <p>${formatPrice(product.salesPrice)}</p>
+                    <span>${formatPrice(product.salesPrice)}</span>
 
                     ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
                         ? html`<span class='list-price'>${formatPrice(product.listPrice)}</span>`
@@ -52,7 +52,6 @@ export class ProductTile extends LitElement {
 
     static styles = css`
         .tile {
-            border-radius: .25rem;
             display: flex;
             flex-direction: column;
             position: relative;
@@ -65,20 +64,15 @@ export class ProductTile extends LitElement {
         img {
             max-width: 100%;
             height: auto;
-            padding: .25rem
         }
 
         .image-container {
             display: flex;
             position: relative;
-            margin: .75rem;
         }
 
         .information-container {
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-            text-align: left;
-            position: relative;
+            margin-top: 0.5rem;
         }
 
         .object-cover {
@@ -86,6 +80,7 @@ export class ProductTile extends LitElement {
         }
 
         .price {
+            margin-top: 0.5rem;
             color: var(--relewise-price-color, #212427);
             line-height: 1;
             font-weight: 600;

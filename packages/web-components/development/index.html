@@ -6,6 +6,17 @@
   <title>Web components</title>
 </head>
 <style>
+  .wrapper {
+    padding: 0 40px;
+    padding-bottom: 40px;
+    display: flex;
+    flex: auto;
+    flex-direction: column;
+    gap: 80px;
+  }
+
+  .recommendation-block {}
+
   :root {
     /* --relewise-display-name-color: blue;
     --relewise-price-color: #212427;
@@ -22,7 +33,23 @@
 
 <body>
   <script type="module" src="index.ts"></script>
-  <relewise-popular-products basedOn="MostViewed" numberOfRecommendations="10"></relewise-popular-products>
+
+  <div class="wrapper">
+    <div class="recommendation-block">
+      <h2>Popular Products</h2>
+      <relewise-popular-products basedOn="MostViewed" numberOfRecommendations="10"></relewise-popular-products>
+    </div>
+
+    <div class="recommendation-block">
+      <h2>Products Viewed after viewing</h2>
+      <relewise-products-viewed-after-viewing-product productId="1922"></relewise-products-viewed-after-viewing-product>
+    </div>
+
+    <div class="recommendation-block">
+      <h2>Purchased with</h2>
+      <relewise-purchased-with-product productId="1922"></relewise-purchased-with-product>
+    </div>
+  </div>
 </body>
 
 </html>
