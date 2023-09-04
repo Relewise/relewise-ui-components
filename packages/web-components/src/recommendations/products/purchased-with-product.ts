@@ -1,13 +1,10 @@
 import { ProductRecommendationResponse, PurchasedWithProductBuilder } from '@relewise/client';
 import { property } from 'lit/decorators.js';
-import { getProductRecommendationBuilderWithDefaults } from '../initialize';
-import { RelewiseProductRecommendationElement } from '../RelewiseProductRecommendationElement';
-import { getRecommender } from '../util/recommender';
+import { getProductRecommendationBuilderWithDefaults } from '../../initialize';
+import { getRecommender } from '../recommender';
+import { ProductRecommendationBase } from './product-recommendation-base';
 
-export class PurchasedWithProduct extends RelewiseProductRecommendationElement {
-
-    @property({ type: Number })
-    numberOfRecommendations: number = 5;
+export class PurchasedWithProduct extends ProductRecommendationBase {
 
     @property()
     productId: string | undefined = undefined;

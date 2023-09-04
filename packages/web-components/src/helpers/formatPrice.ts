@@ -1,6 +1,6 @@
 import { getRelewiseContextSettings } from '../initialize';
 
-export default function formatPrice(price: string | number | null | undefined) {
+export default function formatPrice(price: string | number | null | undefined): string | number | null | undefined {
 
     if (!price) {
         return '';

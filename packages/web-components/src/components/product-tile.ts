@@ -1,7 +1,8 @@
 import { ProductResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import formatPrice from './util/price';
+import formatPrice from '../helpers/formatPrice';
+import { getRelewiseUIOptions } from '../initialize';
 
 @customElement('relewise-product-tile')
 export class ProductTile extends LitElement {
@@ -17,16 +18,20 @@ export class ProductTile extends LitElement {
         if (!this.product) {
             return;
         }
+        const settings = getRelewiseUIOptions(); 
+        if (settings.templates?.product) {
+            return settings.templates.product(this.product, { html, helpers: { formatPrice } });
+        }
 
         if (this.product.data && 'Url' in this.product.data) {
             return html`
-                <a class='tile' href=${this.product.data['Url'].value ?? ''}>
+                <a class='rw-tile' href=${this.product.data['Url'].value ?? ''}>
                     ${this.renderTileContent(this.product)}
                 </a>`;
         }
 
         return html`
-            <div class='tile'>
+            <div class='rw-tile'>
                 ${this.renderTileContent(this.product)}
             </div>`;
     }
@@ -34,16 +39,16 @@ export class ProductTile extends LitElement {
     renderTileContent(product: ProductResult) {
         return html`
             ${(product.data && 'ImageUrl' in product.data)
-                ? html`<div class="image-container"><img class="object-cover" src=${product.data['ImageUrl'].value} /></div>`
+                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${product.data['ImageUrl'].value} /></div>`
                 : nothing
             }
             <div class='information-container'>
-                <h5 class="display-name">${product.displayName}</h5>
-                <div class='price'>
+                <h5 class='rw-display-name'>${product.displayName}</h5>
+                <div class='rw-price'>
                     <span>${formatPrice(product.salesPrice)}</span>
 
                     ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
-                        ? html`<span class='list-price'>${formatPrice(product.listPrice)}</span>`
+                        ? html`<span class='rw-list-price'>${formatPrice(product.listPrice)}</span>`
                         : nothing
                     }
                 </div>
@@ -51,7 +56,7 @@ export class ProductTile extends LitElement {
     }
 
     static styles = css`
-        .tile {
+        .rw-tile {
             display: flex;
             flex-direction: column;
             position: relative;
@@ -60,47 +65,44 @@ export class ProductTile extends LitElement {
             height: 100%;
             font-family: Arial, Helvetica, sans-serif;
         }
-        
-        img {
-            max-width: 100%;
-            height: auto;
-        }
 
-        .image-container {
+        .rw-image-container {
             display: flex;
             position: relative;
         }
 
-        .information-container {
+        .rw-information-container {
             margin-top: 0.5rem;
         }
 
-        .object-cover {
+        .rw-object-cover {
+            max-width: 100%;
+            height: auto;
             object-fit: cover;
         }
 
-        .price {
+        .rw-price {
             margin-top: 0.5rem;
             color: var(--relewise-price-color, #212427);
             line-height: 1;
             font-weight: 600;
-            font-size: var(--relewise-price-font-size, 1.5rem);
+            font-size: var(--relewise-price-font-size, 1rem);
             align-items: center;
             display: flex;
         }
 
-        .display-name {
+        .rw-display-name {
             color: var(--relewise-display-name-color, #212427);
             letter-spacing: -0.025rem;
             line-height: 1.25;
             font-weight: 600;
-            font-size: var(--relewise-display-name-font-size, 1.25rem);
+            font-size: var(--relewise-display-name-font-size, 0.75rem);
             margin-top: 0rem;
             margin-bottom: 0rem;
         }
 
-        .list-price {
-            font-size: 1rem;
+        .rw-list-price {
+            font-size: .5rem;
             text-decoration: var(--relewise-list-price-text-decoration, line-through);
             color: var(--relewise-list-price-color, darkgray);
             margin: .25rem;
