@@ -1,7 +1,7 @@
 import { UserFactory } from '@relewise/client';
-import { RelewiseUISettings } from '../../src/initialize';
+import { RelewiseUIOptions } from '../../src/initialize';
 
-export function integrationTestRelewiseSettings(): RelewiseUISettings {
+export function integrationTestRelewiseSettings(): RelewiseUIOptions {
     const { INTEGRATION_TEST_DATASET_ID: datasetId, INTEGRATION_TEST_API_KEY: apiKey } = process.env;
 
     return {
