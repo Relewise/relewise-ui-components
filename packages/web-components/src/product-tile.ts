@@ -65,11 +65,6 @@ export class ProductTile extends LitElement {
             height: 100%;
             font-family: Arial, Helvetica, sans-serif;
         }
-        
-        img {
-            max-width: 100%;
-            height: auto;
-        }
 
         .image-container {
             display: flex;
@@ -81,6 +76,8 @@ export class ProductTile extends LitElement {
         }
 
         .object-cover {
+            max-width: 100%;
+            height: auto;
             object-fit: cover;
         }
 
@@ -89,7 +86,7 @@ export class ProductTile extends LitElement {
             color: var(--relewise-price-color, #212427);
             line-height: 1;
             font-weight: 600;
-            font-size: var(--relewise-price-font-size, 1.5rem);
+            font-size: var(--relewise-price-font-size, 1rem);
             align-items: center;
             display: flex;
         }
@@ -99,13 +96,13 @@ export class ProductTile extends LitElement {
             letter-spacing: -0.025rem;
             line-height: 1.25;
             font-weight: 600;
-            font-size: var(--relewise-display-name-font-size, 1.25rem);
+            font-size: var(--relewise-display-name-font-size, 0.75rem);
             margin-top: 0rem;
             margin-bottom: 0rem;
         }
 
         .list-price {
-            font-size: 1rem;
+            font-size: .5rem;
             text-decoration: var(--relewise-list-price-text-decoration, line-through);
             color: var(--relewise-list-price-color, darkgray);
             margin: .25rem;
