@@ -26,15 +26,15 @@ export abstract class ProductRecommendationBase extends LitElement {
     }
 
     static styles = css`
-        .grid {
+        .rw-grid {
             display: grid;
             grid-template-columns: var(--relewise-grid-template-columns, repeat(5,1fr));
             gap: 1rem;
             grid-auto-rows: 1fr;
         }
 
-        @media screen and (max-width: 768px) {
-            .grid {
+        @media (max-width: 768px) {
+            .rw-grid {
                 grid-template-columns:var(--relewise-mobile-grid-template-columns, repeat(2,1fr));
             }
         }`;

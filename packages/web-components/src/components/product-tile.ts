@@ -56,7 +56,7 @@ export class ProductTile extends LitElement {
     }
 
     static styles = css`
-        .tile {
+        .rw-tile {
             display: flex;
             flex-direction: column;
             position: relative;
@@ -66,22 +66,22 @@ export class ProductTile extends LitElement {
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        .image-container {
+        .rw-image-container {
             display: flex;
             position: relative;
         }
 
-        .information-container {
+        .rw-information-container {
             margin-top: 0.5rem;
         }
 
-        .object-cover {
+        .rw-object-cover {
             max-width: 100%;
             height: auto;
             object-fit: cover;
         }
 
-        .price {
+        .rw-price {
             margin-top: 0.5rem;
             color: var(--relewise-price-color, #212427);
             line-height: 1;
@@ -91,7 +91,7 @@ export class ProductTile extends LitElement {
             display: flex;
         }
 
-        .display-name {
+        .rw-display-name {
             color: var(--relewise-display-name-color, #212427);
             letter-spacing: -0.025rem;
             line-height: 1.25;
@@ -101,7 +101,7 @@ export class ProductTile extends LitElement {
             margin-bottom: 0rem;
         }
 
-        .list-price {
+        .rw-list-price {
             font-size: .5rem;
             text-decoration: var(--relewise-list-price-text-decoration, line-through);
             color: var(--relewise-list-price-color, darkgray);
