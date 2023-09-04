@@ -9,9 +9,6 @@ export class PopularProducts extends ProductRecommendationBase {
     @property({ type: Number })
     sinceMinutesAgo: number = 20160; // 14 days
 
-    @property({ type: Number })
-    numberOfRecommendations: number = 5;
-
     @property()
     basedOn: 'MostPurchased' | 'MostViewed' = 'MostPurchased';
 

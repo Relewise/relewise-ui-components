@@ -25,13 +25,13 @@ export class ProductTile extends LitElement {
 
         if (this.product.data && 'Url' in this.product.data) {
             return html`
-                <a class='tile' href=${this.product.data['Url'].value ?? ''}>
+                <a class='rw-tile' href=${this.product.data['Url'].value ?? ''}>
                     ${this.renderTileContent(this.product)}
                 </a>`;
         }
 
         return html`
-            <div class='tile'>
+            <div class='rw-tile'>
                 ${this.renderTileContent(this.product)}
             </div>`;
     }
@@ -39,16 +39,16 @@ export class ProductTile extends LitElement {
     renderTileContent(product: ProductResult) {
         return html`
             ${(product.data && 'ImageUrl' in product.data)
-                ? html`<div class="image-container"><img class="object-cover" src=${product.data['ImageUrl'].value} /></div>`
+                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${product.data['ImageUrl'].value} /></div>`
                 : nothing
             }
             <div class='information-container'>
-                <h5 class="display-name">${product.displayName}</h5>
-                <div class='price'>
+                <h5 class='rw-display-name'>${product.displayName}</h5>
+                <div class='rw-price'>
                     <span>${formatPrice(product.salesPrice)}</span>
 
                     ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
-                        ? html`<span class='list-price'>${formatPrice(product.listPrice)}</span>`
+                        ? html`<span class='rw-list-price'>${formatPrice(product.listPrice)}</span>`
                         : nothing
                     }
                 </div>

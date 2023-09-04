@@ -1,10 +1,13 @@
 import { ProductRecommendationResponse, ProductResult } from '@relewise/client';
 import { LitElement, css, html } from 'lit';
-import { state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 
 export abstract class ProductRecommendationBase extends LitElement {
 
     abstract fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined;
+    
+    @property({ type: Number })
+    numberOfRecommendations: number = 4;
 
     @state()
     products: ProductResult[] | null = null;
@@ -17,7 +20,7 @@ export abstract class ProductRecommendationBase extends LitElement {
 
     render() {
         if (this.products) {
-            return html`<div class="grid">
+            return html`<div class="rw-grid">
                 ${this.products.map(product =>
                     html`<relewise-product-tile .product=${product}></relewise-product-tile>`)
                 }

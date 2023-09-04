@@ -6,9 +6,6 @@ import { ProductRecommendationBase } from './product-recommendation-base';
 
 export class ProductsViewedAfterViewingProduct extends ProductRecommendationBase {
     
-    @property({ type: Number })
-    numberOfRecommendations: number = 5;
-
     @property()
     productId: string | undefined = undefined;
 

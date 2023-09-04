@@ -1,5 +1,4 @@
 import { UserFactory } from '@relewise/client';
-import { nothing } from 'lit';
 import { initializeRelewiseUI } from '../src/index';
 
 initializeRelewiseUI(
