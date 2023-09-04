@@ -3,11 +3,10 @@ import { PopularProductsBuilder, UserFactory } from '@relewise/client';
 import { initializeRelewiseUI } from '../src';
 import { defaultProductProperties } from '../src/defaultProductProperties';
 import { getProductRecommendationBuilderWithDefaults, getRelewiseContextSettings, getRelewiseUIOptions } from '../src/initialize';
-import { mockRelewiseOptions } from './util/mockRelewiseUISettings';
+import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('initialize', () => {
     test('initializeRelewiseUI sets values on window', () => {
-
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
     
@@ -39,7 +38,7 @@ suite('initialize', () => {
         assert.Throw(() =>  getRelewiseUIOptions());
     });
     
-    test('getRelewiseUIOptions when no api context Options found', () => {
+    test('getRelewiseUIOptions when no api context settings found', () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
     
@@ -49,7 +48,6 @@ suite('initialize', () => {
     });
     
     test('getRelewiseUIOptions finds correct Options', () => {
-    
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
         const result = getRelewiseUIOptions();
@@ -58,8 +56,7 @@ suite('initialize', () => {
         assert.deepEqual(result, mockedRelewiseOptions);
     });
     
-    test('getRelewiseContextOptions finds correct context Options', () => {
-    
+    test('getRelewiseContextOptions finds correct context settings', () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
     
@@ -76,7 +73,7 @@ suite('initialize', () => {
         assert.deepEqual(result, expected);
     });
     
-    test('getProductRecommendationBuilderWithDefaults returns builder with defaults if no selectedPropertiesOptions provided', () => {
+    test('getProductRecommendationBuilderWithDefaults returns builder with defaults if no selectedPropertiesSettings provided', () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         mockedRelewiseOptions.selectedPropertiesSettings = undefined!;
         initializeRelewiseUI(mockedRelewiseOptions);
@@ -88,7 +85,7 @@ suite('initialize', () => {
         assert.deepEqual(expected, result)
     });
     
-    test('getProductRecommendationBuilderWithDefaults returns builder with Options from initializeRelewiseUI', () => {
+    test('getProductRecommendationBuilderWithDefaults returns builder with options from initializeRelewiseUI', () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
     

@@ -1,6 +1,6 @@
 import { assert, fixture, html, waitUntil } from '@open-wc/testing';
 import { PopularProducts, initializeRelewiseUI } from '../src';
-import { mockRelewiseOptions } from './util/mockRelewiseUISettings';
+import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 import { integrationTestRelewiseSettings } from './util/testRelewiseUISettings';
 
 suite('relewise-popular-products', () => {
