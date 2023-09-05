@@ -9,7 +9,7 @@ export default [
     {
         input: 'src/index.ts',
         output: {
-            name: 'Relewise-Web-Components',
+            name: 'RelewiseWebComponents',
             file: pkg.browser,
             format: 'umd',
             sourcemap: 'inline',
@@ -30,7 +30,7 @@ export default [
             { 
                 file: 'dist/relewise-web-components.min.js',
                 format: 'umd',
-                name: 'Relewise-Web-Components',
+                name: 'RelewiseWebComponents',
                 plugins: [resolve(), terser()],
             },
         ],

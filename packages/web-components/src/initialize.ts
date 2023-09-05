@@ -7,7 +7,7 @@ import { RelewiseUIOptions } from './relewiseUIOptions';
 
 export function initializeRelewiseUI(options: RelewiseUIOptions) {
     window.relewiseUIOptions = options;
-
+    
     tryRegisterElement('relewise-popular-products', PopularProducts);
     tryRegisterElement('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);
     tryRegisterElement('relewise-purchased-with-product', PurchasedWithProduct);
