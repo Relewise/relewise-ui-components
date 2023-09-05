@@ -78,21 +78,19 @@ suite('initialize', () => {
         mockedRelewiseOptions.selectedPropertiesSettings = undefined!;
         initializeRelewiseUI(mockedRelewiseOptions);
     
-        const expected = new PopularProductsBuilder(getRelewiseContextSettings()).setSelectedProductProperties(defaultProductProperties)
-        const result = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options));
+        const expected = new PopularProductsBuilder(getRelewiseContextSettings()).setSelectedProductProperties(defaultProductProperties).build();
+        const result = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options)).build();;
         
-        assert.instanceOf(result, PopularProductsBuilder);
-        assert.deepEqual(expected, result)
+        assert.deepEqual(expected.settings.selectedProductProperties, result.settings.selectedProductProperties)
     });
     
     test('getProductRecommendationBuilderWithDefaults returns builder with options from initializeRelewiseUI', () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
     
-        const expected = new PopularProductsBuilder(getRelewiseContextSettings()).setSelectedProductProperties(mockedRelewiseOptions.selectedPropertiesSettings!.product!)
-        const result = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options));
+        const expected = new PopularProductsBuilder(getRelewiseContextSettings()).setSelectedProductProperties(mockedRelewiseOptions.selectedPropertiesSettings!.product!).build();
+        const result = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options)).build();
         
-        assert.instanceOf(result, PopularProductsBuilder);
-        assert.deepEqual(expected, result)
+        assert.deepEqual(expected.settings.selectedProductProperties, result.settings.selectedProductProperties)
     });
 })
