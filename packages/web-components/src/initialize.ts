@@ -1,4 +1,4 @@
-import { FilterBuilder, ProductResult, RelewiseClientOptions, SelectedProductPropertiesSettings, User, UserFactory } from '@relewise/client';
+import { FilterBuilder, ProductResult, ProductSettingsRecommendationBuilder, RelewiseClientOptions, SelectedProductPropertiesSettings, Settings, User, UserFactory } from '@relewise/client';
 import { TemplateResult } from 'lit';
 import { PopularProducts } from './recommendations/products/popular-products';
 import { ProductsViewedAfterViewingProduct } from './recommendations/products/products-viewed-after-viewing-product';
