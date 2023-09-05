@@ -1,8 +1,9 @@
 import { ProductRecommendationResponse, ProductsViewedAfterViewingProductBuilder } from '@relewise/client';
 import { property } from 'lit/decorators.js';
-import { getProductRecommendationBuilderWithDefaults } from '../../initialize';
 import { getRecommender } from '../recommender';
 import { ProductRecommendationBase } from './product-recommendation-base';
+import {  getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
+import { getProductRecommendationBuilderWithDefaults } from '../../builders/productRecommendationBuilder';
 
 export class ProductsViewedAfterViewingProduct extends ProductRecommendationBase {
     
@@ -18,7 +19,7 @@ export class ProductsViewedAfterViewingProduct extends ProductRecommendationBase
             return;
         }
 
-        const recommender = getRecommender();
+        const recommender = getRecommender(getRelewiseUIOptions());
         const builder = getProductRecommendationBuilderWithDefaults<ProductsViewedAfterViewingProductBuilder>(settings => new ProductsViewedAfterViewingProductBuilder(settings))
             .product({
                 productId: this.productId,

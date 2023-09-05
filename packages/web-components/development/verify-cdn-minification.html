@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <title>Web components</title>
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/@relewise/client/dist/relewise.min.js"></script>
+    <script src="../dist/relewise-web-components.min.js"></script>
+    <script type="module">
+        RelewiseWebComponents.initializeRelewiseUI(
+            {
+                contextSettings: {
+                    getUser: () => {
+                        return Relewise.UserFactory.anonymous();
+                    },
+                    language: import.meta.env.VITE_LANGUAGE,
+                    currency: import.meta.env.VITE_CURRENCY,
+                    displayedAtLocation: 'Relewise Web Components',
+                },
+                datasetId: import.meta.env.VITE_DATASET_ID,
+                apiKey: import.meta.env.VITE_API_KEY,
+                clientOptions: {
+                    serverUrl: import.meta.env.VITE_SERVER_URL,
+                },
+            },
+        );
+    </script>
+    <div class="wrapper">
+        <div class="recommendation-block">
+            <h2>Popular Products</h2>
+            <relewise-popular-products basedOn="MostViewed" numberOfRecommendations="10"></relewise-popular-products>
+        </div>
+
+        <div class="recommendation-block">
+            <h2>Products Viewed after viewing</h2>
+            <relewise-products-viewed-after-viewing-product
+                productId="1922"></relewise-products-viewed-after-viewing-product>
+        </div>
+
+        <div class="recommendation-block">
+            <h2>Purchased with</h2>
+            <relewise-purchased-with-product productId="1922"></relewise-purchased-with-product>
+        </div>
+    </div>
+</body>
+
+</html>

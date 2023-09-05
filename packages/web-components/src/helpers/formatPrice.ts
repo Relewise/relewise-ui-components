@@ -1,4 +1,4 @@
-import { getRelewiseContextSettings } from '../initialize';
+import { getRelewiseContextSettings } from './relewiseUIOptions';
 
 export default function formatPrice(price: string | number | null | undefined): string | number | null | undefined {
 
