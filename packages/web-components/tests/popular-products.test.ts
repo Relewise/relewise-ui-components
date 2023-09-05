@@ -1,7 +1,7 @@
 import { assert, fixture, html, waitUntil } from '@open-wc/testing';
 import { PopularProducts, initializeRelewiseUI } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
-import { integrationTestRelewiseSettings } from './util/testRelewiseUISettings';
+import { integrationTestRelewiseOptions } from './util/testRelewiseUIOptions';
 
 suite('relewise-popular-products', () => {
     test('is not intance of when relewise not instantiated', async() => {
@@ -25,7 +25,7 @@ suite('relewise-popular-products', () => {
     test('renders numberOfRecommendations', async() => {
         const numberOfRecommendations = 10;
 
-        initializeRelewiseUI(integrationTestRelewiseSettings());
+        initializeRelewiseUI(integrationTestRelewiseOptions());
         const el = await fixture(html`<relewise-popular-products numberOfRecommendations=${numberOfRecommendations}></relewise-popular-products>`) as PopularProducts;
         
         await waitUntil(
