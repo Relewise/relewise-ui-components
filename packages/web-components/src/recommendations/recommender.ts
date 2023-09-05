@@ -1,5 +1,5 @@
 import { Recommender } from '@relewise/client';
-import { RelewiseUIOptions } from '..';
+import { RelewiseUIOptions } from '../initialize';
 
 export function getRecommender(options: RelewiseUIOptions) {
     return new Recommender(

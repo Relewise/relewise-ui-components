@@ -2,7 +2,8 @@ import { PopularProductsBuilder, ProductRecommendationResponse } from '@relewise
 import { property } from 'lit/decorators.js';
 import { getRecommender } from '../recommender';
 import { ProductRecommendationBase } from './product-recommendation-base';
-import { getProductRecommendationBuilderWithDefaults, getRelewiseUIOptions } from '../../relewiseUIOptions';
+import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
+import { getProductRecommendationBuilderWithDefaults } from '../../builders/productRecommendationBuilder';
 
 export class PopularProducts extends ProductRecommendationBase {
 

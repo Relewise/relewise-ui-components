@@ -2,7 +2,7 @@ import { ProductResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
-import { getRelewiseUIOptions } from '../relewiseUIOptions';
+import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 
 @customElement('relewise-product-tile')
 export class ProductTile extends LitElement {

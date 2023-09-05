@@ -1,9 +1,37 @@
-import { FilterBuilder, ProductResult, ProductSettingsRecommendationBuilder, RelewiseClientOptions, SelectedProductPropertiesSettings, Settings, User, UserFactory } from '@relewise/client';
+import { ProductResult, RelewiseClientOptions, SelectedProductPropertiesSettings, User, UserFactory } from '@relewise/client';
 import { TemplateResult } from 'lit';
 import { PopularProducts } from './recommendations/products/popular-products';
 import { ProductsViewedAfterViewingProduct } from './recommendations/products/products-viewed-after-viewing-product';
 import { PurchasedWithProduct } from './recommendations/products/purchased-with-product';
-import { RelewiseUIOptions } from './relewiseUIOptions';
+
+export interface RelewiseUIOptions {
+    datasetId: string;
+    apiKey: string;
+    contextSettings: ContextSettings;
+    selectedPropertiesSettings?: {
+        product?: Partial<SelectedProductPropertiesSettings>;
+    };
+    clientOptions?: RelewiseClientOptions;
+    templates?: Templates;
+}
+
+interface ContextSettings {
+    getUser: (userFactory: UserFactory) => User;
+    language: string;
+    currency: string;
+    displayedAtLocation: string;
+}
+
+interface TemplateExtensions {
+    html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>;
+    helpers: {
+        formatPrice: (price: string | number | null | undefined) => string | number | null | undefined;
+    }
+}
+
+interface Templates {
+    product?: (product: ProductResult, extensions: TemplateExtensions) => TemplateResult<1>;
+}
 
 export function initializeRelewiseUI(options: RelewiseUIOptions) {
     window.relewiseUIOptions = options;
