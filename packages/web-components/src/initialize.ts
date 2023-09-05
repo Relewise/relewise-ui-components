@@ -53,43 +53,6 @@ function tryRegisterElement(name: string, constructor: CustomElementConstructor)
     }
 }
 
-export function getRelewiseUIOptions(): RelewiseUIOptions {
-    const options = window.relewiseUIOptions;
-
-    if (!options ||
-        !options.datasetId ||
-        !options.apiKey ||
-        !options.contextSettings) {
-        throw new Error('Relewise UI not correctly configured');
-    }
-
-    return options;
-}
-
-export function getRelewiseContextSettings(): Settings {
-    const contextSettings = getRelewiseUIOptions().contextSettings;
-
-    return {
-        currency: contextSettings.currency,
-        displayedAtLocation: contextSettings.displayedAtLocation,
-        language: contextSettings.language,
-        user: contextSettings.getUser(UserFactory),
-    }
-}
-
-export function getProductRecommendationBuilderWithDefaults<T extends ProductSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T): T {
-    const settings = getRelewiseContextSettings();
-    const relewiseUIOptions = getRelewiseUIOptions();
-
-    return createBuilder(settings)
-        .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
-        .filters(builder => {
-            if (relewiseUIOptions.filters?.product) {
-                relewiseUIOptions.filters.product(builder);
-            }
-        });
-}
-
 declare global {
     interface Window {
         relewiseUIOptions: RelewiseUIOptions;

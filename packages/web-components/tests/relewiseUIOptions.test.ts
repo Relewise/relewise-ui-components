@@ -1,18 +1,9 @@
 import { assert } from '@esm-bundle/chai';
-import { PopularProductsBuilder, UserFactory } from '@relewise/client';
-import { getProductRecommendationBuilderWithDefaults, getRelewiseContextSettings, getRelewiseUIOptions, initializeRelewiseUI } from '../src';
-import { defaultProductProperties } from '../src/defaultProductProperties';
+import { UserFactory } from '@relewise/client';
+import { getRelewiseContextSettings, getRelewiseUIOptions, initializeRelewiseUI } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
-suite('initialize', () => {
-    test('initializeRelewiseUI sets values on window', () => {
-        const mockedRelewiseOptions = mockRelewiseOptions();
-        initializeRelewiseUI(mockedRelewiseOptions);
-    
-        assert.isDefined(window.relewiseUIOptions);
-        assert.deepEqual(window.relewiseUIOptions, mockedRelewiseOptions);
-    });
-    
+suite('relewiseUIOptions', () => {
     test('getRelewiseUIOptions throws error when ui not initialized', () => {
         window.relewiseUIOptions = undefined!;
 
@@ -70,26 +61,5 @@ suite('initialize', () => {
     
         assert.isDefined(result);
         assert.deepEqual(result, expected);
-    });
-    
-    test('getProductRecommendationBuilderWithDefaults returns builder with defaults if no selectedPropertiesSettings provided', () => {
-        const mockedRelewiseOptions = mockRelewiseOptions();
-        mockedRelewiseOptions.selectedPropertiesSettings = undefined!;
-        initializeRelewiseUI(mockedRelewiseOptions);
-    
-        const expected = new PopularProductsBuilder(getRelewiseContextSettings()).setSelectedProductProperties(defaultProductProperties).build();
-        const result = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options)).build();;
-        
-        assert.deepEqual(expected.settings.selectedProductProperties, result.settings.selectedProductProperties)
-    });
-    
-    test('getProductRecommendationBuilderWithDefaults returns builder with options from initializeRelewiseUI', () => {
-        const mockedRelewiseOptions = mockRelewiseOptions();
-        initializeRelewiseUI(mockedRelewiseOptions);
-    
-        const expected = new PopularProductsBuilder(getRelewiseContextSettings()).setSelectedProductProperties(mockedRelewiseOptions.selectedPropertiesSettings!.product!).build();
-        const result = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options)).build();
-        
-        assert.deepEqual(expected.settings.selectedProductProperties, result.settings.selectedProductProperties)
     });
 })

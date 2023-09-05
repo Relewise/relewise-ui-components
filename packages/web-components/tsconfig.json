@@ -33,6 +33,7 @@
     "src",
     "development/vite-env.d.ts",
     ".src/types",
-    "vite/client"
+    "vite/client",
+    "tests"
   ]
 }
