@@ -1,8 +1,8 @@
 import { PopularProductsBuilder, ProductRecommendationResponse } from '@relewise/client';
 import { property } from 'lit/decorators.js';
-import { getProductRecommendationBuilderWithDefaults } from '../../initialize';
 import { getRecommender } from '../recommender';
 import { ProductRecommendationBase } from './product-recommendation-base';
+import { getProductRecommendationBuilderWithDefaults, getRelewiseUIOptions } from '../../relewiseUIOptions';
 
 export class PopularProducts extends ProductRecommendationBase {
 
@@ -13,8 +13,7 @@ export class PopularProducts extends ProductRecommendationBase {
     basedOn: 'MostPurchased' | 'MostViewed' = 'MostPurchased';
 
     fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
-        const recommender = getRecommender();
-
+        const recommender = getRecommender(getRelewiseUIOptions());
         const builder = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(settings => new PopularProductsBuilder(settings))
             .sinceMinutesAgo(this.sinceMinutesAgo)
             .basedOn(this.basedOn)

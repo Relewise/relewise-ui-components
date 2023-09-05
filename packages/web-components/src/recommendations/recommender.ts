@@ -1,11 +1,9 @@
 import { Recommender } from '@relewise/client';
-import { getRelewiseUIOptions } from '../initialize';
+import { RelewiseUIOptions } from '..';
 
-export function getRecommender() {
-    const settings = getRelewiseUIOptions();
-
+export function getRecommender(options: RelewiseUIOptions) {
     return new Recommender(
-        settings.datasetId, 
-        settings.apiKey, 
-        settings.clientOptions);
+        options.datasetId, 
+        options.apiKey, 
+        options.clientOptions);
 }
