@@ -23,7 +23,7 @@ interface Templates {
 }
 
 interface Filters {
-    product: (builder: FilterBuilder) => void
+    product?: (builder: FilterBuilder) => void
 }
 
 export interface RelewiseUIOptions {
@@ -79,7 +79,8 @@ export function getRelewiseContextSettings(): Settings {
 
 export function getProductRecommendationBuilderWithDefaults<T extends ProductSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T): T {
     const settings = getRelewiseContextSettings();
-    const relewiseUIOptions = getRelewiseUIOptions()
+    const relewiseUIOptions = getRelewiseUIOptions();
+    
     const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = {
         displayName: true,
         pricing: true,
@@ -88,7 +89,11 @@ export function getProductRecommendationBuilderWithDefaults<T extends ProductSet
 
     return createBuilder(settings)
         .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
-        .filters(builder => relewiseUIOptions.filters?.product(builder));
+        .filters(builder => {
+            if (relewiseUIOptions.filters?.product) {
+                relewiseUIOptions.filters.product(builder);
+            }
+        });
 }
 
 declare global {

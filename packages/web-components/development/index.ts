@@ -35,8 +35,9 @@ initializeRelewiseUI(
         },
         filters: {
             product: (builder) => {
-                builder.addProductCategoryIdFilter('ImmediateParent', ['Aktivitetshæfter til Bryllup']);
-                builder.addBrandIdFilter(['opgaver for born']);
+                builder
+                    .addProductCategoryIdFilter('ImmediateParent', ['Aktivitetshæfter til Bryllup'])
+                    .addBrandIdFilter(['opgaver for born']);
             },
         },
     },
