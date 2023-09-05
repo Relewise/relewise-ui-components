@@ -1,4 +1,4 @@
-import { ProductResult, ProductSettingsRecommendationBuilder, RelewiseClientOptions, SelectedProductPropertiesSettings, Settings, User, UserFactory } from '@relewise/client';
+import { FilterBuilder, ProductResult, ProductSettingsRecommendationBuilder, RelewiseClientOptions, SelectedProductPropertiesSettings, Settings, User, UserFactory } from '@relewise/client';
 import { TemplateResult } from 'lit';
 import { PopularProducts } from './recommendations/products/popular-products';
 import { ProductsViewedAfterViewingProduct } from './recommendations/products/products-viewed-after-viewing-product';
@@ -22,6 +22,10 @@ interface Templates {
     product?: (product: ProductResult, extensions: TemplateExtensions) => TemplateResult<1>;
 }
 
+interface Filters {
+    product?: (builder: FilterBuilder) => void
+}
+
 export interface RelewiseUIOptions {
     datasetId: string;
     apiKey: string;
@@ -31,6 +35,7 @@ export interface RelewiseUIOptions {
     };
     clientOptions?: RelewiseClientOptions;
     templates?: Templates;
+    filters?: Filters;
 }
 
 
@@ -74,6 +79,8 @@ export function getRelewiseContextSettings(): Settings {
 
 export function getProductRecommendationBuilderWithDefaults<T extends ProductSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T): T {
     const settings = getRelewiseContextSettings();
+    const relewiseUIOptions = getRelewiseUIOptions();
+    
     const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = {
         displayName: true,
         pricing: true,
@@ -81,7 +88,12 @@ export function getProductRecommendationBuilderWithDefaults<T extends ProductSet
     };
 
     return createBuilder(settings)
-        .setSelectedProductProperties(getRelewiseUIOptions().selectedPropertiesSettings?.product ?? defaultProductProperties);
+        .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
+        .filters(builder => {
+            if (relewiseUIOptions.filters?.product) {
+                relewiseUIOptions.filters.product(builder);
+            }
+        });
 }
 
 declare global {

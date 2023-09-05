@@ -33,5 +33,12 @@ initializeRelewiseUI(
             `;
             },
         },
+        filters: {
+            product: (builder) => {
+                builder
+                    .addProductCategoryIdFilter('ImmediateParent', ['Aktivitetshæfter til Bryllup'])
+                    .addBrandIdFilter(['opgaver for born']);
+            },
+        },
     },
 );
