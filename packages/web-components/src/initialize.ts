@@ -1,4 +1,4 @@
-import { ProductResult, RelewiseClientOptions, SelectedProductPropertiesSettings, User, UserFactory } from '@relewise/client';
+import { FilterBuilder, ProductResult, RelewiseClientOptions, SelectedProductPropertiesSettings, User, UserFactory } from '@relewise/client';
 import { TemplateResult } from 'lit';
 import { PopularProducts } from './recommendations/products/popular-products';
 import { ProductsViewedAfterViewingProduct } from './recommendations/products/products-viewed-after-viewing-product';
@@ -13,6 +13,11 @@ export interface RelewiseUIOptions {
     };
     clientOptions?: RelewiseClientOptions;
     templates?: Templates;
+    filters?: Filters;
+}
+
+interface Filters {
+    product?: (builder: FilterBuilder) => void
 }
 
 interface ContextSettings {
