@@ -1,7 +1,7 @@
 {
   "name": "@relewise/web-components",
   "version": "1.0.0-alpha.1",
-  "description": "Relewise is a next generation personalization SaaS-platform, which offers functionality within product- and content recommendations and personalized search. These official Web Components help you quick and easy render recommendations.",
+  "description": "Relewise is a next generation personalization SaaS-platform, which offers functionality within product- and content recommendations and personalized search. Our official Web Components provide simple and easy components for rendering personalized experiences.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Relewise/relewise-ui-components.git",
