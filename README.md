@@ -1,4 +1,4 @@
-# relewise-ui-web-components
+# Relewise UI Components
 UI components for Relewise
 
 ### Web Components
