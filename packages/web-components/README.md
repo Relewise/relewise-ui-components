@@ -33,18 +33,78 @@ Replace the `RELEWISE_DATASET_ID`, `RELEWISE_API_KEY` and context settings with 
 After which you have access to various components configured with the configuration provided.
 
 ### Rendering components
-To render a specific component you simply use the corresponding html tag.
-```html
-<relewise-popular-products></relewise-popular-products>
-```
 
 Some components can be set with attributes that specify the behaviour of a specific components.
+
+To render a specific component you simply use the corresponding html tag.
 
 e.g. the `relewise-purchased-with-product` takes in an attribute `productId` specifying which product the recommendations should be based on. 
 ```html
 <relewise-purchased-with-product productId="PRODUCT_ID"></relewise-purchased-with-product>
 ```
 Replace the `PRODUCT_ID` with your product's id.
+
+#### Popular Products
+This component renders the most [popular products](https://docs.relewise.com/docs/recommendations/recommendation-types.html#popular-products).
+
+```html
+<relewise-popular-products></relewise-popular-products>
+```
+##### Attributes
+- **numberOfRecommendations** (Optional, *Default 4*): 
+    
+    The amount of products to render.
+
+- **sinceMinutesAgo** (Optional, *Default 20160 - 14 days*):
+    
+    The amount of minutes ago to base popularity on.
+
+- **basedOn** (Optional, *Default MostPurchased*):
+
+    possible values: MostPurchased, MostViewed 
+
+    The type og behavioural data to base recommendations on.
+
+#### Products viewed after viewing Product
+This component renders [products typically viewed after viewing a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#products-viewed-after-viewing-product).
+
+```html
+<relewise-products-viewed-after-viewing-product productId="PRODUCT_ID"></relewise-products-viewed-after-viewing-product>
+```
+##### Attributes
+
+- **productId**:
+    
+    The id of the product the recommendations should be based on.
+
+- **variantId**:
+    
+    The id of the product variant the recommendations should be based on.
+
+- **numberOfRecommendations** (Optional, *Default 4*): 
+
+    The amount of products to render.
+
+#### Products viewed after viewing Product
+This component renders [ products typically purchased with a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#purchased-with-product).
+
+```html
+<relewise-purchased-with-product productId="PRODUCT_ID"></relewise-purchased-with-product>
+```
+##### Attributes
+
+- **productId**:
+    
+    The id of the product the recommendations should be based on.
+
+- **variantId**:
+    
+    The id of the product variant the recommendations should be based on.
+
+- **numberOfRecommendations** (Optional, *Default 4*): 
+
+    The amount of products to render.
+
 
 ### Properties to render
 By default our web components will render some basic information about the product.
