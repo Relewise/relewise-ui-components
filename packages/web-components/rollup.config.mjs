@@ -12,9 +12,8 @@ export default [
             name: 'RelewiseWebComponents',
             file: pkg.browser,
             format: 'umd',
-            sourcemap: 'inline',
+            sourcemap: true,
         },
-        external: ['cross-fetch', 'cross-fetch/polyfill'],
         plugins: [
             typescript({ tsconfig: './tsconfig.json' }),
             resolve(),
@@ -25,13 +24,13 @@ export default [
     {
         input: 'src/index.ts',
         output: [
-            { file: pkg.main, format: 'cjs', sourcemap: 'inline' },
-            { file: pkg.module, format: 'es', sourcemap: 'inline' },
+            { file: pkg.main, format: 'cjs', sourcemap: true },
+            { file: pkg.module, format: 'es', sourcemap: true },
             { 
                 file: 'dist/relewise-web-components.min.js',
                 format: 'umd',
                 name: 'RelewiseWebComponents',
-                plugins: [resolve(), terser()],
+                plugins: [terser()],
             },
         ],
         plugins: [
