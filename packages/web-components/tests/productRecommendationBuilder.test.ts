@@ -11,7 +11,7 @@ suite('productRecommendationBuilder', () => {
         initializeRelewiseUI(mockedRelewiseOptions);
     
         const expected = new PopularProductsBuilder(getRelewiseContextSettings()).setSelectedProductProperties(defaultProductProperties).build();
-        const result = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options)).build();;
+        const result = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options)).build();
         
         assert.deepEqual(expected.settings.selectedProductProperties, result.settings.selectedProductProperties)
     });
