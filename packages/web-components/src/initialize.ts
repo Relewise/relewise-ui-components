@@ -16,25 +16,25 @@ export interface RelewiseUIOptions {
     filters?: Filters;
 }
 
-interface Filters {
+export interface Filters {
     product?: (builder: FilterBuilder) => void
 }
 
-interface ContextSettings {
+export interface ContextSettings {
     getUser: (userFactory: UserFactory) => User;
     language: string;
     currency: string;
     displayedAtLocation: string;
 }
 
-interface TemplateExtensions {
+export interface TemplateExtensions {
     html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>;
     helpers: {
         formatPrice: (price: string | number | null | undefined) => string | number | null | undefined;
     }
 }
 
-interface Templates {
+export interface Templates {
     product?: (product: ProductResult, extensions: TemplateExtensions) => TemplateResult<1>;
 }
 
