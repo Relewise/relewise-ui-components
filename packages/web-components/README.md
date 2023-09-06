@@ -1,4 +1,4 @@
-# Relewise UI Component [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) [![npm version](https://badge.fury.io/js/@relewise%2Fclient.svg)](https://badge.fury.io/js/@relewise%2Fweb-components) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Relewise/relewise-ui-components/pulls)
+# Relewise UI Component [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) [![npm version](https://badge.fury.io/js/@relewise%2Fweb-components.svg)](https://badge.fury.io/js/@relewise%2Fweb-components) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Relewise/relewise-ui-components/pulls)
 
 ## Installation 
 
@@ -77,7 +77,7 @@ This component renders [products typically viewed after viewing a given product]
     
     The id of the product the recommendations should be based on.
 
-- **variantId**:
+- **variantId** (Optional):
     
     The id of the product variant the recommendations should be based on.
 
@@ -97,7 +97,7 @@ This component renders [ products typically purchased with a given product](http
     
     The id of the product the recommendations should be based on.
 
-- **variantId**:
+- **variantId** (Optional):
     
     The id of the product variant the recommendations should be based on.
 
@@ -137,7 +137,8 @@ initializeRelewiseUI(
             product: (builder) => {
                 builder
                     .addProductCategoryIdFilter('ImmediateParent', ['category'])
-                    .addBrandIdFilter(['brand1', 'brand2']);
+                    .addBrandIdFilter(['brand1', 'brand2'])
+                    .addProductAssortmentFilter(1);
             },
         },
     });
