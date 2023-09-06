@@ -1,17 +1,17 @@
-# relewise-web-components [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Relewise/relewise-ui-components/pulls)
+# Relewise UI Component [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE) [![npm version](https://badge.fury.io/js/@relewise%2Fclient.svg)](https://badge.fury.io/js/@relewise%2Fweb-components) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Relewise/relewise-ui-components/pulls)
 
 ## Installation 
 
 Install via NPM or you preferred package manager: 
 
-```
+```W
 npm install @relewise/web-components
 ```
 
 ## Usage examples
 
 ### Initialising
-Before rendering any personalised components, we need to configure RelewiseUI.
+In order to use the web component, we need to configure RelewiseUI.
 ```ts
 initializeRelewiseUI(
     {
@@ -38,8 +38,16 @@ To render a specific component you simply use the corresponding html tag.
 <relewise-popular-products></relewise-popular-products>
 ```
 
+Some components can be set with attributes that specify the behaviour of a specific components.
+
+e.g. the `relewise-purchased-with-product` takes in an attribute `productId` specifying which product the recommendations should be based on. 
+```html
+<relewise-purchased-with-product productId="PRODUCT_ID"></relewise-purchased-with-product>
+```
+Replace the `PRODUCT_ID` with your product's id.
+
 ### Properties to render
-By default relewise-web-components will render some basic information about the product.
+By default our web components will render some basic information about the product.
 
 Set the selectedPropertiesSettings in the initialise function to specify which properties to render.
 
@@ -58,7 +66,9 @@ initializeRelewiseUI(
 ```
 
 ### Filtering
-If you need to filter what data is being shown, you need to initialise the RelewiseUI with the correct filter options.
+If you need to filter what enteties are being shown, you need to initialise the RelewiseUI with the correct filter options.
+
+Here is an example of a filter on products.
 ```ts
 initializeRelewiseUI(
     {
@@ -79,7 +89,7 @@ For more examples and information about filters visit the official [docs](https:
 ### Template overwriting
 It is possible to overwrite the template used for rendering products. This is done using [lit templating](https://lit.dev/docs/templates/overview/).
 
-If no template is provided relewise-web-components will render using the default template.
+If no custom template is provided, we will render using the default template.
 ```ts
 initializeRelewiseUI(
     {
@@ -122,7 +132,7 @@ initializeRelewiseUI(
 ### Configuring Relewise Client
 To configure the client used to call Relewise, provide the configuration during initialisation.
 
-One could for example call the sandbox server while developing or testing.
+The main purpose of the client options is to configure which relewise server to call. These are almost always different between development and production environments
 ```ts
 initializeRelewiseUI(
     {
