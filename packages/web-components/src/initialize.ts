@@ -11,7 +11,7 @@ export interface RelewiseUIOptions {
     selectedPropertiesSettings?: {
         product?: Partial<SelectedProductPropertiesSettings>;
     };
-    clientOptions?: RelewiseClientOptions;
+    clientOptions: RelewiseClientOptions;
     templates?: Templates;
     filters?: Filters;
 }
@@ -56,4 +56,4 @@ declare global {
     interface Window {
         relewiseUIOptions: RelewiseUIOptions;
     }
-  }
+}

@@ -24,13 +24,30 @@ initializeRelewiseUI(
             displayedAtLocation: 'Product page',
         },
         datasetId: RELEWISE_DATASET_ID,
-        apiKey: RELEWISE_API_KEY
+        apiKey: RELEWISE_API_KEY,
+        clientOptions: {
+            serverUrl: RELEWISE_SERVER_URL,
+        },
     });
 ```
 
-Replace the `RELEWISE_DATASET_ID`, `RELEWISE_API_KEY` and context settings with your dataset, api key and settings found at [My.Relewise](https://my.relewise.com/developer-settings). 
+Replace the `RELEWISE_DATASET_ID`, `RELEWISE_API_KEY`, `RELEWISE_SERVER_URL` with your dataset, api key and server url found at [My.Relewise](https://my.relewise.com/developer-settings). 
 
 After which you have access to various components configured with the configuration provided.
+
+### Configuring Relewise Client
+It is required to configure the client used to call Relewise, provide the configuration during initialisation.
+
+The main purpose of the client options is to configure which relewise server to call. These are almost always different between development and production environments.
+```ts
+initializeRelewiseUI(
+    {
+        ...
+        clientOptions: {
+            serverUrl: RELEWISE_SERVER_URL,
+        },
+    });
+```
 
 ### Rendering components
 
@@ -187,19 +204,5 @@ initializeRelewiseUI(
                     <!-- Write your template here -->`;
             }
         }
-    });
-```
-
-### Configuring Relewise Client
-To configure the client used to call Relewise, provide the configuration during initialisation.
-
-The main purpose of the client options is to configure which relewise server to call. These are almost always different between development and production environments
-```ts
-initializeRelewiseUI(
-    {
-        ...
-        clientOptions: {
-            serverUrl: 'https://sandbox-api.relewise.com/',
-        },
     });
 ```

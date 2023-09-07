@@ -13,6 +13,9 @@ export function integrationTestRelewiseOptions(): RelewiseUIOptions {
             currency: 'USD',   
             displayedAtLocation: 'Relewise UI Components',
         },
+        clientOptions: {
+            serverUrl: 'https://api.relewise.com/',
+        },
         selectedPropertiesSettings: {
             product: {
                 displayName: true,
