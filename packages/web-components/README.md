@@ -26,7 +26,7 @@ initializeRelewiseUI(
         datasetId: RELEWISE_DATASET_ID,
         apiKey: RELEWISE_API_KEY,
         clientOptions: {
-            serverUrl: 'https://sandbox-api.relewise.com/',
+            serverUrl: RELEWISE_SERVER_URL,
         },
     });
 ```
