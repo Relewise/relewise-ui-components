@@ -1,6 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "allowJs": true,
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "skipLibCheck": true,
     "plugins": [
       {
         "name": "ts-lit-plugin"
@@ -9,31 +18,26 @@
         "name": "typescript-lit-html-plugin"
       }
     ],
-    "experimentalDecorators": true,
-    "useDefineForClassFields": false,
-    "module": "ESNext",
     "lib": [
       "ES2020",
-      "DOM",
-      "DOM.Iterable"
+      "DOM.Iterable",
+      "es5",
+      "es6",
+      "dom",
+      "esnext"
     ],
-    "skipLibCheck": true,
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "src",
-    "development/vite-env.d.ts",
-    ".src/types",
+    "index.ts",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
     "vite/client",
     "tests"
+  ],
+  "exclude": [
+    "node_modules",
+    "tests",
+    "build",
+    "dist",
   ]
 }

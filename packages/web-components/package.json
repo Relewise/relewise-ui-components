@@ -2,6 +2,7 @@
   "name": "@relewise/web-components",
   "private": true,
   "type": "module",
+  "types": "dist/index.d.ts",
   "version": "1.0.0-alpha.1",
   "description": "Relewise is a next generation personalization SaaS-platform, which offers functionality within product- and content recommendations and personalized search. Our official Web Components provide simple and easy components for rendering personalized experiences.",
   "repository": {
@@ -20,18 +21,28 @@
   "main": "dist/cjs/relewise-web-components.js",
   "module": "dist/esm/relewise-web-components.js",
   "browser": "dist/browser/relewise-web-components.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "rollup -c",
+    "build:types": "tsc -p ./tsconfig.json --outDir build --declaration true && api-extractor run",
+    "clean": "rimraf ./build ./dist",
     "preview": "vite preview",
     "lint": "eslint",
-    "test": "wtr --config web-test-runner-config.js"
+    "test": "wtr --config web-test-runner-config.js",
+    "publish": "npm run build && npm run build:types"
   },
   "dependencies": {
     "@relewise/client": "^1.17.0",
     "lit": "^2.7.6"
   },
+  "peerDependencies": {
+    "@relewise/client": "^1.17.0"
+  },
   "devDependencies": {
+    "@microsoft/api-extractor": "^7.36.4",
     "@open-wc/testing": "^3.1.5",
     "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-node-resolve": "^15.2.1",
@@ -51,6 +62,7 @@
     "eslint-plugin-n": "^16.0.2",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-wc": "^1.5.0",
+    "rimraf": "^5.0.1",
     "rollup": "^3.28.1",
     "ts-lit-plugin": "^1.2.1",
     "tslib": "^2.6.2",
