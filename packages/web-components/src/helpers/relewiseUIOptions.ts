@@ -19,7 +19,7 @@ export function getRelewiseContextSettings(displayedAtLocation: string): Setting
 
     return {
         currency: contextSettings.currency,
-        displayedAtLocation: displayedAtLocation ?? '',
+        displayedAtLocation: displayedAtLocation,
         language: contextSettings.language,
         user: contextSettings.getUser(UserFactory),
     }
