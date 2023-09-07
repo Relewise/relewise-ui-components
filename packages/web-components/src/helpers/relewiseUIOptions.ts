@@ -14,12 +14,12 @@ export function getRelewiseUIOptions(): RelewiseUIOptions {
     return options;
 }
 
-export function getRelewiseContextSettings(): Settings {
+export function getRelewiseContextSettings(displayedAtLocation: string): Settings {
     const contextSettings = getRelewiseUIOptions().contextSettings;
 
     return {
         currency: contextSettings.currency,
-        displayedAtLocation: contextSettings.displayedAtLocation,
+        displayedAtLocation: displayedAtLocation ?? '',
         language: contextSettings.language,
         user: contextSettings.getUser(UserFactory),
     }

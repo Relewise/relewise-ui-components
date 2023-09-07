@@ -15,7 +15,10 @@ export class PopularProducts extends ProductRecommendationBase {
 
     fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
         const recommender = getRecommender(getRelewiseUIOptions());
-        const builder = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(settings => new PopularProductsBuilder(settings))
+        const builder = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(
+            settings => new PopularProductsBuilder(settings),
+            this.displayedAtLocation,
+        )
             .sinceMinutesAgo(this.sinceMinutesAgo)
             .basedOn(this.basedOn)
             .setNumberOfRecommendations(this.numberOfRecommendations);

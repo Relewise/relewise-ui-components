@@ -49,15 +49,16 @@ suite('relewiseUIOptions', () => {
     test('getRelewiseContextOptions finds correct context settings', () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
+        const displayedAtLocation = 'displayedAtLocation';
     
         const expected = {
             currency: mockedRelewiseOptions.contextSettings.currency,
-            displayedAtLocation: mockedRelewiseOptions.contextSettings.displayedAtLocation,
+            displayedAtLocation: displayedAtLocation,
             language: mockedRelewiseOptions.contextSettings.language,
             user: mockedRelewiseOptions.contextSettings.getUser(UserFactory),
         }
     
-        const result = getRelewiseContextSettings();
+        const result = getRelewiseContextSettings(displayedAtLocation);
     
         assert.isDefined(result);
         assert.deepEqual(result, expected);

@@ -12,8 +12,14 @@ export abstract class ProductRecommendationBase extends LitElement {
     @state()
     products: ProductResult[] | null = null;
 
+    @state()
+    displayedAtLocation: string = '';
+
     async connectedCallback() {
         super.connectedCallback();
+        if (!this.displayedAtLocation ||this.displayedAtLocation.length < 1) {
+            console.error('No displayedAtLocation defined!')
+        }
         const result = await this.fetchProducts();
         this.products = result?.recommendations ?? null;
     }
