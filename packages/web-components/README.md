@@ -31,7 +31,7 @@ initializeRelewiseUI(
     });
 ```
 
-Replace the `RELEWISE_DATASET_ID`, `RELEWISE_API_KEY` and context settings with your dataset, api key and settings found at [My.Relewise](https://my.relewise.com/developer-settings). 
+Replace the `RELEWISE_DATASET_ID`, `RELEWISE_API_KEY`, `RELEWISE_SERVER_URL` with your dataset, api key and server url found at [My.Relewise](https://my.relewise.com/developer-settings). 
 
 After which you have access to various components configured with the configuration provided.
 
