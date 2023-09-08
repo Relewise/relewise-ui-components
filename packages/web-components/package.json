@@ -1,6 +1,5 @@
 {
   "name": "@relewise/web-components",
-  "private": true,
   "type": "module",
   "types": "dist/index.d.ts",
   "version": "1.0.0-alpha.2",
