@@ -1,5 +1,26 @@
-# Relewise UI Components
-UI components for Relewise
+<p align="center">
+  <a href="https://www.relewise.com/">
+    <img alt="Relewise" src=".github/banner.png">
+  </a>
+</p>
 
-### Web Components
-[Relewise Web Components](packages/web-components/README.md) are reusable, self-contained html extentions for Relewise.
+---
+# Relewise UI Components
+Components for building an awesome UI with Relewise 
+
+## Packages
+
+| Package | Version | Description |
+| --- | --- | --- |
+| [`relewise-web-components`](packages/algoliasearch-helper) | [![npm version](https://badge.fury.io/js/@relewise%2Fweb-components.svg)](https://badge.fury.io/js/@relewise%2Fweb-components) | Relewise Web Components are reusable, self-contained html extentions for Relewise. 
+
+## Contributing
+
+Pull requests are always welcome.  
+Please fork this repository and make a PR when you are ready with your contribution.  
+
+Otherwise you are welcome to open an Issue in our [issue tracker](https://github.com/Relewise/relewise-ui-components/issues).
+
+## License
+
+relewise-ui-components is licensed under the [MIT license](./LICENSE)
