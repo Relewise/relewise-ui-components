@@ -6,7 +6,7 @@
 
 ---
 # Relewise UI Components
-Components for building an awesome UI with Relewise 
+Components for building an awesome UI with Relewise. 
 
 ## Packages
 
@@ -23,4 +23,4 @@ Otherwise you are welcome to open an Issue in our [issue tracker](https://github
 
 ## License
 
-relewise-ui-components is licensed under the [MIT license](./LICENSE)
+relewise-ui-components is licensed under the [MIT license](./LICENSE).
