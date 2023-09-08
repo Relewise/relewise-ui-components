@@ -10,7 +10,7 @@ export abstract class ProductRecommendationBase extends LitElement {
     numberOfRecommendations: number = 4;
 
     @property()
-    displayedAtLocation: string | null = null;
+    displayedAtLocation?: string = undefined;
 
     @state()
     products: ProductResult[] | null = null;
@@ -18,7 +18,7 @@ export abstract class ProductRecommendationBase extends LitElement {
     async connectedCallback() {
         super.connectedCallback();
         if (!this.displayedAtLocation) {
-            console.error('No displayedAtLocation defined!')
+            console.error('No displayedAtLocation defined!');
         }
         const result = await this.fetchProducts();
         this.products = result?.recommendations ?? null;
