@@ -10,7 +10,6 @@ initializeRelewiseUI(
             },
             language: import.meta.env.VITE_LANGUAGE,
             currency: import.meta.env.VITE_CURRENCY,
-            displayedAtLocation: 'Relewise Web Components',
         },
         datasetId: import.meta.env.VITE_DATASET_ID,
         apiKey: import.meta.env.VITE_API_KEY,

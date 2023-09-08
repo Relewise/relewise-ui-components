@@ -1,4 +1,4 @@
-import { getRelewiseContextSettings } from './relewiseUIOptions';
+import { getRelewiseUIOptions } from './relewiseUIOptions';
 
 export default function formatPrice(price: string | number | null | undefined): string | number | null | undefined {
 
@@ -6,7 +6,7 @@ export default function formatPrice(price: string | number | null | undefined): 
         return '';
     }
 
-    const contextSettings = getRelewiseContextSettings();
+    const contextSettings = getRelewiseUIOptions().contextSettings;
     try {
         return new Intl.NumberFormat(contextSettings.language, {
             style: 'currency',

@@ -10,8 +10,8 @@ suite('productRecommendationBuilder', () => {
         mockedRelewiseOptions.selectedPropertiesSettings = undefined!;
         initializeRelewiseUI(mockedRelewiseOptions);
     
-        const expected = new PopularProductsBuilder(getRelewiseContextSettings()).setSelectedProductProperties(defaultProductProperties).build();
-        const result = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options)).build();
+        const expected = new PopularProductsBuilder(getRelewiseContextSettings('web-components-tests')).setSelectedProductProperties(defaultProductProperties).build();
+        const result = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options), 'web-components-tests').build();
         
         assert.deepEqual(expected.settings.selectedProductProperties, result.settings.selectedProductProperties)
     });
@@ -20,8 +20,8 @@ suite('productRecommendationBuilder', () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
     
-        const expected = new PopularProductsBuilder(getRelewiseContextSettings()).setSelectedProductProperties(mockedRelewiseOptions.selectedPropertiesSettings!.product!).build();
-        const result = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options)).build();
+        const expected = new PopularProductsBuilder(getRelewiseContextSettings('web-components-tests')).setSelectedProductProperties(mockedRelewiseOptions.selectedPropertiesSettings!.product!).build();
+        const result = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options), 'web-components-tests').build();
         
         assert.deepEqual(expected.settings.selectedProductProperties, result.settings.selectedProductProperties)
     });

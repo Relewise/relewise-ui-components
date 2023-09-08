@@ -20,7 +20,10 @@ export class ProductsViewedAfterViewingProduct extends ProductRecommendationBase
         }
 
         const recommender = getRecommender(getRelewiseUIOptions());
-        const builder = getProductRecommendationBuilderWithDefaults<ProductsViewedAfterViewingProductBuilder>(settings => new ProductsViewedAfterViewingProductBuilder(settings))
+        const builder = getProductRecommendationBuilderWithDefaults<ProductsViewedAfterViewingProductBuilder>(
+            settings => new ProductsViewedAfterViewingProductBuilder(settings),
+            this.displayedAtLocation,
+        )
             .product({
                 productId: this.productId,
                 variantId: this.variantId,

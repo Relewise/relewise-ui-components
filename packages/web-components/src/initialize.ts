@@ -24,7 +24,6 @@ export interface ContextSettings {
     getUser: (userFactory: UserFactory) => User;
     language: string;
     currency: string;
-    displayedAtLocation: string;
 }
 
 export interface TemplateExtensions {

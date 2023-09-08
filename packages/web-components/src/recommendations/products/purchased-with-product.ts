@@ -20,7 +20,10 @@ export class PurchasedWithProduct extends ProductRecommendationBase {
         }
 
         const recommender = getRecommender(getRelewiseUIOptions());
-        const builder = getProductRecommendationBuilderWithDefaults<PurchasedWithProductBuilder>(settings => new PurchasedWithProductBuilder(settings))
+        const builder = getProductRecommendationBuilderWithDefaults<PurchasedWithProductBuilder>(
+            settings => new PurchasedWithProductBuilder(settings),
+            this.displayedAtLocation,
+        )
             .product({
                 productId: this.productId,
                 variantId: this.variantId,

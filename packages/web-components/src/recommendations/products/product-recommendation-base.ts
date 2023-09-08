@@ -9,11 +9,17 @@ export abstract class ProductRecommendationBase extends LitElement {
     @property({ type: Number })
     numberOfRecommendations: number = 4;
 
+    @property()
+    displayedAtLocation?: string = undefined;
+
     @state()
     products: ProductResult[] | null = null;
 
     async connectedCallback() {
         super.connectedCallback();
+        if (!this.displayedAtLocation) {
+            console.error('No displayedAtLocation defined!');
+        }
         const result = await this.fetchProducts();
         this.products = result?.recommendations ?? null;
     }

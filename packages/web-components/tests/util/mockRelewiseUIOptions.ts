@@ -9,7 +9,6 @@ export function mockRelewiseOptions(): RelewiseUIOptions {
             },
             language: 'language',
             currency: 'currency',   
-            displayedAtLocation: 'displayedAtLocation',
         },
         clientOptions: {
             serverUrl: 'server url',

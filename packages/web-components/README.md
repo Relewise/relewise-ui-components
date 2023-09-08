@@ -21,7 +21,6 @@ initializeRelewiseUI(
             },
             language: 'da-dk',
             currency: 'DKK',
-            displayedAtLocation: 'Product page',
         },
         datasetId: RELEWISE_DATASET_ID,
         apiKey: RELEWISE_API_KEY,
@@ -65,9 +64,15 @@ Replace the `PRODUCT_ID` with your product's id.
 This component renders the most [popular products](https://docs.relewise.com/docs/recommendations/recommendation-types.html#popular-products).
 
 ```html
-<relewise-popular-products></relewise-popular-products>
+<relewise-popular-products displayedAtLocation="LOCATION"></relewise-popular-products>
 ```
 ##### Attributes
+- **displayedAtLocation** : 
+    
+    Where the recommendations are being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
+    
 - **numberOfRecommendations** (Optional, *Default 4*): 
     
     The amount of products to render.
@@ -86,9 +91,14 @@ This component renders the most [popular products](https://docs.relewise.com/doc
 This component renders [products typically viewed after viewing a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#products-viewed-after-viewing-product).
 
 ```html
-<relewise-products-viewed-after-viewing-product productId="PRODUCT_ID"></relewise-products-viewed-after-viewing-product>
+<relewise-products-viewed-after-viewing-product productId="PRODUCT_ID" displayedAtLocation="LOCATION"></relewise-products-viewed-after-viewing-product>
 ```
 ##### Attributes
+- **displayedAtLocation** : 
+    
+    Where the recommendations are being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
 
 - **productId**:
     
@@ -106,9 +116,14 @@ This component renders [products typically viewed after viewing a given product]
 This component renders [ products typically purchased with a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#purchased-with-product).
 
 ```html
-<relewise-purchased-with-product productId="PRODUCT_ID"></relewise-purchased-with-product>
+<relewise-purchased-with-product productId="PRODUCT_ID" displayedAtLocation="LOCATION"></relewise-purchased-with-product>
 ```
 ##### Attributes
+- **displayedAtLocation** : 
+    
+    Where the recommendations are being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
 
 - **productId**:
     
