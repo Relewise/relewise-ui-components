@@ -35,7 +35,7 @@ Replace the `RELEWISE_DATASET_ID`, `RELEWISE_API_KEY`, `RELEWISE_SERVER_URL` wit
 After which you have access to various components configured with the configuration provided.
 
 ### Configuring Relewise Client
-It is required to configure the client used to call Relewise, provide the configuration during initialisation.
+You are required to configure the client that you use to call Relewise. Provide the following configuration during initialization.
 
 The main purpose of the client options is to configure which relewise server to call. These are almost always different between development and production environments.
 ```ts
@@ -50,15 +50,15 @@ initializeRelewiseUI(
 
 ### Rendering components
 
-Some components can be set with attributes that specify the behaviour of a specific components.
+Some components can be set with attributes that specify the behaviour of the specific component.
 
 To render a specific component you simply use the corresponding html tag.
 
-e.g. the `relewise-purchased-with-product` takes in an attribute `productId` specifying which product the recommendations should be based on. 
+E.g. the `relewise-purchased-with-product` takes in an attribute `productId` specifying which product the recommendations should be based on. 
 ```html
 <relewise-purchased-with-product productId="PRODUCT_ID"></relewise-purchased-with-product>
 ```
-Replace the `PRODUCT_ID` with your product's id.
+Replace the `PRODUCT_ID` with your own product's id.
 
 #### Popular Products
 This component renders the most [popular products](https://docs.relewise.com/docs/recommendations/recommendation-types.html#popular-products).
@@ -79,13 +79,13 @@ This component renders the most [popular products](https://docs.relewise.com/doc
 
 - **sinceMinutesAgo** (Optional, *Default 20160 - 14 days*):
     
-    The amount of minutes ago to base popularity on.
+    The time interval, in minutes, that the popularity calculation should be based on.
 
 - **basedOn** (Optional, *Default MostPurchased*):
 
     possible values: MostPurchased, MostViewed 
 
-    The type og behavioural data to base recommendations on.
+    The type of behavioural data that recommendations should be based on.
 
 #### Products viewed after viewing Product
 This component renders [products typically viewed after viewing a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#products-viewed-after-viewing-product).
@@ -98,7 +98,7 @@ This component renders [products typically viewed after viewing a given product]
     
     Where the recommendations are being shown. 
     
-    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
+    For more information, see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
 
 - **productId**:
     
@@ -207,7 +207,7 @@ initializeRelewiseUI(
         }
     });
 ```
-To style the provided template one could do that inline or include a style tag containg the preferred styles.
+Styling the provided template can be done inline, or by including a style tag containg the preferred styles.
 ```ts
 initializeRelewiseUI(
     {
