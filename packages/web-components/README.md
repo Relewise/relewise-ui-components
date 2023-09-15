@@ -56,7 +56,7 @@ To render a specific component you simply use the corresponding html tag.
 
 E.g. the `relewise-purchased-with-product` takes in an attribute `productId` specifying which product the recommendations should be based on. 
 ```html
-<relewise-purchased-with-product productId="PRODUCT_ID"></relewise-purchased-with-product>
+<relewise-purchased-with-product product-id="PRODUCT_ID"></relewise-purchased-with-product>
 ```
 Replace the `PRODUCT_ID` with your own product's id.
 
@@ -64,24 +64,24 @@ Replace the `PRODUCT_ID` with your own product's id.
 This component renders the most [popular products](https://docs.relewise.com/docs/recommendations/recommendation-types.html#popular-products).
 
 ```html
-<relewise-popular-products displayedAtLocation="LOCATION"></relewise-popular-products>
+<relewise-popular-products displayed-at-location="LOCATION"></relewise-popular-products>
 ```
 ##### Attributes
-- **displayedAtLocation** : 
+- **displayed-at-location** : 
     
     Where the recommendations are being shown. 
     
     For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
     
-- **numberOfRecommendations** (Optional, *Default 4*): 
+- **number-of-recommendations** (Optional, *Default 4*): 
     
     The amount of products to render.
 
-- **sinceMinutesAgo** (Optional, *Default 20160 - 14 days*):
+- **since-minutes-ago** (Optional, *Default 20160 - 14 days*):
     
     The time interval, in minutes, that the popularity calculation should be based on.
 
-- **basedOn** (Optional, *Default MostPurchased*):
+- **based-on** (Optional, *Default MostPurchased*):
 
     possible values: MostPurchased, MostViewed 
 
@@ -91,7 +91,7 @@ This component renders the most [popular products](https://docs.relewise.com/doc
 This component renders [products typically viewed after viewing a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#products-viewed-after-viewing-product).
 
 ```html
-<relewise-products-viewed-after-viewing-product productId="PRODUCT_ID" displayedAtLocation="LOCATION"></relewise-products-viewed-after-viewing-product>
+<relewise-products-viewed-after-viewing-product product-id="PRODUCT_ID" displayed-at-location="LOCATION"></relewise-products-viewed-after-viewing-product>
 ```
 ##### Attributes
 - **displayedAtLocation** : 
