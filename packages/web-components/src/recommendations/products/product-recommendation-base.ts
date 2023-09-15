@@ -6,10 +6,10 @@ export abstract class ProductRecommendationBase extends LitElement {
 
     abstract fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined;
     
-    @property({ type: Number })
+    @property({ type: Number, attribute: 'number-of-recommendations' })
     numberOfRecommendations: number = 4;
 
-    @property()
+    @property({attribute: 'displayed-at-location'})
     displayedAtLocation?: string = undefined;
 
     @state()

@@ -7,10 +7,10 @@ import { getProductRecommendationBuilderWithDefaults } from '../../builders/prod
 
 export class PopularProducts extends ProductRecommendationBase {
 
-    @property({ type: Number })
+    @property({ type: Number, attribute: 'since-minutes-ago' })
     sinceMinutesAgo: number = 20160; // 14 days
 
-    @property()
+    @property({attribute: 'based-on'})
     basedOn: 'MostPurchased' | 'MostViewed' = 'MostPurchased';
 
     fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
