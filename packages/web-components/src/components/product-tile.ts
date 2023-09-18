@@ -62,7 +62,7 @@ export class ProductTile extends LitElement {
             position: relative;
             text-decoration: inherit;
             text-size-adjust: none;
-            font-family: var(--relewise-font, Arial, Helvetica, sans-serif);
+            font-family: var(--relewise-font, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
         }
 
         .rw-image-container {
