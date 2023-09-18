@@ -84,11 +84,11 @@ export class ProductTile extends LitElement {
         .rw-price {
             line-height: 1;
             display: flex;
-            font-weight: var(--relewise-price-font-weight, 600);
-            font-size: var(--relewise-price-font-size, 1rem);
-            color: var(--relewise-price-color, #212427);
-            justify-content: var(--relewise-price-alignment, start);
-            margin: var(--relewise-price-margin, 0.5rem 0rem 0rem 0rem);
+            font-weight: var(--relewise-sales-price-font-weight, 600);
+            font-size: var(--relewise-sales-price-font-size, 1rem);
+            color: var(--relewise-sales-price-color, #212427);
+            justify-content: var(--relewise-sales-price-alignment, start);
+            margin: var(--relewise-sales-price-margin, 0.5rem 0rem 0rem 0rem);
         }
 
         .rw-display-name {

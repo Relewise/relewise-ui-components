@@ -150,11 +150,16 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-image-width: 100%;
             --relewise-image-height: auto;
 
-            --relewise-price-font-weight: 600;
-            --relewise-price-font-size: 1rem;
-            --relewise-price-color: #212427;
-            --relewise-price-alignment: start;
-            --relewise-price-margin: 0.5rem 0rem 0rem 0rem;
+            --relewise-sales-price-font-weight: 600;
+            --relewise-sales-price-font-size: 1rem;
+            --relewise-sales-price-color: #212427;
+            --relewise-sales-price-alignment: start;
+            --relewise-sales-price-margin: 0.5rem 0rem 0rem 0rem;
+
+            --relewise-list-price-font-size: .5rem;
+            --relewise-list-price-text-decoration: line-through;
+            --relewise-list-price-color: darkgray;
+            --relewise-list-price-margin: .25rem;
 
             --relewise-display-name-letter-spacing: -0.025rem;
             --relewise-display-name-alignment: start;
@@ -163,11 +168,6 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-display-name-font-weight: 600;
             --relewise-display-name-font-size: 0.75rem;
             --relewise-display-name-margin: 0rem 0rem 0rem 0rem;
-
-            --relewise-list-price-font-size: .5rem;
-            --relewise-list-price-text-decoration: line-through;
-            --relewise-list-price-color: darkgray;
-            --relewise-list-price-margin: .25rem;
         }
     </style>
 ```
