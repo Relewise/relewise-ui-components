@@ -4,3 +4,4 @@ export * from './helpers';
 export * from './builders';
 export *  from './initialize';
 export *  from './defaultProductProperties';
+export *  from './tracking';
