@@ -21,7 +21,7 @@ export class ProductView extends LitElement {
         const options = getRelewiseUIOptions();
         const tracker = getTracker(options);
         
-        tracker.trackProductView( {
+        tracker.trackProductView({
             productId: this.productId,
             variantId: this.variantId,
             user: options.contextSettings.getUser(),
