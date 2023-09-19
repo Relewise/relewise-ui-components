@@ -142,6 +142,10 @@ If you want to overwrite the styling of the grid and the default product tile, y
     <style>
         :root {
             --relewise-font: Arial, Helvetica, sans-serif;
+            
+            --relewise-grid-template-columns: repeat(4,1fr);
+            --relewise-mobile-grid-template-columns: repeat(2,1fr);
+            --relewise-grid-gap: 1rem;
 
             --relewise-image-align: start;
 

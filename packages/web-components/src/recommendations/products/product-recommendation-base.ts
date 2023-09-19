@@ -38,7 +38,7 @@ export abstract class ProductRecommendationBase extends LitElement {
         .rw-grid {
             display: grid;
             grid-template-columns: var(--relewise-grid-template-columns, repeat(4,1fr));
-            gap: 1rem;
+            gap: var(--relewise-grid-gap, 1rem);
             grid-auto-rows: 1fr;
         }
 
