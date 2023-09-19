@@ -1,6 +1,6 @@
 import { LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
-import { validateIdPath } from '../../helpers/idPathValidator';
+import { idPathAsArray } from '../../helpers/idPathValidator';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
 import { getTracker } from '../tracker';
 
@@ -11,22 +11,15 @@ export class ProductCategoryView extends LitElement {
 
     async connectedCallback() {
         super.connectedCallback();
-        if (!this.idPath || !this.idPath.trim()) {
-            console.error('No id-path provided!')
-            return;
-        }
-
-        const idPathAsArray = this.idPath.split('/');
-        if (validateIdPath(idPathAsArray)) {
-            console.error(`${this.idPath} is not a valid id-path!`); 
-            return;
-        } 
+        
+        const pathAsArray = idPathAsArray(this.idPath);
+        if (!pathAsArray) return;
 
         const options = getRelewiseUIOptions();
         const tracker = getTracker(options);
 
         tracker.trackProductCategoryView({
-            idPath: idPathAsArray,
+            idPath: pathAsArray,
             user: options.contextSettings.getUser(),
         })
     }

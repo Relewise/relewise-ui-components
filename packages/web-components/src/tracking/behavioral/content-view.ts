@@ -17,6 +17,7 @@ export class ContentView extends LitElement {
         
         const options = getRelewiseUIOptions();
         const tracker = getTracker(options);
+        
         tracker.trackContentView({
             contentId: this.contentId,
             user: options.contextSettings.getUser(),
