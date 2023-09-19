@@ -292,7 +292,7 @@ This component sends a [track product category view](https://docs.relewise.com/d
     
     The id path of the category id.
 
-    The path should be formattet as ids sepparated with a forward slash ("/").
+    The path should be formatted as ids sepparated by a forward slash ("/").
 
     E.g.: "parent-category-1/child-category-2/child-category-4"
 
@@ -320,7 +320,7 @@ This component sends a [track content category view](https://docs.relewise.com/d
     
     The id path of the category id.
 
-    The path should be formattet as ids sepparated with a forward slash ("/").
+    The path should be formatted as ids sepparated by a forward slash ("/").
 
     E.g.: "parent-category-1/child-category-2/child-category-4"
 
