@@ -259,3 +259,79 @@ initializeRelewiseUI(
         }
     });
 ```
+
+### Tracking
+
+These components do not render any html but they do send behavioral tracking data to Relewise.
+
+#### Product view
+This component sends a [track product view](https://docs.relewise.com/docs/developer/implementation-steps.html#_2-add-behavioral-tracking) request to Relewise.
+
+```html
+<relewise-track-product-view product-id="PRODUCT_ID"></relewise-track-product-view>
+```
+##### Attributes
+
+- **product-id**:
+    
+    The id of the product that has been viewed.
+
+- **variant-id** (Optional):
+    
+    The id of the variant that has been viewed.
+
+#### Product category view
+This component sends a [track product category view](https://docs.relewise.com/docs/developer/implementation-steps.html#_2-add-behavioral-tracking) request to Relewise.
+
+```html
+<relewise-track-product-category-view id-path="ID_PATH"></relewise-track-product-category-view>
+```
+##### Attributes
+
+- **id-path**:
+    
+    The id path of the category id.
+
+    The path should be formattet as ids sepparated with a forward slash ("/").
+
+    E.g.: "parent-category-1/child-category-2/child-category-4"
+
+#### Content view
+This component sends a [track content view](https://docs.relewise.com/docs/developer/implementation-steps.html#_2-add-behavioral-tracking) request to Relewise.
+
+```html
+<relewise-track-content-view content-id="CONTENT_ID"></relewise-track-content-view>
+```
+##### Attributes
+
+- **content-id**:
+    
+    The id of the content that has been viewed.
+
+#### Content category view
+This component sends a [track content category view](https://docs.relewise.com/docs/developer/implementation-steps.html#_2-add-behavioral-tracking) request to Relewise.
+
+```html
+<relewise-track-content-category-view id-path="ID_PATH"></relewise-track-content-category-view>
+```
+##### Attributes
+
+- **id-path**:
+    
+    The id path of the category id.
+
+    The path should be formattet as ids sepparated with a forward slash ("/").
+
+    E.g.: "parent-category-1/child-category-2/child-category-4"
+
+#### Brand view
+This component sends a [track brand view](https://docs.relewise.com/docs/developer/implementation-steps.html#_2-add-behavioral-tracking) request to Relewise.
+
+```html
+<relewise-track-brand-view brand-id="BRAND_ID"></relewise-track-brand-view>
+```
+##### Attributes
+
+- **brand-id**:
+    
+    The id of the brand that has been viewed.
