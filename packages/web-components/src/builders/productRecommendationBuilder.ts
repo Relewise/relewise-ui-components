@@ -1,18 +1,12 @@
-import { ProductSettingsRecommendationBuilder, Settings, SelectedProductPropertiesSettings } from '@relewise/client';
+import { ProductSettingsRecommendationBuilder, Settings } from '@relewise/client';
 import { getRelewiseContextSettings, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
+import { defaultProductProperties } from '../defaultProductProperties';
 
 export function getProductRecommendationBuilderWithDefaults<T extends ProductSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T, displayedAtLocation?: string): T {
     const settings = getRelewiseContextSettings(displayedAtLocation ?? '');
     const relewiseUIOptions = getRelewiseUIOptions();
     
-    const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = {
-        displayName: true,
-        pricing: true,
-        dataKeys: ['ImageUrl', 'Url'],
-    };
-
     return createBuilder(settings)
-        .setSelectedProductProperties(getRelewiseUIOptions().selectedPropertiesSettings?.product ?? defaultProductProperties)
         .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
         .filters(builder => {
             if (relewiseUIOptions.filters?.product) {

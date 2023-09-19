@@ -62,50 +62,52 @@ export class ProductTile extends LitElement {
             position: relative;
             text-decoration: inherit;
             text-size-adjust: none;
-            height: 100%;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: var(--relewise-font, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
         }
 
         .rw-image-container {
             display: flex;
             position: relative;
+            justify-content: var(--relewise-image-align, start);
         }
 
         .rw-information-container {
-            margin-top: 0.5rem;
+            margin: var(--relewise-information-container-margin, 0.5rem 0.5rem 0.5rem 0.5rem);
         }
 
         .rw-object-cover {
-            max-width: 100%;
-            height: auto;
             object-fit: cover;
+            max-width: var(--relewise-image-width, 100%);
+            height: var(--relewise-image-height, auto);
         }
 
         .rw-price {
-            margin-top: 0.5rem;
-            color: var(--relewise-price-color, #212427);
             line-height: 1;
-            font-weight: 600;
-            font-size: var(--relewise-price-font-size, 1rem);
-            align-items: center;
             display: flex;
+            font-weight: var(--relewise-sales-price-font-weight, 600);
+            font-size: var(--relewise-sales-price-font-size, 1rem);
+            color: var(--relewise-sales-price-color, #212427);
+            justify-content: var(--relewise-sales-price-alignment, start);
+            margin: var(--relewise-sales-price-margin, 0.5rem 0rem 0rem 0rem);
         }
 
         .rw-display-name {
+            display: flex;
+            letter-spacing: var(--relewise-display-name-letter-spacing, -0.025rem);;
+            justify-content: var(--relewise-display-name-alignment, start);
             color: var(--relewise-display-name-color, #212427);
-            letter-spacing: -0.025rem;
-            line-height: 1.25;
-            font-weight: 600;
+            line-height: var(--relewise-display-name-line-height, 1.25rem);
+            font-weight: var(--relewise-display-name-font-weight, 600);
             font-size: var(--relewise-display-name-font-size, 0.75rem);
-            margin-top: 0rem;
-            margin-bottom: 0rem;
+            margin: var(--relewise-display-name-margin, 0rem 0rem 0rem 0rem);
+
         }
 
         .rw-list-price {
-            font-size: .5rem;
+            font-size: var(--relewise-list-price-font-size, .5rem);
             text-decoration: var(--relewise-list-price-text-decoration, line-through);
             color: var(--relewise-list-price-color, darkgray);
-            margin: .25rem;
+            margin: var(--relewise-list-price-margin, .25rem);
         }
     `;
 }

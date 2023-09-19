@@ -6,10 +6,10 @@ export abstract class ProductRecommendationBase extends LitElement {
 
     abstract fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined;
     
-    @property({ type: Number })
+    @property({ type: Number, attribute: 'number-of-recommendations' })
     numberOfRecommendations: number = 4;
 
-    @property()
+    @property({attribute: 'displayed-at-location'})
     displayedAtLocation?: string = undefined;
 
     @state()
@@ -38,7 +38,7 @@ export abstract class ProductRecommendationBase extends LitElement {
         .rw-grid {
             display: grid;
             grid-template-columns: var(--relewise-grid-template-columns, repeat(4,1fr));
-            gap: 1rem;
+            gap: var(--relewise-grid-gap, 1rem);
             grid-auto-rows: 1fr;
         }
 

@@ -26,7 +26,7 @@ suite('relewise-popular-products', () => {
         const numberOfRecommendations = 10;
 
         initializeRelewiseUI(integrationTestRelewiseOptions());
-        const el = await fixture(html`<relewise-popular-products numberOfRecommendations=${numberOfRecommendations}></relewise-popular-products>`) as PopularProducts;
+        const el = await fixture(html`<relewise-popular-products number-of-recommendations=${numberOfRecommendations}></relewise-popular-products>`) as PopularProducts;
         
         await waitUntil(
             () => { return el.shadowRoot!.querySelectorAll('relewise-product-tile').length === numberOfRecommendations },

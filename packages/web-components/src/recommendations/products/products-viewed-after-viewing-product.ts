@@ -7,10 +7,10 @@ import { getProductRecommendationBuilderWithDefaults } from '../../builders/prod
 
 export class ProductsViewedAfterViewingProduct extends ProductRecommendationBase {
     
-    @property()
+    @property({attribute: 'product-id'})
     productId: string | undefined = undefined;
 
-    @property()
+    @property({attribute: 'variant-id'})
     variantId: string | undefined = undefined;
   
     fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
