@@ -1,8 +1,7 @@
 import { LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
-import { UserFactory } from '@relewise/client';
-import { getTracker } from '../tracker';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
+import { getTracker } from '../tracker';
 
 export class ContentView extends LitElement {
 
@@ -20,7 +19,7 @@ export class ContentView extends LitElement {
         const tracker = getTracker(options);
         tracker.trackContentView({
             contentId: this.contentId,
-            user: options.contextSettings.getUser(UserFactory),
+            user: options.contextSettings.getUser(),
         },
         )
     }

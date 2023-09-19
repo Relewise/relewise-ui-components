@@ -1,7 +1,6 @@
 import { LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 import { getTracker } from '../tracker';
-import { UserFactory } from '@relewise/client';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
 
 export class BrandView extends LitElement {
@@ -20,7 +19,7 @@ export class BrandView extends LitElement {
         const tracker = getTracker(options);
         tracker.trackBrandView( {
             brandId: this.brandId,
-            user: options.contextSettings.getUser(UserFactory),
+            user: options.contextSettings.getUser(),
         })
     }
 }

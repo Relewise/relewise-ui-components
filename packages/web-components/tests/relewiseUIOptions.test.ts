@@ -1,5 +1,4 @@
 import { assert } from '@esm-bundle/chai';
-import { UserFactory } from '@relewise/client';
 import { getRelewiseContextSettings, getRelewiseUIOptions, initializeRelewiseUI } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
@@ -55,7 +54,7 @@ suite('relewiseUIOptions', () => {
             currency: mockedRelewiseOptions.contextSettings.currency,
             displayedAtLocation: displayedAtLocation,
             language: mockedRelewiseOptions.contextSettings.language,
-            user: mockedRelewiseOptions.contextSettings.getUser(UserFactory),
+            user: mockedRelewiseOptions.contextSettings.getUser(),
         }
     
         const result = getRelewiseContextSettings(displayedAtLocation);

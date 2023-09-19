@@ -1,4 +1,4 @@
-import { Settings, UserFactory } from '@relewise/client';
+import { Settings } from '@relewise/client';
 import { RelewiseUIOptions } from '../initialize';
 
 export function getRelewiseUIOptions(): RelewiseUIOptions {
@@ -21,6 +21,6 @@ export function getRelewiseContextSettings(displayedAtLocation: string): Setting
         currency: contextSettings.currency,
         displayedAtLocation: displayedAtLocation,
         language: contextSettings.language,
-        user: contextSettings.getUser(UserFactory),
+        user: contextSettings.getUser(),
     }
 }

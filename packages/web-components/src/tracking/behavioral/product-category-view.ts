@@ -1,9 +1,8 @@
 import { LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
-import { UserFactory } from '@relewise/client';
-import { getTracker } from '../tracker';
-import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
 import { validateIdPath } from '../../helpers/idPathValidator';
+import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
+import { getTracker } from '../tracker';
 
 export class ProductCategoryView extends LitElement {
 
@@ -28,7 +27,7 @@ export class ProductCategoryView extends LitElement {
 
         tracker.trackProductCategoryView({
             idPath: idPathAsArray,
-            user: options.contextSettings.getUser(UserFactory),
+            user: options.contextSettings.getUser(),
         })
     }
 }
