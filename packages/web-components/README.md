@@ -9,7 +9,7 @@ npm install @relewise/web-components
 ```
 
 ## Initialising
-In order to use the web component, we need to configure RelewiseUI.
+In order to use the web component, you need to configure RelewiseUI:
 ```ts
 initializeRelewiseUI(
     {
@@ -28,14 +28,14 @@ initializeRelewiseUI(
     });
 ```
 
-Replace the `RELEWISE_DATASET_ID`, `RELEWISE_API_KEY`, `RELEWISE_SERVER_URL` with your dataset, api key and server url found at [My.Relewise](https://my.relewise.com/developer-settings). 
+Replace the `RELEWISE_DATASET_ID`, `RELEWISE_API_KEY`, `RELEWISE_SERVER_URL` with your dataset, api-key and server-url found at [My.Relewise](https://my.relewise.com/developer-settings). 
 
 After which you have access to various components configured with the configuration provided.
 
 ## Configuring Relewise Client
 You are required to configure the client that you use to call Relewise. Provide the following configuration during initialization.
 
-The main purpose of the client options is to configure which relewise server to call. These are almost always different between development and production environments.
+The main purpose of the client options is to configure which Relewise server to call. These are almost always different between development and production environments.
 ```ts
 initializeRelewiseUI(
     {
@@ -48,7 +48,7 @@ initializeRelewiseUI(
 
 ## Rendering components
 
-Some components can be set with attributes that specify the behaviour of the specific component.
+Some components can be set with attributes that specify the behavior of the specific component.
 
 To render a specific component you simply use the corresponding html tag.
 
@@ -83,7 +83,7 @@ This component renders the most [popular products](https://docs.relewise.com/doc
 
     possible values: MostPurchased, MostViewed 
 
-    The type of behavioural data that recommendations should be based on.
+    The type of behavioral data that recommendations should be based on.
 
 ### Products viewed after viewing Product
 This component renders [products typically viewed after viewing a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#products-viewed-after-viewing-product).
@@ -108,7 +108,7 @@ This component renders [products typically viewed after viewing a given product]
 
 - **number-of-recommendations** (Optional, *Default 4*): 
 
-    The amount of products to render.
+    The number of product recommendations to render.
 
 ### Products purchased with Product
 This component renders [products typically purchased with a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#purchased-with-product).
@@ -133,7 +133,7 @@ This component renders [products typically purchased with a given product](https
 
 - **number-of-recommendations** (Optional, *Default 4*): 
 
-    The amount of products to render.
+    The number of products recommendations to render.
 
 ## Overwriting styling
 If you want to overwrite the styling of the grid and the default product tile, you can do so by using css variables.
@@ -179,7 +179,7 @@ If you want to overwrite the styling of the grid and the default product tile, y
 ## Properties to render
 By default our web components will render some basic information about the product.
 
-Set the selectedPropertiesSettings in the initialise function to specify which properties to render.
+Set the `selectedPropertiesSettings` in the initialise function to specify which properties to render.
 
 These properties will also be accessible when [overwriting the default template](#template-overwriting). 
 ```ts
@@ -196,9 +196,9 @@ initializeRelewiseUI(
 ```
 
 ## Filtering
-If you need to filter what enteties are being shown, you need to initialise the RelewiseUI with the correct filter options.
+If you need to filter what entities are being shown, you need to initialise RelewiseUI with the correct filter options.
 
-Here is an example of a filter on products.
+Here is an example of a filter on product recommendations.
 ```ts
 initializeRelewiseUI(
     {
@@ -213,7 +213,7 @@ initializeRelewiseUI(
         },
     });
 ```
-The builder is a type exposed from the [relewise-sdk-javescript](https://github.com/Relewise/relewise-sdk-javascript).
+The builder is a type exposed from the [relewise-sdk-javascript](https://github.com/Relewise/relewise-sdk-javascript).
 
 For more examples and information about filters visit the official [docs](https://docs.relewise.com/).
 
@@ -245,7 +245,7 @@ initializeRelewiseUI(
         }
     });
 ```
-Styling the provided template can be done inline, or by including a style tag containg the preferred styles.
+Styling the provided template can be done inline, or by including a style tag containing the preferred styles.
 ```ts
 initializeRelewiseUI(
     {
@@ -292,7 +292,7 @@ This component sends a [track product category view](https://docs.relewise.com/d
     
     The id path of the category id.
 
-    The path should be formatted as ids sepparated by a forward slash ("/").
+    The path should be formatted as ids separated by a forward slash ("/").
 
     E.g.: "parent-category-1/child-category-2/child-category-4"
 
