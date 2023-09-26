@@ -1,5 +1,5 @@
 import { UserFactory } from '@relewise/client';
-import { initializeRelewiseUI, updateContextSettings } from '../src/index';
+import { initializeRelewiseUI } from '../src/index';
 
 initializeRelewiseUI(
     {
@@ -16,12 +16,4 @@ initializeRelewiseUI(
             serverUrl: import.meta.env.VITE_SERVER_URL,
         },
     },
-).useRecommendations();
-
-// Wait for 3 seconds and then call updateRelewiseContextSettings
-setTimeout(() => {
-    updateContextSettings({
-        language: 'fr-be',
-        currency: 'EUR',
-    });
-}, 3000); // 3000 milliseconds = 3 seconds
+).useRecommendations().useSearch();
