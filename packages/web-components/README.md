@@ -9,7 +9,7 @@ npm install @relewise/web-components
 ```
 
 ## Initialising
-In order to use the web component, you need to configure RelewiseUI:
+In order to use the web component, you need to configure RelewiseUI.
 ```ts
 initializeRelewiseUI(
     {
@@ -31,6 +31,15 @@ initializeRelewiseUI(
 Replace the `RELEWISE_DATASET_ID`, `RELEWISE_API_KEY`, `RELEWISE_SERVER_URL` with your dataset, api-key and server-url found at [My.Relewise](https://my.relewise.com/developer-settings). 
 
 After which you have access to various components configured with the configuration provided.
+### Updating Context Settings
+To update Context Settings after initialization simply call updateContextSettings.
+```ts
+updateContextSettings({
+    language: 'fr-be',
+    currency: 'EUR',
+});
+```
+Components depending on Context Settings will re-render once settings have been updated.
 
 ## Configuring Relewise Client
 You are required to configure the client that you use to call Relewise. Provide the following configuration during initialization.
