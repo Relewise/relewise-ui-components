@@ -1,5 +1,6 @@
 import { ContextSettings } from './initialize';
 import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithProduct } from './recommendations';
+import { Autocomplete } from './search/autocomplete';
 import { ProductView, ProductCategoryView, ContentView, ContentCategoryView, BrandView } from './tracking';
 import { updateContextSettings } from './updateContextSettings';
 
@@ -18,6 +19,11 @@ export class App {
         updateContextSettings(contextSettings);
         return this;
     }
+
+    useSearch(): App {
+        useSearch();
+        return this;
+    }
 }
 
 export function useRecommendations() {
@@ -32,7 +38,11 @@ export function useBehavioralTracking() {
     tryRegisterElement('relewise-track-content-view', ContentView);
     tryRegisterElement('relewise-track-content-category-view', ContentCategoryView);
     tryRegisterElement('relewise-track-brand-view', BrandView);
-}   
+} 
+
+export function useSearch() {
+    tryRegisterElement('relewise-autocomplete', Autocomplete);
+} 
 
 function tryRegisterElement(name: string, constructor: CustomElementConstructor) {
     if (customElements.get(name) === undefined) {

@@ -100,7 +100,6 @@ export class ProductTile extends LitElement {
             font-weight: var(--relewise-display-name-font-weight, 600);
             font-size: var(--relewise-display-name-font-size, 0.75rem);
             margin: var(--relewise-display-name-margin, 0rem 0rem 0rem 0rem);
-
         }
 
         .rw-list-price {
