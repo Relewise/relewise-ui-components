@@ -40,10 +40,29 @@ export interface Templates {
 
 export function initializeRelewiseUI(options: RelewiseUIOptions) {
     window.relewiseUIOptions = options;
-    
+   
+    const initializer = {
+        useRecommendations() {
+            useRecommendations();
+            return initializer;
+        },
+
+        useBehavioralTracking() {
+            useBehavioralTracking();
+            return initializer;
+        },
+    }
+
+    return initializer;
+}
+
+export function useRecommendations() {
     tryRegisterElement('relewise-popular-products', PopularProducts);
     tryRegisterElement('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);
     tryRegisterElement('relewise-purchased-with-product', PurchasedWithProduct);
+}
+
+export function useBehavioralTracking() {
     tryRegisterElement('relewise-track-product-view', ProductView);
     tryRegisterElement('relewise-track-product-category-view', ProductCategoryView);
     tryRegisterElement('relewise-track-content-view', ContentView);

@@ -10,13 +10,13 @@ suite('relewise-popular-products', () => {
     });
     
     test('is intance of when relewise is instantiated', async() => {
-        initializeRelewiseUI(mockRelewiseOptions());
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
         const el = await fixture(html`<relewise-popular-products></relewise-popular-products>`);
         assert.instanceOf(el, PopularProducts);
     });
 
     test('renders nothing when wrongly configured', async() => {
-        initializeRelewiseUI(mockRelewiseOptions());
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
         const el = await fixture(html`<relewise-popular-products></relewise-popular-products>`) as PopularProducts;
         await el.updateComplete;
         assert.shadowDom.equal(el, '');
@@ -25,7 +25,7 @@ suite('relewise-popular-products', () => {
     test('renders numberOfRecommendations', async() => {
         const numberOfRecommendations = 10;
 
-        initializeRelewiseUI(integrationTestRelewiseOptions());
+        initializeRelewiseUI(integrationTestRelewiseOptions()).useRecommendations();
         const el = await fixture(html`<relewise-popular-products number-of-recommendations=${numberOfRecommendations}></relewise-popular-products>`) as PopularProducts;
         
         await waitUntil(

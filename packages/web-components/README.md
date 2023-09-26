@@ -67,13 +67,24 @@ E.g. the `relewise-purchased-with-product` takes in an attribute `product-id` sp
 ```
 Replace the `PRODUCT_ID` with your own product's id.
 
-### Popular Products
+### Recommendations
+Call the useRecommendations function to start rendering recommendation components.
+ ```ts
+useRecommendations();
+```
+
+This can also be done fluently when initializing relewise UI.
+ ```ts
+initializeRelewiseUI().useRecommendations();
+```
+
+#### Popular Products
 This component renders the most [popular products](https://docs.relewise.com/docs/recommendations/recommendation-types.html#popular-products).
 
 ```html
 <relewise-popular-products displayed-at-location="LOCATION"></relewise-popular-products>
 ```
-#### Attributes
+##### Attributes
 - **displayed-at-location** : 
     
     Where the recommendations are being shown. 
@@ -94,13 +105,13 @@ This component renders the most [popular products](https://docs.relewise.com/doc
 
     The type of behavioral data that recommendations should be based on.
 
-### Products viewed after viewing Product
+#### Products viewed after viewing Product
 This component renders [products typically viewed after viewing a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#products-viewed-after-viewing-product).
 
 ```html
 <relewise-products-viewed-after-viewing-product product-id="PRODUCT_ID" displayed-at-location="LOCATION"></relewise-products-viewed-after-viewing-product>
 ```
-#### Attributes
+##### Attributes
 - **displayed-at-Location** : 
     
     Where the recommendations are being shown. 
@@ -119,13 +130,13 @@ This component renders [products typically viewed after viewing a given product]
 
     The number of product recommendations to render.
 
-### Products purchased with Product
+#### Products purchased with Product
 This component renders [products typically purchased with a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#purchased-with-product).
 
 ```html
 <relewise-purchased-with-product product-id="PRODUCT_ID" displayed-at-Location="LOCATION"></relewise-purchased-with-product>
 ```
-#### Attributes
+##### Attributes
 - **displayed-at-Location** : 
     
     Where the recommendations are being shown. 
@@ -269,17 +280,25 @@ initializeRelewiseUI(
     });
 ```
 
-### Tracking
+## Tracking
+Call the useBehavioralTracking function to start tracking user behavior.
+ ```ts
+useBehavioralTracking();
+```
 
+This can also be done fluently when initializing relewise UI.
+ ```ts
+initializeRelewiseUI().useBehavioralTracking();
+```
 These components do not render any html but they do send behavioral tracking data to Relewise.
 
-#### Product view
+### Product view
 This component sends a [track product view](https://docs.relewise.com/docs/developer/implementation-steps.html#_2-add-behavioral-tracking) request to Relewise.
 
 ```html
 <relewise-track-product-view product-id="PRODUCT_ID"></relewise-track-product-view>
 ```
-##### Attributes
+#### Attributes
 
 - **product-id**:
     
@@ -289,13 +308,13 @@ This component sends a [track product view](https://docs.relewise.com/docs/devel
     
     The id of the variant that has been viewed.
 
-#### Product category view
+### Product category view
 This component sends a [track product category view](https://docs.relewise.com/docs/developer/implementation-steps.html#_2-add-behavioral-tracking) request to Relewise.
 
 ```html
 <relewise-track-product-category-view id-path="ID_PATH"></relewise-track-product-category-view>
 ```
-##### Attributes
+#### Attributes
 
 - **id-path**:
     
@@ -305,25 +324,25 @@ This component sends a [track product category view](https://docs.relewise.com/d
 
     E.g.: "parent-category-1/child-category-2/child-category-4"
 
-#### Content view
+### Content view
 This component sends a [track content view](https://docs.relewise.com/docs/developer/implementation-steps.html#_2-add-behavioral-tracking) request to Relewise.
 
 ```html
 <relewise-track-content-view content-id="CONTENT_ID"></relewise-track-content-view>
 ```
-##### Attributes
+#### Attributes
 
 - **content-id**:
     
     The id of the content that has been viewed.
 
-#### Content category view
+### Content category view
 This component sends a [track content category view](https://docs.relewise.com/docs/developer/implementation-steps.html#_2-add-behavioral-tracking) request to Relewise.
 
 ```html
 <relewise-track-content-category-view id-path="ID_PATH"></relewise-track-content-category-view>
 ```
-##### Attributes
+#### Attributes
 
 - **id-path**:
     
@@ -333,13 +352,13 @@ This component sends a [track content category view](https://docs.relewise.com/d
 
     E.g.: "parent-category-1/child-category-2/child-category-4"
 
-#### Brand view
+### Brand view
 This component sends a [track brand view](https://docs.relewise.com/docs/developer/implementation-steps.html#_2-add-behavioral-tracking) request to Relewise.
 
 ```html
 <relewise-track-brand-view brand-id="BRAND_ID"></relewise-track-brand-view>
 ```
-##### Attributes
+#### Attributes
 
 - **brand-id**:
     
