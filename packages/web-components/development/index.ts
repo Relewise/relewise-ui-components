@@ -1,5 +1,5 @@
 import { UserFactory } from '@relewise/client';
-import { initializeRelewiseUI } from '../src/index';
+import { initializeRelewiseUI, updateContextSettings } from '../src/index';
 
 initializeRelewiseUI(
     {
@@ -17,3 +17,11 @@ initializeRelewiseUI(
         },
     },
 );
+
+// Wait for 3 seconds and then call updateRelewiseContextSettings
+setTimeout(() => {
+    updateContextSettings({
+        language: 'fr-be',
+        currency: 'EUR',
+    });
+}, 3000); // 3000 milliseconds = 3 seconds
