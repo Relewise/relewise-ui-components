@@ -1,5 +1,5 @@
 import { UserFactory } from '@relewise/client';
-import { initializeRelewiseUI, updateContextSettings, useBehavioralTracking } from '../src/index';
+import { initializeRelewiseUI, updateContextSettings } from '../src/index';
 
 initializeRelewiseUI(
     {
@@ -17,8 +17,6 @@ initializeRelewiseUI(
         },
     },
 ).useRecommendations();
-
-useBehavioralTracking();
 
 // Wait for 3 seconds and then call updateRelewiseContextSettings
 setTimeout(() => {
