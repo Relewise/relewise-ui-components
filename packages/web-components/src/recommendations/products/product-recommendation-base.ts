@@ -6,11 +6,11 @@ import { Events } from '../../helpers/events';
 export abstract class ProductRecommendationBase extends LitElement {
 
     abstract fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined;
-    
+
     @property({ type: Number, attribute: 'number-of-recommendations' })
     numberOfRecommendations: number = 4;
 
-    @property({attribute: 'displayed-at-location'})
+    @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;
 
     @state()
@@ -36,7 +36,7 @@ export abstract class ProductRecommendationBase extends LitElement {
         if (this.products) {
             return html`<div class="rw-grid">
                 ${this.products.map(product =>
-                    html`<relewise-product-tile .product=${product}></relewise-product-tile>`)
+                html`<relewise-product-tile .product=${product}></relewise-product-tile>`)
                 }
             </div>`
         }

@@ -14,18 +14,18 @@ export class ProductView extends LitElement {
     async connectedCallback() {
         super.connectedCallback();
         if (!this.productId) {
-            console.error('No product-id provided!')
+            console.error('No product-id provided!');
             return;
         }
-        
+
         const options = getRelewiseUIOptions();
         const tracker = getTracker(options);
-        
+
         tracker.trackProductView({
             productId: this.productId,
             variantId: this.variantId,
             user: options.contextSettings.getUser(),
-        })
+        });
     }
 }
 

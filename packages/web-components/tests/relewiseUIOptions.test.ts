@@ -55,11 +55,11 @@ suite('relewiseUIOptions', () => {
             displayedAtLocation: displayedAtLocation,
             language: mockedRelewiseOptions.contextSettings.language,
             user: mockedRelewiseOptions.contextSettings.getUser(),
-        }
+        };
     
         const result = getRelewiseContextSettings(displayedAtLocation);
     
         assert.isDefined(result);
         assert.deepEqual(result, expected);
     });
-})
+});

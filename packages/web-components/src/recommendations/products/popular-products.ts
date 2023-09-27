@@ -25,7 +25,6 @@ export class PopularProducts extends ProductRecommendationBase {
 
         return recommender.recommendPopularProducts(builder.build());
     }
-
 }
 
 declare global {

@@ -11,7 +11,7 @@ export class ProductCategoryView extends LitElement {
 
     async connectedCallback() {
         super.connectedCallback();
-        
+
         const pathAsArray = idPathAsArray(this.idPath);
         if (!pathAsArray) return;
 
@@ -21,7 +21,7 @@ export class ProductCategoryView extends LitElement {
         tracker.trackProductCategoryView({
             idPath: pathAsArray,
             user: options.contextSettings.getUser(),
-        })
+        });
     }
 }
 

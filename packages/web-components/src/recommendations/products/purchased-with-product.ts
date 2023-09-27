@@ -7,12 +7,12 @@ import { getProductRecommendationBuilderWithDefaults } from '../../builders/prod
 
 export class PurchasedWithProduct extends ProductRecommendationBase {
 
-    @property({attribute: 'product-id'})
+    @property({ attribute: 'product-id' })
     productId: string | undefined = undefined;
 
-    @property({attribute: 'variant-id'})
+    @property({ attribute: 'variant-id' })
     variantId: string | undefined = undefined;
-  
+
     fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
         if (!this.productId) {
             console.error('No productId provided!')

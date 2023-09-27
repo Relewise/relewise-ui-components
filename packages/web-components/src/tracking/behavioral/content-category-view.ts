@@ -21,7 +21,7 @@ export class ContentCategoryView extends LitElement {
         tracker.trackContentCategoryView({
             idPath: pathAsArray,
             user: options.contextSettings.getUser(),
-        })
+        });
     }
 }
 

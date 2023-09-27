@@ -1,6 +1,6 @@
 export function idPathAsArray(idPath: string | null): string[] | null {
     if (!idPath || !idPath.trim()) {
-        console.error('No id-path provided!')
+        console.error('No id-path provided!');
         return null;
     }
 

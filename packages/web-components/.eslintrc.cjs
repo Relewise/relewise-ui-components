@@ -31,7 +31,7 @@ module.exports = {
         'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
         quotes: ['error', 'single'],
-        semi: 0,
+        semi: ['error', 'always'],
         'no-extra-semi': 0,
         'comma-dangle': ['error', 'always-multiline'], // Reasoning behind using dangling commas -> https://github.com/airbnb/javascript#commas--dangling
         'no-useless-constructor': 'off', // che: Bug in rule - unless disabled makes eslint crash
@@ -47,4 +47,4 @@ module.exports = {
         '@typescript-eslint/no-non-null-assertion': 'off',
         'keyword-spacing': ['error', { 'before': true }],
     },
-}
+};
