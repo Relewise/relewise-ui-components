@@ -34,7 +34,7 @@ export function useBehavioralTracking() {
     tryRegisterElement('relewise-track-brand-view', BrandView);
 }   
 
-export function tryRegisterElement(name: string, constructor: CustomElementConstructor) {
+function tryRegisterElement(name: string, constructor: CustomElementConstructor) {
     if (customElements.get(name) === undefined) {
         customElements.define(name, constructor);
     }
