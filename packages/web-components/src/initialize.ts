@@ -1,9 +1,6 @@
 import { FilterBuilder, ProductResult, RelewiseClientOptions, SelectedProductPropertiesSettings, User } from '@relewise/client';
 import { TemplateResult } from 'lit';
-import { PopularProducts } from './recommendations/products/popular-products';
-import { ProductsViewedAfterViewingProduct } from './recommendations/products/products-viewed-after-viewing-product';
-import { PurchasedWithProduct } from './recommendations/products/purchased-with-product';
-import { BrandView, ContentCategoryView, ContentView, ProductCategoryView, ProductView } from './tracking/behavioral';
+import { App } from './app';
 
 export interface RelewiseUIOptions {
     datasetId: string;
@@ -38,23 +35,10 @@ export interface Templates {
     product?: (product: ProductResult, extensions: TemplateExtensions) => TemplateResult<1>;
 }
 
-export function initializeRelewiseUI(options: RelewiseUIOptions) {
+export function initializeRelewiseUI(options: RelewiseUIOptions): App {
     window.relewiseUIOptions = options;
-    
-    tryRegisterElement('relewise-popular-products', PopularProducts);
-    tryRegisterElement('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);
-    tryRegisterElement('relewise-purchased-with-product', PurchasedWithProduct);
-    tryRegisterElement('relewise-track-product-view', ProductView);
-    tryRegisterElement('relewise-track-product-category-view', ProductCategoryView);
-    tryRegisterElement('relewise-track-content-view', ContentView);
-    tryRegisterElement('relewise-track-content-category-view', ContentCategoryView);
-    tryRegisterElement('relewise-track-brand-view', BrandView);
-}
 
-function tryRegisterElement(name: string, constructor: CustomElementConstructor) {
-    if (customElements.get(name) === undefined) {
-        customElements.define(name, constructor);
-    }
+    return new App();
 }
 
 declare global {
