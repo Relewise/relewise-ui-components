@@ -17,7 +17,10 @@ export class Autocomplete extends LitElement {
     searchTermPredictions: SearchTermPredictionResult[] | null = null;
 
     @state()
-    inFocus: boolean = false;
+    searchBarInFocus: boolean = false;
+
+    @state()
+    resultBoxIsHovered: boolean = false;
 
     @state()
     term: string = '';
@@ -40,6 +43,14 @@ export class Autocomplete extends LitElement {
 
         this.search(term);
     }
+
+    handleResultBoxHover = () => {
+        this.resultBoxIsHovered = true;
+    };
+    
+    handleResultBoxMouseLeave = () => {
+        this.resultBoxIsHovered = false;
+    };
 
     async search(searchTerm: string) {
         const relewiseUIOptions = getRelewiseUIOptions();
@@ -70,10 +81,10 @@ export class Autocomplete extends LitElement {
     render() {
         return html`
         <div class="rw-search-bar-container">
-            <input class="rw-search-bar" type="text" .value=${this.term} @input=${(e: InputEvent) => this.setSearchTerm((e.target as HTMLInputElement).value)} @focus=${() => this.inFocus = true} @blur=${() => this.inFocus = true}>
-            ${this.inFocus && this.term ? 
+            <input class="rw-search-bar" type="text" .value=${this.term} @input=${(e: InputEvent) => this.setSearchTerm((e.target as HTMLInputElement).value)} @focus=${() => this.searchBarInFocus = true} @blur=${() => this.searchBarInFocus = false}>
+            ${(this.searchBarInFocus || this.resultBoxIsHovered) && this.term ? 
                 html`
-                    <div class="rw-result-container">
+                    <div class="rw-result-container" @mouseover=${() => this.resultBoxIsHovered = true} @mouseleave=${() => this.resultBoxIsHovered = false}>
                         ${this.searchTermPredictions && this.searchTermPredictions.length > 0 ? html`
                         <div class="rw-term-prediction-container">
                                 ${this.searchTermPredictions.map(term =>
