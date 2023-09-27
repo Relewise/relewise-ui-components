@@ -4,7 +4,6 @@ import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
 import { getRelewiseContextSettings, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getSearcher } from './searcher';
-import formatPrice from '../helpers/formatPrice';
 
 export class Autocomplete extends LitElement {
     
@@ -79,24 +78,7 @@ export class Autocomplete extends LitElement {
                         ${this.products ? html`
                                 <div class="rw-products-container">
                                     ${this.products.map(product =>
-                                        html`<div class="rw-product-result-tile">
-                                        ${(product.data && 'ImageUrl' in product.data) ? 
-                                            html`
-                                                <img class="rw-product-image-container" src=${product.data['ImageUrl'].value} />
-                                            `
-                                        : nothing
-                                    }
-                                        <h4 class="rw-product-result-display-name">${product.displayName}</h4>
-                                        <div class='rw-product-result-price'>
-                                            <div>
-                                                <span class="rw-product-result-sales-price">${formatPrice(product.salesPrice)}</span>
-                                            </div>
-                                            ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
-                                                ? html`<span class='rw-product-result-list-price'>${formatPrice(product.listPrice)}</span>`
-                                                : nothing
-                                            }
-                                        </div>
-                                        </div>`,
+                                        html`<relewise-product-search-result-tile .product=${product}></relewise-product-search-result-tile>`,
                                     )}
                                 </div>
                         ` : nothing}
@@ -151,37 +133,6 @@ export class Autocomplete extends LitElement {
 
         .vl {
             border-left: 2px solid lightgray;
-        }
-
-        .rw-product-image-container {
-            height: 7rem;
-            width: 7rem;
-        }
-
-        .rw-product-result-tile {
-            display: flex;
-            margin: 1rem
-        }
-
-        .rw-product-result-display-name {
-            margin: auto 1rem;
-        }
-
-        .rw-product-result-price {
-            margin: auto 0 auto auto;
-            position: relative
-        }
-
-        .rw-product-result-sales-price {
-            display: flex;
-            font-weight: 700;
-            font-size: 1.25rem;
-        }
-
-        .rw-product-result-list-price {
-            font-size: 1rem;
-            text-decoration: line-through;
-            color: darkgray;
         }
     `;
 }
