@@ -6,7 +6,7 @@ import { integrationTestRelewiseOptions } from './util/testRelewiseUIOptions';
 suite('relewise-popular-products', () => {
     test('is not intance of when relewise not instantiated', async() => {
         const el = await fixture(html`<relewise-popular-products></relewise-popular-products>`);
-        assert.notInstanceOf(el, PopularProducts)
+        assert.notInstanceOf(el, PopularProducts);
     });
     
     test('is intance of when relewise is instantiated', async() => {
@@ -39,10 +39,10 @@ suite('relewise-popular-products', () => {
         const el = await fixture(html`<relewise-popular-products number-of-recommendations=${numberOfRecommendations}></relewise-popular-products>`) as PopularProducts;
         
         await waitUntil(
-            () => { return el.shadowRoot!.querySelectorAll('relewise-product-tile').length === numberOfRecommendations },
+            () => { return el.shadowRoot!.querySelectorAll('relewise-product-tile').length === numberOfRecommendations; },
             'Never rendered any products', { timeout: 5000 },
         );
 
-        assert.equal(el.shadowRoot!.querySelectorAll('relewise-product-tile').length, numberOfRecommendations)
+        assert.equal(el.shadowRoot!.querySelectorAll('relewise-product-tile').length, numberOfRecommendations);
     });
-})
+});

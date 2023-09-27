@@ -52,7 +52,7 @@ export class ProductTile extends LitElement {
                         : nothing
                     }
                 </div>
-            </div>`
+            </div>`;
     }
 
     static styles = css`

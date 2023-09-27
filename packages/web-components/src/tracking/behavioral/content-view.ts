@@ -11,18 +11,17 @@ export class ContentView extends LitElement {
     async connectedCallback() {
         super.connectedCallback();
         if (!this.contentId) {
-            console.error('No content-id provided!')
+            console.error('No content-id provided!');
             return;
         }
-        
+
         const options = getRelewiseUIOptions();
         const tracker = getTracker(options);
-        
+
         tracker.trackContentView({
             contentId: this.contentId,
             user: options.contextSettings.getUser(),
-        },
-        )
+        });
     }
 }
 

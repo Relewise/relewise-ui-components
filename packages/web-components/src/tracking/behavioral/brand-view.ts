@@ -11,17 +11,17 @@ export class BrandView extends LitElement {
     async connectedCallback() {
         super.connectedCallback();
         if (!this.brandId) {
-            console.error('No brand-id provided!')
+            console.error('No brand-id provided!');
             return;
         }
-        
+
         const options = getRelewiseUIOptions();
         const tracker = getTracker(options);
-        
-        tracker.trackBrandView( {
+
+        tracker.trackBrandView({
             brandId: this.brandId,
             user: options.contextSettings.getUser(),
-        })
+        });
     }
 }
 

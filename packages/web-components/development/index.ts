@@ -1,7 +1,7 @@
 import { UserFactory } from '@relewise/client';
 import { initializeRelewiseUI, updateContextSettings } from '../src/index';
 
-initializeRelewiseUI(
+const relewise = initializeRelewiseUI(
     {
         contextSettings: {
             getUser: () => {
@@ -16,7 +16,10 @@ initializeRelewiseUI(
             serverUrl: import.meta.env.VITE_SERVER_URL,
         },
     },
-).useRecommendations();
+);
+
+relewise
+    .useRecommendations();
 
 // Wait for 3 seconds and then call updateRelewiseContextSettings
 setTimeout(() => {

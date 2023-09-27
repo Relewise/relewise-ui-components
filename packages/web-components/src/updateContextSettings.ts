@@ -15,6 +15,6 @@ export function updateContextSettings(contextSettings: Partial<ContextSettings>)
         window.relewiseUIOptions.contextSettings.language = contextSettings.language;
     }
 
-    const relewiseContextSettingsUpdatedEvent = new CustomEvent(Events.contextSettingsUpdated)
+    const relewiseContextSettingsUpdatedEvent = new CustomEvent(Events.contextSettingsUpdated);
     window.dispatchEvent(relewiseContextSettingsUpdatedEvent);
 }

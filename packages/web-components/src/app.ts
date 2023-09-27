@@ -8,12 +8,12 @@ export class App {
         useRecommendations();
         return this;
     }
-    
+
     useBehavioralTracking(): App {
         useBehavioralTracking();
         return this;
     }
-    
+
     updateContextSettings(contextSettings: Partial<ContextSettings>): App {
         updateContextSettings(contextSettings);
         return this;
@@ -32,7 +32,7 @@ export function useBehavioralTracking() {
     tryRegisterElement('relewise-track-content-view', ContentView);
     tryRegisterElement('relewise-track-content-category-view', ContentCategoryView);
     tryRegisterElement('relewise-track-brand-view', BrandView);
-}   
+}
 
 function tryRegisterElement(name: string, constructor: CustomElementConstructor) {
     if (customElements.get(name) === undefined) {

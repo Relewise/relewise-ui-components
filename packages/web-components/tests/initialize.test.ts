@@ -10,4 +10,4 @@ suite('initialize', () => {
         assert.isDefined(window.relewiseUIOptions);
         assert.deepEqual(window.relewiseUIOptions, mockedRelewiseOptions);
     });
-})
+});

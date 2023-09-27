@@ -22,5 +22,5 @@ export function integrationTestRelewiseOptions(): RelewiseUIOptions {
         },
         datasetId: datasetId!,
         apiKey: apiKey!,
-    }
+    };
 }

@@ -13,7 +13,7 @@ suite('productRecommendationBuilder', () => {
         const expected = new PopularProductsBuilder(getRelewiseContextSettings('web-components-tests')).setSelectedProductProperties(defaultProductProperties).build();
         const result = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options), 'web-components-tests').build();
         
-        assert.deepEqual(expected.settings.selectedProductProperties, result.settings.selectedProductProperties)
+        assert.deepEqual(expected.settings.selectedProductProperties, result.settings.selectedProductProperties);
     });
     
     test('getProductRecommendationBuilderWithDefaults returns builder with options from initializeRelewiseUI', () => {
@@ -23,6 +23,6 @@ suite('productRecommendationBuilder', () => {
         const expected = new PopularProductsBuilder(getRelewiseContextSettings('web-components-tests')).setSelectedProductProperties(mockedRelewiseOptions.selectedPropertiesSettings!.product!).build();
         const result = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options), 'web-components-tests').build();
         
-        assert.deepEqual(expected.settings.selectedProductProperties, result.settings.selectedProductProperties)
+        assert.deepEqual(expected.settings.selectedProductProperties, result.settings.selectedProductProperties);
     });
-})
+});

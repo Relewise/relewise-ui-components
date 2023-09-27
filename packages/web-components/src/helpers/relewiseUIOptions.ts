@@ -22,5 +22,5 @@ export function getRelewiseContextSettings(displayedAtLocation: string): Setting
         displayedAtLocation: displayedAtLocation,
         language: contextSettings.language,
         user: contextSettings.getUser(),
-    }
+    };
 }

@@ -20,5 +20,5 @@ export function mockRelewiseOptions(): RelewiseUIOptions {
         },
         datasetId: 'datasetId',
         apiKey: 'apiKey',
-    }
+    };
 }
