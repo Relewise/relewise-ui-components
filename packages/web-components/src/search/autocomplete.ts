@@ -14,10 +14,13 @@ export class Autocomplete extends LitElement {
     products: ProductResult[] | null = null;
 
     @state()
-    terms: SearchTermPredictionResult[] | null = null;
+    searchTermPredictions: SearchTermPredictionResult[] | null = null;
 
     @state()
     inFocus: boolean = false;
+
+    @state()
+    term: string = '';
     
     async connectedCallback() {
         if (!this.displayedAtLocation) {
@@ -26,26 +29,30 @@ export class Autocomplete extends LitElement {
         super.connectedCallback();
     }
 
-    async search(e: InputEvent) {
-        const inputElement = e.target as HTMLInputElement;
-
-        if (!inputElement.value) {
-            this.products = null;
-            this.terms = null;
+    setSearchTerm(term: string) {
+        this.term = term;
+        
+        if (!term) {
+            this.products = null; 
+            this.searchTermPredictions = null;
             return;
         }
 
+        this.search(term);
+    }
+
+    async search(searchTerm: string) {
         const relewiseUIOptions = getRelewiseUIOptions();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ?? '');
         const searcher = getSearcher(relewiseUIOptions);
         const request = new SearchCollectionBuilder()
             .addRequest(new ProductSearchBuilder(settings)
                 .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
-                .setTerm(inputElement.value)
+                .setTerm(searchTerm)
                 .pagination(p => p.setPageSize(3))
                 .build())
             .addRequest(new SearchTermPredictionBuilder(settings)
-                .setTerm(inputElement.value)
+                .setTerm(searchTerm)
                 .take(10)
                 .build())
             .build();
@@ -56,32 +63,38 @@ export class Autocomplete extends LitElement {
             this.products = productSearchResult.results ?? null;
 
             const searchTermPredictionResult = response.responses[1] as SearchTermPredictionResponse
-            this.terms = searchTermPredictionResult.predictions ?? null;
+            this.searchTermPredictions = searchTermPredictionResult.predictions ?? null;
         }
     }
 
     render() {
         return html`
         <div class="rw-search-bar-container">
-            <input class="rw-search-bar" type="text" @input=${(e: InputEvent) => this.search(e)} @focus=${() => this.inFocus = true} @blur=${() => this.inFocus = false}>
-            ${this.inFocus && ((this.products && this.products.length > 0) || (this.terms && this.terms.length > 0)) ? 
+            <input class="rw-search-bar" type="text" .value=${this.term} @input=${(e: InputEvent) => this.setSearchTerm((e.target as HTMLInputElement).value)} @focus=${() => this.inFocus = true} @blur=${() => this.inFocus = true}>
+            ${this.inFocus && this.term ? 
                 html`
                     <div class="rw-result-container">
-                        ${this.terms ? html`
+                        ${this.searchTermPredictions && this.searchTermPredictions.length > 0 ? html`
                         <div class="rw-term-prediction-container">
-                                ${this.terms.map(term =>
-                                    html`<div>${term.term}</div>`,
+                                ${this.searchTermPredictions.map(term =>
+                                    html`
+                                    <div>
+                                        <button @click=${() => this.setSearchTerm(term.term ?? '')}>
+                                            ${term.term}
+                                        </button>
+                                    </div>`,
                                 )}
                         </div>
                         ` : nothing}
                         <div class="vl"></div>
-                        ${this.products ? html`
+                        ${this.products && this.products.length > 0 ? html`
                                 <div class="rw-products-container">
                                     ${this.products.map(product =>
                                         html`<relewise-product-search-result-tile .product=${product}></relewise-product-search-result-tile>`,
                                     )}
                                 </div>
                         ` : nothing}
+                        
                     </div>
                 ` : nothing
             }

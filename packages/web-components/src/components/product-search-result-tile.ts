@@ -14,7 +14,6 @@ export class ProductSearchResultTile extends LitElement {
     }
 
     render() {
-        console.log('test')
         if (!this.product) {
             return;
         }
