@@ -22,6 +22,16 @@ suite('relewise-popular-products', () => {
         assert.shadowDom.equal(el, '');
     });
 
+    test('renders nothing when useRecommendations is never called', async() => {
+        const numberOfRecommendations = 10;
+
+        initializeRelewiseUI(integrationTestRelewiseOptions()).useRecommendations();
+        const el = await fixture(html`<relewise-popular-products number-of-recommendations=${numberOfRecommendations}></relewise-popular-products>`) as PopularProducts;
+        
+        await el.updateComplete;
+        assert.shadowDom.equal(el, '');
+    });
+
     test('renders numberOfRecommendations', async() => {
         const numberOfRecommendations = 10;
 
