@@ -171,7 +171,6 @@ export class Autocomplete extends LitElement {
         }
 
         .rw-result-container {
-            min-width: 40rem;
             padding: 1rem;
             position: absolute;
             z-index: 99;
