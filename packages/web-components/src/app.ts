@@ -1,6 +1,6 @@
 import { ContextSettings } from './initialize';
 import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithProduct } from './recommendations';
-import { Autocomplete } from './search/autocomplete';
+import { SearchBar } from './search/search-bar';
 import { ProductView, ProductCategoryView, ContentView, ContentCategoryView, BrandView } from './tracking';
 import { updateContextSettings } from './updateContextSettings';
 
@@ -41,7 +41,7 @@ export function useBehavioralTracking() {
 } 
 
 export function useSearch() {
-    tryRegisterElement('relewise-autocomplete', Autocomplete);
+    tryRegisterElement('relewise-search-bar', SearchBar);
 } 
 
 function tryRegisterElement(name: string, constructor: CustomElementConstructor) {

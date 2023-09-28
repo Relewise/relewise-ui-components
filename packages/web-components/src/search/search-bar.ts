@@ -4,7 +4,7 @@ import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
 import { getRelewiseContextSettings, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getSearcher } from './searcher';
-export class Autocomplete extends LitElement {
+export class SearchBar extends LitElement {
     
     @property({attribute: 'displayed-at-location'})
     displayedAtLocation?: string = undefined;
@@ -69,10 +69,10 @@ export class Autocomplete extends LitElement {
 
         const response = await searcher.batch(request);
         if (response && response.responses) {
-            const productSearchResult = response.responses[0] as ProductSearchResponse
+            const productSearchResult = response.responses[0] as ProductSearchResponse;
             this.products = productSearchResult.results ?? null;
 
-            const searchTermPredictionResult = response.responses[1] as SearchTermPredictionResponse
+            const searchTermPredictionResult = response.responses[1] as SearchTermPredictionResponse;
             this.searchTermPredictions = searchTermPredictionResult.predictions ?? null;
         }
     }
@@ -120,7 +120,7 @@ export class Autocomplete extends LitElement {
                 ` : nothing
             }
         </div>
-        `
+        `;
     }
 
     static styles = css`
@@ -208,6 +208,6 @@ export class Autocomplete extends LitElement {
 
 declare global {
     interface HTMLElementTagNameMap {
-        'relewise-autocomplete': Autocomplete;
+        'relewise-search-bar': SearchBar;
     }
 }
