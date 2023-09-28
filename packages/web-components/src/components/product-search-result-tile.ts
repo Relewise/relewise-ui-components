@@ -42,8 +42,8 @@ export class ProductSearchResultTile extends LitElement {
 
     static styles = css`
         .rw-product-image-container {
-            height: 7rem;
-            width: 7rem;
+            height: 5rem;
+            width: 5rem;
         }
 
         .rw-product-result-tile {

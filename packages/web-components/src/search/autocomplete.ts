@@ -48,7 +48,7 @@ export class Autocomplete extends LitElement {
     };
     
     handleResultBoxMouseLeave = () => {
-        this.resultBoxIsHovered = false;
+        this.resultBoxIsHovered = true;
     };
 
     async search(searchTerm: string) {
@@ -59,7 +59,7 @@ export class Autocomplete extends LitElement {
             .addRequest(new ProductSearchBuilder(settings)
                 .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
                 .setTerm(searchTerm)
-                .pagination(p => p.setPageSize(3))
+                .pagination(p => p.setPageSize(5))
                 .build())
             .addRequest(new SearchTermPredictionBuilder(settings)
                 .setTerm(searchTerm)
@@ -92,9 +92,9 @@ export class Autocomplete extends LitElement {
                                 ${this.searchTermPredictions.map(term =>
                                     html`
                                     <div>
-                                        <button @click=${() => this.setSearchTerm(term.term ?? '')}>
+                                        <h3 class="rw-prediction-item" @click=${() => this.setSearchTerm(term.term ?? '')}>
                                             ${term.term}
-                                        </button>
+                                        </h3>
                                     </div>`,
                                 )}
                         </div>
@@ -166,12 +166,13 @@ export class Autocomplete extends LitElement {
             padding: 1rem;
             position: absolute;
             z-index: 99;
-            width: 50rem;
             background-color: white;
             box-shadow: 0 10px 15px rgb(0 0 0 / 0.2);
             overflow-y: auto;
             display: grid;
-            grid-template-columns: 30% 2% 68%; 
+            grid-template-columns: 30% 2% 68%;
+            margin-right: 2rem;
+            margin-left: 2rem;
         }
 
         .rw-term-prediction-container {
@@ -182,6 +183,10 @@ export class Autocomplete extends LitElement {
             flex-grow: 4;
             display:flex;
             flex-direction: column;
+        }
+
+        .rw-prediction-item {
+            cursor: pointer;
         }
 
         .vl {
