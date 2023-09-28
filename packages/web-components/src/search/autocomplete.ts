@@ -87,27 +87,35 @@ export class Autocomplete extends LitElement {
             ${(this.searchBarInFocus || this.resultBoxIsHovered) && this.term ? 
                 html`
                     <div class="rw-result-container" @mouseover=${() => this.resultBoxIsHovered = true} @mouseleave=${() => this.resultBoxIsHovered = false}>
-                        ${this.searchTermPredictions && this.searchTermPredictions.length > 0 ? html`
-                        <div class="rw-term-prediction-container">
-                                ${this.searchTermPredictions.map(term =>
-                                    html`
-                                    <div>
-                                        <h3 class="rw-prediction-item" @click=${() => this.setSearchTerm(term.term ?? '')}>
-                                            ${term.term}
-                                        </h3>
-                                    </div>`,
-                                )}
-                        </div>
-                        ` : nothing}
-                        <div class="vl"></div>
-                        ${this.products && this.products.length > 0 ? html`
-                                <div class="rw-products-container">
-                                    ${this.products.map(product =>
-                                        html`<relewise-product-search-result-tile .product=${product}></relewise-product-search-result-tile>`,
+                        ${(!this.searchTermPredictions ||
+                        this.searchTermPredictions.length < 1) &&
+                        (!this.products ||
+                        this.products.length < 1) ? html`
+                            <h3>No search results to show</h3>
+                        ` : html`
+                        <div class="rw-result-grid">
+                            ${this.searchTermPredictions && this.searchTermPredictions.length > 0 ? html`
+                            <div class="rw-term-prediction-container">
+                                    ${this.searchTermPredictions.map(term =>
+                                        html`
+                                        <div>
+                                            <h3 class="rw-prediction-item" @click=${() => this.setSearchTerm(term.term ?? '')}>
+                                                ${term.term}
+                                            </h3>
+                                        </div>`,
                                     )}
-                                </div>
-                        ` : nothing}
-                        
+                            </div>
+                            ` : nothing}
+                            <div class="vl"></div>
+                            ${this.products && this.products.length > 0 ? html`
+                                    <div class="rw-products-container">
+                                        ${this.products.map(product =>
+                                            html`<relewise-product-search-result-tile .product=${product}></relewise-product-search-result-tile>`,
+                                        )}
+                                    </div>
+                            ` : nothing}
+                        </div>
+                        `}
                     </div>
                 ` : nothing
             }
@@ -163,16 +171,20 @@ export class Autocomplete extends LitElement {
         }
 
         .rw-result-container {
+            min-width: 40rem;
             padding: 1rem;
             position: absolute;
             z-index: 99;
             background-color: white;
             box-shadow: 0 10px 15px rgb(0 0 0 / 0.2);
             overflow-y: auto;
-            display: grid;
-            grid-template-columns: 30% 2% 68%;
             margin-right: 2rem;
             margin-left: 2rem;
+        }
+
+        .rw-result-grid {
+            display: grid;
+            grid-template-columns: 30% 2% 68%;
         }
 
         .rw-term-prediction-container {
