@@ -37,7 +37,7 @@ export class ProductSearchResultTile extends LitElement {
                 }
             </div>
         </div>
-        `
+        `;
     }
 
     static styles = css`

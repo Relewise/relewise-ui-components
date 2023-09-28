@@ -19,9 +19,6 @@ export class SearchBar extends LitElement {
     searchBarInFocus: boolean = false;
 
     @state()
-    resultBoxIsHovered: boolean = false;
-
-    @state()
     term: string = '';
     
     async connectedCallback() {
@@ -42,14 +39,6 @@ export class SearchBar extends LitElement {
 
         this.search(term);
     }
-
-    handleResultBoxHover = () => {
-        this.resultBoxIsHovered = true;
-    };
-    
-    handleResultBoxMouseLeave = () => {
-        this.resultBoxIsHovered = true;
-    };
 
     async search(searchTerm: string) {
         const relewiseUIOptions = getRelewiseUIOptions();
@@ -84,40 +73,13 @@ export class SearchBar extends LitElement {
                 <input class="rw-search-bar-input" type="text" placeholder="Search" .value=${this.term} @input=${(e: InputEvent) => this.setSearchTerm((e.target as HTMLInputElement).value)} @focus=${() => this.searchBarInFocus = true} @blur=${() => this.searchBarInFocus = false}>
                 ${this.term ? html`<div class="rw-clear-icon" @click=${() => this.term = ''}></div>`  : html`<div class="rw-search-icon"></div>`}
             </div>
-            ${(this.searchBarInFocus || this.resultBoxIsHovered) && this.term ? 
-                html`
-                    <div class="rw-result-container" @mouseover=${() => this.resultBoxIsHovered = true} @mouseleave=${() => this.resultBoxIsHovered = false}>
-                        ${(!this.searchTermPredictions ||
-                        this.searchTermPredictions.length < 1) &&
-                        (!this.products ||
-                        this.products.length < 1) ? html`
-                            <h3>No search results to show</h3>
-                        ` : html`
-                        <div class="rw-result-grid">
-                            ${this.searchTermPredictions && this.searchTermPredictions.length > 0 ? html`
-                            <div class="rw-term-prediction-container">
-                                    ${this.searchTermPredictions.map(term =>
-                                        html`
-                                        <div>
-                                            <h3 class="rw-prediction-item" @click=${() => this.setSearchTerm(term.term ?? '')}>
-                                                ${term.term}
-                                            </h3>
-                                        </div>`,
-                                    )}
-                            </div>
-                            ` : nothing}
-                            <div class="vl"></div>
-                            ${this.products && this.products.length > 0 ? html`
-                                    <div class="rw-products-container">
-                                        ${this.products.map(product =>
-                                            html`<relewise-product-search-result-tile .product=${product}></relewise-product-search-result-tile>`,
-                                        )}
-                                    </div>
-                            ` : nothing}
-                        </div>
-                        `}
-                    </div>
-                ` : nothing
+            ${this.term ? 
+                html`<relewise-product-search-bar-result-overlay
+                    .searchBarInFocus=${this.searchBarInFocus}
+                    .products=${this.products} 
+                    .searchTermPredictions=${this.searchTermPredictions}
+                    .setSearchTerm=${(term: string)=> this.setSearchTerm(term)}>
+                    </relewise-product-search-bar-result-overlay> ` : nothing
             }
         </div>
         `;
@@ -168,40 +130,6 @@ export class SearchBar extends LitElement {
 
         .rw-search-bar:focus {
             border: .2rem solid #7a7777;
-        }
-
-        .rw-result-container {
-            padding: 1rem;
-            position: absolute;
-            z-index: 99;
-            background-color: white;
-            box-shadow: 0 10px 15px rgb(0 0 0 / 0.2);
-            overflow-y: auto;
-            margin-right: 2rem;
-            margin-left: 2rem;
-        }
-
-        .rw-result-grid {
-            display: grid;
-            grid-template-columns: 30% 2% 68%;
-        }
-
-        .rw-term-prediction-container {
-            flex-grow: 14;
-        }
-
-        .rw-products-container {
-            flex-grow: 4;
-            display:flex;
-            flex-direction: column;
-        }
-
-        .rw-prediction-item {
-            cursor: pointer;
-        }
-
-        .vl {
-            border-left: 2px solid lightgray;
         }
     `;
 }
