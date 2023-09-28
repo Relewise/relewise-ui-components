@@ -18,21 +18,35 @@ export class ProductSearchResultTile extends LitElement {
             return;
         }
 
+        if (this.product.data && 'Url' in this.product.data) {
+            return html`
+                <a class='rw-tile' href=${this.product.data['Url'].value ?? ''}>
+                    ${this.renderTileContent(this.product)}
+                </a>`;
+        }
+        
+        return  html`
+            <a class='rw-tile'>
+                ${this.renderTileContent(this.product)}
+            </a>`;
+    }
+
+    renderTileContent(product: ProductResult) {
         return html`
         <div class="rw-product-result-tile">
-            ${(this.product.data && 'ImageUrl' in this.product.data) ? 
+            ${(product.data && 'ImageUrl' in product.data) ? 
                 html`
-                <img class="rw-product-image-container" src=${this.product.data['ImageUrl'].value} />
+                <img class="rw-product-image-container" src=${product.data['ImageUrl'].value} />
                 ` : nothing
             }
-            <h4 class="rw-product-result-display-name">${this.product.displayName}</h4>
+            <h4 class="rw-product-result-display-name">${product.displayName}</h4>
             <div class='rw-product-result-price'>
                 <div>
-                    <span class="rw-product-result-sales-price">${formatPrice(this.product.salesPrice)}</span>
+                    <span class="rw-product-result-sales-price">${formatPrice(product.salesPrice)}</span>
                 </div>
-                ${(this.product.salesPrice && this.product.listPrice && this.product.listPrice !== this.product.salesPrice) ? 
+                ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice) ? 
                     html`
-                    <span class='rw-product-result-list-price'>${formatPrice(this.product.listPrice)}</span>
+                    <span class='rw-product-result-list-price'>${formatPrice(product.listPrice)}</span>
                     ` : nothing
                 }
             </div>
@@ -41,9 +55,17 @@ export class ProductSearchResultTile extends LitElement {
     }
 
     static styles = css`
+        .rw-tile {
+            color: inherit; /* blue colors for links too */
+            text-decoration: inherit; /* no underline */
+            font-family: var(--relewise-font, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
+        }
+
         .rw-product-image-container {
-            height: 5rem;
-            width: 5rem;
+            min-height: 5rem;
+            max-height: 5rem;
+            min-width: 5rem;
+            max-width: 5rem;
         }
 
         .rw-product-result-tile {

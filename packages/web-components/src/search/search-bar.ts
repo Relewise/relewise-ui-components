@@ -40,6 +40,10 @@ export class SearchBar extends LitElement {
         this.search(term);
     }
 
+    isMobile(): boolean {
+        return window.innerWidth < 768;
+    }
+
     async search(searchTerm: string) {
         const relewiseUIOptions = getRelewiseUIOptions();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ?? '');
@@ -48,7 +52,7 @@ export class SearchBar extends LitElement {
             .addRequest(new ProductSearchBuilder(settings)
                 .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
                 .setTerm(searchTerm)
-                .pagination(p => p.setPageSize(5))
+                .pagination(p => p.setPageSize(50))
                 .build())
             .addRequest(new SearchTermPredictionBuilder(settings)
                 .setTerm(searchTerm)
@@ -73,13 +77,24 @@ export class SearchBar extends LitElement {
                 <input class="rw-search-bar-input" type="text" placeholder="Search" .value=${this.term} @input=${(e: InputEvent) => this.setSearchTerm((e.target as HTMLInputElement).value)} @focus=${() => this.searchBarInFocus = true} @blur=${() => this.searchBarInFocus = false}>
                 ${this.term ? html`<div class="rw-clear-icon" @click=${() => this.term = ''}></div>`  : html`<div class="rw-search-icon"></div>`}
             </div>
-            ${this.term ? 
-                html`<relewise-product-search-bar-result-overlay
+            ${this.term ?
+                this.isMobile() ? 
+                html `
+                <relewise-product-search-bar-result-mobile-overlay
                     .searchBarInFocus=${this.searchBarInFocus}
                     .products=${this.products} 
                     .searchTermPredictions=${this.searchTermPredictions}
                     .setSearchTerm=${(term: string)=> this.setSearchTerm(term)}>
-                    </relewise-product-search-bar-result-overlay> ` : nothing
+                </relewise-product-search-bar-result-mobile-overlay>
+                ` : 
+                html`
+                <relewise-product-search-bar-result-overlay
+                    .searchBarInFocus=${this.searchBarInFocus}
+                    .products=${this.products} 
+                    .searchTermPredictions=${this.searchTermPredictions}
+                    .setSearchTerm=${(term: string)=> this.setSearchTerm(term)}>
+                </relewise-product-search-bar-result-overlay>` 
+            : nothing
             }
         </div>
         `;
