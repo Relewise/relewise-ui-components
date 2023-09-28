@@ -15,7 +15,7 @@ export class PurchasedWithProduct extends ProductRecommendationBase {
 
     fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
         if (!this.productId) {
-            console.error('No productId provided!')
+            console.error('No productId provided!');
             return;
         }
 

@@ -31,17 +31,42 @@
     --relewise-mobile-grid-template-columns: repeat(1, 1fr);
     --relewise-grid-gap: 10rem; */
   }
+
+  .autocomplete-container {
+    width: 50%;
+  }
+
+  .header {
+    height: 5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .header-title {
+    margin: 2rem;
+    line-height: 51px;
+    vertical-align: middle;
+    width: 25%;
+  }
 </style>
 
 <body>
   <script type="module" src="index.ts"></script>
-
-  <div class="wrapper">
-    <div class="recommendation-block">
-      <h2>Popular Products</h2>
-      <relewise-popular-products based-on="MostViewed" number-of-recommendations="12"
-        displayed-at-location="web component dev"></relewise-popular-products>
+  <header class="header">
+    <h1 class="header-title">Web Components Dev</h1>
+    <div class="autocomplete-container">
+      <relewise-autocomplete displayed-at-location="web component dev"></relewise-autocomplete>
     </div>
+  </header>
+  <hr>
+  <div class="recommendation-block">
+    <h2>Popular Products</h2>
+    <relewise-popular-products based-on="MostViewed" number-of-recommendations="20"
+      displayed-at-location="web component dev"></relewise-popular-products>
+  </div>
+  <relewise-autocomplete displayed-at-location="web component dev"></relewise-autocomplete>
+  <!-- <div class="wrapper">
+
 
     <div class="recommendation-block">
       <h2>Products Viewed after viewing</h2>
@@ -54,12 +79,12 @@
       <relewise-purchased-with-product product-id="1922"
         displayed-at-location="web component dev"></relewise-purchased-with-product>
     </div>
-  </div>
+  </div> -->
 </body>
-<relewise-track-product-view product-id="1" variant-id="2"></relewise-track-product-view>
+<!-- <relewise-track-product-view product-id="1" variant-id="2"></relewise-track-product-view>
 <relewise-track-product-category-view id-path="1/1/2"></relewise-track-product-category-view>
 <relewise-track-content-view content-id="1"></relewise-track-content-view>
 <relewise-track-content-category-view id-path="2/5/1"></relewise-track-content-category-view>
-<relewise-track-brand-view brand-id="3423"></relewise-track-brand-view>
+<relewise-track-brand-view brand-id="3423"></relewise-track-brand-view> -->
 
 </html>

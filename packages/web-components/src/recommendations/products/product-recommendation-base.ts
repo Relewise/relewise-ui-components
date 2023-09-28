@@ -38,7 +38,7 @@ export abstract class ProductRecommendationBase extends LitElement {
                 ${this.products.map(product =>
                 html`<relewise-product-tile .product=${product}></relewise-product-tile>`)
                 }
-            </div>`
+            </div>`;
         }
     }
 
