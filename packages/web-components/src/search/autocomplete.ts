@@ -82,8 +82,7 @@ export class Autocomplete extends LitElement {
         <div class="rw-search-bar-container">
             <div class="rw-search-bar" >
                 <input class="rw-search-bar-input" type="text" .value=${this.term} @input=${(e: InputEvent) => this.setSearchTerm((e.target as HTMLInputElement).value)} @focus=${() => this.searchBarInFocus = true} @blur=${() => this.searchBarInFocus = false}>
-                <div class="rw-search-icon">
-                </div>            
+                ${this.term ? html`<div class="rw-clear-icon" @click=${() => this.term = ''}></div>`  : html`<div class="rw-search-icon"></div>`}
             </div>
             ${(this.searchBarInFocus || this.resultBoxIsHovered) && this.term ? 
                 html`
@@ -140,6 +139,15 @@ export class Autocomplete extends LitElement {
 
         .rw-search-icon {
             background-image: url(/src/icons/search-icon.svg);
+            background-size: contain;
+            background-repeat: no-repeat;
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .rw-clear-icon {
+            cursor: pointer;
+            background-image: url(/src/icons/close-line-icon.svg);
             background-size: contain;
             background-repeat: no-repeat;
             width: 1rem;
