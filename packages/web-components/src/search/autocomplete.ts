@@ -83,7 +83,6 @@ export class Autocomplete extends LitElement {
             <div class="rw-search-bar" >
                 <input class="rw-search-bar-input" type="text" .value=${this.term} @input=${(e: InputEvent) => this.setSearchTerm((e.target as HTMLInputElement).value)} @focus=${() => this.searchBarInFocus = true} @blur=${() => this.searchBarInFocus = false}>
                 <div class="rw-search-icon">
-                    <img src="/src/icons/search-icon.svg" />
                 </div>            
             </div>
             ${(this.searchBarInFocus || this.resultBoxIsHovered) && this.term ? 
@@ -118,8 +117,8 @@ export class Autocomplete extends LitElement {
     }
 
     static styles = css`
+
         .rw-search-bar-container {
-            max-width: 50%;
             font-family: var(--relewise-font, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
         }
 
@@ -140,8 +139,9 @@ export class Autocomplete extends LitElement {
         }
 
         .rw-search-icon {
-            display: flex;
-            color: lightgray;
+            background-image: url(/src/icons/search-icon.svg);
+            background-size: contain;
+            background-repeat: no-repeat;
             width: 1rem;
             height: 1rem;
         }
