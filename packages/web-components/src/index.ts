@@ -7,3 +7,5 @@ export * from './defaultProductProperties';
 export * from './tracking';
 export * from './updateContextSettings';
 export * from './app';
+export * from './search';
+export * from './theme';
