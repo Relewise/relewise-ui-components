@@ -81,7 +81,12 @@ export class Autocomplete extends LitElement {
     render() {
         return html`
         <div class="rw-search-bar-container">
-            <input class="rw-search-bar" type="text" .value=${this.term} @input=${(e: InputEvent) => this.setSearchTerm((e.target as HTMLInputElement).value)} @focus=${() => this.searchBarInFocus = true} @blur=${() => this.searchBarInFocus = false}>
+            <div class="rw-search-bar" >
+                <input class="rw-search-bar-input" type="text" .value=${this.term} @input=${(e: InputEvent) => this.setSearchTerm((e.target as HTMLInputElement).value)} @focus=${() => this.searchBarInFocus = true} @blur=${() => this.searchBarInFocus = false}>
+                <div class="rw-search-icon"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 50 50">
+                <path d="M 21 3 C 11.621094 3 4 10.621094 4 20 C 4 29.378906 11.621094 37 21 37 C 24.710938 37 28.140625 35.804688 30.9375 33.78125 L 44.09375 46.90625 L 46.90625 44.09375 L 33.90625 31.0625 C 36.460938 28.085938 38 24.222656 38 20 C 38 10.621094 30.378906 3 21 3 Z M 21 5 C 29.296875 5 36 11.703125 36 20 C 36 28.296875 29.296875 35 21 35 C 12.703125 35 6 28.296875 6 20 C 6 11.703125 12.703125 5 21 5 Z"></path>
+                </svg></div>            
+            </div>
             ${(this.searchBarInFocus || this.resultBoxIsHovered) && this.term ? 
                 html`
                     <div class="rw-result-container" @mouseover=${() => this.resultBoxIsHovered = true} @mouseleave=${() => this.resultBoxIsHovered = false}>
@@ -120,13 +125,37 @@ export class Autocomplete extends LitElement {
         }
 
         .rw-search-bar {
+            position: relative;
             box-sizing: border-box;
-            width: 100%;
-            height: 2rem;
-            border: .2rem solid #B3B3B3;
-            padding: .75rem;
-            border-radius: 1rem;
-            outline: none;
+            background-color: #d8d8db;
+            border-radius: 28px;
+            border: 1px;
+            color: #000;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            padding-left: 30px;
+        }
+
+        .rw-search-bar-input {
+            all: unset;
+            flex: 1; /* Take up remaining space */
+            max-width: calc(100% - 46px); /* Adjust max-width to leave space for the icon */
+        }
+
+        .rw-search-icon {
+            position: absolute;
+            background-repeat: no-repeat;
+            background-position: center;
+            right: 2px;
+            top: 50%; /* Position it vertically at the middle of the search bar */
+            transform: translateY(-50%); /* Correct its vertical position */
+            width: 46px;
+            height: 46px; /* Set a fixed height for the icon */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
 
         .rw-search-bar:focus {
