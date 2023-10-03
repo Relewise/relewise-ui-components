@@ -50,6 +50,7 @@ export class SearchOverlay extends LitElement {
 
     setSearchTerm(term: string) {
         this.term = term;
+        this.selectedIndex = -1;
 
         if (!term) {
             this.results = null; 
