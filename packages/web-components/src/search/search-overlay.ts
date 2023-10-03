@@ -27,6 +27,9 @@ export class SearchOverlay extends LitElement {
     @property({ attribute: 'no-results-message' })
     noResultsMessage: string | null = null;
 
+    @property({ type: Number, attribute: 'debounce-time' })
+    debounceTime: number = 250;
+
     @state()
     results: SearchResult[] | null = null;
 
@@ -65,7 +68,7 @@ export class SearchOverlay extends LitElement {
 
         this.debounceTimer = setTimeout(() => {
             this.search(term);
-        }, 100);
+        }, this.debounceTime);
     }
 
     handleKeyDown(event: KeyboardEvent): void {
