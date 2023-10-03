@@ -1,10 +1,9 @@
 import { ProductResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { property } from 'lit/decorators.js';
 import { getRelewiseUISearchOptions } from '../../helpers';
-import  formatPrice from '../../helpers/formatPrice';
+import formatPrice from '../../helpers/formatPrice';
 
-@customElement('relewise-search-overlay-product-result')
 export class SearchOverlayProductResult extends LitElement {
 
     @property({ type: Object })
@@ -96,6 +95,6 @@ export class SearchOverlayProductResult extends LitElement {
 
 declare global {
     interface HTMLElementTagNameMap {
-        'relewise-search-overlay-product-result': SearchOverlayProductResult;
+        'relewise-search-result-overlay-product': SearchOverlayProductResult;
     }
 }

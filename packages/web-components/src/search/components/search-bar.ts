@@ -1,8 +1,7 @@
 import { LitElement, css, html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { property } from 'lit/decorators.js';
 import { theme } from '../../theme';
 
-@customElement('relewise-search-bar')
 export class SearchBar extends LitElement {
 
     @property()
