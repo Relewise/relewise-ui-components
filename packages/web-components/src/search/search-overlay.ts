@@ -40,7 +40,10 @@ export class SearchOverlay extends LitElement {
     selectedIndex = -1;
 
     @state()
-    shouldShowOverlay: boolean = false;
+    isInFocus: boolean = false;
+
+    @state()
+    hasCompletedSearchRequest: boolean = false;
 
     private debounceTimer: NodeJS.Timeout | null = null;
     
@@ -59,8 +62,6 @@ export class SearchOverlay extends LitElement {
             this.results = null; 
             return;
         }
-
-        this.shouldShowOverlay = true;
 
         if (this.debounceTimer) {
             clearTimeout(this.debounceTimer);
@@ -152,6 +153,7 @@ export class SearchOverlay extends LitElement {
             }) ?? [];
 
             this.results = searchTermPredictions.concat(products);
+            this.hasCompletedSearchRequest = true;
         }
     }
 
@@ -160,11 +162,11 @@ export class SearchOverlay extends LitElement {
             <relewise-search-bar 
                 .term=${this.term}
                 .setSearchTerm=${(term: string)=> this.setSearchTerm(term)}
-                .setSearchBarInFocus=${(inFocus: boolean)=> this.shouldShowOverlay = inFocus}
+                .setSearchBarInFocus=${(inFocus: boolean)=> this.isInFocus = inFocus}
                 .placeholder=${this.searchBarPlaceholder}
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
                 ></relewise-search-bar>    
-            ${this.shouldShowOverlay && this.term ? 
+            ${this.isInFocus && this.hasCompletedSearchRequest && this.term ? 
                 html`<relewise-search-result-overlay
                     .selectedIndex=${this.selectedIndex}
                     .results=${this.results} 
