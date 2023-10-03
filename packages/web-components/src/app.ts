@@ -5,6 +5,8 @@ import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithProduc
 import { SearchOverlay } from './search/search-overlay';
 import { BrandView, ContentCategoryView, ContentView, ProductCategoryView, ProductView } from './tracking';
 import { updateContextSettings } from './updateContextSettings';
+import { ProductSearchBarResultOverlay, SearchBar, SearchOverlayProductResult } from './search';
+import { ProductTile } from './components';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -45,6 +47,7 @@ export function useRecommendations() {
     tryRegisterElement('relewise-popular-products', PopularProducts);
     tryRegisterElement('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);
     tryRegisterElement('relewise-purchased-with-product', PurchasedWithProduct);
+    tryRegisterElement('relewise-product-tile', ProductTile);
 }
 
 export function useBehavioralTracking() {
@@ -61,6 +64,9 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     }
 
     tryRegisterElement('relewise-search-overlay', SearchOverlay);
+    tryRegisterElement('relewise-search-bar', SearchBar);
+    tryRegisterElement('relewise-search-result-overlay-product', SearchOverlayProductResult);
+    tryRegisterElement('relewise-search-result-overlay', ProductSearchBarResultOverlay);
 } 
 
 function tryRegisterElement(name: string, constructor: CustomElementConstructor) {
