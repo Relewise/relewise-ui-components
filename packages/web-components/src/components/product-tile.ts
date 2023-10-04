@@ -3,6 +3,7 @@ import { LitElement, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
+import { theme } from '../theme';
 
 export class ProductTile extends LitElement {
 
@@ -54,14 +55,19 @@ export class ProductTile extends LitElement {
             </div>`;
     }
 
-    static styles = css`
+    static styles = [
+        theme,
+        css`
+        :host {
+            font-family: var(--font);
+        }
+        
         .rw-tile {
             display: flex;
             flex-direction: column;
             position: relative;
             text-decoration: inherit;
             text-size-adjust: none;
-            font-family: var(--relewise-font, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
         }
 
         .rw-image-container {
@@ -108,7 +114,7 @@ export class ProductTile extends LitElement {
             color: var(--relewise-list-price-color, darkgray);
             margin: var(--relewise-list-price-margin, .25rem);
         }
-    `;
+    `];
 }
 
 declare global {

@@ -4,6 +4,7 @@ import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { getSearcher } from './searcher';
+import { theme } from '../theme';
 
 export class SearchResult {
     product?: ProductResult;
@@ -166,7 +167,7 @@ export class ProductSearchOverlay extends LitElement {
                 .placeholder=${this.searchBarPlaceholder}
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
                 ></relewise-search-bar>    
-            ${this.isInFocus && this.hasCompletedSearchRequest && this.term ? 
+            ${this.isInFocus && this.hasCompletedSearchRequest && this.term || true === true ? 
                 html`<relewise-product-search-overlay-results
                     .selectedIndex=${this.selectedIndex}
                     .results=${this.results} 
@@ -177,12 +178,14 @@ export class ProductSearchOverlay extends LitElement {
         `;
     }
 
-    static styles = css`
+    static styles = [
+        theme,
+        css`
         :host {
             position: relative;
             font-family: var(--font);
         }
-    `;
+    `];
 }
 
 declare global {

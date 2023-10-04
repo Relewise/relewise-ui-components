@@ -26,7 +26,7 @@ export class ProductSearchOverlayResults extends LitElement {
             <div class="rw-result-container">
                 ${(!this.results ||
                 this.results.length < 1) ? html`
-                    <div class="rw-no-results">${this.noResultsMessage ?? 'No search results to show'}</div>
+                    <div class="rw-no-results">${this.noResultsMessage ?? 'No search results found'}</div>
                 ` : html`
                 <div>
                     ${this.results.map((result, index) => {
@@ -73,10 +73,11 @@ export class ProductSearchOverlayResults extends LitElement {
             border-color: var(--accent-color);
             border-radius: var(--relewise-product-search-overlay-border-radius, 1rem);
         }
-
+        
         .rw-no-results {
             margin: 1rem;
-            color: var(--relewise-product-search-overlay-no-results-message-color, lightgray);
+            font-weight: var(--relewise-product-search-overlay-no-results-message-font-weight, 600);
+            color: var(--relewise-product-search-overlay-no-results-message-color, #212427);
         }
 
         .rw-prediction-item-container {
