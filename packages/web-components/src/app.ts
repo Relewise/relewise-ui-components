@@ -14,7 +14,7 @@ export interface RelewiseUISearchOptions {
 }
 
 export interface SearchFilters {
-    search?: (builder: FilterBuilder) => void
+    productSearch?: (builder: FilterBuilder) => void
 }
 
 export interface SearchTemplates {
