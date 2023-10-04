@@ -34,25 +34,23 @@ export abstract class ProductRecommendationBase extends LitElement {
 
     render() {
         if (this.products) {
-            return html`<div class="rw-grid">
-                ${this.products.map(product =>
+            return html`${this.products.map(product =>
                 html`<relewise-product-tile .product=${product}></relewise-product-tile>`)
-                }
-            </div>`
+                }`;
         }
     }
 
     static styles = css`
-        .rw-grid {
+        :host {
             display: grid;
-            grid-template-columns: var(--relewise-grid-template-columns, repeat(4,1fr));
-            gap: var(--relewise-grid-gap, 1rem);
+            grid-template-columns: repeat(4,1fr);
+            gap: 1rem;
             grid-auto-rows: 1fr;
         }
 
         @media (max-width: 768px) {
-            .rw-grid {
-                grid-template-columns:var(--relewise-mobile-grid-template-columns, repeat(2,1fr));
+            :host {
+                grid-template-columns: repeat(2,1fr);
             }
         }`;
 }
