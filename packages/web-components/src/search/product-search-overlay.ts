@@ -167,7 +167,7 @@ export class ProductSearchOverlay extends LitElement {
                 .placeholder=${this.searchBarPlaceholder}
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
                 ></relewise-search-bar>    
-            ${this.isInFocus && this.hasCompletedSearchRequest && this.term || true === true ? 
+            ${this.isInFocus && this.hasCompletedSearchRequest && this.term ? 
                 html`<relewise-product-search-overlay-results
                     .selectedIndex=${this.selectedIndex}
                     .results=${this.results} 
