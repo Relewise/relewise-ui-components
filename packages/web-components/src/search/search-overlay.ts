@@ -45,7 +45,7 @@ export class SearchOverlay extends LitElement {
     @state()
     hasCompletedSearchRequest: boolean = false;
 
-    private debounceTimer: NodeJS.Timeout | null = null;
+    private debounceTimeoutHandlerId: ReturnType<typeof setTimeout> | null = null;
     
     async connectedCallback() {
         if (!this.displayedAtLocation) {
@@ -63,11 +63,11 @@ export class SearchOverlay extends LitElement {
             return;
         }
 
-        if (this.debounceTimer) {
-            clearTimeout(this.debounceTimer);
+        if (this.debounceTimeoutHandlerId) {
+            clearTimeout(this.debounceTimeoutHandlerId);
         }
 
-        this.debounceTimer = setTimeout(() => {
+        this.debounceTimeoutHandlerId = setTimeout(() => {
             this.search(term);
         }, this.debounceTime);
     }
