@@ -112,7 +112,7 @@ This component renders [products typically viewed after viewing a given product]
 <relewise-products-viewed-after-viewing-product product-id="PRODUCT_ID" displayed-at-location="LOCATION"></relewise-products-viewed-after-viewing-product>
 ```
 ##### Attributes
-- **displayed-at-Location** : 
+- **displayed-at-location** : 
     
     Where the recommendations are being shown. 
     
@@ -134,10 +134,10 @@ This component renders [products typically viewed after viewing a given product]
 This component renders [products typically purchased with a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#purchased-with-product).
 
 ```html
-<relewise-purchased-with-product product-id="PRODUCT_ID" displayed-at-Location="LOCATION"></relewise-purchased-with-product>
+<relewise-purchased-with-product product-id="PRODUCT_ID" displayed-at-location="LOCATION"></relewise-purchased-with-product>
 ```
 ##### Attributes
-- **displayed-at-Location** : 
+- **displayed-at-location** : 
     
     Where the recommendations are being shown. 
     
@@ -155,6 +155,77 @@ This component renders [products typically purchased with a given product](https
 
     The number of products recommendations to render.
 
+
+### Search
+Call the useSearch function to start rendering search components.
+```ts
+useSearch();
+```
+
+To specify which filters should be used when searching, call the useSearch function with a configuration.
+
+*Note: These filters will be applied on top of the filters defined when initializing Relewise UI.*
+```ts
+useSearch({
+    filters: {
+        productSearch: (builder) => {
+            builder
+                .addProductCategoryIdFilter('ImmediateParent', ['category'])
+                .addBrandIdFilter(['brand1', 'brand2'])
+                .addProductAssortmentFilter(1);
+        },
+    }
+});
+```
+
+#### Product Search Overlay
+This component renders a search bar that will [search for products](https://docs.relewise.com/docs/intro/search.html#product-search) in Relewise and show results in an overlay.
+
+```html
+<relewise-product-search-overlay displayed-at-location="LOCATION"></relewise-product-search-overlay>
+```
+The component renders products but does not use the default product template.
+
+To overwrite the template used in this specific component call the useSearch function with the templates option.
+```ts
+useSearch({
+    filters: { ... },
+    templates: {
+        searchOverlayProductResult: (product, { html, helpers }) => {
+            return html`<!-- Write your template here -->`;
+        },
+    }
+});
+```
+
+##### Attributes
+
+- **displayed-at-location** : 
+    
+    Where the search bar is being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_6-making-search-requests).
+
+- **search-bar-placeholder** (Optional, *Default "Search"*):
+    
+    The placeholder used in the search bar.
+
+- **number-of-products** (Optional, *Default 5*): 
+
+    The number of products shown i the result overlay.
+
+- **number-of-search-term-predictions** (Optional, *Default 3*): 
+
+    The number of search term predictions shown i the result overlay.
+
+- **no-results-message** (Optional, *Default "No search results found"*): 
+
+    The message shown in the overlay when no results found.
+
+- **debounce-time** (Optional, *Default 250*): 
+
+    The amount of delay between inputs in milliseconds before requesting Relewise with a new search call.
+
 ## Overwriting styling
 If you want to overwrite the styling of the grid and the default product tile, you can do so by using css variables.
 
@@ -162,6 +233,8 @@ If you want to overwrite the styling of the grid and the default product tile, y
     <style>
         :root {
             --relewise-font: Arial, Helvetica, sans-serif;
+            --relewise-color: lightgray;
+            --relewise-accent-color: #3764e4;
             
             --relewise-grid-template-columns: repeat(4,1fr);
             --relewise-mobile-grid-template-columns: repeat(2,1fr);
@@ -192,6 +265,29 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-display-name-font-weight: 600;
             --relewise-display-name-font-size: 0.75rem;
             --relewise-display-name-margin: 0rem 0rem 0rem 0rem;
+
+            --relewise-product-search-overlay-search-bar-border: 2px solid;
+            --relewise-product-search-overlay-search-bar-border-radius: 1rem;
+            --relewise-product-search-overlay-search-bar-height: 3rem;
+
+            --relewise-product-search-overlay-background-color: white;
+            --relewise-product-search-overlay-box-shadow: 0 10px 15px rgb(0 0 0 / 0.2);
+            --relewise-product-search-overlay-border: 2px solid;
+            --relewise-product-search-overlay-border-radius: 1rem;
+            --relewise-product-search-overlay-no-results-message-font-weight: 600;
+            --relewise-product-search-overlay-no-results-message-color: #212427;
+            --relewise-product-search-overlay-prediction-item-font-weight: 600;
+
+            --relewise-product-search-result-overlay-product-image-height: 5rem;
+            --relewise-product-search-result-overlay-product-image-width: 5rem;
+            --relewise-product-search-result-overlay-product-diplay-name-overflow: hidden;
+            --relewise-product-search-result-overlay-product-diplay-name-text-overflow: ellipsis;
+            --relewise-product-search-result-overlay-product-sales-price-font-weight: 700;
+            --relewise-product-search-result-overlay-product-sales-price-font-size: 1.25rem;
+            --relewise-product-search-result-overlay-product-sales-price-color: #212427;
+            --relewise-product-search-result-overlay-product-list-price-font-size: 1rem;
+            --relewise-product-search-result-overlay-product-list-price-text-decoration: line-through;
+            --relewise-product-search-result-overlay-product-list-price-text-color: darkgray;
         }
     </style>
 ```
