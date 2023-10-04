@@ -22,7 +22,7 @@ export class ProductsViewedAfterViewingProduct extends ProductRecommendationBase
         const recommender = getRecommender(getRelewiseUIOptions());
         const builder = getProductRecommendationBuilderWithDefaults<ProductsViewedAfterViewingProductBuilder>(
             settings => new ProductsViewedAfterViewingProductBuilder(settings),
-            this.displayedAtLocation,
+            this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Products Viewed After Viewing Product',
         )
             .product({
                 productId: this.productId,
