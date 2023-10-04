@@ -1,9 +1,9 @@
 import { LitElement, css, html } from 'lit';
 import { property } from 'lit/decorators.js';
 import { theme } from '../../theme';
-import { SearchResult } from '../search-overlay';
+import { SearchResult } from '../product-search-overlay';
 
-export class ProductSearchBarResultOverlay extends LitElement {
+export class ProductSearchOverlayResults extends LitElement {
 
     @property()
     setSearchTerm = (term: string) => {};
@@ -43,7 +43,7 @@ export class ProductSearchBarResultOverlay extends LitElement {
                             ` : 
                             html`
                                 <div class="rw-product-item-container">
-                                    <relewise-search-result-overlay-product .product=${result.product ?? null}></relewise-search-result-overlay-product>
+                                    <relewise-product-search-overlay-product .product=${result.product ?? null}></relewise-product-search-overlay-product>
                                 </div>
                             `}
                         </div>`;
@@ -67,16 +67,16 @@ export class ProductSearchBarResultOverlay extends LitElement {
         
         .rw-result-container {
             overflow: hidden;
-            background-color: var(--relewise-search-overlay-background-color, white);
-            box-shadow: var(--relewise-search-overlay-box-shadow, 0 10px 15px rgb(0 0 0 / 0.2));
-            border: var(--relewise-search-overlay-border, 2px solid);
+            background-color: var(--relewise-product-search-overlay-background-color, white);
+            box-shadow: var(--relewise-product-search-overlay-box-shadow, 0 10px 15px rgb(0 0 0 / 0.2));
+            border: var(--relewise-product-search-overlay-border, 2px solid);
             border-color: var(--accent-color);
-            border-radius: var(--relewise-search-overlay-border-radius, 1rem);
+            border-radius: var(--relewise-product-search-overlay-border-radius, 1rem);
         }
 
         .rw-no-results {
             margin: 1rem;
-            color: var(--relewise-search-overlay-no-results-message-color, lightgray);
+            color: var(--relewise-product-search-overlay-no-results-message-color, lightgray);
         }
 
         .rw-devider {
@@ -122,6 +122,6 @@ export class ProductSearchBarResultOverlay extends LitElement {
 
 declare global {
     interface HTMLElementTagNameMap {
-        'relewise-search-result-overlay': ProductSearchBarResultOverlay;
+        'relewise-product-search-overlay-results': ProductSearchOverlayResults;
     }
 }

@@ -1,3 +1,3 @@
-export * from './search-overlay-product-result';
+export * from './product-search-overlay-product';
 export * from './search-bar';
-export * from './search-result-overlay';
+export * from './product-search-overlay-results';
