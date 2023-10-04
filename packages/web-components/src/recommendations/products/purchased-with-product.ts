@@ -22,7 +22,7 @@ export class PurchasedWithProduct extends ProductRecommendationBase {
         const recommender = getRecommender(getRelewiseUIOptions());
         const builder = getProductRecommendationBuilderWithDefaults<PurchasedWithProductBuilder>(
             settings => new PurchasedWithProductBuilder(settings),
-            this.displayedAtLocation,
+            this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Purchased With Product',
         )
             .product({
                 productId: this.productId,
