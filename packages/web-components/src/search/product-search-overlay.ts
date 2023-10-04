@@ -10,7 +10,7 @@ export class SearchResult {
     searchTermPrediction?: SearchTermPredictionResult;
 }
 
-export class SearchOverlay extends LitElement {
+export class ProductSearchOverlay extends LitElement {
     
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;
@@ -167,12 +167,12 @@ export class SearchOverlay extends LitElement {
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
                 ></relewise-search-bar>    
             ${this.isInFocus && this.hasCompletedSearchRequest && this.term ? 
-                html`<relewise-search-result-overlay
+                html`<relewise-product-search-overlay-results
                     .selectedIndex=${this.selectedIndex}
                     .results=${this.results} 
                     .setSearchTerm=${(term: string)=> this.setSearchTerm(term)}
                     .noResultsMessage=${this.noResultsMessage}>
-                    </relewise-search-result-overlay> ` : nothing
+                    </relewise-product-search-overlay-results> ` : nothing
             }
         `;
     }
@@ -187,6 +187,6 @@ export class SearchOverlay extends LitElement {
 
 declare global {
     interface HTMLElementTagNameMap {
-        'relewise-search-overlay': SearchOverlay;
+        'relewise-product-search-overlay': ProductSearchOverlay;
     }
 }

@@ -2,10 +2,10 @@ import { FilterBuilder, ProductResult } from '@relewise/client';
 import { TemplateResult } from 'lit';
 import { ContextSettings, TemplateExtensions } from './initialize';
 import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithProduct } from './recommendations';
-import { SearchOverlay } from './search/search-overlay';
+import { ProductSearchOverlay } from './search/product-search-overlay';
 import { BrandView, ContentCategoryView, ContentView, ProductCategoryView, ProductView } from './tracking';
 import { updateContextSettings } from './updateContextSettings';
-import { ProductSearchBarResultOverlay, SearchBar, SearchOverlayProductResult } from './search';
+import { ProductSearchOverlayResults, SearchBar, ProductSearchOverlayProduct } from './search';
 import { ProductTile } from './components';
 
 export interface RelewiseUISearchOptions {
@@ -63,10 +63,10 @@ export function useSearch(options?: RelewiseUISearchOptions) {
         window.relewiseUISearchOptions = options;
     }
 
-    tryRegisterElement('relewise-search-overlay', SearchOverlay);
+    tryRegisterElement('relewise-product-search-overlay', ProductSearchOverlay);
     tryRegisterElement('relewise-search-bar', SearchBar);
-    tryRegisterElement('relewise-search-result-overlay-product', SearchOverlayProductResult);
-    tryRegisterElement('relewise-search-result-overlay', ProductSearchBarResultOverlay);
+    tryRegisterElement('relewise-product-search-overlay-product', ProductSearchOverlayProduct);
+    tryRegisterElement('relewise-product-search-overlay-results', ProductSearchOverlayResults);
 } 
 
 function tryRegisterElement(name: string, constructor: CustomElementConstructor) {
