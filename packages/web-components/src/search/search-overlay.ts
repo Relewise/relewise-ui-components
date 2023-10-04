@@ -27,6 +27,9 @@ export class SearchOverlay extends LitElement {
     @property({ attribute: 'no-results-message' })
     noResultsMessage: string | null = null;
 
+    @property({ type: Number, attribute: 'debounce-time' })
+    debounceTime: number = 250;
+
     @state()
     results: SearchResult[] | null = null;
 
@@ -37,7 +40,10 @@ export class SearchOverlay extends LitElement {
     selectedIndex = -1;
 
     @state()
-    shouldShowOverlay: boolean = false;
+    isInFocus: boolean = false;
+
+    @state()
+    hasCompletedSearchRequest: boolean = false;
 
     private debounceTimer: NodeJS.Timeout | null = null;
     
@@ -50,13 +56,12 @@ export class SearchOverlay extends LitElement {
 
     setSearchTerm(term: string) {
         this.term = term;
+        this.selectedIndex = -1;
 
         if (!term) {
             this.results = null; 
             return;
         }
-
-        this.shouldShowOverlay = true;
 
         if (this.debounceTimer) {
             clearTimeout(this.debounceTimer);
@@ -64,7 +69,7 @@ export class SearchOverlay extends LitElement {
 
         this.debounceTimer = setTimeout(() => {
             this.search(term);
-        }, 100);
+        }, this.debounceTime);
     }
 
     handleKeyDown(event: KeyboardEvent): void {
@@ -148,6 +153,7 @@ export class SearchOverlay extends LitElement {
             }) ?? [];
 
             this.results = searchTermPredictions.concat(products);
+            this.hasCompletedSearchRequest = true;
         }
     }
 
@@ -156,11 +162,11 @@ export class SearchOverlay extends LitElement {
             <relewise-search-bar 
                 .term=${this.term}
                 .setSearchTerm=${(term: string)=> this.setSearchTerm(term)}
-                .setSearchBarInFocus=${(inFocus: boolean)=> this.shouldShowOverlay = inFocus}
+                .setSearchBarInFocus=${(inFocus: boolean)=> this.isInFocus = inFocus}
                 .placeholder=${this.searchBarPlaceholder}
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
                 ></relewise-search-bar>    
-            ${this.shouldShowOverlay && this.term ? 
+            ${this.isInFocus && this.hasCompletedSearchRequest && this.term ? 
                 html`<relewise-search-result-overlay
                     .selectedIndex=${this.selectedIndex}
                     .results=${this.results} 

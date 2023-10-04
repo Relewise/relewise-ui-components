@@ -1,9 +1,8 @@
 import { LitElement, css, html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { property } from 'lit/decorators.js';
 import { theme } from '../../theme';
 import { SearchResult } from '../search-overlay';
 
-@customElement('relewise-search-result-overlay')
 export class ProductSearchBarResultOverlay extends LitElement {
 
     @property()
@@ -44,7 +43,7 @@ export class ProductSearchBarResultOverlay extends LitElement {
                             ` : 
                             html`
                                 <div class="rw-product-item-container">
-                                    <relewise-search-overlay-product-result .product=${result.product ?? null}></relewise-search-overlay-product-result>
+                                    <relewise-search-result-overlay-product .product=${result.product ?? null}></relewise-search-result-overlay-product>
                                 </div>
                             `}
                         </div>`;
