@@ -26,7 +26,14 @@ export class SearchBar extends LitElement {
     render() {
         return html`
         <div class="rw-search-bar" @keydown=${this.handleKeyEvent}>
-            <input class="rw-search-bar-input" type="text" placeholder=${this.placeholder ?? 'Search'} .value=${this.term} @input=${(e: InputEvent) => this.setSearchTerm((e.target as HTMLInputElement).value)} @focus=${() => this.setSearchBarInFocus(true)} @blur=${() => this.setSearchBarInFocus(false)}>
+            <input 
+                class="rw-search-bar-input"
+                type="text"
+                placeholder=${this.placeholder ?? 'Search'}
+                .value=${this.term}
+                @input=${(e: InputEvent) => this.setSearchTerm((e.target as HTMLInputElement).value)}
+                @focus=${() => this.setSearchBarInFocus(true)} 
+                @blur=${() => this.setSearchBarInFocus(false)}>
             ${this.term ? html`<div class="rw-clear" @click=${() => this.setSearchTerm('')}><relewise-x-icon></relewise-x-icon></div>`  : html`<div class="rw-search-icon"><relewise-search-icon></relewise-search-icon></div>`}
         </div>
         `;
