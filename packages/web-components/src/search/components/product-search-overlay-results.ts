@@ -79,10 +79,6 @@ export class ProductSearchOverlayResults extends LitElement {
             color: var(--relewise-product-search-overlay-no-results-message-color, lightgray);
         }
 
-        .rw-devider {
-            margin: 0;
-        }
-
         .rw-prediction-item-container {
             cursor: pointer;
             display: flex;
