@@ -35,9 +35,9 @@ export class ProductSearchOverlayResults extends LitElement {
                         ${result.searchTermPrediction ?
                             html`
                                 <div class="rw-prediction-item-container" @click=${() => this.setSearchTerm(result.searchTermPrediction!.term ?? '')}>
-                                    <h3 class="rw-prediction-item">
+                                    <span class="rw-prediction-item">
                                         ${result.searchTermPrediction.term}
-                                    </h3>
+                                    </span>
                                     <relewise-search-icon class="rw-search-icon"></relewise-search-icon>
                                 </div>
                             ` : 
@@ -91,9 +91,9 @@ export class ProductSearchOverlayResults extends LitElement {
         }
 
         .rw-prediction-item {
-            margin: 0.25rem;
             border-radius: 1rem;
-            margin: 1rem;
+            margin: .5rem 1rem .5rem 1rem;
+            font-weight: var(--relewise-product-search-overlay-prediction-item-font-weight, 600);
             flex-grow: 1;
         }
 
