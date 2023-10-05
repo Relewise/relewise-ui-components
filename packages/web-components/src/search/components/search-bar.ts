@@ -47,10 +47,10 @@ export class SearchBar extends LitElement {
                 align-items: center;
                 padding-left: 1rem;
                 padding-right: 1rem;
-                border: var(--relewise-product-search-overlay-bar-border, 2px solid);
+                border: var(--relewise-product-search-overlay-search-bar-border, 2px solid);
                 border-color: var(--color);
-                border-radius: var(--relewise-product-search-overlay-bar-border-radius, 1rem);
-                height: var(--relewise-product-search-overlay-bar-height, 3rem);
+                border-radius: var(--relewise-product-search-overlay-search-bar-border-radius, 1rem);
+                height: var(--relewise-product-search-overlay-search-bar-height, 3rem);
             }
 
             .rw-search-bar:focus-within {

@@ -64,14 +64,14 @@ export class ProductSearchOverlayProduct extends LitElement {
         }
 
         .rw-product-image-container {
-            height: var(--relewise-product-search-result-overlay-overlay-image-height, 5rem);
-            width: var(--relewise-product-search-result-overlay-image-width, 5rem);
+            height: var(--relewise-product-search-result-overlay-product-image-height, 5rem);
+            width: var(--relewise-product-search-result-overlay-product-image-width, 5rem);
         }
 
         .rw-product-result-display-name {
             margin: auto 1rem;
-            overflow: var(--relewise-product-search-result-overlay-diplay-name-overflow, hidden);
-            text-overflow: var(--relewise-product-search-result-overlay-diplay-name-text-overflow, ellipsis);
+            overflow: var(--relewise-product-search-result-overlay-product-diplay-name-overflow, hidden);
+            text-overflow: var(--relewise-product-search-result-overlay-product-diplay-name-text-overflow, ellipsis);
         }
 
         .rw-product-result-price {
@@ -80,15 +80,15 @@ export class ProductSearchOverlayProduct extends LitElement {
         }
 
         .rw-product-result-sales-price {
-            font-weight: var(--relewise-product-search-result-overlay-sales-price-font-weight, 700);
-            font-size: var(--relewise-product-search-result-overlay-sales-price-font-size, 1.25rem);
-            color: var(--relewise-product-search-result-overlay-sales-price-color, #212427);
+            font-weight: var(--relewise-product-search-result-overlay-product-sales-price-font-weight, 700);
+            font-size: var(--relewise-product-search-result-overlay-product-sales-price-font-size, 1.25rem);
+            color: var(--relewise-product-search-result-overlay-product-sales-price-color, #212427);
         }
 
         .rw-product-result-list-price {
-            font-size: var(--relewise-product-search-result-overlay-list-price-font-size, 1rem);
-            text-decoration: var(--relewise-product-search-result-overlay-list-price-text-decoration, line-through);
-            color: var(--relewise-product-search-result-overlay-list-price-text-color, darkgray);
+            font-size: var(--relewise-product-search-result-overlay-product-list-price-font-size, 1rem);
+            text-decoration: var(--relewise-product-search-result-overlay-product-list-price-text-decoration, line-through);
+            color: var(--relewise-product-search-result-overlay-product-list-price-text-color, darkgray);
         }
     `;
 }
