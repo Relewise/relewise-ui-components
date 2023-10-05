@@ -6,75 +6,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
   <title>Web components</title>
 </head>
-<style>
-  :root {
-    /* --relewise-font: "Barmeno Medium", Times, serif;
-    --relewise-information-container-margin: 1rem 1rem 1rem 1rem;
-
-    --relewise-sales-price-alignment: center;
-    --relewise-sales-price-font-size: 2rem;
-    --relewise-sales-price-margin: 1rem 0rem 2rem 0rem;
-    --relewise-sales-price-font-weight: 900;
-
-    --relewise-list-price-color: red;
-    --relewise-list-price-font-size: 0.75rem;
-
-    --relewise-display-name-font-size: 1rem;
-    --relewise-display-name-margin: 1rem 1rem 0rem 0rem;
-    --relewise-display-name-font-weight: normal;
-    --relewise-display-name-alignment: center;
-
-    --relewise-image-width: 75%;
-    --relewise-image-height: 75%;
-    --relewise-image-align: center; 
-    --relewise-grid-template-columns: repeat(6, 1fr);
-    --relewise-mobile-grid-template-columns: repeat(1, 1fr);
-    --relewise-grid-gap: 10rem; */
-  }
-
-  .relewise-product-search-overlay {
-    width: 50%;
-  }
-
-  .header {
-    height: 5rem;
-    display: flex;
-    align-items: center;
-  }
-
-  .header-title {
-    vertical-align: middle;
-  }
-</style>
 
 <body>
-  <script type="module" src="index.ts"></script>
-  <header class="header">
-    <relewise-product-search-overlay class="relewise-product-search-overlay" displayed-at-location="web component dev"
-      number-of-search-term-predictions=10 number-of-products=6 debounce-time=500></relewise-product-search-overlay>
-  </header>
-  <hr>
-  <div class="recommendation-block">
-    <h2>Popular Products</h2>
-    <relewise-popular-products based-on="MostViewed" number-of-recommendations="20"
-      displayed-at-location="web component dev"></relewise-popular-products>
-  </div>
-  <div class="recommendation-block">
-    <h2>Products Viewed after viewing</h2>
-    <relewise-products-viewed-after-viewing-product product-id="1922"
-      displayed-at-location="web component dev"></relewise-products-viewed-after-viewing-product>
-  </div>
-  <div class="recommendation-block">
-    <h2>Purchased with</h2>
-    <relewise-purchased-with-product product-id="1922"
-      displayed-at-location="web component dev"></relewise-purchased-with-product>
-  </div>
+  <h1>Recommendations</h1>
+  <ul>
+    <li>
+      <a href="recommendation/popular-products/index.html">Popular Products</a>
+    </li>
+    <li>
+      <a href="recommendation/products-viewed-after-viewing-product/index.html">Products Viewed After Viewing
+        Product</a>
+    </li>
+    <li>
+      <a href="recommendation/purchased-with-product/index.html">Purchased With Product</a>
+    </li>
+  </ul>
+  <h1>Behavioral tracking</h1>
+  <ul>
+    <li>
+      <a href="tracking/brand-view/index.html">Brand View</a>
+    </li>
+    <li>
+      <a href="tracking/content-category-view/index.html">Content Category View</a>
+    </li>
+    <li>
+      <a href="tracking/content-view/index.html">Content View</a>
+    </li>
+    <li>
+      <a href="tracking/product-category-view/index.html">Product Category View</a>
+    </li>
+    <li>
+      <a href="tracking/product-view/index.html">Product View</a>
+    </li>
+  </ul>
+  <h1>Search</h1>
+  <li>
+    <a href="search/product-search-overlay/index.html">Product Search Overlay</a>
+  </li>
 </body>
-
-<!-- <relewise-track-product-view product-id="1" variant-id="2"></relewise-track-product-view>
-<relewise-track-product-category-view id-path="1/1/2"></relewise-track-product-category-view>
-<relewise-track-content-view content-id="1"></relewise-track-content-view>
-<relewise-track-content-category-view id-path="2/5/1"></relewise-track-content-category-view>
-<relewise-track-brand-view brand-id="3423"></relewise-track-brand-view> -->
 
 </html>
