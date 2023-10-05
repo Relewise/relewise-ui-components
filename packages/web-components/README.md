@@ -220,7 +220,7 @@ useSearch({
 
 - **no-results-message** (Optional, *Default "No search results found"*): 
 
-    The message shown in the overlay when no results found.
+    The message shown in the overlay when there are no results found.
 
 - **debounce-time** (Optional, *Default 250*): 
 
