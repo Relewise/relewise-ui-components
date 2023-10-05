@@ -212,7 +212,7 @@ useSearch({
 
 - **number-of-products** (Optional, *Default 5*): 
 
-    The number of products shown i the result overlay.
+    The number of products shown in the results overlay.
 
 - **number-of-search-term-predictions** (Optional, *Default 3*): 
 
