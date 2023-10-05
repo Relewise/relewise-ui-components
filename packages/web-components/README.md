@@ -186,7 +186,7 @@ This component renders a search bar that will [search for products](https://docs
 ```
 The component renders products but does not use the default product template.
 
-To overwrite the template used in this specific component call the useSearch function with the templates option.
+To overwrite the template used in this specific component, call the useSearch function with the templates option.
 ```ts
 useSearch({
     filters: { ... },
