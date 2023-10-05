@@ -224,7 +224,7 @@ useSearch({
 
 - **debounce-time** (Optional, *Default 250*): 
 
-    The amount of delay between inputs in milliseconds before requesting Relewise with a new search call.
+    The amount of time, in milliseconds, that must pass between requests to Relewise with a new search call.
 
 ## Overwriting styling
 If you want to overwrite the styling of the grid and the default product tile, you can do so by using css variables.
