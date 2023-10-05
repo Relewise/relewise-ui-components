@@ -216,7 +216,7 @@ useSearch({
 
 - **number-of-search-term-predictions** (Optional, *Default 3*): 
 
-    The number of search term predictions shown i the result overlay.
+    The number of search term predictions shown in the results overlay.
 
 - **no-results-message** (Optional, *Default "No search results found"*): 
 
