@@ -43,7 +43,7 @@ export class ProductSearchOverlayResults extends LitElement {
                             ` : 
                             html`
                                 <div class="rw-product-item-container">
-                                    <relewise-product-search-overlay-product .product=${result.product ?? null}></relewise-product-search-overlay-product>
+                                    <relewise-product-search-overlay-product .product=${result.product}></relewise-product-search-overlay-product>
                                 </div>
                             `}
                         </div>`;

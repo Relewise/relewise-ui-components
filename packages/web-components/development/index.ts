@@ -17,17 +17,5 @@ initializeRelewiseUI(
         },
     },
 ).useRecommendations().useSearch({
-    filters: {
-        productSearch: (builder) => {
-            builder
-                .addProductCategoryIdFilter('ImmediateParent', ['category'])
-                .addBrandIdFilter(['brand1', 'brand2'])
-                .addProductAssortmentFilter(1);
-        },
-    },
-    templates: {
-        searchOverlayProductResult: (product, { html, helpers }) => {
-            return html`<!-- Write your template here -->`;
-        },
-    },
+   
 });

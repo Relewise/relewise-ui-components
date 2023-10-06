@@ -7,7 +7,7 @@ import formatPrice from '../../helpers/formatPrice';
 export class ProductSearchOverlayProduct extends LitElement {
 
     @property({ type: Object })
-    product: ProductResult | null = null;
+    product: ProductResult | undefined | null = null;
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -17,7 +17,6 @@ export class ProductSearchOverlayProduct extends LitElement {
         if (!this.product) {
             return;
         }
-
         const settings = getRelewiseUISearchOptions(); 
         if (settings?.templates?.searchOverlayProductResult) {
             return settings.templates.searchOverlayProductResult(this.product, { html, helpers: { formatPrice } });
