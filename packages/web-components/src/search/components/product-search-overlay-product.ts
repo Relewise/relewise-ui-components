@@ -17,6 +17,7 @@ export class ProductSearchOverlayProduct extends LitElement {
         if (!this.product) {
             return;
         }
+
         const settings = getRelewiseUISearchOptions(); 
         if (settings?.templates?.searchOverlayProductResult) {
             return settings.templates.searchOverlayProductResult(this.product, { html, helpers: { formatPrice } });

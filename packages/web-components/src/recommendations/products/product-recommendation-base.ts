@@ -54,4 +54,5 @@ export abstract class ProductRecommendationBase extends LitElement {
             }
         }    
     `;
+
 }
