@@ -17,13 +17,19 @@ export class ProductSearchOverlayResults extends LitElement {
     @property({ type: Number })
     selectedIndex = -1;
     
+    @property()
+    setResultOverlayHovered = (hovered: boolean) => {};
+
+
     connectedCallback(): void {
         super.connectedCallback();
     }
 
     render() {
         return html`
-            <div class="rw-result-container">
+            <div class="rw-result-container"
+                @mouseover=${() => this.setResultOverlayHovered(true)}
+                @mouseleave=${() => this.setResultOverlayHovered(false)}>
                 ${(!this.results ||
                 this.results.length < 1) ? html`
                     <div class="rw-no-results">${this.noResultsMessage ?? 'No search results found'}</div>

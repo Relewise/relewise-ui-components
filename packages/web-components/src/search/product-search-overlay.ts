@@ -41,7 +41,10 @@ export class ProductSearchOverlay extends LitElement {
     selectedIndex = -1;
 
     @state()
-    isInFocus: boolean = false;
+    searchBarInFocus: boolean = false;
+
+    @state()
+    resultBoxIsHovered: boolean = false;
 
     @state()
     hasCompletedSearchRequest: boolean = false;
@@ -60,7 +63,8 @@ export class ProductSearchOverlay extends LitElement {
         this.selectedIndex = -1;
 
         if (!term) {
-            this.results = null; 
+            this.results = null;
+            this.hasCompletedSearchRequest = false;
             return;
         }
 
@@ -163,16 +167,20 @@ export class ProductSearchOverlay extends LitElement {
             <relewise-search-bar 
                 .term=${this.term}
                 .setSearchTerm=${(term: string)=> this.setSearchTerm(term)}
-                .setSearchBarInFocus=${(inFocus: boolean)=> this.isInFocus = inFocus}
+                .setSearchBarInFocus=${(inFocus: boolean) => this.searchBarInFocus = inFocus}
                 .placeholder=${this.searchBarPlaceholder}
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
                 ></relewise-search-bar>    
-            ${this.isInFocus && this.hasCompletedSearchRequest && this.term ? 
+            ${(this.searchBarInFocus &&
+                this.hasCompletedSearchRequest &&
+                this.term) ||
+                this.resultBoxIsHovered ? 
                 html`<relewise-product-search-overlay-results
                     .selectedIndex=${this.selectedIndex}
                     .results=${this.results} 
                     .setSearchTerm=${(term: string)=> this.setSearchTerm(term)}
-                    .noResultsMessage=${this.noResultsMessage}>
+                    .noResultsMessage=${this.noResultsMessage}
+                    .setResultOverlayHovered=${(hovered: boolean) => this.resultBoxIsHovered = hovered }>
                     </relewise-product-search-overlay-results> ` : nothing
             }
         `;
