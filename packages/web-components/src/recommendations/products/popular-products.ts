@@ -17,7 +17,7 @@ export class PopularProducts extends ProductRecommendationBase {
         const recommender = getRecommender(getRelewiseUIOptions());
         const builder = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(
             settings => new PopularProductsBuilder(settings),
-            this.displayedAtLocation,
+            this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Popular Products',
         )
             .sinceMinutesAgo(this.sinceMinutesAgo)
             .basedOn(this.basedOn)

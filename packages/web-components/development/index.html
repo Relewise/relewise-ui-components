@@ -31,35 +31,50 @@
     --relewise-mobile-grid-template-columns: repeat(1, 1fr);
     --relewise-grid-gap: 10rem; */
   }
+
+  .relewise-product-search-overlay {
+    width: 50%;
+  }
+
+  .header {
+    height: 5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .header-title {
+    vertical-align: middle;
+  }
 </style>
 
 <body>
   <script type="module" src="index.ts"></script>
-
-  <div class="wrapper">
-    <div class="recommendation-block">
-      <h2>Popular Products</h2>
-      <relewise-popular-products based-on="MostViewed" number-of-recommendations="12"
-        displayed-at-location="web component dev"></relewise-popular-products>
-    </div>
-
-    <div class="recommendation-block">
-      <h2>Products Viewed after viewing</h2>
-      <relewise-products-viewed-after-viewing-product product-id="1922"
-        displayed-at-location="web component dev"></relewise-products-viewed-after-viewing-product>
-    </div>
-
-    <div class="recommendation-block">
-      <h2>Purchased with</h2>
-      <relewise-purchased-with-product product-id="1922"
-        displayed-at-location="web component dev"></relewise-purchased-with-product>
-    </div>
+  <header class="header">
+    <relewise-product-search-overlay class="relewise-product-search-overlay" displayed-at-location="web component dev"
+      number-of-search-term-predictions=10 number-of-products=6 debounce-time=500></relewise-product-search-overlay>
+  </header>
+  <hr>
+  <div class="recommendation-block">
+    <h2>Popular Products</h2>
+    <relewise-popular-products based-on="MostViewed" number-of-recommendations="20"
+      displayed-at-location="web component dev"></relewise-popular-products>
+  </div>
+  <div class="recommendation-block">
+    <h2>Products Viewed after viewing</h2>
+    <relewise-products-viewed-after-viewing-product product-id="1922"
+      displayed-at-location="web component dev"></relewise-products-viewed-after-viewing-product>
+  </div>
+  <div class="recommendation-block">
+    <h2>Purchased with</h2>
+    <relewise-purchased-with-product product-id="1922"
+      displayed-at-location="web component dev"></relewise-purchased-with-product>
   </div>
 </body>
-<relewise-track-product-view product-id="1" variant-id="2"></relewise-track-product-view>
+
+<!-- <relewise-track-product-view product-id="1" variant-id="2"></relewise-track-product-view>
 <relewise-track-product-category-view id-path="1/1/2"></relewise-track-product-category-view>
 <relewise-track-content-view content-id="1"></relewise-track-content-view>
 <relewise-track-content-category-view id-path="2/5/1"></relewise-track-content-category-view>
-<relewise-track-brand-view brand-id="3423"></relewise-track-brand-view>
+<relewise-track-brand-view brand-id="3423"></relewise-track-brand-view> -->
 
 </html>

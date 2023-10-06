@@ -15,14 +15,14 @@ export class ProductsViewedAfterViewingProduct extends ProductRecommendationBase
 
     fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
         if (!this.productId) {
-            console.error('No productId provided!')
+            console.error('No productId provided!');
             return;
         }
 
         const recommender = getRecommender(getRelewiseUIOptions());
         const builder = getProductRecommendationBuilderWithDefaults<ProductsViewedAfterViewingProductBuilder>(
             settings => new ProductsViewedAfterViewingProductBuilder(settings),
-            this.displayedAtLocation,
+            this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Products Viewed After Viewing Product',
         )
             .product({
                 productId: this.productId,

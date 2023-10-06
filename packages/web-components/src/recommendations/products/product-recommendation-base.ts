@@ -52,5 +52,7 @@ export abstract class ProductRecommendationBase extends LitElement {
             :host {
                 grid-template-columns: repeat(2,1fr);
             }
-        }`;
+        }    
+    `;
+
 }
