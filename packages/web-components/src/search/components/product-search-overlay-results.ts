@@ -83,6 +83,7 @@ export class ProductSearchOverlayResults extends LitElement {
         .rw-prediction-item-container {
             cursor: pointer;
             display: flex;
+            color: var(--relewise-product-search-result-overlay-prediction-item-color, #212427);
         }
 
         .rw-products-container {

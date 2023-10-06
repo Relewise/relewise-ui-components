@@ -278,6 +278,7 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-product-search-result-overlay-product-image-width: 5rem;
             --relewise-product-search-result-overlay-product-diplay-name-overflow: hidden;
             --relewise-product-search-result-overlay-product-diplay-name-text-overflow: ellipsis;
+            --relewise-product-search-result-overlay-product-diplay-name-color: #212427;
             --relewise-product-search-result-overlay-product-sales-price-font-weight: 700;
             --relewise-product-search-result-overlay-product-sales-price-font-size: 1.25rem;
             --relewise-product-search-result-overlay-product-sales-price-color: #212427;

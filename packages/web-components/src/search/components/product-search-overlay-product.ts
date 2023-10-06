@@ -71,6 +71,7 @@ export class ProductSearchOverlayProduct extends LitElement {
         .rw-product-result-display-name {
             margin: auto 1rem;
             overflow: var(--relewise-product-search-result-overlay-product-diplay-name-overflow, hidden);
+            color: var(--relewise-product-search-result-overlay-product-diplay-name-color, #212427);
             text-overflow: var(--relewise-product-search-result-overlay-product-diplay-name-text-overflow, ellipsis);
         }
 
