@@ -273,7 +273,7 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-product-search-overlay-no-results-message-font-weight: 600;
             --relewise-product-search-overlay-no-results-message-color: #212427;
             --relewise-product-search-overlay-prediction-item-font-weight: 600;
-
+            --relewise-product-search-result-overlay-prediction-item-color: #212427;
             --relewise-product-search-result-overlay-product-image-height: 5rem;
             --relewise-product-search-result-overlay-product-image-width: 5rem;
             --relewise-product-search-result-overlay-product-diplay-name-overflow: hidden;
