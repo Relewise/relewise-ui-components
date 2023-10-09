@@ -1,5 +1,7 @@
+/// <reference types="vite/client" />
+
 import { UserFactory } from '@relewise/client';
-import { initializeRelewiseUI } from '../src/index';
+import { initializeRelewiseUI } from '../../../src/index';
 
 initializeRelewiseUI(
     {
@@ -16,6 +18,4 @@ initializeRelewiseUI(
             serverUrl: import.meta.env.VITE_SERVER_URL,
         },
     },
-).useRecommendations().useSearch({
-   
-});
+).useSearch();
