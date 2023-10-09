@@ -7,6 +7,7 @@ import { BrandView, ContentCategoryView, ContentView, ProductCategoryView, Produ
 import { updateContextSettings } from './updateContextSettings';
 import { ProductSearchOverlayResults, SearchBar, ProductSearchOverlayProduct } from './search';
 import { ProductTile } from './components';
+import { ProductSearch } from './search/product-search';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -64,6 +65,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     }
 
     tryRegisterElement('relewise-product-search-overlay', ProductSearchOverlay);
+    tryRegisterElement('relewise-product-search', ProductSearch);
     tryRegisterElement('relewise-search-bar', SearchBar);
     tryRegisterElement('relewise-product-search-overlay-product', ProductSearchOverlayProduct);
     tryRegisterElement('relewise-product-search-overlay-results', ProductSearchOverlayResults);
