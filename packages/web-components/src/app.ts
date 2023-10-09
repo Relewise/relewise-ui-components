@@ -8,6 +8,7 @@ import { updateContextSettings } from './updateContextSettings';
 import { ProductSearchOverlayResults, SearchBar, ProductSearchOverlayProduct } from './search';
 import { ProductTile, SearchIcon, XIcon } from './components';
 import { ProductSearch } from './search/product-search';
+import { Button } from './components/button';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -78,6 +79,7 @@ function registerGenericComponents() {
     tryRegisterElement('relewise-product-tile', ProductTile);
     tryRegisterElement('relewise-search-icon', SearchIcon);
     tryRegisterElement('relewise-x-icon', XIcon);
+    tryRegisterElement('relewise-button', Button);
 }
 
 function tryRegisterElement(name: string, constructor: CustomElementConstructor) {
