@@ -1,7 +1,5 @@
 import { LitElement, css, html } from 'lit';
-import { customElement } from 'lit/decorators.js';
 
-@customElement('relewise-search-icon')
 export class SearchIcon extends LitElement {
 
     connectedCallback(): void {

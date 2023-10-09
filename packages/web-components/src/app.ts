@@ -6,7 +6,7 @@ import { ProductSearchOverlay } from './search/product-search-overlay';
 import { BrandView, ContentCategoryView, ContentView, ProductCategoryView, ProductView } from './tracking';
 import { updateContextSettings } from './updateContextSettings';
 import { ProductSearchOverlayResults, SearchBar, ProductSearchOverlayProduct } from './search';
-import { ProductTile } from './components';
+import { ProductTile, SearchIcon, XIcon } from './components';
 import { ProductSearch } from './search/product-search';
 
 export interface RelewiseUISearchOptions {
@@ -48,7 +48,8 @@ export function useRecommendations() {
     tryRegisterElement('relewise-popular-products', PopularProducts);
     tryRegisterElement('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);
     tryRegisterElement('relewise-purchased-with-product', PurchasedWithProduct);
-    tryRegisterElement('relewise-product-tile', ProductTile);
+    
+    registerGenericComponents();
 }
 
 export function useBehavioralTracking() {
@@ -69,7 +70,15 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     tryRegisterElement('relewise-search-bar', SearchBar);
     tryRegisterElement('relewise-product-search-overlay-product', ProductSearchOverlayProduct);
     tryRegisterElement('relewise-product-search-overlay-results', ProductSearchOverlayResults);
-} 
+
+    registerGenericComponents();
+}
+
+function registerGenericComponents() {
+    tryRegisterElement('relewise-product-tile', ProductTile);
+    tryRegisterElement('relewise-search-icon', SearchIcon);
+    tryRegisterElement('relewise-x-icon', XIcon);
+}
 
 function tryRegisterElement(name: string, constructor: CustomElementConstructor) {
     if (customElements.get(name) === undefined) {
