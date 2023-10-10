@@ -25,6 +25,7 @@ export class ProductSearch extends LitElement {
             console.error('No displayedAtLocation defined!');
         }
 
+        this.readCurrentUrlState();
         super.connectedCallback();
     }
 
@@ -38,6 +39,8 @@ export class ProductSearch extends LitElement {
     }
 
     async search() {
+        this.updateUrlState(this.term);
+
         const relewiseUIOptions = getRelewiseUIOptions();
         const searchOptions = getRelewiseUISearchOptions();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
@@ -62,6 +65,33 @@ export class ProductSearch extends LitElement {
             this.products = productSearchResult.results;
         }
     }
+
+    updateUrlState(term: string) {
+        const currentUrl = new URL(window.location.href);
+        
+        if (!term) {
+            currentUrl.searchParams.delete('relewiseSearchTerm');
+            window.history.replaceState({}, document.title, currentUrl);
+            return;
+        }
+
+        currentUrl.searchParams.set('relewiseSearchTerm', this.term);
+        window.history.replaceState({}, document.title, currentUrl);
+    }
+
+    readCurrentUrlState() {
+        const currentUrl = new URL(window.location.href);
+
+        const term = currentUrl.searchParams.get('relewiseSearchTerm');
+
+        if (!term) {
+            return;
+        }
+
+        this.term = term;
+        this.search();
+    }
+    
 
     render() {
         return html`
