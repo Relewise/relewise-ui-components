@@ -46,7 +46,6 @@ export class ProductSearch extends LitElement {
             .addRequest(new ProductSearchBuilder(settings)
                 .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
                 .setTerm(this.term)
-                .pagination(p => p.setPageSize(20))
                 .filters(builder => {
                     if (relewiseUIOptions.filters?.product) {
                         relewiseUIOptions.filters.product(builder);
