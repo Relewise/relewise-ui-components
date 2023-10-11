@@ -1,4 +1,4 @@
-import { FilterBuilder, ProductResult } from '@relewise/client';
+import { FacetBuilder, FilterBuilder, ProductResult } from '@relewise/client';
 import { TemplateResult } from 'lit';
 import { ContextSettings, TemplateExtensions } from './initialize';
 import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithProduct } from './recommendations';
@@ -9,10 +9,17 @@ import { ProductSearchOverlayResults, SearchBar, ProductSearchOverlayProduct } f
 import { ProductTile, SearchIcon, XIcon } from './components';
 import { ProductSearch } from './search/product-search';
 import { Button } from './components/button';
+import { CategoryFacet } from './search/components/facets/category-facet';
+import { ProductSearchResults } from './search/components/product-search-results';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
     templates?: SearchTemplates;
+    facets?: SearchFacets;
+}
+
+export interface SearchFacets {
+    productSearch?: (builder: FacetBuilder) => void
 }
 
 export interface SearchFilters {
@@ -71,7 +78,8 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     tryRegisterElement('relewise-search-bar', SearchBar);
     tryRegisterElement('relewise-product-search-overlay-product', ProductSearchOverlayProduct);
     tryRegisterElement('relewise-product-search-overlay-results', ProductSearchOverlayResults);
-
+    tryRegisterElement('relewise-category-facet', CategoryFacet);
+    tryRegisterElement('relewise-product-search-results', ProductSearchResults);
     registerGenericComponents();
 }
 

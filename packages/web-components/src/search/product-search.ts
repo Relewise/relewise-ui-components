@@ -1,12 +1,14 @@
-import { ProductResult, ProductSearchBuilder, ProductSearchResponse, SearchCollectionBuilder } from '@relewise/client';
+import { ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { defaultProductProperties } from '../defaultProductProperties';
+import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { getSearcher } from './searcher';
 
 export class ProductSearch extends LitElement {
+
+    private searhQueryName = 'relewiseSearchTerm';
     
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;
@@ -18,7 +20,7 @@ export class ProductSearch extends LitElement {
     term: string = '';
 
     @state()
-    products: ProductResult[] | null | undefined;
+    searchResult: ProductSearchResponse | null = null;
 
     async connectedCallback() {
         if (!this.displayedAtLocation) {
@@ -45,44 +47,50 @@ export class ProductSearch extends LitElement {
         const searchOptions = getRelewiseUISearchOptions();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
         const searcher = getSearcher(relewiseUIOptions);
-        const requestBuilder = new SearchCollectionBuilder()
-            .addRequest(new ProductSearchBuilder(settings)
-                .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
-                .setTerm(this.term)
-                .filters(builder => {
-                    if (relewiseUIOptions.filters?.product) {
-                        relewiseUIOptions.filters.product(builder);
-                    }
-                    if (searchOptions && searchOptions.filters?.productSearch) {
-                        searchOptions.filters.productSearch(builder);
-                    }
-                })
-                .build());
 
-        const response = await searcher.batch(requestBuilder.build());
-        if (response && response.responses) {
-            const productSearchResult = response.responses[0] as ProductSearchResponse;
-            this.products = productSearchResult.results;
-        }
+        const requestBuilder = new ProductSearchBuilder(settings)
+            .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
+            .setTerm(this.term)
+            .filters(builder => {
+                if (relewiseUIOptions.filters?.product) {
+                    relewiseUIOptions.filters.product(builder);
+                }
+                if (searchOptions && searchOptions.filters?.productSearch) {
+                    searchOptions.filters.productSearch(builder);
+                }
+            })
+            .facets(builder => {
+                if (searchOptions && searchOptions.facets?.productSearch) {
+                    searchOptions.facets.productSearch(builder);
+                }
+            });
+
+        const response = await searcher.searchProducts(requestBuilder.build());
+        if (!response) {
+            return;
+        } 
+
+        this.searchResult = response;
+        this.setSearchResultOnSlotChilderes(response);
     }
 
     updateUrlState(term: string) {
         const currentUrl = new URL(window.location.href);
         
         if (!term) {
-            currentUrl.searchParams.delete('relewiseSearchTerm');
+            currentUrl.searchParams.delete(this.searhQueryName);
             window.history.replaceState({}, document.title, currentUrl);
             return;
         }
 
-        currentUrl.searchParams.set('relewiseSearchTerm', this.term);
+        currentUrl.searchParams.set(this.searhQueryName, this.term);
         window.history.replaceState({}, document.title, currentUrl);
     }
 
     readCurrentUrlState() {
         const currentUrl = new URL(window.location.href);
 
-        const term = currentUrl.searchParams.get('relewiseSearchTerm');
+        const term = currentUrl.searchParams.get(this.searhQueryName);
 
         if (!term) {
             return;
@@ -92,6 +100,21 @@ export class ProductSearch extends LitElement {
         this.search();
     }
     
+    setSearchResultOnSlotChilderes(searchResult: ProductSearchResponse) {
+        const slot = this.renderRoot.querySelector('slot');
+        if (slot) {
+            const assignedNodes = slot.assignedNodes();
+
+            assignedNodes.forEach((node) => {
+                if (node.nodeType === Node.ELEMENT_NODE && node instanceof HTMLElement) {
+                    const element = node as HTMLElement;
+                    if (element.tagName && element.tagName.toLowerCase().startsWith('relewise-product-search-')) {
+                        element.setAttribute('search-result', JSON.stringify(searchResult));
+                    }
+                }
+            });
+        }
+    }
 
     render() {
         return html`
@@ -109,13 +132,11 @@ export class ProductSearch extends LitElement {
                 <relewise-search-icon name="icon"></relewise-search-icon>
             </relewise-button>
         </div>
-        <div class="rw-grid">
-            ${this.products ? html`
-                ${this.products.map(product =>
-                    html`<relewise-product-tile .product=${product}></relewise-product-tile>`)
-                }
+        <slot>
+            ${this.searchResult ? html`
+                <relewise-product-search-results .search-result=${this.searchResult}></relewise-product-search-results>
             ` : nothing}
-        </div>
+            </slot>
         `;
     }
 
@@ -133,13 +154,7 @@ export class ProductSearch extends LitElement {
         .rw-search-bar {
             width: 100%;
             margin-right: .5rem;
-        }
-        
-        .rw-grid {
-            display: grid;
-            grid-template-columns: repeat(4,1fr);
-            gap: 1rem;
-            grid-auto-rows: 1fr;
+            --color: var(--accent-color);
         }
     `];
 }
