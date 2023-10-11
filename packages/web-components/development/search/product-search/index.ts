@@ -18,4 +18,10 @@ initializeRelewiseUI(
             serverUrl: import.meta.env.VITE_SERVER_URL,
         },
     },
-).useSearch();
+).useSearch({
+    facets: {
+        categoryFacet(builder, seletedValues) {
+            builder.addCategoryFacet('ImmediateParent', seletedValues);
+        },
+    },
+});

@@ -18,8 +18,6 @@ export class ProductSearchResults extends LitElement {
                 html`<relewise-product-tile .product=${product}></relewise-product-tile>`)
             }`;
         }
-
-        return html`fallback`;
     }
 
     static styles = [theme, css`

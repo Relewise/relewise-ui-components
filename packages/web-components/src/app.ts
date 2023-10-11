@@ -19,7 +19,7 @@ export interface RelewiseUISearchOptions {
 }
 
 export interface SearchFacets {
-    productSearch?: (builder: FacetBuilder) => void
+    categoryFacet?: (builder: FacetBuilder, selectedValues: string[]) => void
 }
 
 export interface SearchFilters {

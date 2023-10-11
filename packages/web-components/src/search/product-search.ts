@@ -5,10 +5,9 @@ import { defaultProductProperties } from '../defaultProductProperties';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { getSearcher } from './searcher';
+import { categoryFacetQueryName, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
 
 export class ProductSearch extends LitElement {
-
-    private searhQueryName = 'relewiseSearchTerm';
     
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;
@@ -27,7 +26,8 @@ export class ProductSearch extends LitElement {
             console.error('No displayedAtLocation defined!');
         }
 
-        this.readCurrentUrlState();
+        this.term = readCurrentUrlState(searhTermQueryName) ?? '';
+        this.search();
         super.connectedCallback();
     }
 
@@ -41,7 +41,7 @@ export class ProductSearch extends LitElement {
     }
 
     async search() {
-        this.updateUrlState(this.term);
+        updateUrlState(searhTermQueryName, this.term);
 
         const relewiseUIOptions = getRelewiseUIOptions();
         const searchOptions = getRelewiseUISearchOptions();
@@ -60,8 +60,8 @@ export class ProductSearch extends LitElement {
                 }
             })
             .facets(builder => {
-                if (searchOptions && searchOptions.facets?.productSearch) {
-                    searchOptions.facets.productSearch(builder);
+                if (searchOptions && searchOptions.facets && searchOptions.facets.categoryFacet) {
+                    searchOptions.facets.categoryFacet(builder, readCurrentUrlStateValues(categoryFacetQueryName));
                 }
             });
 
@@ -72,32 +72,6 @@ export class ProductSearch extends LitElement {
 
         this.searchResult = response;
         this.setSearchResultOnSlotChilderes(response);
-    }
-
-    updateUrlState(term: string) {
-        const currentUrl = new URL(window.location.href);
-        
-        if (!term) {
-            currentUrl.searchParams.delete(this.searhQueryName);
-            window.history.replaceState({}, document.title, currentUrl);
-            return;
-        }
-
-        currentUrl.searchParams.set(this.searhQueryName, this.term);
-        window.history.replaceState({}, document.title, currentUrl);
-    }
-
-    readCurrentUrlState() {
-        const currentUrl = new URL(window.location.href);
-
-        const term = currentUrl.searchParams.get(this.searhQueryName);
-
-        if (!term) {
-            return;
-        }
-
-        this.term = term;
-        this.search();
     }
     
     setSearchResultOnSlotChilderes(searchResult: ProductSearchResponse) {
@@ -134,7 +108,12 @@ export class ProductSearch extends LitElement {
         </div>
         <slot>
             ${this.searchResult ? html`
-                <relewise-product-search-results .search-result=${this.searchResult}></relewise-product-search-results>
+                <div class="rw-grid">
+                    <div class="rw-facet-container">
+                        <relewise-category-facet .searchResult=${this.searchResult}></relewise-category-facet>
+                    </div>
+                    <relewise-product-search-results .searchResult=${this.searchResult}></relewise-product-search-results>
+                </div>
             ` : nothing}
             </slot>
         `;
@@ -155,6 +134,11 @@ export class ProductSearch extends LitElement {
             width: 100%;
             margin-right: .5rem;
             --color: var(--accent-color);
+        }
+
+        .rw-grid {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
         }
     `];
 }
