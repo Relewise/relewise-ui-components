@@ -1,11 +1,11 @@
 import { ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
-import { LitElement, css, html, nothing } from 'lit';
+import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
+import { Events, categoryFacetQueryName, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { getSearcher } from './searcher';
-import { categoryFacetQueryName, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
 
 export class ProductSearch extends LitElement {
     
@@ -16,7 +16,7 @@ export class ProductSearch extends LitElement {
     searchBarPlaceholder: string | null = null;
 
     @state()
-    term: string = '';
+    term: string | null = null;
 
     @state()
     searchResult: ProductSearchResponse | null = null;
@@ -26,8 +26,9 @@ export class ProductSearch extends LitElement {
             console.error('No displayedAtLocation defined!');
         }
 
-        this.term = readCurrentUrlState(searhTermQueryName) ?? '';
+        this.term = readCurrentUrlState(searhTermQueryName) ?? null;
         this.search();
+        window.addEventListener(Events.shouldPerformSearch, () => this.search());
         super.connectedCallback();
     }
 
@@ -41,7 +42,7 @@ export class ProductSearch extends LitElement {
     }
 
     async search() {
-        updateUrlState(searhTermQueryName, this.term);
+        updateUrlState(searhTermQueryName, this.term ?? '');
 
         const relewiseUIOptions = getRelewiseUIOptions();
         const searchOptions = getRelewiseUISearchOptions();
@@ -50,7 +51,7 @@ export class ProductSearch extends LitElement {
 
         const requestBuilder = new ProductSearchBuilder(settings)
             .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
-            .setTerm(this.term)
+            .setTerm(this.term  ? this.term : null)
             .filters(builder => {
                 if (relewiseUIOptions.filters?.product) {
                     relewiseUIOptions.filters.product(builder);
@@ -71,10 +72,10 @@ export class ProductSearch extends LitElement {
         } 
 
         this.searchResult = response;
-        this.setSearchResultOnSlotChilderes(response);
+        this.setSearchResultOnSlotChilderen(response);
     }
     
-    setSearchResultOnSlotChilderes(searchResult: ProductSearchResponse) {
+    setSearchResultOnSlotChilderen(searchResult: ProductSearchResponse) {
         const slot = this.renderRoot.querySelector('slot');
         if (slot) {
             const assignedNodes = slot.assignedNodes();
@@ -82,7 +83,7 @@ export class ProductSearch extends LitElement {
             assignedNodes.forEach((node) => {
                 if (node.nodeType === Node.ELEMENT_NODE && node instanceof HTMLElement) {
                     const element = node as HTMLElement;
-                    if (element.tagName && element.tagName.toLowerCase().startsWith('relewise-product-search-')) {
+                    if (element.tagName && element.tagName.toLowerCase().startsWith('relewise-')) {
                         element.setAttribute('search-result', JSON.stringify(searchResult));
                     }
                 }
@@ -91,10 +92,11 @@ export class ProductSearch extends LitElement {
     }
 
     render() {
+        console.log(this.searchResult);
         return html`
         <div class="rw-search-bar-container">
             <relewise-search-bar 
-                .term=${this.term}
+                .term=${this.term ?? ''}
                 .setSearchTerm=${(term: string)=> this.term = term}
                 .placeholder=${this.searchBarPlaceholder}
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
@@ -107,15 +109,17 @@ export class ProductSearch extends LitElement {
             </relewise-button>
         </div>
         <slot>
-            ${this.searchResult ? html`
-                <div class="rw-grid">
-                    <div class="rw-facet-container">
-                        <relewise-category-facet .searchResult=${this.searchResult}></relewise-category-facet>
-                    </div>
-                    <relewise-product-search-results .searchResult=${this.searchResult}></relewise-product-search-results>
+        <div class="rw-grid">
+                <div class="rw-facet-container">
+                    <relewise-category-facet
+                        .searchResult=${this.searchResult}>
+                    </relewise-category-facet>
                 </div>
-            ` : nothing}
-            </slot>
+                <relewise-product-search-results
+                    .searchResult=${this.searchResult}>
+                </relewise-product-search-results>
+            </div>
+        </slot>
         `;
     }
 

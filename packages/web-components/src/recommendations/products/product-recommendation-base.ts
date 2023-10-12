@@ -28,7 +28,6 @@ export abstract class ProductRecommendationBase extends LitElement {
         };
 
         await fetchAndUpdateProducts();
-
         window.addEventListener(Events.contextSettingsUpdated, fetchAndUpdateProducts);
     }
 
