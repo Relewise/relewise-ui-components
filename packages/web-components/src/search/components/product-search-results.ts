@@ -15,7 +15,7 @@ export class ProductSearchResults extends LitElement {
     render() {
         if (this.searchResult && this.searchResult.results) {
             return html`${this.searchResult.results.map(product =>
-                html`<relewise-product-tile .product=${product}></relewise-product-tile>`)
+                html`<relewise-product-tile class="test" .product=${product}></relewise-product-tile>`)
             }`;
         }
     }
@@ -24,10 +24,21 @@ export class ProductSearchResults extends LitElement {
     :host {
         font-family: var(--font);
         display: grid;
-        grid-template-columns: repeat(4,1fr);
+        grid-template-columns: repeat(2,1fr);
         gap: 1rem;
         grid-auto-rows: 1fr;
-    }`];
+    }
+
+    .test {
+        align-items: center;
+    }
+    
+    @media (min-width: 1024px) {
+        :host {
+            grid-template-columns: repeat(4,1fr);
+        }
+    }
+    `];
 }
 
 declare global {

@@ -22,7 +22,7 @@ export class ProductSearch extends LitElement {
     searchResult: ProductSearchResponse | null = null;
 
     @state()
-    showFacets: boolean = true;
+    showFacets: boolean = window.innerWidth >= 1024;;
 
     async connectedCallback() {
         if (!this.displayedAtLocation) {
@@ -95,7 +95,6 @@ export class ProductSearch extends LitElement {
     }
 
     render() {
-        console.log(this.searchResult);
         return html`
         <div class="rw-search-bar-container">
             <relewise-search-bar 
@@ -167,7 +166,7 @@ export class ProductSearch extends LitElement {
                 grid-template-columns: 1fr 4fr;
             }
         }
-        
+
         .rw-filter-button-container {
             display: flex;
             align-items: center;
@@ -176,16 +175,33 @@ export class ProductSearch extends LitElement {
         .rw-collapse-facets-button {
             margin: 0;
             padding: 0;
+            --relewise-button-icon-padding: 0;
             --relewise-button-text-color: black;
             --relewise-button-text-font-weight: 700;
         }
 
         .rw-filter-icon-color {
+            display: flex;
             --relewise-icon-color: black;
         }
        
+        @media (min-width: 1024px) {
+            .rw-facet-container {
+                background-color: lightgray;
+                border-radius: 1rem;
+                margin-right: 1rem;
+                height: fit-content;
+            }
+        }
+
         .rw-facet-container {
-            background-color: lightgray
+            background-color: lightgray;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+            padding: .25rem;
+            height: fit-content;
+            width: fit-content;
         }
     `];
 }

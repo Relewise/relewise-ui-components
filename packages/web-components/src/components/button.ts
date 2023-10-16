@@ -56,7 +56,7 @@ export class Button extends LitElement {
         }
         
         .rw-button-icon {
-            padding: .5rem;
+            padding: var(--relewise-button-icon-padding, .5rem);
             --relewise-icon-color: white;
         }
     `];
