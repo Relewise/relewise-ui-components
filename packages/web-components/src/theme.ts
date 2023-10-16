@@ -6,7 +6,7 @@ export const theme = css`
     --color: var(--relewise-color, lightgray);
     --accent-color:var(--relewise-accent-color, #3764e4);
 
-    --relewise-search-icon-color: var(--color);
+    --relewise-icon-color: var(--color);
     --relewise-x-icon-color: var(--color);
   }
 `;

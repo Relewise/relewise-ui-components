@@ -19,7 +19,7 @@ export class SearchIcon extends LitElement {
         #svg-icon {
             width: 1rem;
             height: 1rem;
-            fill: var(--relewise-search-icon-color);
+            fill: var(--relewise-icon-color);
         }
     `;
 }

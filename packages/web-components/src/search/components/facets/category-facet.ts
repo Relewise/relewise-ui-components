@@ -1,5 +1,5 @@
 import { CategoryFacetResult, CategoryNameAndIdResultAvailableFacetValue, ProductSearchResponse } from '@relewise/client';
-import { LitElement, PropertyValues, css, html, nothing } from 'lit';
+import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, categoryFacetQueryName, readCurrentUrlStateValues, updateUrlStateValues } from '../../../helpers';
 import { theme } from '../../../theme';

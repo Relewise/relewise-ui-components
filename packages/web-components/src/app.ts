@@ -6,7 +6,7 @@ import { ProductSearchOverlay } from './search/product-search-overlay';
 import { BrandView, ContentCategoryView, ContentView, ProductCategoryView, ProductView } from './tracking';
 import { updateContextSettings } from './updateContextSettings';
 import { ProductSearchOverlayResults, SearchBar, ProductSearchOverlayProduct } from './search';
-import { ProductTile, SearchIcon, XIcon } from './components';
+import { ProductTile, SearchIcon, XIcon, FilterIcon } from './components';
 import { ProductSearch } from './search/product-search';
 import { Button } from './components/button';
 import { CategoryFacet } from './search/components/facets/category-facet';
@@ -86,6 +86,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
 function registerGenericComponents() {
     tryRegisterElement('relewise-product-tile', ProductTile);
     tryRegisterElement('relewise-search-icon', SearchIcon);
+    tryRegisterElement('relewise-filter-icon', FilterIcon);
     tryRegisterElement('relewise-x-icon', XIcon);
     tryRegisterElement('relewise-button', Button);
 }

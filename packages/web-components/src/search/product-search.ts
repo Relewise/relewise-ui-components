@@ -1,5 +1,5 @@
 import { ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
-import { LitElement, css, html } from 'lit';
+import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
 import { Events, categoryFacetQueryName, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
@@ -20,6 +20,9 @@ export class ProductSearch extends LitElement {
 
     @state()
     searchResult: ProductSearchResponse | null = null;
+
+    @state()
+    showFacets: boolean = true;
 
     async connectedCallback() {
         if (!this.displayedAtLocation) {
@@ -102,22 +105,32 @@ export class ProductSearch extends LitElement {
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
                 class="rw-search-bar">
             </relewise-search-bar>
-            <relewise-button 
+            <relewise-button
+                class="rw-search-button"
                 button-text="Search"
                 .handleClick=${() => this.search()}>
-                <relewise-search-icon name="icon"></relewise-search-icon>
+                <relewise-search-icon></relewise-search-icon>
             </relewise-button>
         </div>
         <slot>
-        <div class="rw-grid">
-                <div class="rw-facet-container">
-                    <relewise-category-facet
-                        .searchResult=${this.searchResult}>
-                    </relewise-category-facet>
-                </div>
-                <relewise-product-search-results
-                    .searchResult=${this.searchResult}>
-                </relewise-product-search-results>
+        <div class="rw-product-search-results">
+            <div class="rw-facet-container">
+            <div class="rw-filter-button-container">
+            <relewise-button
+                    button-text="Filter" 
+                    class="rw-collapse-facets-button"
+                    @click=${() => this.showFacets = !this.showFacets}>
+                        ${this.showFacets ? html`<relewise-x-icon class="rw-filter-icon-color"></relewise-x-icon>` : html`<relewise-filter-icon class="rw-filter-icon-color"></relewise-filter-icon>`}
+                    </relewise-button>
+            </div>
+            ${this.showFacets ? 
+                html`
+                    <relewise-category-facet .searchResult=${this.searchResult}></relewise-category-facet>
+                ` : nothing}
+            </div>
+            <relewise-product-search-results
+                .searchResult=${this.searchResult}>
+            </relewise-product-search-results>
             </div>
         </slot>
         `;
@@ -140,9 +153,39 @@ export class ProductSearch extends LitElement {
             --color: var(--accent-color);
         }
 
-        .rw-grid {
-            display: grid;
-            grid-template-columns: 1fr 3fr;
+        .rw-search-button {
+            height: 3.25rem;
+            border: 2px solid;
+            border-color: var(--accent-color);
+            border-radius: 1rem;
+            background-color: var(--accent-color);
+        }
+
+        @media (min-width: 1024px) {
+            .rw-product-search-results {
+                display: grid;
+                grid-template-columns: 1fr 4fr;
+            }
+        }
+        
+        .rw-filter-button-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .rw-collapse-facets-button {
+            margin: 0;
+            padding: 0;
+            --relewise-button-text-color: black;
+            --relewise-button-text-font-weight: 700;
+        }
+
+        .rw-filter-icon-color {
+            --relewise-icon-color: black;
+        }
+       
+        .rw-facet-container {
+            background-color: lightgray
         }
     `];
 }

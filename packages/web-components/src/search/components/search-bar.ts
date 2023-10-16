@@ -55,7 +55,7 @@ export class SearchBar extends LitElement {
 
             .rw-search-bar:focus-within {
                 border-color: var(--accent-color);
-                --relewise-search-icon-color: var(--accent-color);
+                --relewise-icon-color: var(--accent-color);
                 --relewise-x-icon-color: var(--accent-color);
             }
 

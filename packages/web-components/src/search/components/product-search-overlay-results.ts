@@ -119,7 +119,7 @@ export class ProductSearchOverlayResults extends LitElement {
         .rw-search-icon {
             margin: auto;
             padding-right: 1rem;
-            --relewise-search-icon-color: var(--accent-color);
+            --relewise-icon-color: var(--accent-color);
         }
     `];
 }

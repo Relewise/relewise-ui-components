@@ -20,7 +20,7 @@ export class XIcon extends LitElement {
         #svg-icon {
             width: 1rem;
             height: 1rem;
-            fill: var(--relewise-x-icon-color);
+            fill: var(--relewise-icon-color);
         }
     `;
 }
