@@ -15,7 +15,7 @@ export class ProductSearchResults extends LitElement {
     render() {
         if (this.products.length > 0) {
             return html`${this.products.map(product =>
-                html`<relewise-product-tile .product=${product}></relewise-product-tile>`)
+                html`<relewise-product-tile class="rw-product-tile" .product=${product}></relewise-product-tile>`)
             }`;
         }
     }
@@ -27,6 +27,10 @@ export class ProductSearchResults extends LitElement {
         grid-template-columns: repeat(2,1fr);
         gap: 1rem;
         grid-auto-rows: 1fr;
+    }
+
+    .rw-product-tile {
+        --relewise-image-height: 14rem;
     }
     
     @media (min-width: 1024px) {
