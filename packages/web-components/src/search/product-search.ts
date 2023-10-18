@@ -163,29 +163,28 @@ export class ProductSearch extends LitElement {
         <slot>
         <div class="rw-product-search-results">
             <div class="rw-facet-container">
-            <div class="rw-filter-button-container">
-            <relewise-button
-                    button-text="Filter" 
-                    class="rw-collapse-facets-button"
-                    @click=${() => this.showFacets = !this.showFacets}>
-                        ${this.showFacets ? html`<relewise-x-icon class="rw-filter-icon-color"></relewise-x-icon>` : html`<relewise-filter-icon class="rw-filter-icon-color"></relewise-filter-icon>`}
-                    </relewise-button>
-            </div>
-            ${this.showFacets ? 
-                html`
-                    <relewise-category-facet .searchResult=${this.searchResult}></relewise-category-facet>
-                ` : nothing}
-            </div>
-            <div>
-                <relewise-product-search-results
-                    .products=${this.products}>
-                </relewise-product-search-results>
-                <relewise-product-search-load-more-button
-                    .productsLoaded=${this.products.length}
-                    .hits=${this.searchResult?.hits ?? null}
-                ></relewise-product-search-load-more-button>
-            </div>
-            </div>
+                <relewise-button
+                        button-text="Filter" 
+                        class="rw-filter-button"
+                        @click=${() => this.showFacets = !this.showFacets}>
+                            ${this.showFacets ?
+                                html`<relewise-x-icon class="rw-filter-icon-color"></relewise-x-icon>` :
+                                html`<relewise-filter-icon class="rw-filter-icon-color"></relewise-filter-icon>`}
+                </relewise-button>
+                ${this.showFacets ? 
+                    html`
+                        <relewise-category-facet .searchResult=${this.searchResult}></relewise-category-facet>
+                    ` : nothing}
+                </div>
+                <div>
+                    <relewise-product-search-results
+                        .products=${this.products}>
+                    </relewise-product-search-results>
+                    <relewise-product-search-load-more-button
+                        .productsLoaded=${this.products.length}
+                        .hits=${this.searchResult?.hits ?? null}
+                    ></relewise-product-search-load-more-button>
+                </div>
         </slot>
         `;
     }
@@ -222,21 +221,18 @@ export class ProductSearch extends LitElement {
             }
         }
 
-        .rw-filter-button-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .rw-collapse-facets-button {
+        .rw-filter-button {
             margin: 0;
             padding: 0;
             --relewise-button-icon-padding: 0;
             --relewise-button-text-color: black;
             --relewise-button-text-font-weight: 700;
+            width: 100%;
         }
 
         .rw-filter-icon-color {
             display: flex;
+            margin: .5rem;
             --relewise-icon-color: black;
         }
        
@@ -256,7 +252,6 @@ export class ProductSearch extends LitElement {
             margin-top: 1rem;
             padding: .25rem;
             height: fit-content;
-            width: fit-content;
         }
     `];
 }

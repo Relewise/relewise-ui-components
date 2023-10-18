@@ -18,6 +18,9 @@ export class CategoryFacet extends LitElement {
     @state()
     selectedValues: string[] = [];
 
+    @state()
+    showAllCategories: boolean = false;
+
     connectedCallback(): void {
         super.connectedCallback();
         this.selectedValues = readCurrentUrlStateValues(categoryFacetQueryName);
@@ -44,10 +47,20 @@ export class CategoryFacet extends LitElement {
 
     render() {
         const categoryFacet = this.searchResult?.facets?.items?.find(x => x.field === 'Category') as CategoryFacetResult;
+        
+        if (!categoryFacet ||
+            !categoryFacet.available ||
+            categoryFacet.available.length < 1) {
+            return;
+        }
+
+        const categoriesToShow = this.showAllCategories
+            ? categoryFacet.available
+            : categoryFacet.available.slice(0, 10);
+
         return html`
-        ${categoryFacet && categoryFacet.available && categoryFacet.available.length > 0 ? html`
         <h3>${this.labelText}</h3>
-        ${categoryFacet.available.map((item, index) => {
+        ${categoriesToShow.map((item, index) => {
                 return html`
                 ${item.value && item.value.displayName ? html`
                     <div>
@@ -62,11 +75,25 @@ export class CategoryFacet extends LitElement {
                 ` : nothing}
                 `;
             })}
-        ` : nothing}
+        ${this.showAllCategories ? html`
+            <relewise-button
+                button-text="Show Less"
+                class="rw-show-more"
+                @click=${() => this.showAllCategories = false}>
+            </relewise-button>` : html`
+            <relewise-button
+                button-text="Show More"
+                class="rw-show-more"
+                @click=${() => this.showAllCategories = true}>
+            </relewise-button>`}
         `;
     }
 
-    static styles = [theme, css``];
+    static styles = [theme, css`
+        .rw-show-more {
+            --relewise-button-text-color: black;
+        }
+    `];
 }
 
 declare global {
