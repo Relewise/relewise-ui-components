@@ -38,6 +38,7 @@ export class CategoryFacet extends LitElement {
         }
 
         updateUrlStateValues(categoryFacetQueryName, this.selectedValues);
+        window.dispatchEvent(new CustomEvent(Events.shouldClearSearchResult));
         window.dispatchEvent(new CustomEvent(Events.shouldPerformSearch));
     }
 

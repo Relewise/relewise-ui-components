@@ -1,8 +1,8 @@
-import { ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
+import { ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
-import { Events, categoryFacetQueryName, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
+import { Events, categoryFacetQueryName, getProductSearchResults, productSearchResults, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { getSearcher } from './searcher';
@@ -15,6 +15,9 @@ export class ProductSearch extends LitElement {
     @property({ attribute: 'search-bar-placeholder' })
     searchBarPlaceholder: string | null = null;
 
+    @property({ type: Number, attribute: 'search-result-page-size' })
+    searchResultPageSize: number = 16;
+
     @state()
     term: string | null = null;
 
@@ -22,7 +25,13 @@ export class ProductSearch extends LitElement {
     searchResult: ProductSearchResponse | null = null;
 
     @state()
-    showFacets: boolean = window.innerWidth >= 1024;;
+    products: ProductResult[] = [];
+
+    @state()
+    showFacets: boolean = window.innerWidth >= 1024;
+
+    @state()
+    page: number = 1;
 
     async connectedCallback() {
         if (!this.displayedAtLocation) {
@@ -30,9 +39,30 @@ export class ProductSearch extends LitElement {
         }
 
         this.term = readCurrentUrlState(searhTermQueryName) ?? null;
+        
+        const productsToFetch = getProductSearchResults();
+        if (productsToFetch) {
+            this.page = productsToFetch / this.searchResultPageSize;
+        }
+         
         this.search();
+
         window.addEventListener(Events.shouldPerformSearch, () => this.search());
+        window.addEventListener(Events.shouldClearSearchResult, () => this.clearSearchResult());
+        window.addEventListener(Events.shouldLoadMoreProducts, () => this.loadMoreProducts());
         super.connectedCallback();
+    }
+
+    clearSearchResult() {
+        this.products = [];
+        this.searchResult = null;
+        updateUrlState(productSearchResults, '');
+    }
+    
+    loadMoreProducts() {
+        this.page = this.page + 1;
+        updateUrlState(productSearchResults, (this.searchResultPageSize * this.page).toString());
+        this.search();
     }
 
     handleKeyDown(event: KeyboardEvent): void {
@@ -47,6 +77,8 @@ export class ProductSearch extends LitElement {
     async search() {
         updateUrlState(searhTermQueryName, this.term ?? '');
 
+        const productsToFetch = getProductSearchResults();
+
         const relewiseUIOptions = getRelewiseUIOptions();
         const searchOptions = getRelewiseUISearchOptions();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
@@ -55,6 +87,9 @@ export class ProductSearch extends LitElement {
         const requestBuilder = new ProductSearchBuilder(settings)
             .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
             .setTerm(this.term  ? this.term : null)
+            .pagination(p => p
+                .setPageSize(productsToFetch && this.products.length < 1 ? productsToFetch : this.searchResultPageSize)
+                .setPage(productsToFetch && this.products.length < 1 ? 1 : this.page))
             .filters(builder => {
                 if (relewiseUIOptions.filters?.product) {
                     relewiseUIOptions.filters.product(builder);
@@ -75,10 +110,11 @@ export class ProductSearch extends LitElement {
         } 
 
         this.searchResult = response;
-        this.setSearchResultOnSlotChilderen(response);
+        this.products = this.products.concat(response.results ?? []);
+        this.setSearchResultOnSlotChilderen();
     }
     
-    setSearchResultOnSlotChilderen(searchResult: ProductSearchResponse) {
+    setSearchResultOnSlotChilderen() {
         const slot = this.renderRoot.querySelector('slot');
         if (slot) {
             const assignedNodes = slot.assignedNodes();
@@ -86,9 +122,13 @@ export class ProductSearch extends LitElement {
             assignedNodes.forEach((node) => {
                 if (node.nodeType === Node.ELEMENT_NODE && node instanceof HTMLElement) {
                     const element = node as HTMLElement;
-                    if (element.tagName && element.tagName.toLowerCase().startsWith('relewise-')) {
-                        element.setAttribute('search-result', JSON.stringify(searchResult));
+                    if (element.tagName.toLowerCase() === 'relewise-product-search-results') {
+                        element.setAttribute('products', JSON.stringify(this.products));
                     }
+
+                    if (element.tagName.toLowerCase().startsWith('relewise-') &&
+                        element.tagName.toLowerCase().endsWith('-facet')) {
+                        element.setAttribute('search-result', JSON.stringify(this.searchResult));                    }
                 }
             });
         }
@@ -127,9 +167,12 @@ export class ProductSearch extends LitElement {
                     <relewise-category-facet .searchResult=${this.searchResult}></relewise-category-facet>
                 ` : nothing}
             </div>
-            <relewise-product-search-results
-                .searchResult=${this.searchResult}>
-            </relewise-product-search-results>
+            <div>
+                <relewise-product-search-results
+                    .products=${this.products}>
+                </relewise-product-search-results>
+                <relewise-product-search-load-more-button></relewise-product-search-load-more-button>
+            </div>
             </div>
         </slot>
         `;

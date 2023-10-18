@@ -11,6 +11,7 @@ import { ProductSearch } from './search/product-search';
 import { Button } from './components/button';
 import { CategoryFacet } from './search/components/facets/category-facet';
 import { ProductSearchResults } from './search/components/product-search-results';
+import { LoadMoreProducts } from './search/components/product-search-load-more-button';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -80,6 +81,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     tryRegisterElement('relewise-product-search-overlay-results', ProductSearchOverlayResults);
     tryRegisterElement('relewise-category-facet', CategoryFacet);
     tryRegisterElement('relewise-product-search-results', ProductSearchResults);
+    tryRegisterElement('relewise-product-search-load-more-button', LoadMoreProducts);
     registerGenericComponents();
 }
 
