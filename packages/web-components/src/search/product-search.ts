@@ -56,6 +56,7 @@ export class ProductSearch extends LitElement {
     clearSearchResult() {
         this.products = [];
         this.searchResult = null;
+        this.page = 1;
         updateUrlState(productSearchResults, '');
     }
     
@@ -69,6 +70,7 @@ export class ProductSearch extends LitElement {
         switch (event.key) {
         case 'Enter':
             event.preventDefault();
+            this.clearSearchResult();
             this.search();
             break;
         }
@@ -111,6 +113,7 @@ export class ProductSearch extends LitElement {
 
         this.searchResult = response;
         this.products = this.products.concat(response.results ?? []);
+
         this.setSearchResultOnSlotChilderen();
     }
     
@@ -126,9 +129,15 @@ export class ProductSearch extends LitElement {
                         element.setAttribute('products', JSON.stringify(this.products));
                     }
 
+                    if (element.tagName.toLowerCase() === 'relewise-product-search-load-more-button') {
+                        element.setAttribute('products-loaded', this.products.length.toString());
+                        element.setAttribute('hits', this.searchResult?.hits.toString() ?? '');
+                    }
+
                     if (element.tagName.toLowerCase().startsWith('relewise-') &&
                         element.tagName.toLowerCase().endsWith('-facet')) {
-                        element.setAttribute('search-result', JSON.stringify(this.searchResult));                    }
+                        element.setAttribute('search-result', JSON.stringify(this.searchResult));                    
+                    }
                 }
             });
         }
@@ -171,7 +180,10 @@ export class ProductSearch extends LitElement {
                 <relewise-product-search-results
                     .products=${this.products}>
                 </relewise-product-search-results>
-                <relewise-product-search-load-more-button></relewise-product-search-load-more-button>
+                <relewise-product-search-load-more-button
+                    .productsLoaded=${this.products.length}
+                    .hits=${this.searchResult?.hits ?? null}
+                ></relewise-product-search-load-more-button>
             </div>
             </div>
         </slot>

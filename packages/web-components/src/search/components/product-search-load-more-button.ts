@@ -8,19 +8,33 @@ export class LoadMoreProducts extends LitElement {
     @property({ attribute: 'button-text' }) 
     buttonText: string = 'Load More';
 
+    @property({ type: Number })
+    hits: number | null = null;
+
+    @property({ type: Number, attribute: 'products-loaded'})
+    productsLoaded: number | null = null;
+
     connectedCallback(): void {
         super.connectedCallback();
     }
 
     render() {
+        if (!this.productsLoaded || !this.hits || this.productsLoaded === this.hits) {
+            return;
+        }
+
         return html`
-        <relewise-button class="rw-button" @click=${() => window.dispatchEvent(new CustomEvent(Events.shouldLoadMoreProducts))}>
-            ${this.buttonText}
-        </relewise-button>
+            <relewise-button class="rw-button" @click=${() => window.dispatchEvent(new CustomEvent(Events.shouldLoadMoreProducts))}>
+                ${this.buttonText}
+            </relewise-button>
         `;
     }
 
     static styles = [theme, css`
+        :host {
+            margin: 1rem;
+        }
+
         .rw-button {
             height: 3.25rem;
             border: 2px solid;
