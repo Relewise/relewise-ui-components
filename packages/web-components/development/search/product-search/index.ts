@@ -23,5 +23,8 @@ initializeRelewiseUI(
         categoryFacet(builder, seletedValues) {
             builder.addCategoryFacet('ImmediateParent', seletedValues);
         },
+        brandFacet(builder, seletedValues) {
+            builder.addBrandFacet(seletedValues);
+        },
     },
 });

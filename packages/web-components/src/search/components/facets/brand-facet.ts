@@ -1,13 +1,13 @@
-import { CategoryFacetResult } from '@relewise/client';
+import { BrandFacetResult } from '@relewise/client';
 import { html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
-import { categoryFacetQueryName, readCurrentUrlStateValues } from '../../../helpers';
+import { brandFacetQueryName, categoryFacetQueryName, readCurrentUrlStateValues } from '../../../helpers';
 import { FacetBase } from './facet-base';
 
-export class CategoryFacet extends FacetBase {
+export class BrandFacet extends FacetBase {
 
     @property({ attribute: 'label-text' })
-    labelText: string = 'Categories';
+    labelText: string = 'Brands';
     
     connectedCallback(): void {
         super.connectedCallback();
@@ -15,21 +15,21 @@ export class CategoryFacet extends FacetBase {
     }
 
     render() {
-        const categoryFacet = this.searchResult?.facets?.items?.find(x => x.field === 'Category') as CategoryFacetResult;
+        const brandFacet = this.searchResult?.facets?.items?.find(x => x.field === 'Brand') as BrandFacetResult;
         
-        if (!categoryFacet ||
-            !categoryFacet.available ||
-            categoryFacet.available.length < 1) {
+        if (!brandFacet ||
+            !brandFacet.available ||
+            brandFacet.available.length < 1) {
             return;
         }
 
-        const categoriesToShow = this.showAll
-            ? categoryFacet.available
-            : categoryFacet.available.slice(0, 10);
+        const brandsToShow = this.showAll
+            ? brandFacet.available
+            : brandFacet.available.slice(0, 10);
 
         return html`
         <h3>${this.labelText}</h3>
-        ${categoriesToShow.map((item, index) => {
+        ${brandsToShow.map((item, index) => {
                 return html`
                 ${item.value && item.value.displayName ? html`
                     <div>
@@ -38,13 +38,13 @@ export class CategoryFacet extends FacetBase {
                             id=${index}
                             name=${index}
                             ?checked=${this.selectedValues.filter(x => x === item.value?.id).length > 0}
-                            @change=${(e: Event) => this.handleChange(e, item, categoryFacetQueryName)} />
+                            @change=${(e: Event) => this.handleChange(e, item, brandFacetQueryName)} />
                         <label for=${index}>${item.value?.displayName}</label>
                     </div>
                 ` : nothing}
                 `;
             })}
-        ${categoryFacet.available.length > 11 ? html`
+        ${brandFacet.available.length > 11 ? html`
             ${this.showAll ? html`
                 <relewise-button
                     button-text="Show Less"
@@ -63,6 +63,6 @@ export class CategoryFacet extends FacetBase {
 
 declare global {
     interface HTMLElementTagNameMap {
-        'relewise-category-facet': CategoryFacet;
+        'relewise-brand-facet': BrandFacet;
     }
 }

@@ -2,7 +2,7 @@ import { ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@rel
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
-import { Events, categoryFacetQueryName, getProductSearchResults, productSearchResults, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
+import { Events, brandFacetQueryName, categoryFacetQueryName, getProductSearchResults, productSearchResults, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { getSearcher } from './searcher';
@@ -101,8 +101,16 @@ export class ProductSearch extends LitElement {
                 }
             })
             .facets(builder => {
-                if (searchOptions && searchOptions.facets && searchOptions.facets.categoryFacet) {
+                if (!searchOptions || !searchOptions.facets) {
+                    return;
+                }
+
+                if (searchOptions.facets.categoryFacet) {
                     searchOptions.facets.categoryFacet(builder, readCurrentUrlStateValues(categoryFacetQueryName));
+                }
+
+                if (searchOptions.facets.brandFacet) {
+                    searchOptions.facets.brandFacet(builder, readCurrentUrlStateValues(brandFacetQueryName));
                 }
             });
 
@@ -161,30 +169,34 @@ export class ProductSearch extends LitElement {
             </relewise-button>
         </div>
         <slot>
-        <div class="rw-product-search-results">
-            <div class="rw-facet-container">
-                <relewise-button
-                        button-text="Filter" 
-                        class="rw-filter-button"
-                        @click=${() => this.showFacets = !this.showFacets}>
-                            ${this.showFacets ?
-                                html`<relewise-x-icon class="rw-filter-icon-color"></relewise-x-icon>` :
-                                html`<relewise-filter-icon class="rw-filter-icon-color"></relewise-filter-icon>`}
-                </relewise-button>
-                ${this.showFacets ? 
-                    html`
-                        <relewise-category-facet .searchResult=${this.searchResult}></relewise-category-facet>
-                    ` : nothing}
-                </div>
+            <div class="rw-product-search-results">
                 <div>
-                    <relewise-product-search-results
-                        .products=${this.products}>
-                    </relewise-product-search-results>
-                    <relewise-product-search-load-more-button
-                        .productsLoaded=${this.products.length}
-                        .hits=${this.searchResult?.hits ?? null}
-                    ></relewise-product-search-load-more-button>
+                    <relewise-button
+                            button-text="Filter" 
+                            class="rw-filter-button"
+                            @click=${() => this.showFacets = !this.showFacets}>
+                                ${this.showFacets ?
+                                    html`<relewise-x-icon class="rw-filter-icon-color"></relewise-x-icon>` :
+                                    html`<relewise-filter-icon class="rw-filter-icon-color"></relewise-filter-icon>`}
+                    </relewise-button>
+                    ${this.showFacets ? 
+                        html`
+                            <div class="rw-facets-container">
+                                <relewise-category-facet .searchResult=${this.searchResult}></relewise-category-facet>
+                                <relewise-brand-facet .searchResult=${this.searchResult}></relewise-brand-facet>
+                            </div>
+                        ` : nothing}
                 </div>
+                    <div>
+                        <relewise-product-search-results
+                            .products=${this.products}>
+                        </relewise-product-search-results>
+                        <relewise-product-search-load-more-button
+                            .productsLoaded=${this.products.length}
+                            .hits=${this.searchResult?.hits ?? null}
+                        ></relewise-product-search-load-more-button>
+                    </div>
+            </div>
         </slot>
         `;
     }
@@ -224,34 +236,34 @@ export class ProductSearch extends LitElement {
         .rw-filter-button {
             margin: 0;
             padding: 0;
-            --relewise-button-icon-padding: 0;
-            --relewise-button-text-color: black;
-            --relewise-button-text-font-weight: 700;
-            width: 100%;
+            border-color: var(--accent-color);
+            border-radius: 1rem;
+            background-color: var(--accent-color);
         }
 
         .rw-filter-icon-color {
             display: flex;
             margin: .5rem;
-            --relewise-icon-color: black;
-        }
-       
-        @media (min-width: 1024px) {
-            .rw-facet-container {
-                background-color: lightgray;
-                border-radius: 1rem;
-                margin-right: 1rem;
-                height: fit-content;
-            }
         }
 
-        .rw-facet-container {
+        .rw-filter-container {
             background-color: lightgray;
             border-radius: 1rem;
             margin-bottom: 1rem;
             margin-top: 1rem;
             padding: .25rem;
             height: fit-content;
+        }
+
+        .rw-facets-container {
+            display: flex;
+            margin-top: 1rem;
+        }
+
+        @media (min-width: 1024px) {
+            .rw-facets-container {
+                grid-template-columns: 1fr;
+            }
         }
     `];
 }

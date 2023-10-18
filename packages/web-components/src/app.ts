@@ -12,6 +12,7 @@ import { Button } from './components/button';
 import { CategoryFacet } from './search/components/facets/category-facet';
 import { ProductSearchResults } from './search/components/product-search-results';
 import { LoadMoreProducts } from './search/components/product-search-load-more-button';
+import { BrandFacet } from './search/components/facets/brand-facet';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -21,6 +22,7 @@ export interface RelewiseUISearchOptions {
 
 export interface SearchFacets {
     categoryFacet?: (builder: FacetBuilder, selectedValues: string[]) => void
+    brandFacet?: (builder: FacetBuilder, selectedValues: string[]) => void
 }
 
 export interface SearchFilters {
@@ -80,6 +82,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     tryRegisterElement('relewise-product-search-overlay-product', ProductSearchOverlayProduct);
     tryRegisterElement('relewise-product-search-overlay-results', ProductSearchOverlayResults);
     tryRegisterElement('relewise-category-facet', CategoryFacet);
+    tryRegisterElement('relewise-brand-facet', BrandFacet);
     tryRegisterElement('relewise-product-search-results', ProductSearchResults);
     tryRegisterElement('relewise-product-search-load-more-button', LoadMoreProducts);
     registerGenericComponents();

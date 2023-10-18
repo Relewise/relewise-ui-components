@@ -1,5 +1,6 @@
 export const searhTermQueryName = 'relewiseSearchTerm';
 export const categoryFacetQueryName = 'relewiseCategoryFacet';
+export const brandFacetQueryName = 'relewiseBrandFacet';
 export const currentPageQueryName = 'relewiseCurrentPage';
 export const productSearchResults = 'relewiseProductSearchResults';
 
