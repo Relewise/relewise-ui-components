@@ -63,8 +63,6 @@ export class ProductTile extends LitElement {
         }
         
         .rw-tile {
-            flex-wrap: wrap;
-            align-content: center;
             display: flex;
             flex-direction: column;
             position: relative;
