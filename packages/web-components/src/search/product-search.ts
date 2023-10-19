@@ -182,8 +182,14 @@ export class ProductSearch extends LitElement {
                     ${this.showFacets ? 
                         html`
                             <div class="rw-facets-container">
-                                <relewise-category-facet .searchResult=${this.searchResult}></relewise-category-facet>
-                                <relewise-brand-facet .searchResult=${this.searchResult}></relewise-brand-facet>
+                                <relewise-category-facet
+                                    class="rw-facet-item"
+                                    .searchResult=${this.searchResult}>
+                                </relewise-category-facet>
+                                <relewise-brand-facet
+                                    class="rw-facet-item"
+                                    .searchResult=${this.searchResult}>
+                                </relewise-brand-facet>
                             </div>
                         ` : nothing}
                 </div>
@@ -226,13 +232,6 @@ export class ProductSearch extends LitElement {
             background-color: var(--accent-color);
         }
 
-        @media (min-width: 1024px) {
-            .rw-product-search-results {
-                display: grid;
-                grid-template-columns: 1fr 4fr;
-            }
-        }
-
         .rw-filter-button {
             margin: 0;
             padding: 0;
@@ -257,12 +256,23 @@ export class ProductSearch extends LitElement {
 
         .rw-facets-container {
             display: flex;
-            margin-top: 1rem;
+        }
+        
+        .rw-facet-item {
+            margin-bottom: .5rem;
+            margin-top: .5rem;
+            margin-right: .5rem;
+            width: 16rem;
         }
 
         @media (min-width: 1024px) {
+            .rw-product-search-results {
+                display: grid;
+                grid-template-columns: 1fr 4fr;
+            }
+
             .rw-facets-container {
-                grid-template-columns: 1fr;
+                flex-direction: column;
             }
         }
     `];

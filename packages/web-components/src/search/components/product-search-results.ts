@@ -30,7 +30,7 @@ export class ProductSearchResults extends LitElement {
     }
 
     .rw-product-tile {
-        --relewise-image-height: 14rem;
+        --relewise-image-height: 16rem;
         display: flex;
         align-items: center;
         justify-content: center;
