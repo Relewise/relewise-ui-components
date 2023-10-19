@@ -20,7 +20,6 @@ export class ProductSearchOverlayResults extends LitElement {
     @property()
     setResultOverlayHovered = (hovered: boolean) => {};
 
-
     connectedCallback(): void {
         super.connectedCallback();
     }

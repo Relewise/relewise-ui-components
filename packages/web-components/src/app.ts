@@ -13,6 +13,8 @@ import { CategoryFacet } from './search/components/facets/category-facet';
 import { ProductSearchResults } from './search/components/product-search-results';
 import { LoadMoreProducts } from './search/components/product-search-load-more-button';
 import { BrandFacet } from './search/components/facets/brand-facet';
+import { ProductSearchSorting } from './search/components/product-search-sorting';
+import { SortIcon } from './components/icons/sort-icon';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -85,6 +87,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     tryRegisterElement('relewise-brand-facet', BrandFacet);
     tryRegisterElement('relewise-product-search-results', ProductSearchResults);
     tryRegisterElement('relewise-product-search-load-more-button', LoadMoreProducts);
+    tryRegisterElement('relewise-product-search-sorting', ProductSearchSorting);
     registerGenericComponents();
 }
 
@@ -93,6 +96,7 @@ function registerGenericComponents() {
     tryRegisterElement('relewise-search-icon', SearchIcon);
     tryRegisterElement('relewise-filter-icon', FilterIcon);
     tryRegisterElement('relewise-x-icon', XIcon);
+    tryRegisterElement('relewise-sort-icon', SortIcon);
     tryRegisterElement('relewise-button', Button);
 }
 

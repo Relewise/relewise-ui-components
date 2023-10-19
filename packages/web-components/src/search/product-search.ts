@@ -162,7 +162,7 @@ export class ProductSearch extends LitElement {
                 class="rw-search-bar">
             </relewise-search-bar>
             <relewise-button
-                class="rw-search-button"
+                class="rw-button"
                 button-text="Search"
                 .handleClick=${() => this.search()}>
                 <relewise-search-icon></relewise-search-icon>
@@ -173,12 +173,13 @@ export class ProductSearch extends LitElement {
                 <div>
                     <relewise-button
                             button-text="Filter" 
-                            class="rw-filter-button"
+                            class="rw-button"
                             @click=${() => this.showFacets = !this.showFacets}>
                                 ${this.showFacets ?
                                     html`<relewise-x-icon class="rw-filter-icon-color"></relewise-x-icon>` :
                                     html`<relewise-filter-icon class="rw-filter-icon-color"></relewise-filter-icon>`}
                     </relewise-button>
+                    <relewise-product-search-sorting></relewise-product-search-sorting>
                     ${this.showFacets ? 
                         html`
                             <div class="rw-facets-container">
@@ -198,6 +199,7 @@ export class ProductSearch extends LitElement {
                             .products=${this.products}>
                         </relewise-product-search-results>
                         <relewise-product-search-load-more-button
+                            class="rw-center"
                             .productsLoaded=${this.products.length}
                             .hits=${this.searchResult?.hits ?? null}
                         ></relewise-product-search-load-more-button>
@@ -224,25 +226,9 @@ export class ProductSearch extends LitElement {
             --color: var(--accent-color);
         }
 
-        .rw-search-button {
-            height: 3.25rem;
-            border: 2px solid;
-            border-color: var(--accent-color);
-            border-radius: 1rem;
-            background-color: var(--accent-color);
-        }
-
-        .rw-filter-button {
-            margin: 0;
-            padding: 0;
-            border-color: var(--accent-color);
-            border-radius: 1rem;
-            background-color: var(--accent-color);
-        }
-
         .rw-filter-icon-color {
-            display: flex;
-            margin: .5rem;
+            --relewise-icon-width: 1.25rem;
+            --relewise-icon-height: 1.25rem;
         }
 
         .rw-filter-container {
@@ -263,6 +249,11 @@ export class ProductSearch extends LitElement {
             margin-top: .5rem;
             margin-right: .5rem;
             width: 16rem;
+        }
+
+        .rw-center {
+            justify-content: center;
+            display: flex;
         }
 
         @media (min-width: 1024px) {

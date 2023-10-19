@@ -9,4 +9,14 @@ export const theme = css`
     --relewise-icon-color: var(--color);
     --relewise-x-icon-color: var(--color);
   }
+
+  .rw-button {
+    margin: 0;
+    padding: 0;
+    height: 3.25rem;
+    border: 2px solid;
+    border-color: var(--accent-color);
+    border-radius: 1rem;
+    background-color: var(--accent-color);
+  }
 `;
