@@ -2,10 +2,11 @@ import { ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@rel
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
-import { Events, brandFacetQueryName, categoryFacetQueryName, getProductSearchResults, productSearchResults, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
+import { Events, brandFacetQueryName, categoryFacetQueryName, getProductSearchResults, productSearchResults, productSearchSorting, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { getSearcher } from './searcher';
+import { SortingEnum, SortingEnum } from './enums';
 
 export class ProductSearch extends LitElement {
     
@@ -112,6 +113,33 @@ export class ProductSearch extends LitElement {
                 if (searchOptions.facets.brandFacet) {
                     searchOptions.facets.brandFacet(builder, readCurrentUrlStateValues(brandFacetQueryName));
                 }
+            })
+            .sorting(builder => {
+                const sorting = readCurrentUrlState(productSearchSorting);
+                const sortingEnum = SortingEnum[sorting as keyof typeof SortingEnum];
+                
+                if (!sortingEnum) {
+                    return;
+                }
+
+                switch (sortingEnum) {
+                case SortingEnum.SalesPriceAsc:
+                    builder.sortByProductAttribute('SalesPrice', 'Ascending', (n) => n.sortByProductRelevance());
+                    break;
+                case SortingEnum.SalesPriceDesc:
+                    builder.sortByProductAttribute('SalesPrice', 'Descending', (n) => n.sortByProductRelevance());
+                    break;
+                case SortingEnum.AlphabeticallyAsc:
+                    builder.sortByProductAttribute('DisplayName', 'Ascending', (n) => n.sortByProductRelevance());
+                    break;
+                case SortingEnum.AlphabeticallyDesc:
+                    builder.sortByProductAttribute('DisplayName', 'Descending', (n) => n.sortByProductRelevance());
+                    break;
+                case SortingEnum.Popularity:
+                    builder.sortByProductPopularity();
+                    break;
+                }
+
             });
 
         const response = await searcher.searchProducts(requestBuilder.build());

@@ -1,26 +1,19 @@
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { theme } from '../../theme';
-import { productSearchSorting, updateUrlState } from '../../helpers';
+import { Events, productSearchSorting, readCurrentUrlState, updateUrlState } from '../../helpers';
+import { SortingEnum } from '../enums';
 
 export class ProductSearchSorting extends LitElement {
-    // Properties and initial values
     @property({ type: Boolean })
     showSortingOptions: boolean = false;
 
     @state()
     selectedOption: string | null = null;
 
-    sortingOptions: string[] = [
-        'SalesPriceAsc',
-        'SalesPriceDesc',
-        'AlphabeticallyAsc',
-        'AlphabeticallyDesc',
-        'Recommended',
-    ];
-
     connectedCallback(): void {
         super.connectedCallback();
+        this.selectedOption = readCurrentUrlState(productSearchSorting);
     }
 
     handleKeyDown(event: KeyboardEvent): void {
@@ -45,6 +38,8 @@ export class ProductSearchSorting extends LitElement {
     clearSelectedValue(e: Event) {
         this.selectedOption = null;
         updateUrlState(productSearchSorting, '');
+        window.dispatchEvent(new CustomEvent(Events.shouldClearSearchResult));
+        window.dispatchEvent(new CustomEvent(Events.shouldPerformSearch));
         e.stopPropagation();
     }
 
@@ -52,6 +47,8 @@ export class ProductSearchSorting extends LitElement {
         this.selectedOption = item;
         this.showSortingOptions = false;
         updateUrlState(productSearchSorting, item);
+        window.dispatchEvent(new CustomEvent(Events.shouldClearSearchResult));
+        window.dispatchEvent(new CustomEvent(Events.shouldPerformSearch));
     }
 
     render() {
@@ -70,7 +67,7 @@ export class ProductSearchSorting extends LitElement {
             </relewise-button>
             ${this.showSortingOptions ? html`
                 <div class="rw-sorting-options">
-                    ${this.sortingOptions.map((item) => {
+                    ${Object.keys(SortingEnum).map((item) => {
                         return html`
                             <div class="rw-sorting-option">
                                 <relewise-button
