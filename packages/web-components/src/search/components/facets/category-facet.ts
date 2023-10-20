@@ -1,10 +1,10 @@
 import { CategoryFacetResult } from '@relewise/client';
 import { property } from 'lit/decorators.js';
 import { categoryFacetQueryName, readCurrentUrlStateValues } from '../../../helpers';
-import { FacetBase } from './facet-base';
+import { ChecklistFacetBase } from './checklist-facet-base';
 import { FacetResult } from './facet-result';
 
-export class CategoryFacet extends FacetBase {
+export class CategoryFacet extends ChecklistFacetBase {
 
     facetQueryName: string = categoryFacetQueryName;
 

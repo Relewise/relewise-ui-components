@@ -1,10 +1,10 @@
 import { BrandFacetResult } from '@relewise/client';
 import { property } from 'lit/decorators.js';
 import { brandFacetQueryName, categoryFacetQueryName, readCurrentUrlStateValues } from '../../../helpers';
-import { FacetBase } from './facet-base';
+import { ChecklistFacetBase } from './checklist-facet-base';
 import { FacetResult } from './facet-result';
 
-export class BrandFacet extends FacetBase {
+export class BrandFacet extends ChecklistFacetBase {
 
     facetQueryName: string = brandFacetQueryName;
 

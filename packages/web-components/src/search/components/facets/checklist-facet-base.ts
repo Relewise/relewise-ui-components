@@ -5,7 +5,7 @@ import { Events, updateUrlStateValues } from '../../../helpers';
 import { theme } from '../../../theme';
 import { FacetResult } from './facet-result';
 
-export abstract class FacetBase extends LitElement {
+export abstract class ChecklistFacetBase extends LitElement {
 
     @property({ type: Object, attribute: 'search-result' })
     searchResult: ProductSearchResponse | null = null;
