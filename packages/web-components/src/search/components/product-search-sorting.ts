@@ -99,6 +99,8 @@ export class ProductSearchSorting extends LitElement {
             border-color: var(--accent-color);
             overflow: hidden;
             margin-top: .25rem;
+            right: var(--relewise-sorting-options-right, auto);
+            left: var(--relewise-sorting-options-left, auto);
         }
         
         .rw-sorting-option {

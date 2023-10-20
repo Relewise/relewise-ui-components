@@ -5,8 +5,8 @@ import { defaultProductProperties } from '../defaultProductProperties';
 import { Events, brandFacetQueryName, categoryFacetQueryName, getProductSearchResults, productSearchResults, productSearchSorting, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
+import { SortingEnum } from './enums';
 import { getSearcher } from './searcher';
-import { SortingEnum, SortingEnum } from './enums';
 
 export class ProductSearch extends LitElement {
     
@@ -136,7 +136,7 @@ export class ProductSearch extends LitElement {
                     builder.sortByProductAttribute('DisplayName', 'Descending', (n) => n.sortByProductRelevance());
                     break;
                 case SortingEnum.Popularity:
-                    builder.sortByProductPopularity();
+                    builder.sortByProductPopularity('Descending', (n) => n.sortByProductRelevance());
                     break;
                 }
 
@@ -197,31 +197,33 @@ export class ProductSearch extends LitElement {
             </relewise-button>
         </div>
         <slot>
+        <div class="rw-options-buttons">
+        <relewise-button
+        button-text="Filter" 
+        class="rw-button"
+        @click=${() => this.showFacets = !this.showFacets}>
+        ${this.showFacets ?
+            html`<relewise-x-icon class="rw-filter-icon-color"></relewise-x-icon>` :
+            html`<relewise-filter-icon class="rw-filter-icon-color"></relewise-filter-icon>`}
+            </relewise-button>
+            <relewise-product-search-sorting class="rw-sorting-button"></relewise-product-search-sorting>
+            </div>
             <div class="rw-product-search-results">
-                <div>
-                    <relewise-button
-                            button-text="Filter" 
-                            class="rw-button"
-                            @click=${() => this.showFacets = !this.showFacets}>
-                                ${this.showFacets ?
-                                    html`<relewise-x-icon class="rw-filter-icon-color"></relewise-x-icon>` :
-                                    html`<relewise-filter-icon class="rw-filter-icon-color"></relewise-filter-icon>`}
-                    </relewise-button>
-                    <relewise-product-search-sorting></relewise-product-search-sorting>
-                    ${this.showFacets ? 
-                        html`
-                            <div class="rw-facets-container">
-                                <relewise-category-facet
-                                    class="rw-facet-item"
-                                    .searchResult=${this.searchResult}>
-                                </relewise-category-facet>
-                                <relewise-brand-facet
-                                    class="rw-facet-item"
-                                    .searchResult=${this.searchResult}>
-                                </relewise-brand-facet>
-                            </div>
-                        ` : nothing}
-                </div>
+                    <div>
+                        ${this.showFacets ? 
+                            html`
+                                <div class="rw-facets-container">
+                                    <relewise-category-facet
+                                        class="rw-facet-item"
+                                        .searchResult=${this.searchResult}>
+                                    </relewise-category-facet>
+                                    <relewise-brand-facet
+                                        class="rw-facet-item"
+                                        .searchResult=${this.searchResult}>
+                                    </relewise-brand-facet>
+                                </div>
+                            ` : nothing}
+                    </div>
                     <div>
                         <relewise-product-search-results
                             .products=${this.products}>
@@ -252,6 +254,15 @@ export class ProductSearch extends LitElement {
             width: 100%;
             margin-right: .5rem;
             --color: var(--accent-color);
+        }
+
+        .rw-options-buttons {
+            display: flex;
+        }
+
+        .rw-sorting-button {
+            margin-left: auto;
+            --relewise-sorting-options-right: .5rem;
         }
 
         .rw-filter-icon-color {
