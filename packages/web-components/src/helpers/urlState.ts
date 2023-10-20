@@ -3,6 +3,7 @@ export const categoryFacetQueryName = 'relewiseCategoryFacet';
 export const brandFacetQueryName = 'relewiseBrandFacet';
 export const currentPageQueryName = 'relewiseCurrentPage';
 export const productSearchResults = 'relewiseProductSearchResults';
+export const productSearchSorting = 'relewiseProductSearchSorting';
 
 export function updateUrlState(queryParamName: string, value: string) {
     const currentUrl = new URL(window.location.href);
