@@ -11,6 +11,21 @@ export class ProductSearchSorting extends LitElement {
     @state()
     selectedOption: string | null = null;
 
+    @property({ attribute: 'sales-price-ascending-text'})
+    salesPriceAscendingText: string | null  = null;
+
+    @property({ attribute: 'sales-price-decending-text'})
+    salesPriceDescendingText: string | null  = null;
+
+    @property({ attribute: 'alphabetically-ascending-text'})
+    alphabeticallyAscendingText: string | null  = null;
+
+    @property({ attribute: 'alphabetically-decending-text'})
+    alphabeticallyDescendingText: string | null  = null;
+    
+    @property({ attribute: 'populartity-text'})
+    popularityText: string | null  = null;
+
     connectedCallback(): void {
         super.connectedCallback();
         this.selectedOption = readCurrentUrlState(productSearchSorting);
@@ -51,6 +66,32 @@ export class ProductSearchSorting extends LitElement {
         window.dispatchEvent(new CustomEvent(Events.shouldPerformSearch));
     }
 
+    getOptionText(sortingValue: string): string {
+
+        const sortingEnum = SortingEnum[sortingValue as keyof typeof SortingEnum];
+                
+        if (!sortingEnum) {
+            return '';
+        }
+        
+        switch (sortingEnum) {
+        case SortingEnum.SalesPriceAsc:
+            return this.salesPriceAscendingText ?? 'Price: low - high';
+        case SortingEnum.SalesPriceDesc:
+            return this.salesPriceDescendingText ?? 'Price: high - low';
+        case SortingEnum.AlphabeticallyAsc:
+            return this.alphabeticallyAscendingText ?? 'Name: a - z';
+        case SortingEnum.AlphabeticallyDesc:
+            return this.alphabeticallyDescendingText ?? 'Name: z - a';
+        case SortingEnum.Popularity:
+            return this.popularityText ?? 'Popularity';
+        }
+    }
+
+    enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
+        return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[];
+    }
+
     render() {
         return html`
             <relewise-button
@@ -60,9 +101,9 @@ export class ProductSearchSorting extends LitElement {
                 @blur=${this.handleBlur}
                 button-text=${this.selectedOption ?? 'Sorting'}>
                 ${this.showSortingOptions || this.selectedOption ? html`
-                    <relewise-x-icon class="rw-icon" @click=${this.clearSelectedValue}></relewise-x-icon>
+                    <relewise-x-icon @click=${this.clearSelectedValue}></relewise-x-icon>
                 ` : html`
-                    <relewise-sort-icon class="rw-icon"></relewise-sort-icon>
+                    <relewise-sort-icon></relewise-sort-icon>
                 `}
             </relewise-button>
             ${this.showSortingOptions ? html`
@@ -73,7 +114,7 @@ export class ProductSearchSorting extends LitElement {
                                 <relewise-button
                                     name="relewise-sorting-option-button"
                                     class="rw-sorting-option-button"
-                                    button-text=${item}
+                                    button-text=${this.getOptionText(item)}
                                     @click=${() => this.setSelectedValue(item)}
                                 ></relewise-button>
                             </div>
@@ -85,11 +126,6 @@ export class ProductSearchSorting extends LitElement {
     }
 
     static styles = [theme, css`
-        .rw-icon {
-            --relewise-icon-width: 1.25rem;
-            --relewise-icon-height: 1.25rem;
-        }
-
         .rw-sorting-options {
             position: absolute;
             z-index: 10;
