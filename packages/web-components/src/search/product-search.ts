@@ -203,8 +203,8 @@ export class ProductSearch extends LitElement {
         class="rw-button"
         @click=${() => this.showFacets = !this.showFacets}>
         ${this.showFacets ?
-            html`<relewise-x-icon class="rw-filter-icon-color"></relewise-x-icon>` :
-            html`<relewise-filter-icon class="rw-filter-icon-color"></relewise-filter-icon>`}
+            html`<relewise-x-icon></relewise-x-icon>` :
+            html`<relewise-filter-icon></relewise-filter-icon>`}
             </relewise-button>
             <relewise-product-search-sorting class="rw-sorting-button"></relewise-product-search-sorting>
             </div>
@@ -263,11 +263,6 @@ export class ProductSearch extends LitElement {
         .rw-sorting-button {
             margin-left: auto;
             --relewise-sorting-options-right: .5rem;
-        }
-
-        .rw-filter-icon-color {
-            --relewise-icon-width: 1.25rem;
-            --relewise-icon-height: 1.25rem;
         }
 
         .rw-filter-container {

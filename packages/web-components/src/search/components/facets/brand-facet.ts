@@ -28,35 +28,37 @@ export class BrandFacet extends FacetBase {
             : brandFacet.available.slice(0, 10);
 
         return html`
-        <h3>${this.labelText}</h3>
-        ${brandsToShow.map((item, index) => {
-                return html`
-                ${item.value && item.value.displayName ? html`
-                    <div>
-                        <input
-                            type="checkbox"
-                            id=${index}
-                            name=${index}
-                            ?checked=${this.selectedValues.filter(x => x === item.value?.id).length > 0}
-                            @change=${(e: Event) => this.handleChange(e, item, brandFacetQueryName)} />
-                        <label for=${index}>${item.value?.displayName}</label>
-                    </div>
+        <div class="rw-facet-content">
+            <h3>${this.labelText}</h3>
+            ${brandsToShow.map((item, index) => {
+                    return html`
+                    ${item.value && item.value.displayName ? html`
+                        <div>
+                            <input
+                                type="checkbox"
+                                id=${index}
+                                name=${index}
+                                ?checked=${this.selectedValues.filter(x => x === item.value?.id).length > 0}
+                                @change=${(e: Event) => this.handleChange(e, item, brandFacetQueryName)} />
+                            <label for=${index}>${item.value?.displayName}</label>
+                        </div>
+                    ` : nothing}
+                    `;
+                })}
+            ${brandFacet.available.length > 11 ? html`
+                ${this.showAll ? html`
+                    <relewise-button
+                        button-text="Show Less"
+                        class="rw-show-more"
+                        @click=${() => this.showAll = false}>
+                    </relewise-button>` : html`
+                    <relewise-button
+                        button-text="Show More"
+                        class="rw-show-more"
+                        @click=${() => this.showAll = true}>
+                    </relewise-button>`}    
                 ` : nothing}
-                `;
-            })}
-        ${brandFacet.available.length > 11 ? html`
-            ${this.showAll ? html`
-                <relewise-button
-                    button-text="Show Less"
-                    class="rw-show-more"
-                    @click=${() => this.showAll = false}>
-                </relewise-button>` : html`
-                <relewise-button
-                    button-text="Show More"
-                    class="rw-show-more"
-                    @click=${() => this.showAll = true}>
-                </relewise-button>`}    
-            ` : nothing}
+        </div>
         `;
     }
 }

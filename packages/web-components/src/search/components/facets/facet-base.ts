@@ -41,7 +41,11 @@ export abstract class FacetBase extends LitElement {
             border-color: lightgray;
             background-color: lightgray;
             height: fit-content;
-            padding: .5rem;            
+            width: fit-content;            
+        }
+
+        .rw-facet-content {
+            margin: .5rem;
         }
 
         .rw-show-more {
