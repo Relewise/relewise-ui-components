@@ -1,8 +1,8 @@
-import { StringBrandNameAndIdResultValueFacetResult, ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
-import { LitElement, css, html, nothing } from 'lit';
+import { ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
+import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
-import { Events, brandFacetQueryName, categoryFacetQueryName, getProductSearchResults, productSearchResults, productSearchSorting, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
+import { Events, getProductSearchResults, productSearchResults, productSearchSorting, readCurrentUrlState, searhTermQueryName, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { SortingEnum } from './enums';
@@ -120,7 +120,7 @@ export class ProductSearch extends LitElement {
                 if (!searchOptions || !searchOptions.facets) {
                     return;
                 }
-                
+
                 searchOptions.facets.facetBuilder(builder, []);
             })
             .sorting(builder => {
@@ -179,9 +179,8 @@ export class ProductSearch extends LitElement {
                         element.setAttribute('hits', this.searchResult?.hits.toString() ?? '');
                     }
 
-                    if (element.tagName.toLowerCase().startsWith('relewise-') &&
-                        element.tagName.toLowerCase().endsWith('-facet')) {
-                        element.setAttribute('search-result', JSON.stringify(this.searchResult));                    
+                    if (element.tagName.toLowerCase() === 'relewise-facets') {
+                        element.setAttribute('facets-result', JSON.stringify(this.searchResult?.facets));                    
                     }
                 }
             });
@@ -207,14 +206,6 @@ export class ProductSearch extends LitElement {
         </div>
         <slot>
             <div class="rw-options-buttons">
-                <relewise-button
-                    button-text="Filter" 
-                    class="rw-button"
-                    @click=${() => this.showFacets = !this.showFacets}>
-                        ${this.showFacets ?
-                            html`<relewise-x-icon></relewise-x-icon>` :
-                            html`<relewise-filter-icon></relewise-filter-icon>`}
-                </relewise-button>
                 <relewise-product-search-sorting
                     class="rw-sorting-button"
                     .alphabeticallyAscendingText=${this.alphabeticallyAscendingText}
@@ -226,21 +217,7 @@ export class ProductSearch extends LitElement {
             </div>
             <div class="rw-product-search-results">
                 <div>
-                    ${this.showFacets ? 
-                        html`
-                        <div class="rw-facets-container">
-                            ${this.searchResult?.facets?.items?.map(item => {
-                                if (item.$type.includes('BrandFacetResult') || item.$type.includes('CategoryFacetResult')) {
-                                    return html`
-                                        <relewise-checklist-facet .result=${item}>
-                                        </relewise-checklist-facet>
-                                    `;
-                                }
-                                return nothing;
-                            })}
-                        </div>
-                        ` : nothing}
-                        
+                    <relewise-facets .facetResult=${this.searchResult?.facets}></relewise-facets>
                 </div>
                 <div>
                     <relewise-product-search-results

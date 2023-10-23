@@ -1,4 +1,4 @@
-import { BrandFacetResult, CategoryFacetResult, StringBrandNameAndIdResultValueFacetResult, StringCategoryNameAndIdResultValueFacetResult } from '@relewise/client';
+import { BrandFacetResult, CategoryFacetResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, updateUrlStateValues } from '../../../helpers';

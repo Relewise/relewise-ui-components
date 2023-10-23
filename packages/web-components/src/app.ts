@@ -14,6 +14,7 @@ import { ProductSearchOverlay } from './search/product-search-overlay';
 import { BrandView, ContentCategoryView, ContentView, ProductCategoryView, ProductView } from './tracking';
 import { updateContextSettings } from './updateContextSettings';
 import { ChecklistFacet } from './search/components/facets';
+import { Facets } from './search/components/facets/facets';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -82,6 +83,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     tryRegisterElement('relewise-product-search-overlay-product', ProductSearchOverlayProduct);
     tryRegisterElement('relewise-product-search-overlay-results', ProductSearchOverlayResults);
     tryRegisterElement('relewise-checklist-facet', ChecklistFacet);
+    tryRegisterElement('relewise-facets', Facets);
     tryRegisterElement('relewise-product-search-results', ProductSearchResults);
     tryRegisterElement('relewise-product-search-load-more-button', LoadMoreProducts);
     tryRegisterElement('relewise-product-search-sorting', ProductSearchSorting);
