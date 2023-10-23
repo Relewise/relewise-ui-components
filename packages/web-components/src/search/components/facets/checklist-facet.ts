@@ -1,14 +1,13 @@
-import { ProductSearchResponse } from '@relewise/client';
+import { BrandFacetResult, CategoryFacetResult, StringBrandNameAndIdResultValueFacetResult, StringCategoryNameAndIdResultValueFacetResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, updateUrlStateValues } from '../../../helpers';
 import { theme } from '../../../theme';
-import { FacetResult } from './facet-result';
 
-export abstract class ChecklistFacetBase extends LitElement {
+export class ChecklistFacet extends LitElement {
 
-    @property({ type: Object, attribute: 'search-result' })
-    searchResult: ProductSearchResponse | null = null;
+    @property({ type: Object })
+    result: (BrandFacetResult | CategoryFacetResult) | null = null;
 
     @state()
     selectedValues: string[] = [];
@@ -19,59 +18,54 @@ export abstract class ChecklistFacetBase extends LitElement {
     @property({ attribute: 'label-text' })
     labelText: string = 'Label';
 
-    abstract getFacetResults(): FacetResult[];
-
-    abstract facetQueryName: string;
-
-    handleChange(e: Event, item: FacetResult, facetQueryName: string) {
+    handleChange(e: Event, id: string) {
         const checkbox = e.target as HTMLInputElement;
         
-        if (!item.displayName || !item.id)  {
+        if (!id || !this.result)  {
             return;
         }
 
         if (checkbox.checked) {
-            this.selectedValues.push(item.id);
+            this.selectedValues.push(id);
         } else {
-            const newValue =  this.selectedValues.filter(x => x !== item.id);
+            const newValue =  this.selectedValues.filter(x => x !== id);
             this.selectedValues = newValue;
         }
 
-        updateUrlStateValues(facetQueryName, this.selectedValues);
+        updateUrlStateValues(this.result?.$type, this.selectedValues);
         window.dispatchEvent(new CustomEvent(Events.shouldClearSearchResult));
         window.dispatchEvent(new CustomEvent(Events.shouldPerformSearch));
     }
 
     render() {
-        const facetResults = this.getFacetResults();
-        
-        if (facetResults.length < 1) {
+
+        if (!this.result || !this.result.available || this.result?.available.length < 1) {
             return;
         }
 
         const facetResultsToShow = this.showAll
-            ? facetResults
-            : facetResults.slice(0, 10);
+            ? this.result.available
+            : this.result.available.slice(0, 10);
 
         return html`
         <div class="rw-facet-content">
             <h3>${this.labelText}</h3>
             ${facetResultsToShow.map((item, index) => {
                     return html`
-                    ${item.id && item.displayName ? html`
+                    ${item.value && item.value.id ? html`
                         <div>
                             <input
                                 type="checkbox"
                                 id=${index}
                                 name=${index}
-                                ?checked=${this.selectedValues.filter(x => x === item.id).length > 0}
-                                @change=${(e: Event) => this.handleChange(e, item, this.facetQueryName)} />
-                            <label for=${index}>${item.displayName}</label>
+                                ?checked=${this.selectedValues.filter(x => x === item.value!.id).length > 0}
+                                @change=${(e: Event) => this.handleChange(e, item.value!.id ?? '')} />
+                            <label for=${index}>${item.value.displayName}</label>
                         </div>
                     ` : nothing}
                     `;
                 })}
-            ${facetResults.length > 10 ? html`
+            ${this.result.available.length > 10 ? html`
                 ${this.showAll ? html`
                     <relewise-button
                         button-text="Show Less"
@@ -106,4 +100,10 @@ export abstract class ChecklistFacetBase extends LitElement {
             --relewise-button-text-color: black;
         }
     `];
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        'relewise-checklist-facet': ChecklistFacet;
+    }
 }

@@ -1,20 +1,19 @@
 import { FacetBuilder, FilterBuilder, ProductResult } from '@relewise/client';
 import { TemplateResult } from 'lit';
+import { FilterIcon, ProductTile, SearchIcon, XIcon } from './components';
+import { Button } from './components/button';
+import { SortIcon } from './components/icons/sort-icon';
 import { ContextSettings, TemplateExtensions } from './initialize';
 import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithProduct } from './recommendations';
+import { ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar } from './search';
+import { LoadMoreProducts } from './search/components/product-search-load-more-button';
+import { ProductSearchResults } from './search/components/product-search-results';
+import { ProductSearchSorting } from './search/components/product-search-sorting';
+import { ProductSearch } from './search/product-search';
 import { ProductSearchOverlay } from './search/product-search-overlay';
 import { BrandView, ContentCategoryView, ContentView, ProductCategoryView, ProductView } from './tracking';
 import { updateContextSettings } from './updateContextSettings';
-import { ProductSearchOverlayResults, SearchBar, ProductSearchOverlayProduct } from './search';
-import { ProductTile, SearchIcon, XIcon, FilterIcon } from './components';
-import { ProductSearch } from './search/product-search';
-import { Button } from './components/button';
-import { CategoryFacet } from './search/components/facets/category-facet';
-import { ProductSearchResults } from './search/components/product-search-results';
-import { LoadMoreProducts } from './search/components/product-search-load-more-button';
-import { BrandFacet } from './search/components/facets/brand-facet';
-import { ProductSearchSorting } from './search/components/product-search-sorting';
-import { SortIcon } from './components/icons/sort-icon';
+import { ChecklistFacet } from './search/components/facets';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -23,8 +22,7 @@ export interface RelewiseUISearchOptions {
 }
 
 export interface SearchFacets {
-    categoryFacet?: (builder: FacetBuilder, selectedValues: string[]) => void
-    brandFacet?: (builder: FacetBuilder, selectedValues: string[]) => void
+    facetBuilder: (builder: FacetBuilder, selectedValues: string[]) => void
 }
 
 export interface SearchFilters {
@@ -83,8 +81,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     tryRegisterElement('relewise-search-bar', SearchBar);
     tryRegisterElement('relewise-product-search-overlay-product', ProductSearchOverlayProduct);
     tryRegisterElement('relewise-product-search-overlay-results', ProductSearchOverlayResults);
-    tryRegisterElement('relewise-category-facet', CategoryFacet);
-    tryRegisterElement('relewise-brand-facet', BrandFacet);
+    tryRegisterElement('relewise-checklist-facet', ChecklistFacet);
     tryRegisterElement('relewise-product-search-results', ProductSearchResults);
     tryRegisterElement('relewise-product-search-load-more-button', LoadMoreProducts);
     tryRegisterElement('relewise-product-search-sorting', ProductSearchSorting);

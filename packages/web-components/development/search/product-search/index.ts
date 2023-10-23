@@ -20,11 +20,10 @@ initializeRelewiseUI(
     },
 ).useSearch({
     facets: {
-        categoryFacet(builder, seletedValues) {
-            builder.addCategoryFacet('ImmediateParent', seletedValues);
-        },
-        brandFacet(builder, seletedValues) {
-            builder.addBrandFacet(seletedValues);
+        facetBuilder(builder, selectedValues) {
+            builder
+                .addCategoryFacet('ImmediateParent', selectedValues)
+                .addBrandFacet();
         },
     },
 });

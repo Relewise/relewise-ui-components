@@ -1,4 +1,4 @@
-import { ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
+import { StringBrandNameAndIdResultValueFacetResult, ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
@@ -120,14 +120,8 @@ export class ProductSearch extends LitElement {
                 if (!searchOptions || !searchOptions.facets) {
                     return;
                 }
-
-                if (searchOptions.facets.categoryFacet) {
-                    searchOptions.facets.categoryFacet(builder, readCurrentUrlStateValues(categoryFacetQueryName));
-                }
-
-                if (searchOptions.facets.brandFacet) {
-                    searchOptions.facets.brandFacet(builder, readCurrentUrlStateValues(brandFacetQueryName));
-                }
+                
+                searchOptions.facets.facetBuilder(builder, []);
             })
             .sorting(builder => {
                 const sorting = readCurrentUrlState(productSearchSorting);
@@ -212,50 +206,52 @@ export class ProductSearch extends LitElement {
             </relewise-button>
         </div>
         <slot>
-        <div class="rw-options-buttons">
-        <relewise-button
-        button-text="Filter" 
-        class="rw-button"
-        @click=${() => this.showFacets = !this.showFacets}>
-        ${this.showFacets ?
-            html`<relewise-x-icon></relewise-x-icon>` :
-            html`<relewise-filter-icon></relewise-filter-icon>`}
-            </relewise-button>
-            <relewise-product-search-sorting
-                class="rw-sorting-button"
-                .alphabeticallyAscendingText=${this.alphabeticallyAscendingText}
-                .alphabeticallyDescendingText=${this.alphabeticallyDescendingText}
-                .salesPriceAscendingText=${this.salesPriceAscendingText}
-                .salesPriceDescendingText=${this.salesPriceDescendingText}
-                .popularityText=${this.popularityText}>
-            </relewise-product-search-sorting>
+            <div class="rw-options-buttons">
+                <relewise-button
+                    button-text="Filter" 
+                    class="rw-button"
+                    @click=${() => this.showFacets = !this.showFacets}>
+                        ${this.showFacets ?
+                            html`<relewise-x-icon></relewise-x-icon>` :
+                            html`<relewise-filter-icon></relewise-filter-icon>`}
+                </relewise-button>
+                <relewise-product-search-sorting
+                    class="rw-sorting-button"
+                    .alphabeticallyAscendingText=${this.alphabeticallyAscendingText}
+                    .alphabeticallyDescendingText=${this.alphabeticallyDescendingText}
+                    .salesPriceAscendingText=${this.salesPriceAscendingText}
+                    .salesPriceDescendingText=${this.salesPriceDescendingText}
+                    .popularityText=${this.popularityText}>
+                </relewise-product-search-sorting>
             </div>
             <div class="rw-product-search-results">
-                    <div>
-                        ${this.showFacets ? 
-                            html`
-                                <div class="rw-facets-container">
-                                    <relewise-category-facet
-                                        class="rw-facet-item"
-                                        .searchResult=${this.searchResult}>
-                                    </relewise-category-facet>
-                                    <relewise-brand-facet
-                                        class="rw-facet-item"
-                                        .searchResult=${this.searchResult}>
-                                    </relewise-brand-facet>
-                                </div>
-                            ` : nothing}
-                    </div>
-                    <div>
-                        <relewise-product-search-results
-                            .products=${this.products}>
-                        </relewise-product-search-results>
-                        <relewise-product-search-load-more-button
-                            class="rw-center"
-                            .productsLoaded=${this.products.length}
-                            .hits=${this.searchResult?.hits ?? null}
-                        ></relewise-product-search-load-more-button>
-                    </div>
+                <div>
+                    ${this.showFacets ? 
+                        html`
+                        <div class="rw-facets-container">
+                            ${this.searchResult?.facets?.items?.map(item => {
+                                if (item.$type.includes('BrandFacetResult') || item.$type.includes('CategoryFacetResult')) {
+                                    return html`
+                                        <relewise-checklist-facet .result=${item}>
+                                        </relewise-checklist-facet>
+                                    `;
+                                }
+                                return nothing;
+                            })}
+                        </div>
+                        ` : nothing}
+                        
+                </div>
+                <div>
+                    <relewise-product-search-results
+                        .products=${this.products}>
+                    </relewise-product-search-results>
+                    <relewise-product-search-load-more-button
+                        class="rw-center"
+                        .productsLoaded=${this.products.length}
+                        .hits=${this.searchResult?.hits ?? null}
+                    ></relewise-product-search-load-more-button>
+                </div>
             </div>
         </slot>
         `;
