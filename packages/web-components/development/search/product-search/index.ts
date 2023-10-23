@@ -20,10 +20,12 @@ initializeRelewiseUI(
     },
 ).useSearch({
     facets: {
-        facetBuilder(builder, selectedValues) {
+        facetBuilder(builder) {
             builder
-                .addCategoryFacet('ImmediateParent', selectedValues)
-                .addBrandFacet();
+                .addCategoryFacet('ImmediateParent')
+                .addBrandFacet()
+                .addProductDataStringValueFacet('Serie', 'Product')
+                .addProductDataStringValueFacet('Color', 'Product');
         },
     },
 });

@@ -1,13 +1,13 @@
-import { BrandFacetResult, CategoryFacetResult } from '@relewise/client';
+import { BrandFacetResult, BrandNameAndIdResultAvailableFacetValue, CategoryFacetResult, ProductDataStringValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { Events, updateUrlStateValues } from '../../../helpers';
+import { Events, readCurrentUrlStateValues, updateUrlStateValues } from '../../../helpers';
 import { theme } from '../../../theme';
 
 export class ChecklistFacet extends LitElement {
 
     @property({ type: Object })
-    result: (BrandFacetResult | CategoryFacetResult) | null = null;
+    result: (BrandFacetResult | CategoryFacetResult | ProductDataStringValueFacetResult) | null = null;
 
     @state()
     selectedValues: string[] = [];
@@ -18,27 +18,88 @@ export class ChecklistFacet extends LitElement {
     @property({ attribute: 'label-text' })
     labelText: string = 'Label';
 
-    handleChange(e: Event, id: string) {
+    connectedCallback(): void {
+        super.connectedCallback();
+        if (this.result) {
+            if ('key' in this.result)  {
+                this.selectedValues = readCurrentUrlStateValues(this.result.field + this.result.key);
+            } else {
+                this.selectedValues = readCurrentUrlStateValues(this.result.field );
+            }
+        }
+    }
+
+    handleChange(e: Event, item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue) {
         const checkbox = e.target as HTMLInputElement;
+
+        if (!item.value || !this.result) {
+            return;
+        }
         
-        if (!id || !this.result)  {
+        let valueToHandle: string | null = null; 
+        if (typeof(item.value) === 'string')  {
+            valueToHandle = item.value;
+        }
+
+        if (typeof(item.value) === 'object' && 'id' in item.value && item.value.id) {
+            valueToHandle = item.value.id;
+        }
+
+        if (!valueToHandle) {
             return;
         }
 
         if (checkbox.checked) {
-            this.selectedValues.push(id);
+            this.selectedValues.push(valueToHandle);
         } else {
-            const newValue =  this.selectedValues.filter(x => x !== id);
+            const newValue =  this.selectedValues.filter(x => x !== valueToHandle);
             this.selectedValues = newValue;
         }
 
-        updateUrlStateValues(this.result?.$type, this.selectedValues);
+        if ('key' in this.result) {
+            updateUrlStateValues(this.result.field + this.result.key, this.selectedValues);
+        } else {
+            updateUrlStateValues(this.result.field, this.selectedValues);
+        }
+
         window.dispatchEvent(new CustomEvent(Events.shouldClearSearchResult));
         window.dispatchEvent(new CustomEvent(Events.shouldPerformSearch));
     }
 
-    render() {
+    getOptionDisplayValue(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue): string {
+        if (!item.value) {
+            return '';
+        }
 
+        if (typeof(item.value) === 'string')  {
+            return item.value;
+        }
+
+        if ('displayName' in item.value) {
+            return item.value.displayName ?? '';
+        }
+
+        return '';
+    }
+
+    shouldOptionBeChecked(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue): boolean {
+        if (!item.value) {
+            return false;
+        }
+
+        if (typeof(item.value) === 'string')  {
+            return this.selectedValues.filter(selectedValue => selectedValue === item.value).length > 0;
+        }
+
+        if ('id' in item.value && item.value.id) {
+            const id = item.value.id;
+            return this.selectedValues.filter(selectedValue => selectedValue === id).length > 0;
+        }
+
+        return false;
+    }
+
+    render() {
         if (!this.result || !this.result.available || this.result?.available.length < 1) {
             return;
         }
@@ -52,15 +113,15 @@ export class ChecklistFacet extends LitElement {
             <h3>${this.labelText}</h3>
             ${facetResultsToShow.map((item, index) => {
                     return html`
-                    ${item.value && item.value.id ? html`
+                    ${item.value && item.value ? html`
                         <div>
                             <input
                                 type="checkbox"
                                 id=${index}
                                 name=${index}
-                                ?checked=${this.selectedValues.filter(x => x === item.value!.id).length > 0}
-                                @change=${(e: Event) => this.handleChange(e, item.value!.id ?? '')} />
-                            <label for=${index}>${item.value.displayName}</label>
+                                ?checked=${this.shouldOptionBeChecked(item)}
+                                @change=${(e: Event) => this.handleChange(e, item)} />
+                            <label for=${index}>${this.getOptionDisplayValue(item)}</label>
                         </div>
                     ` : nothing}
                     `;

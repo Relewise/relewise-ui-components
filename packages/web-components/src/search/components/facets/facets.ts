@@ -12,7 +12,6 @@ export class Facets extends LitElement {
     showFacets: boolean = window.innerWidth >= 1024;
     
     render() {
-        console.log('test');
         return html`
             <relewise-button
                 button-text="Filter" 
@@ -26,7 +25,7 @@ export class Facets extends LitElement {
                 html`
                 <div class="rw-facets-container">
                     ${this.facetResult?.items?.map(item => {
-                        if (item.$type.includes('BrandFacetResult') || item.$type.includes('CategoryFacetResult')) {
+                        if (item.$type.includes('BrandFacetResult') || item.$type.includes('CategoryFacetResult') || item.$type.includes('ProductDataStringValueFacetResult')) {
                             return html`
                                 <relewise-checklist-facet .result=${item}>
                                 </relewise-checklist-facet>

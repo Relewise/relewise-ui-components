@@ -2,7 +2,7 @@ import { ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@rel
 import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
-import { Events, getProductSearchResults, productSearchResults, productSearchSorting, readCurrentUrlState, searhTermQueryName, updateUrlState } from '../helpers';
+import { Events, getProductSearchResults, productSearchResults, productSearchSorting, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { SortingEnum } from './enums';
@@ -121,7 +121,7 @@ export class ProductSearch extends LitElement {
                     return;
                 }
 
-                searchOptions.facets.facetBuilder(builder, []);
+                searchOptions.facets.facetBuilder(builder, readCurrentUrlStateValues(''));
             })
             .sorting(builder => {
                 const sorting = readCurrentUrlState(productSearchSorting);
@@ -151,7 +151,22 @@ export class ProductSearch extends LitElement {
 
             });
 
-        const response = await searcher.searchProducts(requestBuilder.build());
+        const request = requestBuilder.build();
+        
+        if (request.facets) {
+            request.facets.items.forEach(facet => {
+                if ('selected' in facet) {
+                    if ('key' in facet)  {
+                        facet.selected = readCurrentUrlStateValues(facet.field + facet.key);
+                    } else {
+                        facet.selected = readCurrentUrlStateValues(facet.field);
+                    }
+                }
+            });
+        }
+        
+
+        const response = await searcher.searchProducts(request);
         if (!response) {
             return;
         } 
@@ -268,10 +283,6 @@ export class ProductSearch extends LitElement {
             padding: .25rem;
             height: fit-content;
         }
-
-        .rw-facets-container {
-            display: flex;
-        }
         
         .rw-facet-item {
             margin-bottom: .5rem;
@@ -289,10 +300,6 @@ export class ProductSearch extends LitElement {
             .rw-product-search-results {
                 display: grid;
                 grid-template-columns: 1fr 4fr;
-            }
-
-            .rw-facets-container {
-                flex-direction: column;
             }
         }
     `];
