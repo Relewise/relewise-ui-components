@@ -16,6 +16,7 @@ import { updateContextSettings } from './updateContextSettings';
 import { ChecklistFacet } from './search/components/facets';
 import { Facets } from './search/components/facets/facets';
 import { NumberRangeFacet } from './search/components/facets/number-range-facet';
+import { ChecklistStringValueFacet } from './search/components/facets/checklist-string-value-facet';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -84,6 +85,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     tryRegisterElement('relewise-product-search-overlay-product', ProductSearchOverlayProduct);
     tryRegisterElement('relewise-product-search-overlay-results', ProductSearchOverlayResults);
     tryRegisterElement('relewise-checklist-facet', ChecklistFacet);
+    tryRegisterElement('relewise-checklist-string-value-facet', ChecklistStringValueFacet);
     tryRegisterElement('relewise-number-range-facet', NumberRangeFacet);
     tryRegisterElement('relewise-facets', Facets);
     tryRegisterElement('relewise-product-search-results', ProductSearchResults);

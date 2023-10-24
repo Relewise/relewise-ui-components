@@ -39,6 +39,13 @@ export class Facets extends LitElement {
                             `;
                         }
 
+                        if (item.$type.includes('ProductDataStringValueFacetResult')) {
+                            return html`
+                                <relewise-checklist-string-value-facet .result=${item}>
+                                </relewise-checklist-string-value-facet>
+                            `;
+                        }
+
                         if (item.$type.includes('ProductDataDoubleRangeFacetResult') ||
                             item.$type.includes('PriceRangeFacetResult')) {
                             return html`
