@@ -1,4 +1,4 @@
-import { BrandFacetResult, BrandNameAndIdResultAvailableFacetValue, CategoryFacetResult, ProductDataStringValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
+import { BooleanAvailableFacetValue, BrandFacetResult, BrandNameAndIdResultAvailableFacetValue, CategoryFacetResult, ProductDataBooleanValueFacetResult, ProductDataStringValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, readCurrentUrlStateValues, updateUrlStateValues } from '../../../helpers';
@@ -7,7 +7,7 @@ import { theme } from '../../../theme';
 export class ChecklistFacet extends LitElement {
 
     @property({ type: Object })
-    result: (BrandFacetResult | CategoryFacetResult | ProductDataStringValueFacetResult) | null = null;
+    result: (BrandFacetResult | CategoryFacetResult | ProductDataStringValueFacetResult | ProductDataBooleanValueFacetResult) | null = null;
 
     @state()
     selectedValues: string[] = [];
@@ -15,8 +15,12 @@ export class ChecklistFacet extends LitElement {
     @state()
     showAll: boolean = false;
 
-    @property({ attribute: 'label-text' })
-    labelText: string = 'Label';
+    @property({ attribute: 'boolean-facet-true-display-value'})
+    booleanFacetTrueDisplayValue: string = 'yes';
+    
+    @property({ attribute: 'boolean-facet-false-display-value'})
+    booleanFacetFalseDisplayValue: string = 'no';
+
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -24,21 +28,25 @@ export class ChecklistFacet extends LitElement {
             if ('key' in this.result)  {
                 this.selectedValues = readCurrentUrlStateValues(this.result.field + this.result.key);
             } else {
-                this.selectedValues = readCurrentUrlStateValues(this.result.field );
+                this.selectedValues = readCurrentUrlStateValues(this.result.field);
             }
         }
     }
 
-    handleChange(e: Event, item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue) {
+    handleChange(e: Event, item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue) {
         const checkbox = e.target as HTMLInputElement;
 
-        if (!item.value || !this.result) {
+        if (item.value === undefined || item.value === null || !this.result) {
             return;
         }
         
         let valueToHandle: string | null = null; 
         if (typeof(item.value) === 'string')  {
             valueToHandle = item.value;
+        }
+
+        if (typeof(item.value) === 'boolean')  {
+            valueToHandle = item.value.toString();
         }
 
         if (typeof(item.value) === 'object' && 'id' in item.value && item.value.id) {
@@ -66,13 +74,17 @@ export class ChecklistFacet extends LitElement {
         window.dispatchEvent(new CustomEvent(Events.shouldPerformSearch));
     }
 
-    getOptionDisplayValue(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue): string {
-        if (!item.value) {
+    getOptionDisplayValue(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue): string {
+        if (item.value === undefined || item.value === null) {
             return '';
         }
 
         if (typeof(item.value) === 'string')  {
             return item.value;
+        }
+
+        if (typeof(item.value) === 'boolean') {
+            return item.value ? this.booleanFacetTrueDisplayValue : this.booleanFacetFalseDisplayValue;
         }
 
         if ('displayName' in item.value) {
@@ -82,13 +94,17 @@ export class ChecklistFacet extends LitElement {
         return '';
     }
 
-    shouldOptionBeChecked(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue): boolean {
-        if (!item.value) {
+    shouldOptionBeChecked(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue): boolean {
+        if (item.value === undefined || item.value === null) {
             return false;
         }
 
         if (typeof(item.value) === 'string')  {
             return this.selectedValues.filter(selectedValue => selectedValue === item.value).length > 0;
+        }
+
+        if (typeof(item.value) === 'boolean') {
+            return this.selectedValues.filter(selectedValue => selectedValue === item.value.toString()).length > 0;
         }
 
         if ('id' in item.value && item.value.id) {
@@ -97,6 +113,18 @@ export class ChecklistFacet extends LitElement {
         }
 
         return false;
+    }
+
+    getLabelDisplayValue(): string {
+        if (!this.result) {
+            return '';
+        }
+
+        if ('key' in this.result && this.result.key) {
+            return this.result.key;
+        }
+
+        return this.result.field;
     }
 
     render() {
@@ -110,10 +138,10 @@ export class ChecklistFacet extends LitElement {
 
         return html`
         <div class="rw-facet-content">
-            <h3>${this.labelText}</h3>
+            <h3>${this.getLabelDisplayValue()}</h3>
             ${facetResultsToShow.map((item, index) => {
                     return html`
-                    ${item.value && item.value ? html`
+                    ${item.value !== undefined ? html`
                         <div>
                             <input
                                 type="checkbox"

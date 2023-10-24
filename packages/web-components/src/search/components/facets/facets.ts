@@ -25,7 +25,10 @@ export class Facets extends LitElement {
                 html`
                 <div class="rw-facets-container">
                     ${this.facetResult?.items?.map(item => {
-                        if (item.$type.includes('BrandFacetResult') || item.$type.includes('CategoryFacetResult') || item.$type.includes('ProductDataStringValueFacetResult')) {
+                        if (item.$type.includes('BrandFacetResult') ||
+                            item.$type.includes('CategoryFacetResult') ||
+                            item.$type.includes('ProductDataStringValueFacetResult') ||
+                            item.$type.includes('ProductDataBooleanValueFacetResult')) {
                             return html`
                                 <relewise-checklist-facet .result=${item}>
                                 </relewise-checklist-facet>
