@@ -1,4 +1,4 @@
-import { BooleanAvailableFacetValue, BrandFacetResult, BrandNameAndIdResultAvailableFacetValue, CategoryFacetResult, ProductDataBooleanValueFacetResult, ProductDataStringValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
+import { BooleanAvailableFacetValue, BrandFacetResult, BrandNameAndIdResultAvailableFacetValue, CategoryFacetResult, Int32AvailableFacetValue, ProductAssortmentFacetResult, ProductDataBooleanValueFacetResult, ProductDataStringValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, readCurrentUrlStateValues, updateUrlStateValues } from '../../../helpers';
@@ -7,7 +7,7 @@ import { theme } from '../../../theme';
 export class ChecklistFacet extends LitElement {
 
     @property({ type: Object })
-    result: (BrandFacetResult | CategoryFacetResult | ProductDataStringValueFacetResult | ProductDataBooleanValueFacetResult) | null = null;
+    result: (BrandFacetResult | CategoryFacetResult | ProductDataStringValueFacetResult | ProductDataBooleanValueFacetResult | ProductAssortmentFacetResult) | null = null;
 
     @state()
     selectedValues: string[] = [];
@@ -33,7 +33,7 @@ export class ChecklistFacet extends LitElement {
         }
     }
 
-    handleChange(e: Event, item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue) {
+    handleChange(e: Event, item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue) {
         const checkbox = e.target as HTMLInputElement;
 
         if (item.value === undefined || item.value === null || !this.result) {
@@ -51,6 +51,10 @@ export class ChecklistFacet extends LitElement {
 
         if (typeof(item.value) === 'object' && 'id' in item.value && item.value.id) {
             valueToHandle = item.value.id;
+        }
+
+        if (typeof(item.value) === 'number') {
+            valueToHandle = item.value.toString();
         }
 
         if (!valueToHandle) {
@@ -74,7 +78,7 @@ export class ChecklistFacet extends LitElement {
         window.dispatchEvent(new CustomEvent(Events.shouldPerformSearch));
     }
 
-    getOptionDisplayValue(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue): string {
+    getOptionDisplayValue(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue): string {
         if (item.value === undefined || item.value === null) {
             return '';
         }
@@ -87,14 +91,18 @@ export class ChecklistFacet extends LitElement {
             return item.value ? this.booleanFacetTrueDisplayValue : this.booleanFacetFalseDisplayValue;
         }
 
-        if ('displayName' in item.value) {
+        if (typeof(item.value) === 'object' && 'displayName' in item.value) {
             return item.value.displayName ?? '';
+        }
+
+        if (typeof(item.value) === 'number') {
+            return item.value.toString();
         }
 
         return '';
     }
 
-    shouldOptionBeChecked(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue): boolean {
+    shouldOptionBeChecked(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue): boolean {
         if (item.value === undefined || item.value === null) {
             return false;
         }
@@ -107,9 +115,13 @@ export class ChecklistFacet extends LitElement {
             return this.selectedValues.filter(selectedValue => selectedValue === item.value.toString()).length > 0;
         }
 
-        if ('id' in item.value && item.value.id) {
+        if (typeof(item.value) === 'object' && 'id' in item.value && item.value.id) {
             const id = item.value.id;
             return this.selectedValues.filter(selectedValue => selectedValue === id).length > 0;
+        }
+
+        if (typeof(item.value) === 'number') {
+            return this.selectedValues.filter(selectedValue => selectedValue === item.value?.toString()).length > 0;
         }
 
         return false;

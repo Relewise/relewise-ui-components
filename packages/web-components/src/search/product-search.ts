@@ -159,6 +159,11 @@ export class ProductSearch extends LitElement {
         if (request.facets) {
             request.facets.items.forEach(facet => {
                 if ('selected' in facet) {
+                    console.log(facet.$type);
+                    if (facet.$type.includes('ProductAssortmentFacet')) {
+                        facet.selected = readCurrentUrlStateValues(facet.field);    
+                    }
+
                     if (facet.$type.includes('ProductDataDoubleRangeFacet') ||
                         facet.$type.includes('PriceRangeFacet')) {
                         let upperBound = null;
