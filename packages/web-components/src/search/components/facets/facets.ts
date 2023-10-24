@@ -34,6 +34,14 @@ export class Facets extends LitElement {
                                 </relewise-checklist-facet>
                             `;
                         }
+
+                        if (item.$type.includes('ProductDataDoubleRangeFacetResult') ||
+                            item.$type.includes('PriceRangeFacetResult')) {
+                            return html`
+                                <relewise-number-range-facet .result=${item}>
+                                </relewise-number-range-facet>
+                            `;
+                        }
                         return nothing;
                     })}
                 </div>

@@ -26,7 +26,8 @@ initializeRelewiseUI(
                 .addBrandFacet()
                 .addProductDataStringValueFacet('Serie', 'Product')
                 .addProductDataStringValueFacet('Color', 'Product')
-                .addProductDataBooleanValueFacet('InStock', 'Product');
+                .addProductDataBooleanValueFacet('InStock', 'Product')
+                .addSalesPriceRangeFacet('Product');
         },
     },
 });

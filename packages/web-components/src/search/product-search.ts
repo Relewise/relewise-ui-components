@@ -1,4 +1,4 @@
-import { ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
+import { DoubleNullableRange, ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
 import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
@@ -156,15 +156,38 @@ export class ProductSearch extends LitElement {
         if (request.facets) {
             request.facets.items.forEach(facet => {
                 if ('selected' in facet) {
-                    if ('key' in facet)  {
-                        facet.selected = readCurrentUrlStateValues(facet.field + facet.key);
-                    } else {
+                    if (facet.$type.includes('ProductDataDoubleRangeFacet') ||
+                        facet.$type.includes('PriceRangeFacet')) {
+                        let upperBound = null;
+                        let lowerBound = null;
+                        
+                        if ('key' in facet) {
+                            upperBound = readCurrentUrlState(facet.field + facet.key + 'upperbound');
+                            lowerBound = readCurrentUrlState(facet.field + facet.key + 'lowerbound');
+                        } else {
+                            upperBound = readCurrentUrlState(facet.field + 'upperbound');
+                            lowerBound = readCurrentUrlState(facet.field + 'lowerbound');
+                        }
+
+                        facet.selected = {
+                            lowerBoundInclusive: lowerBound ? +lowerBound : null,
+                            upperBoundInclusive: upperBound ? +upperBound : null,
+                        };
+                    }
+
+                    if (facet.$type.includes('BrandFacet') ||
+                        facet.$type.includes('CategoryFacet')) {
                         facet.selected = readCurrentUrlStateValues(facet.field);
+                    }
+
+                    if ((facet.$type.includes('ProductDataStringValueFacet') ||
+                        facet.$type.includes('ProductDataBooleanValueFacet')) && 
+                        'key' in facet) {
+                        facet.selected = readCurrentUrlStateValues(facet.field + facet.key);
                     }
                 }
             });
         }
-        
 
         const response = await searcher.searchProducts(request);
         if (!response) {
