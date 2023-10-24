@@ -33,6 +33,9 @@ export class ProductSearch extends LitElement {
     
     @property({ attribute: 'populartity-sorting-option-text'})
     popularityText: string  = 'Popularity';
+    
+    @property({ attribute: 'save-selected-number-range-text'})
+    saveSelectedRangeText: string = 'Save';
 
     @state()
     term: string | null = null;
@@ -255,7 +258,9 @@ export class ProductSearch extends LitElement {
             </div>
             <div class="rw-product-search-results">
                 <div>
-                    <relewise-facets .facetResult=${this.searchResult?.facets}></relewise-facets>
+                    <relewise-facets
+                        .facetResult=${this.searchResult?.facets}
+                        .saveSelectedRangeText=${this.saveSelectedRangeText}></relewise-facets>
                 </div>
                 <div>
                     <relewise-product-search-results

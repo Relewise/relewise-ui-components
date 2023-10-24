@@ -9,6 +9,9 @@ export class NumberRangeFacet extends LitElement {
     @property({ type: Object })
     result: (ProductDataDoubleRangeFacetResult) | null = null;
 
+    @property({ attribute: 'save-selected-number-range-text'})
+    saveSelectedRangeText: string = 'Save';
+
     @state()
     upperBound: number | null | undefined = null;
 
@@ -142,7 +145,7 @@ export class NumberRangeFacet extends LitElement {
                         class="rw-input"
                         @keydown=${this.handleKeyEvent}>
                 </div>
-                <relewise-button class="rw-button rw-save" @click=${this.save}>Save</relewise-button>
+                <relewise-button class="rw-button rw-save" @click=${this.save}>${this.saveSelectedRangeText}</relewise-button>
             </div>
         </div>
       `;

@@ -8,6 +8,9 @@ export class Facets extends LitElement {
     @property({ type: Object, attribute: 'facets-result' })
     facetResult: ProductFacetResult | null | undefined = null;
 
+    @property({ attribute: 'save-selected-number-range-text'})
+    saveSelectedRangeText: string = 'Save';
+
     @state()
     showFacets: boolean = window.innerWidth >= 1024;
     
@@ -38,7 +41,9 @@ export class Facets extends LitElement {
                         if (item.$type.includes('ProductDataDoubleRangeFacetResult') ||
                             item.$type.includes('PriceRangeFacetResult')) {
                             return html`
-                                <relewise-number-range-facet .result=${item}>
+                                <relewise-number-range-facet 
+                                    .result=${item}
+                                    .saveSelectedRangeText=${this.saveSelectedRangeText}>
                                 </relewise-number-range-facet>
                             `;
                         }
