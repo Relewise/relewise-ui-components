@@ -1,7 +1,7 @@
+import { ProductFacetResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { theme } from '../../../theme';
-import { ProductFacetResult } from '@relewise/client';
 
 export class Facets extends LitElement {
 
@@ -30,12 +30,18 @@ export class Facets extends LitElement {
                     ${this.facetResult?.items?.map(item => {
                         if (item.$type.includes('BrandFacetResult') ||
                             item.$type.includes('CategoryFacetResult') ||
-                            item.$type.includes('ProductDataStringValueFacetResult') ||
-                            item.$type.includes('ProductDataBooleanValueFacetResult') || 
                             item.$type.includes('ProductAssortmentFacetResult')) {
                             return html`
                                 <relewise-checklist-facet .result=${item}>
                                 </relewise-checklist-facet>
+                            `;
+                        }
+
+                        if (item.$type.includes('ProductDataBooleanValueFacetResult')) {
+                            console.log('numse');
+                            return html`
+                                <relewise-checklist-boolean-value-facet .result=${item}>
+                                </relewise-checklist-boolean-value-facet>
                             `;
                         }
 

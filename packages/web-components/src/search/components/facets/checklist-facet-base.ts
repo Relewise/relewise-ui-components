@@ -61,6 +61,7 @@ export abstract class ChecklistFacetBase extends LitElement {
     }
 
     render() {
+        console.log(this.result);
         if (!this.result || !this.result.available || this.result?.available.length < 1) {
             return;
         }
