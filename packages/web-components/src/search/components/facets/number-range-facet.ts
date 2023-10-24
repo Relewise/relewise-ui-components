@@ -78,7 +78,7 @@ export class NumberRangeFacet extends LitElement {
         this.upperBound = +upperBoundValue;
     }
 
-    apply() {
+    save() {
         if (!this.result || !this.lowerBound || !this.upperBound) {
             return;
         }
@@ -95,6 +95,26 @@ export class NumberRangeFacet extends LitElement {
         window.dispatchEvent(new CustomEvent(Events.shouldPerformSearch));
     }
 
+    getLabelDisplayValue(): string {
+        if (!this.result) {
+            return '';
+        }
+
+        if ('key' in this.result && this.result.key) {
+            return this.result.key;
+        }
+
+        return this.result.field;
+    }
+
+    handleKeyEvent(event: KeyboardEvent): void {
+        switch (event.key) {
+        case 'Enter':
+            event.preventDefault();
+            this.save();
+            break;
+        }
+    }
 
     render() {
         if (!this.result?.available || !this.result.available.value) {
@@ -103,16 +123,27 @@ export class NumberRangeFacet extends LitElement {
 
         return html`
         <div class="rw-facet-content">
-            <input
-                type="number"
-                .value=${this.lowerBound?.toString() ?? ''}
-                @input=${this.handleLowerBoundChange}>
-                    <span>-</span>
-            <input
-                type="number"
-                .value=${this.upperBound?.toString() ?? ''}
-                @input=${this.handleUpperBoundChange}>
-            <relewise-button class="rw-button" @click=${this.apply}>Apply</relewise-button>
+            <h3>${this.getLabelDisplayValue()}</h3>
+            <div class="rw-flex">
+                <div class="rw-input-container">
+                    <input
+                    type="number"
+                        .value=${this.lowerBound?.toString() ?? ''}
+                        @input=${this.handleLowerBoundChange}
+                        class="rw-input"
+                        @keydown=${this.handleKeyEvent}>
+                </div>
+                        <span class="rw-range-delimiter">-</span>
+                <div class="rw-input-container">
+                    <input
+                        type="number"
+                        .value=${this.upperBound?.toString() ?? ''}
+                        @input=${this.handleUpperBoundChange}
+                        class="rw-input"
+                        @keydown=${this.handleKeyEvent}>
+                </div>
+                <relewise-button class="rw-button rw-save" @click=${this.save}>Save</relewise-button>
+            </div>
         </div>
       `;
     }
@@ -124,11 +155,51 @@ export class NumberRangeFacet extends LitElement {
             border-color: lightgray;
             background-color: lightgray;
             height: fit-content;
-            width: fit-content;            
+            width: fit-content;
         }
 
         .rw-facet-content {
             margin: .5rem;
+        }
+
+        .rw-save {
+            height: 2rem;
+            margin-left: .5rem;
+        }
+
+        .rw-input {
+            all: unset;
+            width: inherit;
+        }
+
+        .rw-input-container {
+            display: flex;
+            align-items: center;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            border: var(--relewise-number-range-input-border, 2px solid);
+            border-color: var(--color);
+            border-radius: var(--relewise-number-range-input-border-radius, 1rem);
+            background: white;
+            height: var(--relewise-number-range-input-height, 2rem);  
+            width: var(--relewise-number-range-input-width, 4rem);  
+        }
+
+        .rw-range-delimiter {
+            margin-left: .25rem;
+            margin-right: .25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rw-input-container:focus-within {
+            border-color: var(--accent-color);
+        }
+
+        .rw-flex {
+            display: flex;
+            height: 2rem;
         }
     `];
 }
