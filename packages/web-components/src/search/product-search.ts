@@ -159,8 +159,15 @@ export class ProductSearch extends LitElement {
         if (request.facets) {
             request.facets.items.forEach(facet => {
                 if ('selected' in facet) {
-                    if (facet.$type.includes('ProductAssortmentFacet')) {
-                        facet.selected = readCurrentUrlStateValues(facet.field);    
+                    if (facet.$type.includes('ProductAssortmentFacet') ||
+                        facet.$type.includes('ProductDataDoubleValueFacet')) {
+                        let queryValues = null;
+                        if ('key' in facet) {
+                            queryValues = readCurrentUrlStateValues(facet.field + facet.key); 
+                        } else {
+                            queryValues = readCurrentUrlStateValues(facet.field);
+                        }
+                        facet.selected = queryValues;    
                     }
 
                     if (facet.$type.includes('ProductDataDoubleRangeFacet') ||

@@ -1,12 +1,11 @@
-import { BooleanAvailableFacetValue, BrandNameAndIdResultAvailableFacetValue, Int32AvailableFacetValue, ProductAssortmentFacetResult, StringAvailableFacetValue } from '@relewise/client';
+import { BooleanAvailableFacetValue, BrandNameAndIdResultAvailableFacetValue, Int32AvailableFacetValue, ProductAssortmentFacetResult, ProductDataDoubleValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
 import { property } from 'lit/decorators.js';
-import { ChecklistFacet } from './checklist-facet';
 import { ChecklistFacetBase } from './checklist-facet-base';
 
 export class ChecklistNumberValueFacet extends ChecklistFacetBase {
 
     @property({ type: Object })
-    result: ProductAssortmentFacetResult | null = null;
+    result: ProductAssortmentFacetResult | ProductDataDoubleValueFacetResult | null = null;
 
     handleChange(e: Event, item: Int32AvailableFacetValue) {
         const checkbox = e.target as HTMLInputElement;
@@ -44,6 +43,6 @@ export class ChecklistNumberValueFacet extends ChecklistFacetBase {
 
 declare global {
     interface HTMLElementTagNameMap {
-        'relewise-checklist-number-value-facet': ChecklistFacet;
+        'relewise-checklist-number-value-facet': ChecklistNumberValueFacet;
     }
 }

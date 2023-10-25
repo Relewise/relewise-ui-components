@@ -30,7 +30,10 @@ initializeRelewiseUI(
                 .addSalesPriceRangeFacet('Product')
                 .addProductAssortmentFacet('Product')
                 .addListPriceRangesFacet('Product', [{lowerBound: 1, upperBound: 1000}], 1000,  [{lowerBound: 1, upperBound: 1000}])
-                .addProductDataDoubleRangesFacet('RoundingValue', 'Product', [{lowerBound: 1, upperBound: 10}], 10);
+                .addProductDataDoubleRangesFacet('RoundingValue', 'Product', [{lowerBound: 1, upperBound: 10}], 10)
+                .addListPriceRangeFacet('Product')
+                .addProductDataDoubleRangeFacet('RoundingValue', 'Product')
+                .addProductDataDoubleValueFacet('RoundingValue', 'Product');
         },
     },
 });

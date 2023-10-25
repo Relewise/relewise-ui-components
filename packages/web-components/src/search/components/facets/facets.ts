@@ -35,8 +35,8 @@ export class Facets extends LitElement {
                                 </relewise-checklist-ranges-object-value-facet>
                             `;
                         }
-
-                        if (item.$type.includes('ProductAssortmentFacetResult')) {
+                        if (item.$type.includes('ProductAssortmentFacetResult') ||
+                            item.$type.includes('ProductDataDoubleValueFacetResult')) {
                             return html`
                                 <relewise-checklist-number-value-facet .result=${item}>
                                 </relewise-checklist-number-value-facet>
