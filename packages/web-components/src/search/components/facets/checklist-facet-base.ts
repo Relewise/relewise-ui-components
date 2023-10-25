@@ -6,7 +6,6 @@ import { theme } from '../../../theme';
 
 export abstract class ChecklistFacetBase extends LitElement {
 
-
     abstract handleChange(e: Event, item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue): void;
     
     abstract getOptionDisplayValue(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue): string;
