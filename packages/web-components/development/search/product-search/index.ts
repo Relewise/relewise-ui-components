@@ -34,6 +34,8 @@ initializeRelewiseUI(
                 .addListPriceRangeFacet('Product')
                 .addProductDataDoubleRangeFacet('RoundingValue', 'Product')
                 .addProductDataDoubleValueFacet('RoundingValue', 'Product');
+            //.addProductDataObjectFacet()
+            //.addVariantSpecificationFacet()
         },
     },
 });

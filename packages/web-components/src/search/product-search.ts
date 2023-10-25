@@ -1,4 +1,4 @@
-import { DoubleNullableRange, ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
+import { BrandFacet, CategoryFacet, CategoryHierarchyFacet, ContentAssortmentFacet, ContentDataBooleanValueFacet, ContentDataDoubleRangeFacet, ContentDataDoubleRangesFacet, ContentDataDoubleValueFacet, ContentDataIntegerValueFacet, ContentDataObjectFacet, ContentDataStringValueFacet, DataObjectBooleanValueFacet, DataObjectDoubleRangeFacet, DataObjectDoubleRangesFacet, DataObjectDoubleValueFacet, DataObjectFacet, DataObjectStringValueFacet, DoubleNullableRange, PriceRangeFacet, PriceRangesFacet, ProductAssortmentFacet, ProductCategoryAssortmentFacet, ProductCategoryDataBooleanValueFacet, ProductCategoryDataDoubleRangeFacet, ProductCategoryDataDoubleRangesFacet, ProductCategoryDataDoubleValueFacet, ProductCategoryDataObjectFacet, ProductCategoryDataStringValueFacet, ProductDataBooleanValueFacet, ProductDataDoubleRangeFacet, ProductDataDoubleRangesFacet, ProductDataDoubleValueFacet, ProductDataIntegerValueFacet, ProductDataObjectFacet, ProductDataStringValueFacet, ProductResult, ProductSearchBuilder, ProductSearchResponse, VariantSpecificationFacet } from '@relewise/client';
 import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
@@ -158,66 +158,7 @@ export class ProductSearch extends LitElement {
         
         if (request.facets) {
             request.facets.items.forEach(facet => {
-                if ('selected' in facet) {
-                    if (facet.$type.includes('ProductAssortmentFacet') ||
-                        facet.$type.includes('ProductDataDoubleValueFacet')) {
-                        let queryValues = null;
-                        if ('key' in facet) {
-                            queryValues = readCurrentUrlStateValues(facet.field + facet.key); 
-                        } else {
-                            queryValues = readCurrentUrlStateValues(facet.field);
-                        }
-                        facet.selected = queryValues;    
-                    }
-
-                    if (facet.$type.includes('ProductDataDoubleRangeFacet') ||
-                        facet.$type.includes('PriceRangeFacet')) {
-                        let upperBound = null;
-                        let lowerBound = null;
-                        
-                        if ('key' in facet) {
-                            upperBound = readCurrentUrlState(facet.field + facet.key + 'upperbound');
-                            lowerBound = readCurrentUrlState(facet.field + facet.key + 'lowerbound');
-                        } else {
-                            upperBound = readCurrentUrlState(facet.field + 'upperbound');
-                            lowerBound = readCurrentUrlState(facet.field + 'lowerbound');
-                        }
-
-                        facet.selected = {
-                        
-                            lowerBoundInclusive: lowerBound ? +lowerBound : null,
-                            upperBoundInclusive: upperBound ? +upperBound : null,
-                        };
-                    }
-
-                    if (facet.$type.includes('BrandFacet') ||
-                        facet.$type.includes('CategoryFacet')) {
-                        facet.selected = readCurrentUrlStateValues(facet.field);
-                    }
-
-                    if ((facet.$type.includes('ProductDataStringValueFacet') ||
-                        facet.$type.includes('ProductDataBooleanValueFacet')) && 
-                        'key' in facet) {
-                        facet.selected = readCurrentUrlStateValues(facet.field + facet.key);
-                    }
-                    console.log(facet.$type);
-                    if (facet.$type.includes('PriceRangesFacet') || 
-                        facet.$type.includes('ProductDataDoubleRangesFacet')) {
-                        let queryValues = null;
-                        if ('key' in facet) {
-                            queryValues = readCurrentUrlStateValues(facet.field + facet.key); 
-                        } else {
-                            queryValues = readCurrentUrlStateValues(facet.field);
-                        }
-                        facet.selected = queryValues.map(x => {
-                            const split = x.split('-');
-                            return {
-                                lowerBoundInclusive: +split[0],
-                                upperBoundExclusive: +split[1],
-                            } as DoubleNullableRange;
-                        });
-                    }
-                }
+                this.getSelectedValuesForFacet(facet);
             });
         }
 
@@ -230,6 +171,77 @@ export class ProductSearch extends LitElement {
         this.products = this.products.concat(response.results ?? []);
 
         this.setSearchResultOnSlotChilderen();
+    }
+
+    getSelectedValuesForFacet(facet: ContentAssortmentFacet | ProductAssortmentFacet | ProductCategoryAssortmentFacet | BrandFacet | CategoryFacet | CategoryHierarchyFacet | ContentDataObjectFacet | ContentDataDoubleRangeFacet | ContentDataDoubleRangesFacet | ContentDataStringValueFacet | ContentDataBooleanValueFacet | ContentDataDoubleValueFacet | ContentDataIntegerValueFacet | DataObjectFacet | DataObjectDoubleRangeFacet | DataObjectDoubleRangesFacet | DataObjectStringValueFacet | DataObjectBooleanValueFacet | DataObjectDoubleValueFacet | PriceRangeFacet | PriceRangesFacet | ProductCategoryDataObjectFacet | ProductCategoryDataDoubleRangeFacet | ProductCategoryDataDoubleRangesFacet | ProductCategoryDataStringValueFacet | ProductCategoryDataBooleanValueFacet | ProductCategoryDataDoubleValueFacet | ProductDataObjectFacet | ProductDataDoubleRangeFacet | ProductDataDoubleRangesFacet | ProductDataStringValueFacet | ProductDataBooleanValueFacet | ProductDataDoubleValueFacet | ProductDataIntegerValueFacet | VariantSpecificationFacet) {
+        if (facet.$type.includes('ProductDataDoubleRangeFacet') ||
+            facet.$type.includes('PriceRangeFacet')) {
+            this.getSelectedRange(facet);
+        }
+
+        if (facet.$type.includes('BrandFacet') ||
+            facet.$type.includes('CategoryFacet') ||
+            facet.$type.includes('ProductAssortmentFacet') ||
+            facet.$type.includes('ProductDataDoubleValueFacet') || 
+            facet.$type.includes('ProductDataStringValueFacet') ||
+            facet.$type.includes('ProductDataBooleanValueFacet')) {
+            this.getSelectedStrings(facet);
+        }
+    
+        if (facet.$type.includes('PriceRangesFacet') || 
+            facet.$type.includes('ProductDataDoubleRangesFacet')) {
+            this.getSelectedRanges(facet);
+        }
+    }
+
+    getSelectedRange(facet: ContentAssortmentFacet | ProductAssortmentFacet | ProductCategoryAssortmentFacet | BrandFacet | CategoryFacet | CategoryHierarchyFacet | ContentDataObjectFacet | ContentDataDoubleRangeFacet | ContentDataDoubleRangesFacet | ContentDataStringValueFacet | ContentDataBooleanValueFacet | ContentDataDoubleValueFacet | ContentDataIntegerValueFacet | DataObjectFacet | DataObjectDoubleRangeFacet | DataObjectDoubleRangesFacet | DataObjectStringValueFacet | DataObjectBooleanValueFacet | DataObjectDoubleValueFacet | PriceRangeFacet | PriceRangesFacet | ProductCategoryDataObjectFacet | ProductCategoryDataDoubleRangeFacet | ProductCategoryDataDoubleRangesFacet | ProductCategoryDataStringValueFacet | ProductCategoryDataBooleanValueFacet | ProductCategoryDataDoubleValueFacet | ProductDataObjectFacet | ProductDataDoubleRangeFacet | ProductDataDoubleRangesFacet | ProductDataStringValueFacet | ProductDataBooleanValueFacet | ProductDataDoubleValueFacet | ProductDataIntegerValueFacet | VariantSpecificationFacet) {
+        if ('selected' in facet) { 
+            let upperBound = null;
+            let lowerBound = null;
+                            
+            if ('key' in facet) {
+                upperBound = readCurrentUrlState(facet.field + facet.key + 'upperbound');
+                lowerBound = readCurrentUrlState(facet.field + facet.key + 'lowerbound');
+            } else {
+                upperBound = readCurrentUrlState(facet.field + 'upperbound');
+                lowerBound = readCurrentUrlState(facet.field + 'lowerbound');
+            }
+    
+            facet.selected = {
+                lowerBoundInclusive: lowerBound ? +lowerBound : null,
+                upperBoundInclusive: upperBound ? +upperBound : null,
+            };
+        }
+    }
+
+    getSelectedRanges(facet: ContentAssortmentFacet | ProductAssortmentFacet | ProductCategoryAssortmentFacet | BrandFacet | CategoryFacet | CategoryHierarchyFacet | ContentDataObjectFacet | ContentDataDoubleRangeFacet | ContentDataDoubleRangesFacet | ContentDataStringValueFacet | ContentDataBooleanValueFacet | ContentDataDoubleValueFacet | ContentDataIntegerValueFacet | DataObjectFacet | DataObjectDoubleRangeFacet | DataObjectDoubleRangesFacet | DataObjectStringValueFacet | DataObjectBooleanValueFacet | DataObjectDoubleValueFacet | PriceRangeFacet | PriceRangesFacet | ProductCategoryDataObjectFacet | ProductCategoryDataDoubleRangeFacet | ProductCategoryDataDoubleRangesFacet | ProductCategoryDataStringValueFacet | ProductCategoryDataBooleanValueFacet | ProductCategoryDataDoubleValueFacet | ProductDataObjectFacet | ProductDataDoubleRangeFacet | ProductDataDoubleRangesFacet | ProductDataStringValueFacet | ProductDataBooleanValueFacet | ProductDataDoubleValueFacet | ProductDataIntegerValueFacet | VariantSpecificationFacet) {
+        if ('selected' in facet) { 
+            let queryValues = null;
+            if ('key' in facet) {
+                queryValues = readCurrentUrlStateValues(facet.field + facet.key); 
+            } else {
+                queryValues = readCurrentUrlStateValues(facet.field);
+            }
+            facet.selected = queryValues.map(x => {
+                const split = x.split('-');
+                return {
+                    lowerBoundInclusive: +split[0],
+                    upperBoundExclusive: +split[1],
+                } as DoubleNullableRange;
+            });
+        }
+    }
+
+    getSelectedStrings(facet: ContentAssortmentFacet | ProductAssortmentFacet | ProductCategoryAssortmentFacet | BrandFacet | CategoryFacet | CategoryHierarchyFacet | ContentDataObjectFacet | ContentDataDoubleRangeFacet | ContentDataDoubleRangesFacet | ContentDataStringValueFacet | ContentDataBooleanValueFacet | ContentDataDoubleValueFacet | ContentDataIntegerValueFacet | DataObjectFacet | DataObjectDoubleRangeFacet | DataObjectDoubleRangesFacet | DataObjectStringValueFacet | DataObjectBooleanValueFacet | DataObjectDoubleValueFacet | PriceRangeFacet | PriceRangesFacet | ProductCategoryDataObjectFacet | ProductCategoryDataDoubleRangeFacet | ProductCategoryDataDoubleRangesFacet | ProductCategoryDataStringValueFacet | ProductCategoryDataBooleanValueFacet | ProductCategoryDataDoubleValueFacet | ProductDataObjectFacet | ProductDataDoubleRangeFacet | ProductDataDoubleRangesFacet | ProductDataStringValueFacet | ProductDataBooleanValueFacet | ProductDataDoubleValueFacet | ProductDataIntegerValueFacet | VariantSpecificationFacet) {
+        if ('selected' in facet) { 
+            let queryValues = null;
+            if ('key' in facet) {
+                queryValues = readCurrentUrlStateValues(facet.field + facet.key); 
+            } else {
+                queryValues = readCurrentUrlStateValues(facet.field);
+            }
+            facet.selected = queryValues;
+        }
     }
     
     setSearchResultOnSlotChilderen() {
