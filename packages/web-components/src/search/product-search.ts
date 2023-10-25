@@ -193,9 +193,15 @@ export class ProductSearch extends LitElement {
                         'key' in facet) {
                         facet.selected = readCurrentUrlStateValues(facet.field + facet.key);
                     }
-
-                    if (facet.$type.includes('PriceRangesFacet')) {
-                        const queryValues = readCurrentUrlStateValues(facet.field);
+                    console.log(facet.$type);
+                    if (facet.$type.includes('PriceRangesFacet') || 
+                        facet.$type.includes('ProductDataDoubleRangesFacet')) {
+                        let queryValues = null;
+                        if ('key' in facet) {
+                            queryValues = readCurrentUrlStateValues(facet.field + facet.key); 
+                        } else {
+                            queryValues = readCurrentUrlStateValues(facet.field);
+                        }
                         facet.selected = queryValues.map(x => {
                             const split = x.split('-');
                             return {

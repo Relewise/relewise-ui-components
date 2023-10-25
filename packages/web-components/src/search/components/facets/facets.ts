@@ -28,7 +28,8 @@ export class Facets extends LitElement {
                 html`
                 <div class="rw-facets-container">
                     ${this.facetResult?.items?.map(item => {
-                        if (item.$type.includes('PriceRangesFacetResult')) {
+                        if (item.$type.includes('PriceRangesFacetResult') ||
+                            item.$type.includes('ProductDataDoubleRangesFacetResult') ) {
                             return html`
                                 <relewise-checklist-ranges-object-value-facet .result=${item}>
                                 </relewise-checklist-ranges-object-value-facet>
