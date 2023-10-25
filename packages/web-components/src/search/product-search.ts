@@ -1,4 +1,4 @@
-import { ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
+import { DoubleNullableRange, ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
 import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
@@ -159,7 +159,6 @@ export class ProductSearch extends LitElement {
         if (request.facets) {
             request.facets.items.forEach(facet => {
                 if ('selected' in facet) {
-                    console.log(facet.$type);
                     if (facet.$type.includes('ProductAssortmentFacet')) {
                         facet.selected = readCurrentUrlStateValues(facet.field);    
                     }
@@ -178,6 +177,7 @@ export class ProductSearch extends LitElement {
                         }
 
                         facet.selected = {
+                        
                             lowerBoundInclusive: lowerBound ? +lowerBound : null,
                             upperBoundInclusive: upperBound ? +upperBound : null,
                         };
@@ -192,6 +192,17 @@ export class ProductSearch extends LitElement {
                         facet.$type.includes('ProductDataBooleanValueFacet')) && 
                         'key' in facet) {
                         facet.selected = readCurrentUrlStateValues(facet.field + facet.key);
+                    }
+
+                    if (facet.$type.includes('PriceRangesFacet')) {
+                        const queryValues = readCurrentUrlStateValues(facet.field);
+                        facet.selected = queryValues.map(x => {
+                            const split = x.split('-');
+                            return {
+                                lowerBoundInclusive: +split[0],
+                                upperBoundExclusive: +split[1],
+                            } as DoubleNullableRange;
+                        });
                     }
                 }
             });

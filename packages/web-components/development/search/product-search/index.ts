@@ -28,7 +28,8 @@ initializeRelewiseUI(
                 .addProductDataStringValueFacet('Color', 'Product')
                 .addProductDataBooleanValueFacet('InStock', 'Product')
                 .addSalesPriceRangeFacet('Product')
-                .addProductAssortmentFacet('Product');
+                .addProductAssortmentFacet('Product')
+                .addListPriceRangesFacet('Product', [{lowerBound: 1, upperBound: 1000}], 1000,  [{lowerBound: 1, upperBound: 1000}]);
         },
     },
 });

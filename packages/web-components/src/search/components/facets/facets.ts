@@ -28,7 +28,13 @@ export class Facets extends LitElement {
                 html`
                 <div class="rw-facets-container">
                     ${this.facetResult?.items?.map(item => {
-                        console.log(item);
+                        if (item.$type.includes('PriceRangesFacetResult')) {
+                            return html`
+                                <relewise-checklist-ranges-object-value-facet .result=${item}>
+                                </relewise-checklist-ranges-object-value-facet>
+                            `;
+                        }
+
                         if (item.$type.includes('ProductAssortmentFacetResult')) {
                             return html`
                                 <relewise-checklist-number-value-facet .result=${item}>
@@ -45,7 +51,6 @@ export class Facets extends LitElement {
                         }
 
                         if (item.$type.includes('ProductDataBooleanValueFacetResult')) {
-                            console.log('numse');
                             return html`
                                 <relewise-checklist-boolean-value-facet .result=${item}>
                                 </relewise-checklist-boolean-value-facet>

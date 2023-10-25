@@ -1,4 +1,4 @@
-import { BooleanAvailableFacetValue, BrandFacetResult, BrandNameAndIdResultAvailableFacetValue, CategoryFacetResult, Int32AvailableFacetValue, ProductAssortmentFacetResult, ProductDataBooleanValueFacetResult, ProductDataStringValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
+import { BooleanAvailableFacetValue, BrandFacetResult, BrandNameAndIdResultAvailableFacetValue, CategoryFacetResult, DecimalNullableChainableRangeAvailableFacetValue, Int32AvailableFacetValue, PriceRangesFacetResult, ProductAssortmentFacetResult, ProductDataBooleanValueFacetResult, ProductDataStringValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, readCurrentUrlStateValues, updateUrlStateValues } from '../../../helpers';
@@ -6,14 +6,14 @@ import { theme } from '../../../theme';
 
 export abstract class ChecklistFacetBase extends LitElement {
 
-    abstract handleChange(e: Event, item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue): void;
+    abstract handleChange(e: Event, item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue | DecimalNullableChainableRangeAvailableFacetValue): void;
     
-    abstract getOptionDisplayValue(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue): string;
+    abstract getOptionDisplayValue(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue | DecimalNullableChainableRangeAvailableFacetValue): string;
 
-    abstract shouldOptionBeChecked(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue): boolean;
+    abstract shouldOptionBeChecked(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue | DecimalNullableChainableRangeAvailableFacetValue): boolean;
 
     @property({ type: Object })
-    result: (BrandFacetResult | CategoryFacetResult | ProductDataStringValueFacetResult | ProductDataBooleanValueFacetResult | ProductAssortmentFacetResult) | null = null;
+    result: (BrandFacetResult | CategoryFacetResult | ProductDataStringValueFacetResult | ProductDataBooleanValueFacetResult | ProductAssortmentFacetResult | PriceRangesFacetResult) | null = null;
 
     @state()
     selectedValues: string[] = [];
@@ -60,7 +60,6 @@ export abstract class ChecklistFacetBase extends LitElement {
     }
 
     render() {
-        console.log(this.result);
         if (!this.result || !this.result.available || this.result?.available.length < 1) {
             return;
         }
