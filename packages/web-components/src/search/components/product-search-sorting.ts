@@ -53,8 +53,7 @@ export class ProductSearchSorting extends LitElement {
     clearSelectedValue(e: Event) {
         this.selectedOption = null;
         updateUrlState(productSearchSorting, '');
-        window.dispatchEvent(new CustomEvent(Events.shouldClearSearchResult));
-        window.dispatchEvent(new CustomEvent(Events.shouldPerformSearch));
+        window.dispatchEvent(new CustomEvent(Events.search));
         e.stopPropagation();
     }
 
@@ -62,8 +61,7 @@ export class ProductSearchSorting extends LitElement {
         this.selectedOption = item;
         this.showSortingOptions = false;
         updateUrlState(productSearchSorting, item);
-        window.dispatchEvent(new CustomEvent(Events.shouldClearSearchResult));
-        window.dispatchEvent(new CustomEvent(Events.shouldPerformSearch));
+        window.dispatchEvent(new CustomEvent(Events.search));
     }
 
     getOptionText(sortingValue: string): string {

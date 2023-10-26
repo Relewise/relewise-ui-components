@@ -94,8 +94,7 @@ export class NumberRangeFacet extends LitElement {
             updateUrlState(this.result.field + 'lowerbound', this.lowerBound.toString());
         }
         
-        window.dispatchEvent(new CustomEvent(Events.shouldClearSearchResult));
-        window.dispatchEvent(new CustomEvent(Events.shouldPerformSearch));
+        window.dispatchEvent(new CustomEvent(Events.search));
     }
 
     getLabelDisplayValue(): string {

@@ -55,8 +55,7 @@ export abstract class ChecklistFacetBase extends LitElement {
             updateUrlStateValues(this.result.field, this.selectedValues);
         }
 
-        window.dispatchEvent(new CustomEvent(Events.shouldClearSearchResult));
-        window.dispatchEvent(new CustomEvent(Events.shouldPerformSearch));
+        window.dispatchEvent(new CustomEvent(Events.search));
     }
 
     render() {

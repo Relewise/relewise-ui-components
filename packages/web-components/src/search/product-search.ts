@@ -66,9 +66,11 @@ export class ProductSearch extends LitElement {
          
         this.search();
 
-        window.addEventListener(Events.shouldPerformSearch, () => this.search());
-        window.addEventListener(Events.shouldClearSearchResult, () => this.clearSearchResult());
-        window.addEventListener(Events.shouldLoadMoreProducts, () => this.loadMoreProducts());
+        window.addEventListener(Events.search, () => {
+            this.clearSearchResult();
+            this.search();
+        });
+        window.addEventListener(Events.loadMoreProducts, () => this.loadMoreProducts());
         super.connectedCallback();
     }
 

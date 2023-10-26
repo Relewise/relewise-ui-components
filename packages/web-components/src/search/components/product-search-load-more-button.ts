@@ -24,7 +24,7 @@ export class LoadMoreProducts extends LitElement {
         }
 
         return html`
-            <relewise-button class="rw-button" @click=${() => window.dispatchEvent(new CustomEvent(Events.shouldLoadMoreProducts))}>
+            <relewise-button class="rw-button" @click=${() => window.dispatchEvent(new CustomEvent(Events.loadMoreProducts))}>
                 ${this.buttonText}
             </relewise-button>
         `;
