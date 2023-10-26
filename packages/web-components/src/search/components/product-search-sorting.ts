@@ -97,7 +97,7 @@ export class ProductSearchSorting extends LitElement {
                 @keydown=${this.handleKeyDown}
                 @click=${() => this.showSortingOptions = !this.showSortingOptions}
                 @blur=${this.handleBlur}
-                button-text=${this.selectedOption ?? 'Sorting'}>
+                button-text=${this.selectedOption ? this.getOptionText(this.selectedOption) : 'Sorting'}>
                 ${this.showSortingOptions || this.selectedOption ? html`
                     <relewise-x-icon @click=${this.clearSelectedValue}></relewise-x-icon>
                 ` : html`
