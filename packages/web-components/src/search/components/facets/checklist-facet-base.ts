@@ -76,11 +76,11 @@ export abstract class ChecklistFacetBase extends LitElement {
                         <div>
                             <input
                                 type="checkbox"
-                                id=${index}
+                                id=${`${this.result?.field}-${this.result?.$type}-${index}`}
                                 name=${index}
                                 ?checked=${this.shouldOptionBeChecked(item)}
                                 @change=${(e: Event) => this.handleChange(e, item)} />
-                            <label for=${index}>${this.getOptionDisplayValue(item)}</label>
+                            <label for=${`${this.result?.field}-${this.result?.$type}-${index}`}>${this.getOptionDisplayValue(item)}</label>
                         </div>
                     ` : nothing}
                     `;
