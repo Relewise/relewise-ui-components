@@ -14,6 +14,15 @@ export class Facets extends LitElement {
     @state()
     showFacets: boolean = window.innerWidth >= 1024;
 
+    connectedCallback(): void {
+        super.connectedCallback();
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                this.showFacets = true;
+            } 
+        });
+    }
+
     renderFacet(facet: ProductAssortmentFacetResult | ContentAssortmentFacetResult | ProductCategoryAssortmentFacetResult | BrandFacetResult | CategoryFacetResult | CategoryHierarchyFacetResult | ContentDataObjectFacetResult | ContentDataDoubleRangeFacetResult | ContentDataDoubleRangesFacetResult | ContentDataStringValueFacetResult | ContentDataBooleanValueFacetResult | ContentDataDoubleValueFacetResult | ContentDataIntegerValueFacetResult | DataObjectFacetResult | DataObjectDoubleRangeFacetResult | DataObjectDoubleRangesFacetResult | DataObjectStringValueFacetResult | DataObjectBooleanValueFacetResult | DataObjectDoubleValueFacetResult | PriceRangeFacetResult | PriceRangesFacetResult | ProductCategoryDataObjectFacetResult | ProductCategoryDataDoubleRangeFacetResult | ProductCategoryDataDoubleRangesFacetResult | ProductCategoryDataStringValueFacetResult | ProductCategoryDataBooleanValueFacetResult | ProductCategoryDataDoubleValueFacetResult | ProductDataObjectFacetResult | ProductDataDoubleRangeFacetResult | ProductDataDoubleRangesFacetResult | ProductDataStringValueFacetResult | ProductDataBooleanValueFacetResult | ProductDataDoubleValueFacetResult | ProductDataIntegerValueFacetResult | VariantSpecificationFacetResult): TemplateResult<1> {
         if (facet.$type.includes('PriceRangesFacetResult') || 
             facet.$type.includes('ProductDataDoubleRangesFacetResult')) {
@@ -64,7 +73,7 @@ export class Facets extends LitElement {
         return html`
             <relewise-button
                 button-text="Filter" 
-                class="rw-button"
+                class="rw-button rw-facet-button"
                 @click=${() => this.showFacets = !this.showFacets}>
                     ${this.showFacets ?
                         html`<relewise-x-icon></relewise-x-icon>` :
@@ -89,6 +98,10 @@ export class Facets extends LitElement {
         @media (min-width: 1024px) {
             .rw-facets-container {
                 flex-direction: column;
+            }
+
+            .rw-facet-button {
+                display: none;
             }
         }
     `];
