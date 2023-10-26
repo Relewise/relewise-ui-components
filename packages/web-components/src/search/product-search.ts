@@ -13,9 +13,6 @@ export class ProductSearch extends LitElement {
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;
 
-    @property({ attribute: 'search-bar-placeholder' })
-    searchBarPlaceholder: string | null = null;
-
     @property({ type: Number, attribute: 'search-result-page-size' })
     searchResultPageSize: number = 16;
 
@@ -38,16 +35,10 @@ export class ProductSearch extends LitElement {
     saveSelectedRangeText: string = 'Save';
 
     @state()
-    term: string | null = null;
-
-    @state()
     searchResult: ProductSearchResponse | null = null;
 
     @state()
     products: ProductResult[] = [];
-
-    @state()
-    showFacets: boolean = window.innerWidth >= 1024;
 
     @state()
     page: number = 1;
@@ -57,8 +48,6 @@ export class ProductSearch extends LitElement {
             console.error('No displayedAtLocation defined!');
         }
 
-        this.term = readCurrentUrlState(searhTermQueryName) ?? null;
-        
         const productsToFetch = getProductSearchResults();
         if (productsToFetch) {
             this.page = productsToFetch / this.searchResultPageSize;
@@ -87,18 +76,8 @@ export class ProductSearch extends LitElement {
         this.search();
     }
 
-    handleKeyDown(event: KeyboardEvent): void {
-        switch (event.key) {
-        case 'Enter':
-            event.preventDefault();
-            this.clearSearchResult();
-            this.search();
-            break;
-        }
-    }
-
     async search() {
-        updateUrlState(searhTermQueryName, this.term ?? '');
+        const term = readCurrentUrlState(searhTermQueryName) ?? null;
 
         const productsToFetch = getProductSearchResults();
 
@@ -109,7 +88,7 @@ export class ProductSearch extends LitElement {
 
         const requestBuilder = new ProductSearchBuilder(settings)
             .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
-            .setTerm(this.term  ? this.term : null)
+            .setTerm(term  ? term : null)
             .pagination(p => p
                 .setPageSize(productsToFetch && this.products.length < 1 ? productsToFetch : this.searchResultPageSize)
                 .setPage(productsToFetch && this.products.length < 1 ? 1 : this.page))
@@ -273,22 +252,8 @@ export class ProductSearch extends LitElement {
 
     render() {
         return html`
-        <div class="rw-search-bar-container">
-            <relewise-search-bar 
-                .term=${this.term ?? ''}
-                .setSearchTerm=${(term: string)=> this.term = term}
-                .placeholder=${this.searchBarPlaceholder}
-                .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
-                class="rw-search-bar">
-            </relewise-search-bar>
-            <relewise-button
-                class="rw-button"
-                button-text="Search"
-                .handleClick=${() => this.search()}>
-                <relewise-search-icon></relewise-search-icon>
-            </relewise-button>
-        </div>
         <slot>
+            <relewise-product-search-bar></relewise-product-search-bar>
             <div class="rw-options-buttons">
                 <relewise-product-search-sorting
                     class="rw-sorting-button"
@@ -325,18 +290,6 @@ export class ProductSearch extends LitElement {
             font-family: var(--font);
         }
 
-        .rw-search-bar-container {
-            display: flex;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .rw-search-bar {
-            width: 100%;
-            margin-right: .5rem;
-            --color: var(--accent-color);
-        }
-
         .rw-options-buttons {
             display: flex;
         }
@@ -344,22 +297,6 @@ export class ProductSearch extends LitElement {
         .rw-sorting-button {
             margin-left: auto;
             --relewise-sorting-options-right: .5rem;
-        }
-
-        .rw-filter-container {
-            background-color: lightgray;
-            border-radius: 1rem;
-            margin-bottom: 1rem;
-            margin-top: 1rem;
-            padding: .25rem;
-            height: fit-content;
-        }
-        
-        .rw-facet-item {
-            margin-bottom: .5rem;
-            margin-top: .5rem;
-            margin-right: .5rem;
-            width: 16rem;
         }
 
         .rw-center {

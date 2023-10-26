@@ -20,6 +20,7 @@ import { ProductSearchOverlay } from './search/product-search-overlay';
 import { BrandView, ContentCategoryView, ContentView, ProductCategoryView, ProductView } from './tracking';
 import { updateContextSettings } from './updateContextSettings';
 import { ChecklistRangesObjectValueFacet } from './search/components/facets/checklist-ranges-object-value-facet';
+import { ProductSearchBar } from './search/components/product-search-bar';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -85,6 +86,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     tryRegisterElement('relewise-product-search-overlay', ProductSearchOverlay);
     tryRegisterElement('relewise-product-search', ProductSearch);
     tryRegisterElement('relewise-search-bar', SearchBar);
+    tryRegisterElement('relewise-product-search-bar', ProductSearchBar);
     tryRegisterElement('relewise-product-search-overlay-product', ProductSearchOverlayProduct);
     tryRegisterElement('relewise-product-search-overlay-results', ProductSearchOverlayResults);
     tryRegisterElement('relewise-checklist-string-value-facet', ChecklistStringValueFacet);
