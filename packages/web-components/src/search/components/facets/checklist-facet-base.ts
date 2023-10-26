@@ -74,13 +74,15 @@ export abstract class ChecklistFacetBase extends LitElement {
                     return html`
                     ${item.value !== undefined ? html`
                         <div>
-                            <input
-                                type="checkbox"
-                                id=${`${this.result?.field}-${this.result?.$type}-${index}`}
-                                name=${index}
-                                ?checked=${this.shouldOptionBeChecked(item)}
-                                @change=${(e: Event) => this.handleChange(e, item)} />
-                            <label for=${`${this.result?.field}-${this.result?.$type}-${index}`}>${this.getOptionDisplayValue(item)}</label>
+                            <label class="rw-label" for=${`${this.result?.field}-${this.result?.$type}-${index}`}>
+                                <input
+                                    type="checkbox"
+                                    id=${`${this.result?.field}-${this.result?.$type}-${index}`}
+                                    name=${index}
+                                    ?checked=${this.shouldOptionBeChecked(item)}
+                                    @change=${(e: Event) => this.handleChange(e, item)} />
+                                ${this.getOptionDisplayValue(item)}
+                            </label>
                         </div>
                     ` : nothing}
                     `;
@@ -108,6 +110,17 @@ export abstract class ChecklistFacetBase extends LitElement {
             border-color: lightgray;
             background-color: lightgray;
             height: fit-content;
+        }
+
+        .rw-label {
+            cursor: pointer;
+            display: block;
+            padding-left: 1.5em;
+            text-indent: -1.5rem; 
+        }
+
+        .rw-label input {
+            cursor: pointer;
         }
 
         .rw-facet-content {
