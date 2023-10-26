@@ -119,10 +119,12 @@ export class NumberRangeFacet extends LitElement {
     }
 
     render() {
-        if (!this.result?.available || !this.result.available.value) {
+        if (!this.result?.available ||
+            !this.result.available.value ||
+            !this.result.available.value.lowerBoundInclusive || 
+            !this.result.available.value.upperBoundInclusive) {
             return;
         }
-
         return html`
         <div class="rw-facet-content">
             <h3>${this.getLabelDisplayValue()}</h3>
@@ -152,13 +154,9 @@ export class NumberRangeFacet extends LitElement {
 
     static styles = [theme, css`
         :host {
-            border: 1px solid;
             border-radius: 1rem;
-            border-color: lightgray;
             background-color: lightgray;
             height: fit-content;
-            margin-bottom: .5rem;
-            margin-right: .5rem;
         }
 
         .rw-facet-content {

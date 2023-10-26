@@ -104,13 +104,10 @@ export abstract class ChecklistFacetBase extends LitElement {
 
     static styles = [theme, css`
         :host {
-            border: 1px solid;
             border-radius: 1rem;
             border-color: lightgray;
             background-color: lightgray;
             height: fit-content;
-            margin-bottom: .5rem;
-            margin-right: .5rem;
         }
 
         .rw-facet-content {

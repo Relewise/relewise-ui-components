@@ -92,18 +92,25 @@ export class Facets extends LitElement {
 
     static styles = [theme, css`
         .rw-facets-container {
-            display: grid;
-            grid-template-columns: repeat(3,1fr);
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
         }
 
         .rw-facet-button {
             margin-bottom: .5rem;
         }
 
+        @media (min-width: 480px) and (max-width: 1023px) {
+            .rw-facets-container {
+                display: grid;
+                grid-template-columns: repeat(2,1fr);
+            }
+        }
+
         @media (min-width: 1024px) {
             .rw-facets-container {
-                display: flex;
-                flex-direction: column;
+                margin-right: .5rem;
             }
 
             .rw-facet-button {
