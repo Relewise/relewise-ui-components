@@ -1,8 +1,5 @@
 export const searhTermQueryName = 'relewiseSearchTerm';
-export const categoryFacetQueryName = 'relewiseCategoryFacet';
-export const brandFacetQueryName = 'relewiseBrandFacet';
-export const currentPageQueryName = 'relewiseCurrentPage';
-export const productSearchResults = 'relewiseProductSearchResults';
+export const numberOfProductSearchResults = 'relewiseProducts';
 export const productSearchSorting = 'relewiseProductSearchSorting';
 
 export function updateUrlState(queryParamName: string, value: string) {
@@ -41,8 +38,8 @@ export function readCurrentUrlStateValues(queryParamName: string): string[] {
     return currentUrl.searchParams.getAll(queryParamName);
 }
 
-export function getProductSearchResults(): number | null {
-    const productSearchResultsToLoad = readCurrentUrlState(productSearchResults);
+export function getNumberOfProductSearchResults(): number | null {
+    const productSearchResultsToLoad = readCurrentUrlState(numberOfProductSearchResults);
 
     if (!productSearchResultsToLoad) {
         return null;

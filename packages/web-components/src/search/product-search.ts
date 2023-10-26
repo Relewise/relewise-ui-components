@@ -2,7 +2,7 @@ import { BrandFacet, CategoryFacet, CategoryHierarchyFacet, ContentAssortmentFac
 import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
-import { Events, getProductSearchResults, productSearchResults, productSearchSorting, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
+import { Events, getNumberOfProductSearchResults, numberOfProductSearchResults, productSearchSorting, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { SortingEnum } from './enums';
@@ -48,7 +48,7 @@ export class ProductSearch extends LitElement {
             console.error('No displayedAtLocation defined!');
         }
 
-        const productsToFetch = getProductSearchResults();
+        const productsToFetch = getNumberOfProductSearchResults();
         if (productsToFetch) {
             this.page = productsToFetch / this.searchResultPageSize;
         }
@@ -67,19 +67,19 @@ export class ProductSearch extends LitElement {
         this.products = [];
         this.searchResult = null;
         this.page = 1;
-        updateUrlState(productSearchResults, '');
+        updateUrlState(numberOfProductSearchResults, '');
     }
     
     loadMoreProducts() {
         this.page = this.page + 1;
-        updateUrlState(productSearchResults, (this.searchResultPageSize * this.page).toString());
+        updateUrlState(numberOfProductSearchResults, (this.searchResultPageSize * this.page).toString());
         this.search();
     }
 
     async search() {
         const term = readCurrentUrlState(searhTermQueryName) ?? null;
 
-        const productsToFetch = getProductSearchResults();
+        const numberOfProductsToFetch = getNumberOfProductSearchResults();
 
         const relewiseUIOptions = getRelewiseUIOptions();
         const searchOptions = getRelewiseUISearchOptions();
@@ -90,8 +90,8 @@ export class ProductSearch extends LitElement {
             .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
             .setTerm(term  ? term : null)
             .pagination(p => p
-                .setPageSize(productsToFetch && this.products.length < 1 ? productsToFetch : this.searchResultPageSize)
-                .setPage(productsToFetch && this.products.length < 1 ? 1 : this.page))
+                .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.searchResultPageSize)
+                .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))
             .filters(builder => {
                 if (relewiseUIOptions.filters?.product) {
                     relewiseUIOptions.filters.product(builder);
@@ -101,11 +101,9 @@ export class ProductSearch extends LitElement {
                 }
             })
             .facets(builder => {
-                if (!searchOptions || !searchOptions.facets) {
-                    return;
+                if (searchOptions && searchOptions.facets) {
+                    searchOptions.facets.facetBuilder(builder, readCurrentUrlStateValues(''));
                 }
-
-                searchOptions.facets.facetBuilder(builder, readCurrentUrlStateValues(''));
             })
             .sorting(builder => {
                 const sorting = readCurrentUrlState(productSearchSorting);
@@ -158,21 +156,16 @@ export class ProductSearch extends LitElement {
         if (facet.$type.includes('ProductDataDoubleRangeFacet') ||
             facet.$type.includes('PriceRangeFacet')) {
             this.getSelectedRange(facet);
+            return;
         }
 
-        if (facet.$type.includes('BrandFacet') ||
-            facet.$type.includes('CategoryFacet') ||
-            facet.$type.includes('ProductAssortmentFacet') ||
-            facet.$type.includes('ProductDataDoubleValueFacet') || 
-            facet.$type.includes('ProductDataStringValueFacet') ||
-            facet.$type.includes('ProductDataBooleanValueFacet')) {
-            this.getSelectedStrings(facet);
-        }
-    
         if (facet.$type.includes('PriceRangesFacet') || 
             facet.$type.includes('ProductDataDoubleRangesFacet')) {
             this.getSelectedRanges(facet);
+            return;
         }
+
+        this.getSelectedStrings(facet);
     }
 
     getSelectedRange(facet: ContentAssortmentFacet | ProductAssortmentFacet | ProductCategoryAssortmentFacet | BrandFacet | CategoryFacet | CategoryHierarchyFacet | ContentDataObjectFacet | ContentDataDoubleRangeFacet | ContentDataDoubleRangesFacet | ContentDataStringValueFacet | ContentDataBooleanValueFacet | ContentDataDoubleValueFacet | ContentDataIntegerValueFacet | DataObjectFacet | DataObjectDoubleRangeFacet | DataObjectDoubleRangesFacet | DataObjectStringValueFacet | DataObjectBooleanValueFacet | DataObjectDoubleValueFacet | PriceRangeFacet | PriceRangesFacet | ProductCategoryDataObjectFacet | ProductCategoryDataDoubleRangeFacet | ProductCategoryDataDoubleRangesFacet | ProductCategoryDataStringValueFacet | ProductCategoryDataBooleanValueFacet | ProductCategoryDataDoubleValueFacet | ProductDataObjectFacet | ProductDataDoubleRangeFacet | ProductDataDoubleRangesFacet | ProductDataStringValueFacet | ProductDataBooleanValueFacet | ProductDataDoubleValueFacet | ProductDataIntegerValueFacet | VariantSpecificationFacet) {

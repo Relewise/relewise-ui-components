@@ -67,11 +67,7 @@ export class ProductSearchSorting extends LitElement {
     getOptionText(sortingValue: string): string {
 
         const sortingEnum = SortingEnum[sortingValue as keyof typeof SortingEnum];
-                
-        if (!sortingEnum) {
-            return '';
-        }
-        
+
         switch (sortingEnum) {
         case SortingEnum.SalesPriceAsc:
             return this.salesPriceAscendingText ?? 'Price: low - high';
@@ -83,11 +79,9 @@ export class ProductSearchSorting extends LitElement {
             return this.alphabeticallyDescendingText ?? 'Name: z - a';
         case SortingEnum.Popularity:
             return this.popularityText ?? 'Popularity';
+        default:
+            return '';
         }
-    }
-
-    enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
-        return Object.keys(obj).filter(k => Number.isNaN(+k)) as K[];
     }
 
     render() {
