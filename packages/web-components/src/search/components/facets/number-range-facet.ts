@@ -157,7 +157,8 @@ export class NumberRangeFacet extends LitElement {
             border-color: lightgray;
             background-color: lightgray;
             height: fit-content;
-            width: fit-content;
+            margin-bottom: .5rem;
+            margin-right: .5rem;
         }
 
         .rw-facet-content {
