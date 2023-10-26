@@ -26,11 +26,10 @@ export class ProductSearchResults extends LitElement {
         display: grid;
         grid-template-columns: repeat(2,1fr);
         gap: 1rem;
-        grid-auto-rows: 1fr;
     }
 
     .rw-product-tile {
-        --relewise-image-height: 16rem;
+        --relewise-image-height: 32rem;
         display: flex;
         align-items: center;
         justify-content: center;

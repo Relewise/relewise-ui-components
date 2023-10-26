@@ -1,5 +1,5 @@
 import { BrandFacet, CategoryFacet, CategoryHierarchyFacet, ContentAssortmentFacet, ContentDataBooleanValueFacet, ContentDataDoubleRangeFacet, ContentDataDoubleRangesFacet, ContentDataDoubleValueFacet, ContentDataIntegerValueFacet, ContentDataObjectFacet, ContentDataStringValueFacet, DataObjectBooleanValueFacet, DataObjectDoubleRangeFacet, DataObjectDoubleRangesFacet, DataObjectDoubleValueFacet, DataObjectFacet, DataObjectStringValueFacet, DoubleNullableRange, PriceRangeFacet, PriceRangesFacet, ProductAssortmentFacet, ProductCategoryAssortmentFacet, ProductCategoryDataBooleanValueFacet, ProductCategoryDataDoubleRangeFacet, ProductCategoryDataDoubleRangesFacet, ProductCategoryDataDoubleValueFacet, ProductCategoryDataObjectFacet, ProductCategoryDataStringValueFacet, ProductDataBooleanValueFacet, ProductDataDoubleRangeFacet, ProductDataDoubleRangesFacet, ProductDataDoubleValueFacet, ProductDataIntegerValueFacet, ProductDataObjectFacet, ProductDataStringValueFacet, ProductResult, ProductSearchBuilder, ProductSearchResponse, VariantSpecificationFacet } from '@relewise/client';
-import { LitElement, css, html } from 'lit';
+import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
 import { Events, getNumberOfProductSearchResults, numberOfProductSearchResults, productSearchSorting, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
@@ -257,12 +257,12 @@ export class ProductSearch extends LitElement {
                     .popularityText=${this.popularityText}>
                 </relewise-product-search-sorting>
             </div>
-            <div class="rw-product-search-results">
-                <div>
+            <div class="result-container">
+                ${this.searchResult?.facets ? html`
                     <relewise-facets
                         .facetResult=${this.searchResult?.facets}
                         .saveSelectedRangeText=${this.saveSelectedRangeText}></relewise-facets>
-                </div>
+                `: nothing}
                 <div>
                     <relewise-product-search-results
                         .products=${this.products}>
@@ -270,8 +270,8 @@ export class ProductSearch extends LitElement {
                     <relewise-product-search-load-more-button
                         class="rw-center"
                         .productsLoaded=${this.products.length}
-                        .hits=${this.searchResult?.hits ?? null}
-                    ></relewise-product-search-load-more-button>
+                        .hits=${this.searchResult?.hits ?? null}>
+                    </relewise-product-search-load-more-button>
                 </div>
             </div>
         </slot>
@@ -298,9 +298,9 @@ export class ProductSearch extends LitElement {
         }
 
         @media (min-width: 1024px) {
-            .rw-product-search-results {
-                display: grid;
-                grid-template-columns: 1fr 4fr;
+            .result-container {
+                display: flex;
+                width: 100%;
             }
         }
     `];
