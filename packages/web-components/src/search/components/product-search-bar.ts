@@ -41,7 +41,7 @@ export class ProductSearchBar extends LitElement {
     }
 
     render() {
-        const localization = getRelewiseUISearchOptions().localization?.searchBar;
+        const localization = getRelewiseUISearchOptions()?.localization?.searchBar;
         return html`
         <relewise-search-bar 
             .term=${this.term ?? ''}

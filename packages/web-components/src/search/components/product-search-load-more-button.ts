@@ -20,7 +20,7 @@ export class LoadMoreProducts extends LitElement {
         if (!this.productsLoaded || !this.hits || this.productsLoaded === this.hits) {
             return;
         }
-        const localization = getRelewiseUISearchOptions().localization?.loadMoreButton;
+        const localization = getRelewiseUISearchOptions()?.localization?.loadMoreButton;
         return html`
             <relewise-button class="rw-button" @click=${() => window.dispatchEvent(new CustomEvent(Events.loadMoreProducts))}>
                 ${localization?.button ?? 'Load More'}

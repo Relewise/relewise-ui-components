@@ -63,7 +63,7 @@ export abstract class ChecklistFacetBase extends LitElement {
             return;
         }
 
-        const localization = getRelewiseUISearchOptions().localization?.facets;
+        const localization = getRelewiseUISearchOptions()?.localization?.facets;
 
         const facetResultsToShow = this.showAll
             ? this.result.available

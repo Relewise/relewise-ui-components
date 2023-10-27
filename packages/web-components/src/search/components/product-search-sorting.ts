@@ -52,7 +52,7 @@ export class ProductSearchSorting extends LitElement {
     getOptionText(sortingValue: string): string {
 
         const sortingEnum = SortingEnum[sortingValue as keyof typeof SortingEnum];
-        const localization = getRelewiseUISearchOptions().localization?.sortingButton;
+        const localization = getRelewiseUISearchOptions()?.localization?.sortingButton;
 
         switch (sortingEnum) {
         case SortingEnum.SalesPriceAsc:
