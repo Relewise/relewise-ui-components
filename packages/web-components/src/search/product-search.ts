@@ -102,7 +102,7 @@ export class ProductSearch extends LitElement {
             })
             .facets(builder => {
                 if (searchOptions && searchOptions.facets) {
-                    searchOptions.facets.facetBuilder(builder, readCurrentUrlStateValues(''));
+                    searchOptions.facets.facetBuilder(builder);
                 }
             })
             .sorting(builder => {

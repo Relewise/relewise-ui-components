@@ -29,7 +29,7 @@ export interface RelewiseUISearchOptions {
 }
 
 export interface SearchFacets {
-    facetBuilder: (builder: FacetBuilder, selectedValues: string[]) => void
+    facetBuilder: (builder: FacetBuilder) => void
 }
 
 export interface SearchFilters {
