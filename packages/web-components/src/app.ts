@@ -37,7 +37,8 @@ export interface SearchLocalization {
     searchBar?: SearchBarLocalization;
     sortingButton?: SortingLocalization;
     loadMoreButton?: LoadMoreLocalization;
-    facets?: FacetLocalization; 
+    facets?: FacetLocalization;
+    searchResults?: SearchResultLocalization;
 }
 
 export interface SearchBarLocalization {
@@ -62,6 +63,10 @@ export interface FacetLocalization {
     showMoreButton?: string;
     showLessButton?: string;
     toggleButton?: string;
+}
+
+export interface SearchResultLocalization {
+    noResults?: string;
 }
 
 export interface SearchFilters {
