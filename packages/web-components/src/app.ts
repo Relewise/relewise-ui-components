@@ -61,6 +61,7 @@ export interface FacetLocalization {
     saveButton?: string;
     showMoreButton?: string;
     showLessButton?: string;
+    toggleButton?: string;
 }
 
 export interface SearchFilters {

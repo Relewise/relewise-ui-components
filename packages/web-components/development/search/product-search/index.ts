@@ -43,6 +43,7 @@ initializeRelewiseUI(
             saveButton: 'Gem',
             showLessButton: 'Vis færre',
             showMoreButton: 'Vis flere',
+            toggleButton: 'Filter',
         },
         loadMoreButton: {
             button: 'Hent flere',

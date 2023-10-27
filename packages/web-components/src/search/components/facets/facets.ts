@@ -2,6 +2,7 @@ import { BrandFacetResult, CategoryFacetResult, CategoryHierarchyFacetResult, Co
 import { LitElement, TemplateResult, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { theme } from '../../../theme';
+import { getRelewiseUISearchOptions } from '../../../helpers';;
 
 export class Facets extends LitElement {
 
@@ -65,9 +66,10 @@ export class Facets extends LitElement {
     }
     
     render() {
+        const localization = getRelewiseUISearchOptions().localization?.facets;
         return html`
             <relewise-button
-                button-text="Filter" 
+                button-text=${localization?.toggleButton ?? 'Filters'} 
                 class="rw-button rw-facet-button"
                 @click=${() => this.showFacets = !this.showFacets}>
                     ${this.showFacets ?
