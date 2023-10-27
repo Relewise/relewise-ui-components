@@ -119,6 +119,7 @@ export abstract class ChecklistFacetBase extends LitElement {
             display: block;
             padding-left: 1.5em;
             text-indent: -1.5rem; 
+            word-break: break-all
         }
 
         .rw-label input {

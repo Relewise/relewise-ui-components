@@ -108,6 +108,7 @@ export class Facets extends LitElement {
         @media (min-width: 1024px) {
             .rw-facets-container {
                 margin-right: .5rem;
+                min-width: 15rem;
             }
 
             .rw-facet-button {
