@@ -206,10 +206,6 @@ useSearch({
     
     For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_6-making-search-requests).
 
-- **search-bar-placeholder** (Optional, *Default "Search"*):
-    
-    The placeholder used in the search bar.
-
 - **number-of-products** (Optional, *Default 5*): 
 
     The number of products shown in the results overlay.
@@ -217,10 +213,6 @@ useSearch({
 - **number-of-search-term-predictions** (Optional, *Default 3*): 
 
     The number of search term predictions shown in the results overlay.
-
-- **no-results-message** (Optional, *Default "No search results found"*): 
-
-    The message shown in the overlay when there are no results found.
 
 - **debounce-time** (Optional, *Default 250*): 
 
