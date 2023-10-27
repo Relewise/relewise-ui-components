@@ -208,18 +208,22 @@ export class ProductSearch extends LitElement {
             assignedNodes.forEach((node) => {
                 if (node.nodeType === Node.ELEMENT_NODE && node instanceof HTMLElement) {
                     const element = node as HTMLElement;
-                    if (element.tagName.toLowerCase() === 'relewise-product-search-results') {
+                    
+                    const productSearchResults = element.getElementsByTagName('relewise-product-search-results');
+                    Array.from(productSearchResults).forEach(element => {
                         element.setAttribute('products', JSON.stringify(this.products));
-                    }
+                    });
 
-                    if (element.tagName.toLowerCase() === 'relewise-product-search-load-more-button') {
+                    const loadMoreButtons = element.getElementsByTagName('relewise-product-search-load-more-button');
+                    Array.from(loadMoreButtons).forEach(element => {
                         element.setAttribute('products-loaded', this.products.length.toString());
                         element.setAttribute('hits', this.searchResult?.hits.toString() ?? '');
-                    }
+                    });
 
-                    if (element.tagName.toLowerCase() === 'relewise-facets') {
+                    const facets = element.getElementsByTagName('relewise-facets');
+                    Array.from(facets).forEach(element => {
                         element.setAttribute('facets-result', JSON.stringify(this.searchResult?.facets));                    
-                    }
+                    });
                 }
             });
         }
@@ -231,16 +235,13 @@ export class ProductSearch extends LitElement {
             <relewise-product-search-bar></relewise-product-search-bar>
             <div class="rw-options-buttons">
                 <relewise-product-search-sorting class="rw-sorting-button"></relewise-product-search-sorting>
-                </relewise-product-search-sorting>
             </div>
             <div class="result-container">
                 ${this.searchResult?.facets ? html`
                     <relewise-facets .facetResult=${this.searchResult?.facets}></relewise-facets>
                 `: nothing}
                 <div>
-                    <relewise-product-search-results
-                        .products=${this.products}>
-                    </relewise-product-search-results>
+                    <relewise-product-search-results .products=${this.products}></relewise-product-search-results>
                     <relewise-product-search-load-more-button
                         class="rw-center"
                         .productsLoaded=${this.products.length}
