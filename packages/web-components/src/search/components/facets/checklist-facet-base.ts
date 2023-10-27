@@ -92,6 +92,7 @@ export abstract class ChecklistFacetBase extends LitElement {
                                     ?checked=${this.shouldOptionBeChecked(item)}
                                     @change=${(e: Event) => this.handleChange(e, item)} />
                                 ${this.getOptionDisplayValue(item)}
+                                <span class="rw-hits">(${item.hits})</span>
                             </label>
                         </div>
                     ` : nothing}
@@ -141,5 +142,11 @@ export abstract class ChecklistFacetBase extends LitElement {
         .rw-show-more {
             --relewise-button-text-color: black;
         }
+
+        .rw-hits {
+            color: gray;
+            font-size: .75rem;
+        }
+
     `];
 }
