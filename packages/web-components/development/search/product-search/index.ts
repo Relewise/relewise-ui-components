@@ -38,4 +38,25 @@ initializeRelewiseUI(
             //.addVariantSpecificationFacet()
         },
     },
+    localization: {
+        facets: {
+            saveButton: 'Gem',
+            showLessButton: 'Vis færre',
+            showMoreButton: 'Vis flere',
+        },
+        loadMoreButton: {
+            button: 'Hent flere',
+        },
+        searchBar: {
+            placeholder: 'Søg her',
+            searchButton: 'Søg',
+        },
+        sortingButton: {
+            popularityOption: 'populære',
+            alphabeticalAscendingOption: 'a - å',
+            alphabeticalDescendingOption: 'å - a',
+            salesPriceAscendingOption: 'Billigste først',
+            salesPriceDescendingOption: 'Dyreste først',
+        },
+    },
 });

@@ -16,24 +16,6 @@ export class ProductSearch extends LitElement {
     @property({ type: Number, attribute: 'search-result-page-size' })
     searchResultPageSize: number = 16;
 
-    @property({ attribute: 'sales-price-ascending-sorting-option-text'})
-    salesPriceAscendingText: string | null  = null;
-
-    @property({ attribute: 'sales-price-decending-sorting-option-text'})
-    salesPriceDescendingText: string | null  = null;
-
-    @property({ attribute: 'alphabetically-ascending-sorting-option-text'})
-    alphabeticallyAscendingText: string | null  = null;
-
-    @property({ attribute: 'alphabetically-decending-sorting-option-text'})
-    alphabeticallyDescendingText: string | null  = null;
-    
-    @property({ attribute: 'populartity-sorting-option-text'})
-    popularityText: string  = 'Popularity';
-    
-    @property({ attribute: 'save-selected-number-range-text'})
-    saveSelectedRangeText: string = 'Save';
-
     @state()
     searchResult: ProductSearchResponse | null = null;
 
@@ -248,20 +230,12 @@ export class ProductSearch extends LitElement {
         <slot>
             <relewise-product-search-bar></relewise-product-search-bar>
             <div class="rw-options-buttons">
-                <relewise-product-search-sorting
-                    class="rw-sorting-button"
-                    .alphabeticallyAscendingText=${this.alphabeticallyAscendingText}
-                    .alphabeticallyDescendingText=${this.alphabeticallyDescendingText}
-                    .salesPriceAscendingText=${this.salesPriceAscendingText}
-                    .salesPriceDescendingText=${this.salesPriceDescendingText}
-                    .popularityText=${this.popularityText}>
+                <relewise-product-search-sorting class="rw-sorting-button"></relewise-product-search-sorting>
                 </relewise-product-search-sorting>
             </div>
             <div class="result-container">
                 ${this.searchResult?.facets ? html`
-                    <relewise-facets
-                        .facetResult=${this.searchResult?.facets}
-                        .saveSelectedRangeText=${this.saveSelectedRangeText}></relewise-facets>
+                    <relewise-facets .facetResult=${this.searchResult?.facets}></relewise-facets>
                 `: nothing}
                 <div>
                     <relewise-product-search-results

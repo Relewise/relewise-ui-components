@@ -26,10 +26,41 @@ export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
     templates?: SearchTemplates;
     facets?: SearchFacets;
+    localization?: SearchLocalization;
 }
 
 export interface SearchFacets {
     facetBuilder: (builder: FacetBuilder, selectedValues: string[]) => void
+}
+
+export interface SearchLocalization {
+    searchBar?: SearchBarLocalization;
+    sortingButton?: SortingLocalization;
+    loadMoreButton?: LoadMoreLocalization;
+    facets?: FacetLocalization; 
+}
+
+export interface SearchBarLocalization {
+    searchButton?: string;
+    placeholder?: string;
+}
+
+export interface SortingLocalization {
+    popularityOption?: string;
+    salesPriceAscendingOption?: string;
+    salesPriceDescendingOption?: string;
+    alphabeticalAscendingOption?: string;
+    alphabeticalDescendingOption?: string;
+}
+
+export interface LoadMoreLocalization {
+    button?: string; 
+}
+
+export interface FacetLocalization {
+    saveButton?: string;
+    showMoreButton?: string;
+    showLessButton?: string;
 }
 
 export interface SearchFilters {

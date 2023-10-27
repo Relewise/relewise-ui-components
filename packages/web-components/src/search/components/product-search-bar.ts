@@ -1,6 +1,6 @@
 import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { Events, readCurrentUrlState, searhTermQueryName, updateUrlState } from '../../helpers';
+import { Events, getRelewiseUISearchOptions, readCurrentUrlState, searhTermQueryName, updateUrlState } from '../../helpers';
 import { theme } from '../../theme';
 
 export class ProductSearchBar extends LitElement {
@@ -41,16 +41,18 @@ export class ProductSearchBar extends LitElement {
     }
 
     render() {
+        const localization = getRelewiseUISearchOptions().localization?.searchBar;
         return html`
         <relewise-search-bar 
             .term=${this.term ?? ''}
             .setSearchTerm=${(term: string)=> this.setSearchTerm(term)}
             .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
+            .placeholder=${localization?.placeholder ?? 'Search'}
             class="rw-search-bar">
         </relewise-search-bar>
         <relewise-button
             class="rw-button"
-            button-text="Search"
+            button-text=${localization?.searchButton ?? 'Search'}
             .handleClick=${() => window.dispatchEvent(new CustomEvent(Events.search))}>
             <relewise-search-icon></relewise-search-icon>
         </relewise-button>

@@ -1,7 +1,7 @@
 import { BooleanAvailableFacetValue, BrandFacetResult, BrandNameAndIdResultAvailableFacetValue, CategoryFacetResult, DecimalNullableChainableRangeAvailableFacetValue, Int32AvailableFacetValue, PriceRangesFacetResult, ProductAssortmentFacetResult, ProductDataBooleanValueFacetResult, ProductDataDoubleRangesFacetResult, ProductDataDoubleValueFacetResult, ProductDataStringValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { Events, readCurrentUrlStateValues, updateUrlStateValues } from '../../../helpers';
+import { Events, getRelewiseUISearchOptions, readCurrentUrlStateValues, updateUrlStateValues } from '../../../helpers';
 import { theme } from '../../../theme';
 
 export abstract class ChecklistFacetBase extends LitElement {
@@ -63,6 +63,8 @@ export abstract class ChecklistFacetBase extends LitElement {
             return;
         }
 
+        const localization = getRelewiseUISearchOptions().localization?.facets;
+
         const facetResultsToShow = this.showAll
             ? this.result.available
             : this.result.available.slice(0, 10);
@@ -90,12 +92,12 @@ export abstract class ChecklistFacetBase extends LitElement {
             ${this.result.available.length > 10 ? html`
                 ${this.showAll ? html`
                     <relewise-button
-                        button-text="Show Less"
+                        button-text=${localization?.showLessButton ?? 'Show More'}
                         class="rw-show-more"
                         @click=${() => this.showAll = false}>
                     </relewise-button>` : html`
                     <relewise-button
-                        button-text="Show More"
+                        button-text=${localization?.showMoreButton ?? 'Show More'}
                         class="rw-show-more"
                         @click=${() => this.showAll = true}>
                     </relewise-button>`}    

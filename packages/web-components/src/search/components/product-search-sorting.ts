@@ -1,7 +1,7 @@
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import { Events, getRelewiseUISearchOptions, productSearchSorting, readCurrentUrlState, updateUrlState } from '../../helpers';
 import { theme } from '../../theme';
-import { Events, productSearchSorting, readCurrentUrlState, updateUrlState } from '../../helpers';
 import { SortingEnum } from '../enums';
 
 export class ProductSearchSorting extends LitElement {
@@ -10,21 +10,6 @@ export class ProductSearchSorting extends LitElement {
 
     @state()
     selectedOption: string | null = null;
-
-    @property({ attribute: 'sales-price-ascending-text'})
-    salesPriceAscendingText: string | null  = null;
-
-    @property({ attribute: 'sales-price-decending-text'})
-    salesPriceDescendingText: string | null  = null;
-
-    @property({ attribute: 'alphabetically-ascending-text'})
-    alphabeticallyAscendingText: string | null  = null;
-
-    @property({ attribute: 'alphabetically-decending-text'})
-    alphabeticallyDescendingText: string | null  = null;
-    
-    @property({ attribute: 'populartity-text'})
-    popularityText: string | null  = null;
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -67,18 +52,19 @@ export class ProductSearchSorting extends LitElement {
     getOptionText(sortingValue: string): string {
 
         const sortingEnum = SortingEnum[sortingValue as keyof typeof SortingEnum];
+        const localization = getRelewiseUISearchOptions().localization?.sortingButton;
 
         switch (sortingEnum) {
         case SortingEnum.SalesPriceAsc:
-            return this.salesPriceAscendingText ?? 'Price: low - high';
+            return localization?.salesPriceAscendingOption ?? 'Price: low - high';
         case SortingEnum.SalesPriceDesc:
-            return this.salesPriceDescendingText ?? 'Price: high - low';
+            return localization?.salesPriceDescendingOption ?? 'Price: high - low';
         case SortingEnum.AlphabeticallyAsc:
-            return this.alphabeticallyAscendingText ?? 'Name: a - z';
+            return localization?.alphabeticalAscendingOption ?? 'Name: a - z';
         case SortingEnum.AlphabeticallyDesc:
-            return this.alphabeticallyDescendingText ?? 'Name: z - a';
+            return localization?.alphabeticalDescendingOption ?? 'Name: z - a';
         case SortingEnum.Popularity:
-            return this.popularityText ?? 'Popularity';
+            return localization?.popularityOption ?? 'Popularity';
         default:
             return '';
         }

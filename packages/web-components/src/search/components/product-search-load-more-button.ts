@@ -1,12 +1,10 @@
 import { LitElement, css, html } from 'lit';
-import { theme } from '../../theme';
-import { Events } from '../../helpers';
 import { property } from 'lit/decorators.js';
+import { Events, getRelewiseUISearchOptions } from '../../helpers';
+import { theme } from '../../theme';
 
 export class LoadMoreProducts extends LitElement {
 
-    @property({ attribute: 'button-text' }) 
-    buttonText: string = 'Load More';
 
     @property({ type: Number })
     hits: number | null = null;
@@ -22,10 +20,10 @@ export class LoadMoreProducts extends LitElement {
         if (!this.productsLoaded || !this.hits || this.productsLoaded === this.hits) {
             return;
         }
-
+        const localization = getRelewiseUISearchOptions().localization?.loadMoreButton;
         return html`
             <relewise-button class="rw-button" @click=${() => window.dispatchEvent(new CustomEvent(Events.loadMoreProducts))}>
-                ${this.buttonText}
+                ${localization?.button ?? 'Load More'}
             </relewise-button>
         `;
     }
