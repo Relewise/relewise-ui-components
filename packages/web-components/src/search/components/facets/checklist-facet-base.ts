@@ -67,7 +67,15 @@ export abstract class ChecklistFacetBase extends LitElement {
 
         const facetResultsToShow = this.showAll
             ? this.result.available
-            : this.result.available.slice(0, 10);
+            : this.result.available.sort((a, b) => {
+                if (a.selected && !b.selected) {
+                    return -1; // a comes before b
+                } else if (!a.selected && b.selected) {
+                    return 1; // b comes before a
+                } else {
+                    return 0; // leave their order unchanged
+                }
+            }).slice(0, 10);
 
         return html`
         <div class="rw-facet-content">
