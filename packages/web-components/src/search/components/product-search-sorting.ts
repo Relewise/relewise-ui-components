@@ -1,7 +1,7 @@
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { theme } from '../../theme';
-import { Events, productSearchSorting, readCurrentUrlState, updateUrlState } from '../../helpers';
+import { Events, QueryKeys, readCurrentUrlState, updateUrlState } from '../../helpers';
 import { SortingEnum } from '../enums';
 
 export class ProductSearchSorting extends LitElement {
@@ -28,7 +28,7 @@ export class ProductSearchSorting extends LitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.selectedOption = readCurrentUrlState(productSearchSorting);
+        this.selectedOption = readCurrentUrlState(QueryKeys.sortBy);
     }
 
     handleKeyDown(event: KeyboardEvent): void {
@@ -52,7 +52,7 @@ export class ProductSearchSorting extends LitElement {
 
     clearSelectedValue(e: Event) {
         this.selectedOption = null;
-        updateUrlState(productSearchSorting, '');
+        updateUrlState(QueryKeys.sortBy, null);
         window.dispatchEvent(new CustomEvent(Events.search));
         e.stopPropagation();
     }
@@ -60,7 +60,7 @@ export class ProductSearchSorting extends LitElement {
     setSelectedValue(item: string) {
         this.selectedOption = item;
         this.showSortingOptions = false;
-        updateUrlState(productSearchSorting, item);
+        updateUrlState(QueryKeys.sortBy, item);
         window.dispatchEvent(new CustomEvent(Events.search));
     }
 

@@ -1,8 +1,10 @@
-export const searhTermQueryName = 'relewiseSearchTerm';
-export const numberOfProductSearchResults = 'relewiseProducts';
-export const productSearchSorting = 'relewiseProductSearchSorting';
+export enum QueryKeys {
+    term = 'rw-term',
+    take = 'rw-take',
+    sortBy = 'rw-sorting'
+}
 
-export function updateUrlState(queryParamName: string, value: string) {
+export function updateUrlState(queryParamName: string, value: string | null) {
     const currentUrl = new URL(window.location.href);
     
     if (!value) {
@@ -39,7 +41,7 @@ export function readCurrentUrlStateValues(queryParamName: string): string[] {
 }
 
 export function getNumberOfProductSearchResults(): number | null {
-    const productSearchResultsToLoad = readCurrentUrlState(numberOfProductSearchResults);
+    const productSearchResultsToLoad = readCurrentUrlState(QueryKeys.take);
 
     if (!productSearchResultsToLoad) {
         return null;

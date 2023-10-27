@@ -1,6 +1,6 @@
 import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { Events, readCurrentUrlState, searhTermQueryName, updateUrlState } from '../../helpers';
+import { Events, QueryKeys, readCurrentUrlState, updateUrlState } from '../../helpers';
 import { theme } from '../../theme';
 
 export class ProductSearchBar extends LitElement {
@@ -15,7 +15,7 @@ export class ProductSearchBar extends LitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.term = readCurrentUrlState(searhTermQueryName) ?? null;
+        this.term = readCurrentUrlState(QueryKeys.term) ?? null;
     }
 
     handleKeyDown(event: KeyboardEvent): void {
@@ -29,7 +29,7 @@ export class ProductSearchBar extends LitElement {
 
     setSearchTerm(term: string) {
         this.term = term;
-        updateUrlState(searhTermQueryName, term);
+        updateUrlState(QueryKeys.term, term);
 
         if (this.debounceTimeoutHandlerId) {
             clearTimeout(this.debounceTimeoutHandlerId);

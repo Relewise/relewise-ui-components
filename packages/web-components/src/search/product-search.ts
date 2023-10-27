@@ -2,7 +2,7 @@ import { BrandFacet, CategoryFacet, CategoryHierarchyFacet, ContentAssortmentFac
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
-import { Events, getNumberOfProductSearchResults, numberOfProductSearchResults, productSearchSorting, readCurrentUrlState, readCurrentUrlStateValues, searhTermQueryName, updateUrlState } from '../helpers';
+import { Events, QueryKeys, getNumberOfProductSearchResults, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { SortingEnum } from './enums';
@@ -67,17 +67,17 @@ export class ProductSearch extends LitElement {
         this.products = [];
         this.searchResult = null;
         this.page = 1;
-        updateUrlState(numberOfProductSearchResults, '');
+        updateUrlState(QueryKeys.take, null);
     }
     
     loadMoreProducts() {
         this.page = this.page + 1;
-        updateUrlState(numberOfProductSearchResults, (this.searchResultPageSize * this.page).toString());
+        updateUrlState(QueryKeys.take, (this.searchResultPageSize * this.page).toString());
         this.search();
     }
 
     async search() {
-        const term = readCurrentUrlState(searhTermQueryName) ?? null;
+        const term = readCurrentUrlState(QueryKeys.term) ?? null;
 
         const numberOfProductsToFetch = getNumberOfProductSearchResults();
 
@@ -106,7 +106,7 @@ export class ProductSearch extends LitElement {
                 }
             })
             .sorting(builder => {
-                const sorting = readCurrentUrlState(productSearchSorting);
+                const sorting = readCurrentUrlState(QueryKeys.sortBy);
                 const sortingEnum = SortingEnum[sorting as keyof typeof SortingEnum];
                 
                 if (!sortingEnum) {
