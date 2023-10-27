@@ -18,13 +18,4 @@ initializeRelewiseUI(
             serverUrl: import.meta.env.VITE_SERVER_URL,
         },
     },
-).useSearch({
-    localization: {
-        searchBar: {
-            placeholder: 'Søg her',
-        },
-        searchResults: {
-            noResults: 'Vi fandt ikke noget',
-        },
-    },
-});
+).useSearch();
