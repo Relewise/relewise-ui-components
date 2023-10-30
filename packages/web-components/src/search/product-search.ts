@@ -59,6 +59,7 @@ export class ProductSearch extends LitElement {
     }
 
     async search() {
+        window.dispatchEvent(new CustomEvent(Events.searchingForProducts));
         const term = readCurrentUrlState(QueryKeys.term) ?? null;
 
         const numberOfProductsToFetch = getNumberOfProductSearchResults();
@@ -132,6 +133,7 @@ export class ProductSearch extends LitElement {
         this.products = this.products.concat(response.results ?? []);
 
         this.setSearchResultOnSlotChilderen();
+        window.dispatchEvent(new CustomEvent(Events.searchingForProductsCompleted));
     }
 
     getSelectedValuesForFacet(facet: ContentAssortmentFacet | ProductAssortmentFacet | ProductCategoryAssortmentFacet | BrandFacet | CategoryFacet | CategoryHierarchyFacet | ContentDataObjectFacet | ContentDataDoubleRangeFacet | ContentDataDoubleRangesFacet | ContentDataStringValueFacet | ContentDataBooleanValueFacet | ContentDataDoubleValueFacet | ContentDataIntegerValueFacet | DataObjectFacet | DataObjectDoubleRangeFacet | DataObjectDoubleRangesFacet | DataObjectStringValueFacet | DataObjectBooleanValueFacet | DataObjectDoubleValueFacet | PriceRangeFacet | PriceRangesFacet | ProductCategoryDataObjectFacet | ProductCategoryDataDoubleRangeFacet | ProductCategoryDataDoubleRangesFacet | ProductCategoryDataStringValueFacet | ProductCategoryDataBooleanValueFacet | ProductCategoryDataDoubleValueFacet | ProductDataObjectFacet | ProductDataDoubleRangeFacet | ProductDataDoubleRangesFacet | ProductDataStringValueFacet | ProductDataBooleanValueFacet | ProductDataDoubleValueFacet | ProductDataIntegerValueFacet | VariantSpecificationFacet) {
@@ -204,29 +206,33 @@ export class ProductSearch extends LitElement {
         const slot = this.renderRoot.querySelector('slot');
         if (slot) {
             const assignedNodes = slot.assignedNodes();
-
-            assignedNodes.forEach((node) => {
-                if (node.nodeType === Node.ELEMENT_NODE && node instanceof HTMLElement) {
-                    const element = node as HTMLElement;
-                    
-                    const productSearchResults = element.getElementsByTagName('relewise-product-search-results');
-                    Array.from(productSearchResults).forEach(element => {
-                        element.setAttribute('products', JSON.stringify(this.products));
-                    });
-
-                    const loadMoreButtons = element.getElementsByTagName('relewise-product-search-load-more-button');
-                    Array.from(loadMoreButtons).forEach(element => {
-                        element.setAttribute('products-loaded', this.products.length.toString());
-                        element.setAttribute('hits', this.searchResult?.hits.toString() ?? '');
-                    });
-
-                    const facets = element.getElementsByTagName('relewise-facets');
-                    Array.from(facets).forEach(element => {
-                        element.setAttribute('facets-result', JSON.stringify(this.searchResult?.facets));                    
-                    });
-                }
-            });
+            this.setDataOnNodes(assignedNodes);
         }
+    }
+
+    setDataOnNodes(nodes: Node[]) {
+        nodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE && node instanceof HTMLElement) {
+                const element = node as HTMLElement;
+
+                if (element.tagName.toLowerCase() === 'relewise-product-search-results') {
+                    element.setAttribute('products', JSON.stringify(this.products));
+                }
+
+                if (element.tagName.toLowerCase() === 'relewise-product-search-load-more-button') {
+                    element.setAttribute('products-loaded', this.products.length.toString());
+                    element.setAttribute('hits', this.searchResult?.hits.toString() ?? '');
+                }
+                
+                if (element.tagName.toLowerCase() === 'relewise-facets') {
+                    element.setAttribute('facets-result', JSON.stringify(this.searchResult?.facets));                    
+                }
+
+                if (element.children.length > 0) {
+                    this.setDataOnNodes(Array.from(element.childNodes));
+                }
+            }
+        });
     }
 
     render() {
@@ -240,8 +246,8 @@ export class ProductSearch extends LitElement {
                 ${this.searchResult?.facets ? html`
                     <relewise-facets .facetResult=${this.searchResult?.facets}></relewise-facets>
                 `: nothing}
-                <div>
-                    <relewise-product-search-results .products=${this.products}></relewise-product-search-results>
+                <div class="rw-full-width">
+                    <relewise-product-search-results class="rw-full-width" .products=${this.products}></relewise-product-search-results>
                     <relewise-product-search-load-more-button
                         class="rw-center"
                         .productsLoaded=${this.products.length}
@@ -270,6 +276,12 @@ export class ProductSearch extends LitElement {
         .rw-center {
             justify-content: center;
             display: flex;
+        }
+
+        .rw-full-width {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
         }
 
         @media (min-width: 1024px) {

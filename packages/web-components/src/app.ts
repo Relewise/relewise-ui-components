@@ -3,15 +3,18 @@ import { TemplateResult } from 'lit';
 import { FilterIcon, ProductTile, SearchIcon, XIcon } from './components';
 import { Button } from './components/button';
 import { SortIcon } from './components/icons/sort-icon';
+import { LoadingSpinner } from './components/loading-spinner';
 import { ContextSettings, TemplateExtensions } from './initialize';
 import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithProduct } from './recommendations';
 import { ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar } from './search';
 import { ChecklistBooleanValueFacet } from './search/components/facets/checklist-boolean-value-facet';
 import { ChecklistNumberValueFacet } from './search/components/facets/checklist-number-value-facet';
 import { ChecklistObjectValueFacet } from './search/components/facets/checklist-object-value-facet';
+import { ChecklistRangesObjectValueFacet } from './search/components/facets/checklist-ranges-object-value-facet';
 import { ChecklistStringValueFacet } from './search/components/facets/checklist-string-value-facet';
 import { Facets } from './search/components/facets/facets';
 import { NumberRangeFacet } from './search/components/facets/number-range-facet';
+import { ProductSearchBar } from './search/components/product-search-bar';
 import { LoadMoreProducts } from './search/components/product-search-load-more-button';
 import { ProductSearchResults } from './search/components/product-search-results';
 import { ProductSearchSorting } from './search/components/product-search-sorting';
@@ -19,8 +22,6 @@ import { ProductSearch } from './search/product-search';
 import { ProductSearchOverlay } from './search/product-search-overlay';
 import { BrandView, ContentCategoryView, ContentView, ProductCategoryView, ProductView } from './tracking';
 import { updateContextSettings } from './updateContextSettings';
-import { ChecklistRangesObjectValueFacet } from './search/components/facets/checklist-ranges-object-value-facet';
-import { ProductSearchBar } from './search/components/product-search-bar';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -146,6 +147,7 @@ function registerGenericComponents() {
     tryRegisterElement('relewise-x-icon', XIcon);
     tryRegisterElement('relewise-sort-icon', SortIcon);
     tryRegisterElement('relewise-button', Button);
+    tryRegisterElement('relewise-loading-spinner', LoadingSpinner);
 }
 
 function tryRegisterElement(name: string, constructor: CustomElementConstructor) {

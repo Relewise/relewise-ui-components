@@ -36,8 +36,8 @@ export class ChecklistObjectValueFacet extends ChecklistFacetBase {
         if (!item.value || !item.value.id) {
             return false;
         }
-
-        return this.selectedValues.filter(selectedValue => selectedValue === item.value?.id).length > 0;
+        
+        return item.selected;
     }
 }
 

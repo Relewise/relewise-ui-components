@@ -81,6 +81,7 @@ export abstract class ChecklistFacetBase extends LitElement {
         <div class="rw-facet-content">
             <h3>${this.getLabelDisplayValue()}</h3>
             ${facetResultsToShow.map((item, index) => {
+                    console.log(item, ' : ', this.shouldOptionBeChecked(item));
                     return html`
                     ${item.value !== undefined ? html`
                         <div>
@@ -89,6 +90,7 @@ export abstract class ChecklistFacetBase extends LitElement {
                                     type="checkbox"
                                     id=${`${this.result?.field}-${this.result?.$type}-${index}`}
                                     name=${index}
+                                    .checked=${this.shouldOptionBeChecked(item)}
                                     ?checked=${this.shouldOptionBeChecked(item)}
                                     @change=${(e: Event) => this.handleChange(e, item)} />
                                 ${this.getOptionDisplayValue(item)}

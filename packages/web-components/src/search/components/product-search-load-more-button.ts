@@ -1,5 +1,5 @@
 import { LitElement, css, html } from 'lit';
-import { property } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 import { Events, getRelewiseUISearchOptions } from '../../helpers';
 import { theme } from '../../theme';
 
@@ -12,12 +12,17 @@ export class LoadMoreProducts extends LitElement {
     @property({ type: Number, attribute: 'products-loaded'})
     productsLoaded: number | null = null;
 
+    @state()
+    loading: boolean = false;
+
     connectedCallback(): void {
         super.connectedCallback();
+        window.addEventListener(Events.searchingForProducts, () => this.loading = true);
+        window.addEventListener(Events.searchingForProductsCompleted, () => this.loading = false);
     }
 
     render() {
-        if (!this.productsLoaded || !this.hits || this.productsLoaded === this.hits) {
+        if (this.loading || !this.productsLoaded || !this.hits || this.productsLoaded === this.hits) {
             return;
         }
         const localization = getRelewiseUISearchOptions()?.localization?.loadMoreButton;
