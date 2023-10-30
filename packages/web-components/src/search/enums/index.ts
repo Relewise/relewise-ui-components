@@ -1,1 +1,1 @@
-export * from './SortingEnum';
+export * from './sortingEnum';
