@@ -101,7 +101,7 @@ export abstract class ChecklistFacetBase extends LitElement {
             ${this.result.available.length > 10 ? html`
                 ${this.showAll ? html`
                     <relewise-button
-                        button-text=${localization?.showLessButton ?? 'Show More'}
+                        button-text=${localization?.showLessButton ?? 'Show Less'}
                         class="rw-show-more"
                         @click=${() => this.showAll = false}>
                     </relewise-button>` : html`
