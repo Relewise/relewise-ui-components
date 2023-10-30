@@ -81,7 +81,6 @@ export abstract class ChecklistFacetBase extends LitElement {
         <div class="rw-facet-content">
             <h3>${this.getLabelDisplayValue()}</h3>
             ${facetResultsToShow.map((item, index) => {
-                    console.log(item, ' : ', this.shouldOptionBeChecked(item));
                     return html`
                     ${item.value !== undefined ? html`
                         <div>
