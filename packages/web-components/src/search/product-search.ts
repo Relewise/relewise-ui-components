@@ -246,11 +246,11 @@ export class ProductSearch extends LitElement {
         });
     }
 
-    async updated(changedProperties: Map<string, any>) {
+    async updated() {
         if (!this.searchOptions?.rememberScrollPosition) {
             return;
         }
-        
+
         const valueFromStorage = sessionStorage.getItem('relewise-scroll-position');
         if (!valueFromStorage || +valueFromStorage === window.scrollY) {
             return;
