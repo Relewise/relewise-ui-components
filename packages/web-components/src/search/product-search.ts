@@ -137,8 +137,6 @@ export class ProductSearch extends LitElement {
             return;
         } 
 
-        await new Promise(f => setTimeout(f, 3000));
-
         if (shouldClearOldResult) {
             this.products = [];
             this.searchResult = null;
