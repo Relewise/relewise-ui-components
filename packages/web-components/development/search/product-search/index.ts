@@ -19,6 +19,7 @@ initializeRelewiseUI(
         },
     },
 ).useSearch({
+    rememberScrollPosition: true,
     facets: {
         facetBuilder(builder) {
             builder

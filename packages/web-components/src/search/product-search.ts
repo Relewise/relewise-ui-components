@@ -7,6 +7,7 @@ import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOp
 import { theme } from '../theme';
 import { SortingEnum } from './enums';
 import { getSearcher } from './searcher';
+import { RelewiseUISearchOptions } from 'src';
 
 export class ProductSearch extends LitElement {
     
@@ -25,10 +26,15 @@ export class ProductSearch extends LitElement {
     @state()
     page: number = 1;
 
+    @state()
+    searchOptions: RelewiseUISearchOptions | undefined | null = null;
+
     async connectedCallback() {
         if (!this.displayedAtLocation) {
             console.error('No displayedAtLocation defined!');
         }
+
+        this.searchOptions = getRelewiseUISearchOptions();
 
         const productsToFetch = getNumberOfProductSearchResults();
         if (productsToFetch) {
@@ -42,9 +48,12 @@ export class ProductSearch extends LitElement {
             this.search();
         });
         window.addEventListener(Events.loadMoreProducts, () => this.loadMoreProducts());
-        window.addEventListener('scroll', async() => {
-            sessionStorage.setItem('relewise-scroll-position', window.scrollY.toString());
-        }); 
+
+        if (this.searchOptions?.rememberScrollPosition) {
+            window.addEventListener('scroll', async() => 
+                sessionStorage.setItem('relewise-scroll-position', window.scrollY.toString())); 
+        }
+
         super.connectedCallback();
     }
 
@@ -68,7 +77,6 @@ export class ProductSearch extends LitElement {
         const numberOfProductsToFetch = getNumberOfProductSearchResults();
 
         const relewiseUIOptions = getRelewiseUIOptions();
-        const searchOptions = getRelewiseUISearchOptions();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
         const searcher = getSearcher(relewiseUIOptions);
 
@@ -82,13 +90,13 @@ export class ProductSearch extends LitElement {
                 if (relewiseUIOptions.filters?.product) {
                     relewiseUIOptions.filters.product(builder);
                 }
-                if (searchOptions && searchOptions.filters?.productSearch) {
-                    searchOptions.filters.productSearch(builder);
+                if (this.searchOptions && this.searchOptions.filters?.productSearch) {
+                    this.searchOptions.filters.productSearch(builder);
                 }
             })
             .facets(builder => {
-                if (searchOptions && searchOptions.facets) {
-                    searchOptions.facets.facetBuilder(builder);
+                if (this.searchOptions && this.searchOptions.facets) {
+                    this.searchOptions.facets.facetBuilder(builder);
                 }
             })
             .sorting(builder => {
@@ -239,6 +247,10 @@ export class ProductSearch extends LitElement {
     }
 
     async updated(changedProperties: Map<string, any>) {
+        if (!this.searchOptions?.rememberScrollPosition) {
+            return;
+        }
+        
         const valueFromStorage = sessionStorage.getItem('relewise-scroll-position');
         if (!valueFromStorage || +valueFromStorage === window.scrollY) {
             return;

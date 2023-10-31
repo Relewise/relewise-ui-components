@@ -28,6 +28,7 @@ export interface RelewiseUISearchOptions {
     templates?: SearchTemplates;
     facets?: SearchFacets;
     localization?: SearchLocalization;
+    rememberScrollPosition?: boolean;
 }
 
 export interface SearchFacets {
