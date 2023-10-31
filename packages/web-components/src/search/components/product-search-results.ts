@@ -10,7 +10,7 @@ export class ProductSearchResults extends LitElement {
     products: ProductResult[] = [];
 
     @state()
-    loading: boolean = false;
+    loading: boolean = true;
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -19,6 +19,7 @@ export class ProductSearchResults extends LitElement {
     }
 
     render() {
+        const test = this.loading ? 'loading' : 'not loading';
         return html`
             ${this.products.length > 0 ? html`
                 <div class="rw-product-grid">
@@ -28,6 +29,7 @@ export class ProductSearchResults extends LitElement {
                     }
                </div>
             ` : nothing}
+            ${test}
             ${this.loading ? html`
                 <div class="rw-loading-spinner-container"><relewise-loading-spinner></relewise-loading-spinner></div>
             ` : nothing}

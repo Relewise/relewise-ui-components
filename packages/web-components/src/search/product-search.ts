@@ -42,6 +42,9 @@ export class ProductSearch extends LitElement {
             this.search();
         });
         window.addEventListener(Events.loadMoreProducts, () => this.loadMoreProducts());
+        window.addEventListener('scroll', async() => {
+            sessionStorage.setItem('relewise-scroll-position', window.scrollY.toString());
+        }); 
         super.connectedCallback();
     }
 
@@ -235,6 +238,16 @@ export class ProductSearch extends LitElement {
         });
     }
 
+    async updated(changedProperties: Map<string, any>) {
+        const valueFromStorage = sessionStorage.getItem('relewise-scroll-position');
+        if (!valueFromStorage || +valueFromStorage === window.scrollY) {
+            return;
+        }
+
+        // Ensure render completed before scrolling
+        setTimeout(() => window.scrollTo(0, +valueFromStorage), 0);
+    }
+      
     render() {
         return html`
         <slot>
