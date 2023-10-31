@@ -10,29 +10,44 @@ export class ProductSearchResults extends LitElement {
     products: ProductResult[] = [];
 
     @state()
-    loading: boolean = true;
+    showLoadingSpinner: boolean = true;
+
+    @state()
+    showDimmingOverlay: boolean = false;
 
     connectedCallback(): void {
         super.connectedCallback();
-        window.addEventListener(Events.searchingForProducts, () => this.loading = true);
-        window.addEventListener(Events.searchingForProductsCompleted, () => this.loading = false);
+
+        window.addEventListener(Events.showLoadingSpinner, () => {
+            this.showLoadingSpinner = true;
+        });
+       
+        window.addEventListener(Events.dimPreviousResult, () => {
+            this.showDimmingOverlay = true;
+        });
+
+        window.addEventListener(Events.searchingForProductsCompleted, () => { 
+            this.showLoadingSpinner = false;
+            this.showDimmingOverlay = false;
+        });
     }
 
     render() {
-        const test = this.loading ? 'loading' : 'not loading';
         return html`
-            ${this.products.length > 0 ? html`
-                <div class="rw-product-grid">
-                    ${this.products.map(product => {
-                        return html`<relewise-product-tile class="rw-product-tile" .product=${product}></relewise-product-tile>`;
-                    })
-                    }
-               </div>
-            ` : nothing}
-            ${test}
-            ${this.loading ? html`
-                <div class="rw-loading-spinner-container"><relewise-loading-spinner></relewise-loading-spinner></div>
-            ` : nothing}
+            <div class="rw-result-container">
+                ${this.showDimmingOverlay ? html`<div class="rw-blurring-overlay"></div>`: nothing}
+                ${this.products.length > 0 ? html`
+                    <div class="rw-product-grid">
+                        ${this.products.map(product => {
+                            return html`<relewise-product-tile class="rw-product-tile" .product=${product}></relewise-product-tile>`;
+                        })
+                        }
+                </div>
+                ` : nothing}
+                ${this.showLoadingSpinner ? html`
+                    <div class="rw-loading-spinner-container"><relewise-loading-spinner></relewise-loading-spinner></div>
+                ` : nothing}
+            </div>
         `;
     }
 
@@ -41,9 +56,15 @@ export class ProductSearchResults extends LitElement {
         font-family: var(--font);
     }
 
+    .rw-result-container {
+        position: relative;
+        padding: 1rem;
+    }
+
     .rw-loading-spinner-container {
         display: flex;
         justify-content: center;
+        margin: 1rem;
     }
 
     .rw-product-grid {

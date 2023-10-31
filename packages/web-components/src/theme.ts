@@ -19,4 +19,13 @@ export const theme = css`
     border-radius: 1rem;
     background-color: var(--accent-color);
   }
+
+  .rw-blurring-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.5);
+    z-index: 999;
+    display: block;
+}
 `;

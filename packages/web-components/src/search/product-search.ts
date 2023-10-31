@@ -41,13 +41,15 @@ export class ProductSearch extends LitElement {
             this.page = productsToFetch / this.searchResultPageSize;
         }
          
-        this.search();
+        this.search(false);
 
         window.addEventListener(Events.search, () => {
-            this.clearSearchResult();
-            this.search();
+            this.page = this.page + 1;
+            updateUrlState(QueryKeys.take, (this.searchResultPageSize * this.page).toString());
+            this.search(true);
         });
-        window.addEventListener(Events.loadMoreProducts, () => this.loadMoreProducts());
+        
+        window.addEventListener(Events.loadMoreProducts, () => this.search(false));
 
         if (this.searchOptions?.rememberScrollPosition) {
             window.addEventListener('scroll', async() => 
@@ -56,22 +58,17 @@ export class ProductSearch extends LitElement {
 
         super.connectedCallback();
     }
-
-    clearSearchResult() {
-        this.products = [];
-        this.searchResult = null;
-        this.page = 1;
-        updateUrlState(QueryKeys.take, null);
-    }
     
-    loadMoreProducts() {
-        this.page = this.page + 1;
-        updateUrlState(QueryKeys.take, (this.searchResultPageSize * this.page).toString());
-        this.search();
-    }
+    async search(shouldClearOldResult: boolean) {
 
-    async search() {
-        window.dispatchEvent(new CustomEvent(Events.searchingForProducts));
+        if (shouldClearOldResult) {
+            window.dispatchEvent(new CustomEvent(Events.dimPreviousResult));
+            this.page = 1;
+            updateUrlState(QueryKeys.take, null);
+        } else {
+            window.dispatchEvent(new CustomEvent(Events.showLoadingSpinner));
+        }
+
         const term = readCurrentUrlState(QueryKeys.term) ?? null;
 
         const numberOfProductsToFetch = getNumberOfProductSearchResults();
@@ -139,6 +136,13 @@ export class ProductSearch extends LitElement {
         if (!response) {
             return;
         } 
+
+        await new Promise(f => setTimeout(f, 3000));
+
+        if (shouldClearOldResult) {
+            this.products = [];
+            this.searchResult = null;
+        }
 
         this.searchResult = response;
         this.products = this.products.concat(response.results ?? []);

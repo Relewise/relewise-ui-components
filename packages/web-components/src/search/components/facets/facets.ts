@@ -2,7 +2,7 @@ import { BrandFacetResult, CategoryFacetResult, CategoryHierarchyFacetResult, Co
 import { LitElement, TemplateResult, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { theme } from '../../../theme';
-import { getRelewiseUISearchOptions } from '../../../helpers';;
+import { Events, getRelewiseUISearchOptions } from '../../../helpers';;
 
 export class Facets extends LitElement {
 
@@ -12,12 +12,23 @@ export class Facets extends LitElement {
     @state()
     showFacets: boolean = window.innerWidth >= 1024;
 
+    @state()
+    showDimmingOverlay: boolean = false;
+
     connectedCallback(): void {
         super.connectedCallback();
         window.addEventListener('resize', () => {
             if (window.innerWidth >= 1024) {
                 this.showFacets = true;
             } 
+        });
+
+        window.addEventListener(Events.dimPreviousResult, () => {
+            this.showDimmingOverlay = true;
+        });
+
+        window.addEventListener(Events.searchingForProductsCompleted, () => { 
+            this.showDimmingOverlay = false;
         });
     }
 
@@ -79,6 +90,7 @@ export class Facets extends LitElement {
             ${this.showFacets ? 
                 html`
                 <div class="rw-facets-container">
+                    ${this.showDimmingOverlay ? html`<div class="rw-blurring-overlay"></div>`: nothing}
                     ${this.facetResult?.items?.map(item => {
                         return this.renderFacet(item);
                     })}
