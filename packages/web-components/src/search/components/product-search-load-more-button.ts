@@ -52,6 +52,8 @@ export class LoadMoreProducts extends LitElement {
     static styles = [theme, css`
         :host {
             margin: 1rem;
+            justify-content: center;
+            display: flex;
         }
 
         .rw-button {

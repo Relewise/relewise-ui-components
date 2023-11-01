@@ -108,11 +108,11 @@ export class ProductSearchOverlayResults extends LitElement {
         }
 
         .rw-prediction-item-container:hover {
-            background-color: whitesmoke;
+            background-color: var(--relewise-hover-color, whitesmoke);
         }
 
         .rw-product-item-container:hover {
-            background-color: whitesmoke;
+            background-color: var(--relewise-hover-color, whitesmoke);
         }
 
         .rw-search-icon {

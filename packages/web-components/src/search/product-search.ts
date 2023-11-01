@@ -67,12 +67,12 @@ export class ProductSearch extends LitElement {
     }
 
     handleSearchEvent() {
-        this.page = this.page + 1;
-        updateUrlState(QueryKeys.take, (this.searchResultPageSize * this.page).toString());
         this.search(true);
     }
 
     handleLoadMoreEvent() {
+        this.page = this.page + 1;
+        updateUrlState(QueryKeys.take, (this.searchResultPageSize * this.page).toString());
         this.search(false);
     }
 
@@ -289,7 +289,7 @@ export class ProductSearch extends LitElement {
         return html`
         <slot>
             <relewise-product-search-bar></relewise-product-search-bar>
-            <div class="rw-options-buttons">
+            <div class="rw-sorting-button-container">
                 <relewise-product-search-sorting class="rw-sorting-button"></relewise-product-search-sorting>
             </div>
             <div class="result-container">
@@ -314,18 +314,13 @@ export class ProductSearch extends LitElement {
             font-family: var(--font);
         }
 
-        .rw-options-buttons {
-            display: flex;
+        .rw-sorting-button-container {
+            display: var(--relewise-sorting-button-container-display, flex);
         }
 
         .rw-sorting-button {
-            margin-left: auto;
+            margin-left: var(--relewise-sorting-button-margin-left, auto);
             --relewise-sorting-options-right: .5rem;
-        }
-
-        .rw-center {
-            justify-content: center;
-            display: flex;
         }
 
         .rw-full-width {

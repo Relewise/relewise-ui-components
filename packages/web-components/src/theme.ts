@@ -20,6 +20,12 @@ export const theme = css`
     background-color: var(--accent-color);
   }
 
+  .rw-border {
+    border: 2px solid;
+    border-radius: 1rem;
+    border-color: var(--accent-color);
+  }
+
   .rw-blurring-overlay {
     position: absolute;
     width: 100%;

@@ -121,9 +121,9 @@ export abstract class ChecklistFacetBase extends LitElement {
 
     static styles = [theme, css`
         :host {
-            border-radius: 1rem;
-            border-color: lightgray;
-            background-color: lightgray;
+            border-radius: var(--relewise-checklist-facet-border-radius, 1rem);
+            border-color: var(--relewise-checklist-facet-border-color, lightgray);
+            background-color: var(--relewise-checklist-facet-background-color, lightgray);
             height: fit-content;
         }
 
@@ -144,13 +144,12 @@ export abstract class ChecklistFacetBase extends LitElement {
         }
 
         .rw-show-more {
-            --relewise-button-text-color: black;
+            --relewise-button-text-color: var(--relewise-checklist-facet-show-more-text-color, black);
         }
 
         .rw-hits {
-            color: gray;
-            font-size: .75rem;
+            color: var(--relewise-checklist-facet-hits-color, gray);
+            font-size: var(--relewise-checklist-facet-hits-font-size, .75rem);
         }
-
     `];
 }

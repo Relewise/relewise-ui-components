@@ -87,14 +87,13 @@ export class ProductSearchResults extends LitElement {
     }
 
     .rw-product-tile {
-        --relewise-image-height: 32rem;
         display: flex;
         align-items: center;
         justify-content: center;
     }
     
-    @media (min-width: 1024px) {
-        :host {
+    @media (min-width: 1023px) {
+        .rw-product-grid {
             grid-template-columns: repeat(4,1fr);
         }
     }

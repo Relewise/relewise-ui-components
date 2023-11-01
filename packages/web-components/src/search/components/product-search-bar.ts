@@ -52,13 +52,13 @@ export class ProductSearchBar extends LitElement {
         css`
             :host {
                 display: flex;
-                margin-top: 1rem;
-                margin-bottom: 1rem;
+                margin-top: var(--relewise-product-search-bar-margin-top, 1rem);
+                margin-bottom: var(--relewise-product-search-bar-margin-bottom, 1rem);
             }
 
             .rw-search-bar {
-                width: 100%;
-                margin-right: .5rem;
+                width: var(--relewise-product-search-bar-width, 100%);
+                margin-right: var(--relewise-product-search-margin-right, .5rem);
                 --color: var(--accent-color);
             }
         `];

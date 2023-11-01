@@ -85,7 +85,7 @@ export class ProductSearchSorting extends LitElement {
                 `}
             </relewise-button>
             ${this.showSortingOptions ? html`
-                <div class="rw-sorting-options">
+                <div class="rw-sorting-options rw-border">
                     ${Object.keys(SortingEnum).map((item) => {
                         return html`
                             <div class="rw-sorting-option">
@@ -105,28 +105,25 @@ export class ProductSearchSorting extends LitElement {
 
     static styles = [theme, css`
         .rw-sorting-options {
-            position: absolute;
-            z-index: 10;
-            background-color: white;
-            border: 2px solid;
-            border-radius: 1rem;
-            border-color: var(--accent-color);
+            position: var(--rw-sorting-options-postion, absolute);
+            z-index: var(--rw-sorting-options-z-index, 10);
+            background-color: var(--rw-sorting-options-background-color, white);
             overflow: hidden;
-            margin-top: .25rem;
+            margin-top: var(--rw-sorting-options-margin-top, .25rem);
             right: var(--relewise-sorting-options-right, auto);
             left: var(--relewise-sorting-options-left, auto);
         }
         
         .rw-sorting-option {
-            --relewise-button-text-color: black;
+            --relewise-button-text-color: var(--relewise-sorting-option-text-color, black);
         }
         
         .rw-sorting-option-button {
-            margin: 0;
+            margin: var(--relewise-sorting-sorting-option-margin, 0);
         }
 
         .rw-sorting-option:hover {
-            background-color: whitesmoke;
+            background-color: var(--relewise-hover-color, whitesmoke);
         }
     `];
 }
