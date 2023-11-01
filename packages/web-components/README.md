@@ -254,14 +254,10 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-display-name-font-size: 0.75rem;
             --relewise-display-name-margin: 0rem 0rem 0rem 0rem;
 
-            --relewise-product-search-overlay-search-bar-border: 2px solid;
-            --relewise-product-search-overlay-search-bar-border-radius: 1rem;
             --relewise-product-search-overlay-search-bar-height: 3rem;
 
             --relewise-product-search-overlay-background-color: white;
             --relewise-product-search-overlay-box-shadow: 0 10px 15px rgb(0 0 0 / 0.2);
-            --relewise-product-search-overlay-border: 2px solid;
-            --relewise-product-search-overlay-border-radius: 1rem;
             --relewise-product-search-overlay-no-results-message-font-weight: 600;
             --relewise-product-search-overlay-no-results-message-color: #212427;
             --relewise-product-search-overlay-prediction-item-font-weight: 600;

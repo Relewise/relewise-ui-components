@@ -25,7 +25,7 @@ export class SearchBar extends LitElement {
 
     render() {
         return html`
-        <div class="rw-search-bar" @keydown=${this.handleKeyEvent}>
+        <div class="rw-search-bar rw-border" @keydown=${this.handleKeyEvent}>
             <input 
                 class="rw-search-bar-input"
                 type="text"
@@ -47,9 +47,7 @@ export class SearchBar extends LitElement {
                 align-items: center;
                 padding-left: 1rem;
                 padding-right: 1rem;
-                border: var(--relewise-product-search-overlay-search-bar-border, 2px solid);
                 border-color: var(--color);
-                border-radius: var(--relewise-product-search-overlay-search-bar-border-radius, 1rem);
                 height: var(--relewise-product-search-overlay-search-bar-height, 3rem);
             }
 

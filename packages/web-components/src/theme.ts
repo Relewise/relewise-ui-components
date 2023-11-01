@@ -13,20 +13,19 @@ export const theme = css`
   .rw-button {
     margin: 0;
     padding: 0;
-    height: 3.25rem;
-    border: 2px solid;
+    height: var(--relewise-button-height, 3.25rem);
+    border: var(--relewise-button-border, 2px solid);
+    border-radius: var(--relewise-button-border-radius, 1rem);
     border-color: var(--accent-color);
-    border-radius: 1rem;
     background-color: var(--accent-color);
   }
 
   .rw-border {
-    border: 2px solid;
-    border-radius: 1rem;
-    border-color: var(--accent-color);
+    border: var(--relewise-border, 2px solid);
+    border-radius: var(--relewise-border-radius, 1rem);
   }
 
-  .rw-blurring-overlay {
+  .rw-dimming-overlay {
     position: absolute;
     width: 100%;
     height: 100%;

@@ -104,7 +104,7 @@ export class Facets extends LitElement {
             ${this.showFacets ? 
                 html`
                 <div class="rw-facets-container">
-                    ${this.showDimmingOverlay ? html`<div class="rw-blurring-overlay"></div>`: nothing}
+                    ${this.showDimmingOverlay ? html`<div class="rw-dimming-overlay"></div>`: nothing}
                     ${this.facetResult?.items?.map(item => {
                         return this.renderFacet(item);
                     })}

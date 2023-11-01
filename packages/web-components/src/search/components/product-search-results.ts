@@ -48,7 +48,7 @@ export class ProductSearchResults extends LitElement {
     render() {
         return html`
             <div class="rw-result-container">
-                ${this.showDimmingOverlay ? html`<div class="rw-blurring-overlay"></div>`: nothing}
+                ${this.showDimmingOverlay ? html`<div class="rw-dimming-overlay"></div>`: nothing}
                 ${this.products.length > 0 ? html`
                     <div class="rw-product-grid">
                         ${this.products.map(product => {
