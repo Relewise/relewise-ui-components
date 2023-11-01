@@ -94,7 +94,7 @@ export class Facets extends LitElement {
         const localization = getRelewiseUISearchOptions()?.localization?.facets;
         return html`
             <relewise-button
-                button-text=${localization?.toggleButton ?? 'Filters'} 
+                button-text=${localization?.filter ?? 'Filters'} 
                 class="rw-button rw-facet-button"
                 @click=${() => this.showFacets = !this.showFacets}>
                     ${this.showFacets ?

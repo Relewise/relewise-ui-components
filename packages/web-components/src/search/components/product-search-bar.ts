@@ -40,7 +40,7 @@ export class ProductSearchBar extends LitElement {
         </relewise-search-bar>
         <relewise-button
             class="rw-button"
-            button-text=${localization?.searchButton ?? 'Search'}
+            button-text=${localization?.search ?? 'Search'}
             .handleClick=${() => window.dispatchEvent(new CustomEvent(Events.search))}>
             <relewise-search-icon></relewise-search-icon>
         </relewise-button>

@@ -44,27 +44,28 @@ export interface SearchLocalization {
 }
 
 export interface SearchBarLocalization {
-    searchButton?: string;
+    search?: string;
     placeholder?: string;
 }
 
 export interface SortingLocalization {
-    popularityOption?: string;
-    salesPriceAscendingOption?: string;
-    salesPriceDescendingOption?: string;
-    alphabeticalAscendingOption?: string;
-    alphabeticalDescendingOption?: string;
+    sorting?: string;
+    popularity?: string;
+    salesPriceAscending?: string;
+    salesPriceDescending?: string;
+    alphabeticalAscending?: string;
+    alphabeticalDescending?: string;
 }
 
 export interface LoadMoreLocalization {
-    button?: string; 
+    loadMore?: string; 
 }
 
 export interface FacetLocalization {
-    saveButton?: string;
-    showMoreButton?: string;
-    showLessButton?: string;
-    toggleButton?: string;
+    save?: string;
+    showMore?: string;
+    showLess?: string;
+    filter?: string;
 }
 
 export interface SearchResultLocalization {

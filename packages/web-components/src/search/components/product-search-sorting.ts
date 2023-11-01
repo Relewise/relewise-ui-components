@@ -56,28 +56,29 @@ export class ProductSearchSorting extends LitElement {
 
         switch (sortingEnum) {
         case SortingEnum.SalesPriceAsc:
-            return localization?.salesPriceAscendingOption ?? 'Price: low - high';
+            return localization?.salesPriceAscending ?? 'Price: low - high';
         case SortingEnum.SalesPriceDesc:
-            return localization?.salesPriceDescendingOption ?? 'Price: high - low';
+            return localization?.salesPriceDescending ?? 'Price: high - low';
         case SortingEnum.AlphabeticallyAsc:
-            return localization?.alphabeticalAscendingOption ?? 'Name: a - z';
+            return localization?.alphabeticalAscending ?? 'Name: a - z';
         case SortingEnum.AlphabeticallyDesc:
-            return localization?.alphabeticalDescendingOption ?? 'Name: z - a';
+            return localization?.alphabeticalDescending ?? 'Name: z - a';
         case SortingEnum.Popularity:
-            return localization?.popularityOption ?? 'Popularity';
+            return localization?.popularity ?? 'Popularity';
         default:
             return '';
         }
     }
 
     render() {
+        const localization = getRelewiseUISearchOptions()?.localization?.sortingButton;
         return html`
             <relewise-button
                 class="rw-button"
                 @keydown=${this.handleKeyDown}
                 @click=${() => this.showSortingOptions = !this.showSortingOptions}
                 @blur=${this.handleBlur}
-                button-text=${this.selectedOption ? this.getOptionText(this.selectedOption) : 'Sorting'}>
+                button-text=${this.selectedOption ? this.getOptionText(this.selectedOption) : (localization?.sorting ?? 'Sorting')}>
                 ${this.showSortingOptions || this.selectedOption ? html`
                     <relewise-x-icon @click=${this.clearSelectedValue}></relewise-x-icon>
                 ` : html`

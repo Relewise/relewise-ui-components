@@ -185,27 +185,28 @@ To overwrite words and sentences used by the search components, call the `useSea
 useSearch({
     localization: {
         facets: {
-            saveButton: 'Save',
-            showLessButton: 'Show Less',
-            showMoreButton: 'Show More',
-            toggleButton: 'Filter',
+            save: 'Save',
+            showLess: 'Show Less',
+            showMore: 'Show More',
+            toggle: 'Filter',
         },
         loadMoreButton: {
-            button: 'Load More',
+            loadMore: 'Load More',
         },
         searchBar: {
             placeholder: 'Search',
-            searchButton: 'Search',
+            search: 'Search',
         },
         searchResults: {
             noResults: 'No products found',
         },
         sortingButton: {
-            alphabeticalAscendingOption: 'a - z',
-            alphabeticalDescendingOption: 'z - a',
-            popularityOption: 'popularity',
-            salesPriceAscendingOption: 'low - high',
-            salesPriceDescendingOption: 'high - low',
+            sorting: 'sorting'
+            alphabeticalAscending: 'a - z',
+            alphabeticalDescending: 'z - a',
+            popularity: 'popularity',
+            salesPriceAscending: 'low - high',
+            salesPriceDescending: 'high - low',
         },
     },
 });
