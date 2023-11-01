@@ -18,13 +18,4 @@ initializeRelewiseUI(
             serverUrl: import.meta.env.VITE_SERVER_URL,
         },
     },
-).useSearch({
-    rememberScrollPosition: true,
-    facets: {
-        facetBuilder(builder) {
-            builder
-                .addCategoryFacet('ImmediateParent')
-                .addBrandFacet();
-        },
-    },
-});
+).useSearch();

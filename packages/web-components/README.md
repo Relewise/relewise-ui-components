@@ -178,6 +178,39 @@ useSearch({
 });
 ```
 
+#### Localization
+To overwrite words and sentences used by the search components, call the `useSearch` function with the desired localization configuration.
+
+```ts
+useSearch({
+    localization: {
+        facets: {
+            saveButton: 'Save',
+            showLessButton: 'Show Less',
+            showMoreButton: 'Show More',
+            toggleButton: 'Filter',
+        },
+        loadMoreButton: {
+            button: 'Load More',
+        },
+        searchBar: {
+            placeholder: 'Search',
+            searchButton: 'Search',
+        },
+        searchResults: {
+            noResults: 'No products found',
+        },
+        sortingButton: {
+            alphabeticalAscendingOption: 'a - z',
+            alphabeticalDescendingOption: 'z - a',
+            popularityOption: 'popularity',
+            salesPriceAscendingOption: 'low - high',
+            salesPriceDescendingOption: 'high - low',
+        },
+    },
+});
+```
+
 #### Product Search Overlay
 This component renders a search bar that will [search for products](https://docs.relewise.com/docs/intro/search.html#product-search) in Relewise and show results in an overlay.
 
@@ -217,6 +250,112 @@ useSearch({
 - **debounce-time** (Optional, *Default 250*): 
 
     The amount of time, in milliseconds, that must pass between requests to Relewise with a new search call.
+
+#### Product Search
+This component renders a searche bar that [searches for products](https://docs.relewise.com/docs/intro/search.html#product-search) in Relewise and show results, faceting and sorting options.
+
+```html
+<relewise-product-search displayed-at-location="LOCATION"></relewise-product-search>
+```
+
+##### Attributes
+
+- **displayed-at-location** : 
+    
+    Where the search bar is being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_6-making-search-requests).
+
+- **search-result-page-size** (Optional, *Default 16*): 
+
+    The number of products to search for initially.
+
+#### Facets
+By default the component will not render any facets.
+
+To start doing so include your facet configuration in the `useSearch` function.
+
+```ts
+useSearch({
+    facets: {
+        facetBuilder(builder) {
+            builder
+                .addCategoryFacet('ImmediateParent')
+                .addBrandFacet();
+        },
+    },
+});
+```
+
+To overwrite the layout of the components include the components inside the `relewise-product-search` html tag.
+
+Every tag inside the `relewise-product-search` html tag, will be rendered as regular html so you can expand the content as needed and create your own layout.
+
+```html
+<relewise-product-search displayed-at-location="LOCATION">
+    <relewise-product-search-bar></relewise-product-search-bar>
+    <div>
+        <relewise-product-search-sorting></relewise-product-search-sorting>
+    </div>
+    <div>
+        <relewise-facets></relewise-facets>
+        <hr>
+        <h1>Results</h1>
+        <div>
+            <relewise-product-search-results></relewise-product-search-results>
+            <relewise-product-search-load-more-button></relewise-product-search-load-more-button>
+        </div>
+    </div>
+</relewise-product-search>
+```
+
+***Note: once including your own layout nothing from the default will be rendered!***
+
+##### Components
+These components are all included in the default layout and can also be used in custom layout.
+
+You do not have to worry about setting data on these components, this is handled internally by the Product Search component.
+
+###### Search bar
+Renders a search bar with a button.
+
+The component will search as the user types or presses the search button.
+
+```html
+<relewise-product-search-bar></relewise-product-search-bar>
+```
+
+###### Sorting
+Renders a sorting button with options in an overlay.
+
+```html
+<relewise-product-search-sorting></relewise-product-search-sorting>
+```
+
+###### Facets
+This component renders facets configured in the `useSearch` function.
+
+On smaller screens, this component will also include a button to toggle the visability of the facet cards.
+
+```html
+<relewise-facets></relewise-facets>
+```
+
+###### Product search results
+Renders a grid of product tiles.
+
+To overwrite the default product tile, [call the initialise function with the desired template](#template-overwriting). 
+
+```html
+<relewise-product-search-results></relewise-product-search-results>
+```
+
+###### Product search results
+Renders button that will load more results once pressed.
+
+```html
+<relewise-product-search-load-more-button></relewise-product-search-load-more-button>
+```
 
 ## Overwriting styling
 If you want to overwrite the styling of the grid and the default product tile, you can do so by using css variables.
