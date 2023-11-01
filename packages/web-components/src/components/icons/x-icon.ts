@@ -18,8 +18,8 @@ export class XIcon extends LitElement {
 
     static styles = css`
         #svg-icon {
-            width: 1rem;
-            height: 1rem;
+            width: var(--relewise-icon-width, 1rem);
+            height: var(--relewise-icon-height, 1rem);
             fill: var(--relewise-icon-color);
         }
     `;

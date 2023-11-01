@@ -234,6 +234,18 @@ If you want to overwrite the styling of the grid and the default product tile, y
 
             --relewise-image-width: 100%;
             --relewise-image-height: auto;
+            
+            --relewise-hover-color: whitesmoke;
+
+            --relewise-button-height: 3.25rem;
+            --relewise-button-border: 2px solid;
+            --relewise-button-border-radius: 1rem;
+            --relewise-button-text-color: white;
+            --relewise-button-text-font-weight: 100;
+            --relewise-button-icon-padding: .5rem;
+
+            --relewise-icon-width: 1rem;
+            --relewise-icon-height: 1rem;
 
             --relewise-sales-price-font-weight: 600;
             --relewise-sales-price-font-size: 1rem;
@@ -255,7 +267,6 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-display-name-margin: 0rem 0rem 0rem 0rem;
 
             --relewise-product-search-overlay-search-bar-height: 3rem;
-
             --relewise-product-search-overlay-background-color: white;
             --relewise-product-search-overlay-box-shadow: 0 10px 15px rgb(0 0 0 / 0.2);
             --relewise-product-search-overlay-no-results-message-font-weight: 600;
@@ -273,6 +284,35 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-product-search-result-overlay-product-list-price-font-size: 1rem;
             --relewise-product-search-result-overlay-product-list-price-text-decoration: line-through;
             --relewise-product-search-result-overlay-product-list-price-text-color: darkgray;
+
+            --relewise-sorting-button-container-display: flex;
+            --relewise-sorting-button-margin-left: auto;
+            --relewise-sorting-options-right: auto;
+            --relewise-sorting-options-left: auto;
+            --relewise-sorting-option-text-color: black;
+            --relewise-sorting-sorting-option-margin: 0;
+
+            --relewise-product-search-bar-margin-top: 1rem;
+            --relewise-product-search-bar-margin-bottom: 1rem;
+            --relewise-product-search-bar-width: 100%;
+            --relewise-product-search-margin-right: .5rem;
+
+            --relewise-sorting-options-postion: absolute;
+            --relewise-sorting-options-z-index: 10;
+            --relewise-sorting-options-background-color: white;
+            --relewise-sorting-options-margin-top: .25rem;
+
+            --relewise-checklist-facet-border-radius: 1rem;
+            --relewise-checklist-facet-border-color: lightgray;
+            --relewise-checklist-facet-background-color: lightgray;
+            --relewise-checklist-facet-show-more-text-color: black;
+            --relewise-checklist-facet-hits-color: gray;
+            --relewise-checklist-facet-hits-font-size: .75rem;
+
+            --relewise-number-range-input-border: 2px solid;
+            --relewise-number-range-input-border-radius: 1rem;
+            --relewise-number-range-input-height: 2rem;  
+            --relewise-number-range-input-width: 4rem;  
         }
     </style>
 ```

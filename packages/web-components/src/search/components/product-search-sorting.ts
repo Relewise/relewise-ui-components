@@ -105,11 +105,11 @@ export class ProductSearchSorting extends LitElement {
 
     static styles = [theme, css`
         .rw-sorting-options {
-            position: var(--rw-sorting-options-postion, absolute);
-            z-index: var(--rw-sorting-options-z-index, 10);
-            background-color: var(--rw-sorting-options-background-color, white);
+            position: var(--relewise-sorting-options-postion, absolute);
+            z-index: var(--relewise-sorting-options-z-index, 10);
+            background-color: var(--relewise-sorting-options-background-color, white);
             overflow: hidden;
-            margin-top: var(--rw-sorting-options-margin-top, .25rem);
+            margin-top: var(--relewise-sorting-options-margin-top, .25rem);
             right: var(--relewise-sorting-options-right, auto);
             left: var(--relewise-sorting-options-left, auto);
         }
