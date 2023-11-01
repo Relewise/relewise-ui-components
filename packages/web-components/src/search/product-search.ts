@@ -29,6 +29,9 @@ export class ProductSearch extends LitElement {
     @state()
     searchOptions: RelewiseUISearchOptions | undefined | null = null;
 
+    @state()
+    abortController: AbortController = new AbortController();
+
     async connectedCallback() {
         if (!this.displayedAtLocation) {
             console.error('No displayedAtLocation defined!');
@@ -78,6 +81,7 @@ export class ProductSearch extends LitElement {
     }
     
     async search(shouldClearOldResult: boolean) {
+        this.abortController.abort();
 
         if (shouldClearOldResult) {
             window.dispatchEvent(new CustomEvent(Events.dimPreviousResult));
@@ -150,7 +154,8 @@ export class ProductSearch extends LitElement {
             });
         }
 
-        const response = await searcher.searchProducts(request);
+        this.abortController = new AbortController();
+        const response = await searcher.searchProducts(request, { abortSignal: this.abortController.signal });
         if (!response) {
             return;
         } 

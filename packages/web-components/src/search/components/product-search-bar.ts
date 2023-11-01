@@ -1,17 +1,11 @@
 import { LitElement, css, html } from 'lit';
-import { property, state } from 'lit/decorators.js';
+import { state } from 'lit/decorators.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../helpers';
 import { theme } from '../../theme';
 
 export class ProductSearchBar extends LitElement {
-
-    @property({ type: Number, attribute: 'debounce-time' })
-    debounceTime: number = 250;
-
     @state()
     term: string | null = null;
-
-    private debounceTimeoutHandlerId: ReturnType<typeof setTimeout> | null = null;
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -30,14 +24,8 @@ export class ProductSearchBar extends LitElement {
     setSearchTerm(term: string) {
         this.term = term;
         updateUrlState(QueryKeys.term, term);
-
-        if (this.debounceTimeoutHandlerId) {
-            clearTimeout(this.debounceTimeoutHandlerId);
-        }
-
-        this.debounceTimeoutHandlerId = setTimeout(() => {
-            window.dispatchEvent(new CustomEvent(Events.search));
-        }, this.debounceTime);
+        
+        window.dispatchEvent(new CustomEvent(Events.search));
     }
 
     render() {
