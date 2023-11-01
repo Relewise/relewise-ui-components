@@ -17,19 +17,33 @@ export class Facets extends LitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 1024) {
-                this.showFacets = true;
-            } 
-        });
+        
+        window.addEventListener('resize', () => this.handleResizeEvent());
+        window.addEventListener(Events.dimPreviousResult, () => this.handleDimPreviousResultEvent());
+        window.addEventListener(Events.searchingForProductsCompleted, () => this.handleSearchingForProductsCompletedEvent());
+    }
 
-        window.addEventListener(Events.dimPreviousResult, () => {
-            this.showDimmingOverlay = true;
-        });
+    disconnectedCallback(): void {
+        window.removeEventListener('resize', this.handleResizeEvent);
+        window.removeEventListener(Events.dimPreviousResult, this.handleDimPreviousResultEvent);
+        window.removeEventListener(Events.searchingForProductsCompleted, this.handleSearchingForProductsCompletedEvent);
 
-        window.addEventListener(Events.searchingForProductsCompleted, () => { 
-            this.showDimmingOverlay = false;
-        });
+        super.disconnectedCallback();
+    }
+
+    handleResizeEvent() {
+        if (window.innerWidth >= 1024) {
+            this.showFacets = true;
+        } 
+    }
+
+    handleDimPreviousResultEvent() {
+        this.showDimmingOverlay = true;
+
+    }
+
+    handleSearchingForProductsCompletedEvent() {
+        this.showDimmingOverlay = false;
     }
 
     renderFacet(facet: ProductAssortmentFacetResult | ContentAssortmentFacetResult | ProductCategoryAssortmentFacetResult | BrandFacetResult | CategoryFacetResult | CategoryHierarchyFacetResult | ContentDataObjectFacetResult | ContentDataDoubleRangeFacetResult | ContentDataDoubleRangesFacetResult | ContentDataStringValueFacetResult | ContentDataBooleanValueFacetResult | ContentDataDoubleValueFacetResult | ContentDataIntegerValueFacetResult | DataObjectFacetResult | DataObjectDoubleRangeFacetResult | DataObjectDoubleRangesFacetResult | DataObjectStringValueFacetResult | DataObjectBooleanValueFacetResult | DataObjectDoubleValueFacetResult | PriceRangeFacetResult | PriceRangesFacetResult | ProductCategoryDataObjectFacetResult | ProductCategoryDataDoubleRangeFacetResult | ProductCategoryDataDoubleRangesFacetResult | ProductCategoryDataStringValueFacetResult | ProductCategoryDataBooleanValueFacetResult | ProductCategoryDataDoubleValueFacetResult | ProductDataObjectFacetResult | ProductDataDoubleRangeFacetResult | ProductDataDoubleRangesFacetResult | ProductDataStringValueFacetResult | ProductDataBooleanValueFacetResult | ProductDataDoubleValueFacetResult | ProductDataIntegerValueFacetResult | VariantSpecificationFacetResult): TemplateResult<1> {

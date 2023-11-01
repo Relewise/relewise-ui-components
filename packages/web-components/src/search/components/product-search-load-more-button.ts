@@ -17,8 +17,24 @@ export class LoadMoreProducts extends LitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
-        window.addEventListener(Events.showLoadingSpinner, () => this.loading = true);
-        window.addEventListener(Events.searchingForProductsCompleted, () => this.loading = false);
+
+        window.addEventListener(Events.showLoadingSpinner, () => this.handleShowLoadingSpinnerEvent());
+        window.addEventListener(Events.searchingForProductsCompleted, () => this.handleSearchingForProductsCompletedEvent());
+    }
+
+    disconnectedCallback(): void {
+        window.removeEventListener(Events.showLoadingSpinner, this.handleShowLoadingSpinnerEvent);
+        window.removeEventListener(Events.searchingForProductsCompleted, this.handleSearchingForProductsCompletedEvent);
+
+        super.disconnectedCallback();
+    }
+
+    handleShowLoadingSpinnerEvent() {
+        this.loading = true;
+    }
+
+    handleSearchingForProductsCompletedEvent() {
+        this.loading = false;
     }
 
     render() {

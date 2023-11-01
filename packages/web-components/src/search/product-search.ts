@@ -43,20 +43,38 @@ export class ProductSearch extends LitElement {
          
         this.search(false);
 
-        window.addEventListener(Events.search, () => {
-            this.page = this.page + 1;
-            updateUrlState(QueryKeys.take, (this.searchResultPageSize * this.page).toString());
-            this.search(true);
-        });
-        
-        window.addEventListener(Events.loadMoreProducts, () => this.search(false));
-
+        window.addEventListener(Events.search, () => this.handleSearchEvent());
+        window.addEventListener(Events.loadMoreProducts, () => this.handleLoadMoreEvent());
         if (this.searchOptions?.rememberScrollPosition) {
-            window.addEventListener('scroll', async() => 
-                sessionStorage.setItem('relewise-scroll-position', window.scrollY.toString())); 
+            window.addEventListener('scroll', async() => this.handleScrollEvent()); 
         }
 
         super.connectedCallback();
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener(Events.search, this.handleSearchEvent);
+        window.removeEventListener(Events.loadMoreProducts, this.handleLoadMoreEvent);
+        
+        if (this.searchOptions?.rememberScrollPosition) {
+            window.removeEventListener('scroll', this.handleScrollEvent);
+        }
+
+        super.disconnectedCallback();
+    }
+
+    handleSearchEvent() {
+        this.page = this.page + 1;
+        updateUrlState(QueryKeys.take, (this.searchResultPageSize * this.page).toString());
+        this.search(true);
+    }
+
+    handleLoadMoreEvent() {
+        this.search(false);
+    }
+
+    handleScrollEvent() {
+        sessionStorage.setItem('relewise-scroll-position', window.scrollY.toString());
     }
     
     async search(shouldClearOldResult: boolean) {

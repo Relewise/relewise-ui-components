@@ -18,18 +18,31 @@ export class ProductSearchResults extends LitElement {
     connectedCallback(): void {
         super.connectedCallback();
 
-        window.addEventListener(Events.showLoadingSpinner, () => {
-            this.showLoadingSpinner = true;
-        });
-       
-        window.addEventListener(Events.dimPreviousResult, () => {
-            this.showDimmingOverlay = true;
-        });
+        window.addEventListener(Events.showLoadingSpinner, () => this.handleShowLoadingSpinnerEvent());
+        window.addEventListener(Events.dimPreviousResult, () => this.handleDimPreviousResultEvent());
+        window.addEventListener(Events.searchingForProductsCompleted, () => this.handleSearchingForProductsCompletedEvent());
+    }
 
-        window.addEventListener(Events.searchingForProductsCompleted, () => { 
-            this.showLoadingSpinner = false;
-            this.showDimmingOverlay = false;
-        });
+    disconnectedCallback(): void {
+        window.removeEventListener(Events.showLoadingSpinner, this.handleShowLoadingSpinnerEvent);
+        window.removeEventListener(Events.dimPreviousResult, this.handleDimPreviousResultEvent);
+        window.removeEventListener(Events.searchingForProductsCompleted, this.handleSearchingForProductsCompletedEvent);
+
+        super.disconnectedCallback();
+    }
+
+    handleShowLoadingSpinnerEvent() {
+        this.showLoadingSpinner = true;
+
+    }
+
+    handleDimPreviousResultEvent() {
+        this.showDimmingOverlay = true;
+    }
+
+    handleSearchingForProductsCompletedEvent() {
+        this.showLoadingSpinner = false;
+        this.showDimmingOverlay = false;
     }
 
     render() {
