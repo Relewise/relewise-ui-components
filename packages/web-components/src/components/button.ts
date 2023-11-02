@@ -15,14 +15,14 @@ export class Button extends LitElement {
     }
 
     render() {
-      
         return html`
-        <button class="rw-button" @click=${() => this.handleClick()}>
-            ${this.buttonText ? html`
-                <span class="rw-button-text">${this.buttonText}</span>
-            ` : nothing}
-            <span class="rw-button-icon"><slot slot="icon"></slot></span>
-        </button>`;
+            <button class="rw-button" @click=${() => this.handleClick()}>
+                ${this.buttonText ? html`
+                    <span class="rw-button-text">${this.buttonText}</span>
+                ` : nothing}
+                <span class="rw-button-icon"><slot slot="icon"></slot></span>
+            </button>
+        `;
     }
 
     static styles = [theme, css`
