@@ -4,8 +4,6 @@ import { Events, getRelewiseUISearchOptions } from '../../helpers';
 import { theme } from '../../theme';
 
 export class LoadMoreProducts extends LitElement {
-
-
     @property({ type: Number })
     hits: number | null = null;
 
