@@ -271,6 +271,19 @@ This component renders a searche bar that [searches for products](https://docs.r
 
     The number of products to search for initially.
 
+#### Scroll position
+When the user navigates to another page or leaves the site, the component will by default not remember where the user last scrolled to.
+
+This can be toggled to do so, to ensure a smooth transition when the user returns back to the site.
+
+This setting is part of the configuration supplied to the `useSearch` function.
+
+```ts
+useSearch({
+    rememberScrollPosition: true
+});
+```
+
 #### Facets
 By default the component will not render any facets.
 
