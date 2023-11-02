@@ -19,12 +19,10 @@ initializeRelewiseUI(
         },
     },
 ).useSearch({
-    facets: {
-        facetBuilder(builder) {
-            builder
-                .addFacet('Mærke', (facetBuilder) => facetBuilder.addBrandFacet())
-                .addFacet('Kategori', (facetBuilder) => facetBuilder.addCategoryFacet('ImmediateParent'))
-                .addFacet('Salgs pris', (facetBuilder) => facetBuilder.addSalesPriceRangeFacet('Product'));
-        },
+    facetBuilder(builder) {
+        builder
+            .addFacet('Mærke', (facetBuilder) => facetBuilder.addBrandFacet())
+            .addFacet('Kategori', (facetBuilder) => facetBuilder.addCategoryFacet('ImmediateParent'))
+            .addFacet('Salgs pris', (facetBuilder) => facetBuilder.addSalesPriceRangeFacet('Product'));
     },
 });

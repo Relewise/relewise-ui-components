@@ -1,13 +1,13 @@
 import { BrandFacet, CategoryFacet, CategoryHierarchyFacet, ContentAssortmentFacet, ContentDataBooleanValueFacet, ContentDataDoubleRangeFacet, ContentDataDoubleRangesFacet, ContentDataDoubleValueFacet, ContentDataIntegerValueFacet, ContentDataObjectFacet, ContentDataStringValueFacet, DataObjectBooleanValueFacet, DataObjectDoubleRangeFacet, DataObjectDoubleRangesFacet, DataObjectDoubleValueFacet, DataObjectFacet, DataObjectStringValueFacet, DoubleNullableRange, PriceRangeFacet, PriceRangesFacet, ProductAssortmentFacet, ProductCategoryAssortmentFacet, ProductCategoryDataBooleanValueFacet, ProductCategoryDataDoubleRangeFacet, ProductCategoryDataDoubleRangesFacet, ProductCategoryDataDoubleValueFacet, ProductCategoryDataObjectFacet, ProductCategoryDataStringValueFacet, ProductDataBooleanValueFacet, ProductDataDoubleRangeFacet, ProductDataDoubleRangesFacet, ProductDataDoubleValueFacet, ProductDataIntegerValueFacet, ProductDataObjectFacet, ProductDataStringValueFacet, ProductResult, ProductSearchBuilder, ProductSearchResponse, VariantSpecificationFacet } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import { RelewiseFacetBuilder, RelewiseUISearchOptions } from '../app';
 import { defaultProductProperties } from '../defaultProductProperties';
 import { Events, QueryKeys, getNumberOfProductSearchResults, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { SortingEnum } from './enums';
 import { getSearcher } from './searcher';
-import { RelewiseFacetBuilder, RelewiseUISearchOptions } from '../app';
 
 export class ProductSearch extends LitElement {
     
@@ -117,9 +117,9 @@ export class ProductSearch extends LitElement {
                 }
             })
             .facets(builder => {
-                if (this.searchOptions && this.searchOptions.facets) {
+                if (this.searchOptions && this.searchOptions.facetBuilder) {
                     const facetBuilder = new RelewiseFacetBuilder(builder);
-                    this.searchOptions.facets.facetBuilder(facetBuilder);
+                    this.searchOptions.facetBuilder(facetBuilder);
                     this.facetLabels = facetBuilder.getLabels();
                 }
             })

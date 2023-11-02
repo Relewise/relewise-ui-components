@@ -295,12 +295,10 @@ The label will be displayed at the top of the facet card.
 
 ```ts
 useSearch({
-    facets: {
-        facetBuilder(builder) {
-            builder
-                .addFacet('Brand label', (facetBuilder) => facetBuilder.addBrandFacet())
-                .addFacet('Category label', (facetBuilder) => facetBuilder.addCategoryFacet('ImmediateParent'));
-        },
+    facetBuilder(builder) {
+        builder
+            .addFacet('Brand label', (facetBuilder) => facetBuilder.addBrandFacet())
+            .addFacet('Category label', (facetBuilder) => facetBuilder.addCategoryFacet('ImmediateParent'));
     },
 });
 ```
