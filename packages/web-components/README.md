@@ -189,6 +189,8 @@ useSearch({
             showLess: 'Show Less',
             showMore: 'Show More',
             toggle: 'Filter',
+            yes: 'Yes',
+            no: 'No'
         },
         loadMoreButton: {
             loadMore: 'Load More',
@@ -289,13 +291,15 @@ By default the component will not render any facets.
 
 To start doing so, include your facet configuration in the `useSearch` function.
 
+The label will be displayed at the top of the facet card.
+
 ```ts
 useSearch({
     facets: {
         facetBuilder(builder) {
             builder
-                .addCategoryFacet('ImmediateParent')
-                .addBrandFacet();
+                .addFacet('Brand label', (facetBuilder) => facetBuilder.addBrandFacet())
+                .addFacet('Category label', (facetBuilder) => facetBuilder.addCategoryFacet('ImmediateParent'));
         },
     },
 });
