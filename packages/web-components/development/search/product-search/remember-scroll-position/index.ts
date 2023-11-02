@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 import { UserFactory } from '@relewise/client';
-import { initializeRelewiseUI } from '../../../src/index';
+import { initializeRelewiseUI } from '../../../../src/index';
 
 initializeRelewiseUI(
     {
@@ -20,12 +20,4 @@ initializeRelewiseUI(
     },
 ).useSearch({
     rememberScrollPosition: true,
-    facets: {
-        facetBuilder(builder) {
-            builder
-                .addFacet('Mærke', (facetBuilder) => facetBuilder.addBrandFacet())
-                .addFacet('Kategori', (facetBuilder) => facetBuilder.addCategoryFacet('ImmediateParent'))
-                .addFacet('Salgs pris', (facetBuilder) => facetBuilder.addSalesPriceRangeFacet('Product'));
-        },
-    },
 });

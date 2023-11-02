@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <title>Web components</title>
+</head>
+
+<body>
+    <script type="module" src="index.ts"></script>
+    <h1>Product Search - custom layout</h1>
+    <relewise-product-search displayed-at-location="web component dev">
+        <div>
+            <relewise-product-search-sorting></relewise-product-search-sorting>
+        </div>
+        <div>
+            <relewise-facets></relewise-facets>
+            <relewise-product-search-bar></relewise-product-search-bar>
+            <div>
+                <h1>Here are your results!</h1>
+                <relewise-product-search-results></relewise-product-search-results>
+                <relewise-product-search-load-more-button></relewise-product-search-load-more-button>
+            </div>
+        </div>
+    </relewise-product-search>
+</body>
+
+</html>
