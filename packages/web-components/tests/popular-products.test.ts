@@ -33,7 +33,7 @@ suite('relewise-popular-products', () => {
     });
 
     test('renders numberOfRecommendations', async() => {
-        const numberOfRecommendations = 10;
+        const numberOfRecommendations = 3;
 
         initializeRelewiseUI(integrationTestRelewiseOptions()).useRecommendations();
         const el = await fixture(html`<relewise-popular-products number-of-recommendations=${numberOfRecommendations}></relewise-popular-products>`) as PopularProducts;
