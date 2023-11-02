@@ -33,7 +33,6 @@ export class ProductSearchResults extends LitElement {
 
     handleShowLoadingSpinnerEvent() {
         this.showLoadingSpinner = true;
-
     }
 
     handleDimPreviousResultEvent() {
