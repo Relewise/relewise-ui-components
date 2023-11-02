@@ -1,17 +1,12 @@
 import { BooleanAvailableFacetValue, ProductDataBooleanValueFacetResult } from '@relewise/client';
 import { property } from 'lit/decorators.js';
+import { getRelewiseUISearchOptions } from '../../../helpers';
 import { ChecklistFacetBase } from './checklist-facet-base';
 
 export class ChecklistBooleanValueFacet extends ChecklistFacetBase {
 
     @property({ type: Object })
     result: ProductDataBooleanValueFacetResult | null = null;
-
-    @property({ attribute: 'boolean-facet-true-display-value'})
-    booleanFacetTrueDisplayValue: string = 'yes';
-    
-    @property({ attribute: 'boolean-facet-false-display-value'})
-    booleanFacetFalseDisplayValue: string = 'no';
 
     handleChange(e: Event, item: BooleanAvailableFacetValue) {
         const checkbox = e.target as HTMLInputElement;
@@ -35,7 +30,9 @@ export class ChecklistBooleanValueFacet extends ChecklistFacetBase {
             return '';
         }
 
-        return item.value ? this.booleanFacetTrueDisplayValue : this.booleanFacetFalseDisplayValue;
+        const localization = getRelewiseUISearchOptions()?.localization?.facets;
+
+        return item.value ? localization?.yes ?? 'Yes' : localization?.no ?? 'No';
     }
 
     shouldOptionBeChecked(item: BooleanAvailableFacetValue): boolean {

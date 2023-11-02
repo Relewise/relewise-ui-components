@@ -84,6 +84,8 @@ export interface FacetLocalization {
     showMore?: string;
     showLess?: string;
     filter?: string;
+    yes?: string;
+    no?: string;
 }
 
 export interface SearchResultLocalization {
@@ -157,7 +159,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     tryRegisterElement('relewise-product-search-results', ProductSearchResults);
     tryRegisterElement('relewise-product-search-load-more-button', LoadMoreProducts);
     tryRegisterElement('relewise-product-search-sorting', ProductSearchSorting);
-    
+
     registerGenericComponents();
 }
 
