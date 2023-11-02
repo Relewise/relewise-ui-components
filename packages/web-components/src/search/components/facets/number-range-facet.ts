@@ -136,7 +136,7 @@ export class NumberRangeFacet extends LitElement {
                         class="rw-input"
                         @keydown=${this.handleKeyEvent}>
                 </div>
-                <relewise-button class="rw-button rw-save" @click=${this.save}>${localization?.save ?? ''}</relewise-button>
+                <relewise-button class="rw-button rw-save" @click=${this.save}>${localization?.save ?? 'Save'}</relewise-button>
             </div>
         </div>
       `;
