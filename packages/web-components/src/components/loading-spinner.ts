@@ -8,8 +8,8 @@ export class LoadingSpinner extends LitElement {
 
     static styles = [theme, css`
     .loader {
-        border: 16px solid #f3f3f3; /* Light grey */
-        border-top: 16px solid; /* Blue */
+        border: 16px solid var(--color);
+        border-top: 16px solid;
         border-radius: 50%;
         border-top-color: var(--accent-color);
         width: 120px;
