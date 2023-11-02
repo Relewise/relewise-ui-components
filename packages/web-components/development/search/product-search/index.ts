@@ -24,7 +24,8 @@ initializeRelewiseUI(
         facetBuilder(builder) {
             builder
                 .addFacet('Mærke', (facetBuilder) => facetBuilder.addBrandFacet())
-                .addFacet('Kategori', (facetBuilder) => facetBuilder.addCategoryFacet('ImmediateParent'));
+                .addFacet('Kategori', (facetBuilder) => facetBuilder.addCategoryFacet('ImmediateParent'))
+                .addFacet('Salgs pris', (facetBuilder) => facetBuilder.addSalesPriceRangeFacet('Product'));
         },
     },
 });

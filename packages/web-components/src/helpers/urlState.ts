@@ -1,7 +1,10 @@
 export enum QueryKeys {
     term = 'rw-term',
     take = 'rw-take',
-    sortBy = 'rw-sorting'
+    sortBy = 'rw-sorting',
+    facet = 'rw-facet-',
+    facetUpperbound = 'rw-facet-upperbound-',
+    facetLowerbound = 'rw-facet-lowerbound-',
 }
 
 export function updateUrlState(queryParamName: string, value: string | null) {

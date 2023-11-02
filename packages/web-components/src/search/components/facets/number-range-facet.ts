@@ -1,7 +1,7 @@
 import { ProductDataDoubleRangeFacetResult } from '@relewise/client';
 import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { Events, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../../helpers';
+import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../../helpers';
 import { theme } from '../../../theme';
 
 export class NumberRangeFacet extends LitElement {
@@ -87,11 +87,11 @@ export class NumberRangeFacet extends LitElement {
         }
 
         if ('key' in this.result) {
-            updateUrlState(this.result.field + this.result.key + 'upperbound', this.upperBound.toString());
-            updateUrlState(this.result.field + this.result.key + 'lowerbound', this.lowerBound.toString());
+            updateUrlState(QueryKeys.facetUpperbound + this.result.field + this.result.key, this.upperBound.toString());
+            updateUrlState(QueryKeys.facetLowerbound + this.result.field + this.result.key, this.lowerBound.toString());
         } else {
-            updateUrlState(this.result.field + 'upperbound', this.upperBound.toString());
-            updateUrlState(this.result.field + 'lowerbound', this.lowerBound.toString());
+            updateUrlState(QueryKeys.facetUpperbound + this.result.field, this.upperBound.toString());
+            updateUrlState(QueryKeys.facetLowerbound + this.result.field, this.lowerBound.toString());
         }
         
         window.dispatchEvent(new CustomEvent(Events.search));

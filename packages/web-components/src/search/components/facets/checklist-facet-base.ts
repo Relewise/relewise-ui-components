@@ -1,7 +1,7 @@
 import { BooleanAvailableFacetValue, BrandFacetResult, BrandNameAndIdResultAvailableFacetValue, CategoryFacetResult, DecimalNullableChainableRangeAvailableFacetValue, Int32AvailableFacetValue, PriceRangesFacetResult, ProductAssortmentFacetResult, ProductDataBooleanValueFacetResult, ProductDataDoubleRangesFacetResult, ProductDataDoubleValueFacetResult, ProductDataStringValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { Events, getRelewiseUISearchOptions, readCurrentUrlStateValues, updateUrlStateValues } from '../../../helpers';
+import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlStateValues, updateUrlStateValues } from '../../../helpers';
 import { theme } from '../../../theme';
 
 export abstract class ChecklistFacetBase extends LitElement {
@@ -28,9 +28,9 @@ export abstract class ChecklistFacetBase extends LitElement {
         super.connectedCallback();
         if (this.result) {
             if ('key' in this.result)  {
-                this.selectedValues = readCurrentUrlStateValues(this.result.field + this.result.key);
+                this.selectedValues = readCurrentUrlStateValues(QueryKeys.facet + this.result.field + this.result.key);
             } else {
-                this.selectedValues = readCurrentUrlStateValues(this.result.field);
+                this.selectedValues = readCurrentUrlStateValues(QueryKeys.facet + this.result.field);
             }
         }
     }
@@ -41,9 +41,9 @@ export abstract class ChecklistFacetBase extends LitElement {
         }  
 
         if ('key' in this.result) {
-            updateUrlStateValues(this.result.field + this.result.key, this.selectedValues);
+            updateUrlStateValues(QueryKeys.facet + this.result.field + this.result.key, this.selectedValues);
         } else {
-            updateUrlStateValues(this.result.field, this.selectedValues);
+            updateUrlStateValues(QueryKeys.facet + this.result.field, this.selectedValues);
         }
 
         window.dispatchEvent(new CustomEvent(Events.search));

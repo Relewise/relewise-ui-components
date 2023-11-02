@@ -199,11 +199,11 @@ export class ProductSearch extends LitElement {
             let lowerBound = null;
                             
             if ('key' in facet) {
-                upperBound = readCurrentUrlState(facet.field + facet.key + 'upperbound');
-                lowerBound = readCurrentUrlState(facet.field + facet.key + 'lowerbound');
+                upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field + facet.key);
+                lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field + facet.key);
             } else {
-                upperBound = readCurrentUrlState(facet.field + 'upperbound');
-                lowerBound = readCurrentUrlState(facet.field + 'lowerbound');
+                upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field);
+                lowerBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field);
             }
     
             facet.selected = {
@@ -217,9 +217,9 @@ export class ProductSearch extends LitElement {
         if ('selected' in facet) { 
             let queryValues = null;
             if ('key' in facet) {
-                queryValues = readCurrentUrlStateValues(facet.field + facet.key); 
+                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key); 
             } else {
-                queryValues = readCurrentUrlStateValues(facet.field);
+                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field);
             }
             facet.selected = queryValues.map(x => {
                 const split = x.split('-');
@@ -235,9 +235,9 @@ export class ProductSearch extends LitElement {
         if ('selected' in facet) { 
             let queryValues = null;
             if ('key' in facet) {
-                queryValues = readCurrentUrlStateValues(facet.field + facet.key); 
+                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key); 
             } else {
-                queryValues = readCurrentUrlStateValues(facet.field);
+                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field);
             }
             facet.selected = queryValues;
         }
