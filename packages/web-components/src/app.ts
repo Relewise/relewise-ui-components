@@ -1,8 +1,7 @@
 import { FacetBuilder, FilterBuilder, ProductResult } from '@relewise/client';
 import { TemplateResult } from 'lit';
-import { FilterIcon, ProductTile, SearchIcon, XIcon } from './components';
+import { FilterIcon, ProductTile, SearchIcon, SortIcon, XIcon } from './components';
 import { Button } from './components/button';
-import { SortIcon } from './components/icons/sort-icon';
 import { LoadingSpinner } from './components/loading-spinner';
 import { ContextSettings, TemplateExtensions } from './initialize';
 import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithProduct } from './recommendations';
@@ -158,6 +157,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     tryRegisterElement('relewise-product-search-results', ProductSearchResults);
     tryRegisterElement('relewise-product-search-load-more-button', LoadMoreProducts);
     tryRegisterElement('relewise-product-search-sorting', ProductSearchSorting);
+    
     registerGenericComponents();
 }
 
