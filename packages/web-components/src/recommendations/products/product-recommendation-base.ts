@@ -22,14 +22,20 @@ export abstract class ProductRecommendationBase extends LitElement {
             console.error('No displayedAtLocation defined!');
         }
 
-        const fetchAndUpdateProducts = async() => {
-            const result = await this.fetchProducts();
-            this.products = result?.recommendations ?? null;
-        };
-
-        await fetchAndUpdateProducts();
-        window.addEventListener(Events.contextSettingsUpdated, fetchAndUpdateProducts);
+        await this.fetchAndUpdateProducts();
+        window.addEventListener(Events.contextSettingsUpdated, () => this.fetchAndUpdateProducts());
     }
+
+    disconnectedCallback() {
+        window.removeEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateProducts);
+
+        super.disconnectedCallback();
+    }
+
+    async fetchAndUpdateProducts() {
+        const result = await this.fetchProducts();
+        this.products = result?.recommendations ?? null;
+    };
 
     render() {
         if (this.products) {
