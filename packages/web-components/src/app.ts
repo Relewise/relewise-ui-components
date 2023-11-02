@@ -32,7 +32,26 @@ export interface RelewiseUISearchOptions {
 }
 
 export interface SearchFacets {
-    facetBuilder: (builder: FacetBuilder) => void
+    facetBuilder: (builder: RelewiseFacetBuilder) => void
+}
+
+export class RelewiseFacetBuilder {
+    builder: FacetBuilder;
+    private labels: string[] = [];
+
+    constructor(builder: FacetBuilder) {
+        this.builder = builder;
+    }
+
+    addFacet(label: string, facet: (builder: FacetBuilder) => void): this {
+        this.labels.push(label);
+        facet(this.builder);
+        return this;
+    }
+
+    getLabels(): string[] {
+        return this.labels;
+    }
 }
 
 export interface SearchLocalization {

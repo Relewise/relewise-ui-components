@@ -1,7 +1,7 @@
 import { ProductDataDoubleRangeFacetResult } from '@relewise/client';
 import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { Events, readCurrentUrlState, updateUrlState } from '../../../helpers';
+import { Events, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../../helpers';
 import { theme } from '../../../theme';
 
 export class NumberRangeFacet extends LitElement {
@@ -9,8 +9,8 @@ export class NumberRangeFacet extends LitElement {
     @property({ type: Object })
     result: (ProductDataDoubleRangeFacetResult) | null = null;
 
-    @property({ attribute: 'save-selected-number-range-text'})
-    saveSelectedRangeText: string = 'Save';
+    @property()
+    label: string = '';
 
     @state()
     upperBound: number | null | undefined = null;
@@ -97,18 +97,6 @@ export class NumberRangeFacet extends LitElement {
         window.dispatchEvent(new CustomEvent(Events.search));
     }
 
-    getLabelDisplayValue(): string {
-        if (!this.result) {
-            return '';
-        }
-
-        if ('key' in this.result && this.result.key) {
-            return this.result.key;
-        }
-
-        return this.result.field;
-    }
-
     handleKeyEvent(event: KeyboardEvent): void {
         switch (event.key) {
         case 'Enter':
@@ -125,9 +113,11 @@ export class NumberRangeFacet extends LitElement {
             !this.result.available.value.upperBoundInclusive) {
             return;
         }
+
+        const localization = getRelewiseUISearchOptions()?.localization?.facets;
         return html`
         <div class="rw-facet-content">
-            <h3>${this.getLabelDisplayValue()}</h3>
+            <h3>${this.label}</h3>
             <div class="rw-flex">
                 <div class="rw-input-container">
                     <input
@@ -146,7 +136,7 @@ export class NumberRangeFacet extends LitElement {
                         class="rw-input"
                         @keydown=${this.handleKeyEvent}>
                 </div>
-                <relewise-button class="rw-button rw-save" @click=${this.save}>${this.saveSelectedRangeText}</relewise-button>
+                <relewise-button class="rw-button rw-save" @click=${this.save}>${localization?.save ?? ''}</relewise-button>
             </div>
         </div>
       `;
@@ -183,7 +173,7 @@ export class NumberRangeFacet extends LitElement {
             border-radius: var(--relewise-number-range-input-border-radius, 1rem);
             background: white;
             height: var(--relewise-number-range-input-height, 2rem);  
-            width: var(--relewise-number-range-input-width, 4rem);  
+            width: var(--relewise-number-range-input-width, 100%);  
         }
 
         .rw-range-delimiter {

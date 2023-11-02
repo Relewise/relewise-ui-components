@@ -9,6 +9,9 @@ export class Facets extends LitElement {
     @property({ type: Object, attribute: 'facets-result' })
     facetResult: ProductFacetResult | null | undefined = null;
 
+    @property({ type: Array, attribute: 'labels' })
+    labels: string[] = [];
+
     @state()
     showFacets: boolean = window.innerWidth >= 1024;
 
@@ -46,44 +49,62 @@ export class Facets extends LitElement {
         this.showDimmingOverlay = false;
     }
 
-    renderFacet(facet: ProductAssortmentFacetResult | ContentAssortmentFacetResult | ProductCategoryAssortmentFacetResult | BrandFacetResult | CategoryFacetResult | CategoryHierarchyFacetResult | ContentDataObjectFacetResult | ContentDataDoubleRangeFacetResult | ContentDataDoubleRangesFacetResult | ContentDataStringValueFacetResult | ContentDataBooleanValueFacetResult | ContentDataDoubleValueFacetResult | ContentDataIntegerValueFacetResult | DataObjectFacetResult | DataObjectDoubleRangeFacetResult | DataObjectDoubleRangesFacetResult | DataObjectStringValueFacetResult | DataObjectBooleanValueFacetResult | DataObjectDoubleValueFacetResult | PriceRangeFacetResult | PriceRangesFacetResult | ProductCategoryDataObjectFacetResult | ProductCategoryDataDoubleRangeFacetResult | ProductCategoryDataDoubleRangesFacetResult | ProductCategoryDataStringValueFacetResult | ProductCategoryDataBooleanValueFacetResult | ProductCategoryDataDoubleValueFacetResult | ProductDataObjectFacetResult | ProductDataDoubleRangeFacetResult | ProductDataDoubleRangesFacetResult | ProductDataStringValueFacetResult | ProductDataBooleanValueFacetResult | ProductDataDoubleValueFacetResult | ProductDataIntegerValueFacetResult | VariantSpecificationFacetResult): TemplateResult<1> {
+    renderFacet(label: string, facet: ProductAssortmentFacetResult | ContentAssortmentFacetResult | ProductCategoryAssortmentFacetResult | BrandFacetResult | CategoryFacetResult | CategoryHierarchyFacetResult | ContentDataObjectFacetResult | ContentDataDoubleRangeFacetResult | ContentDataDoubleRangesFacetResult | ContentDataStringValueFacetResult | ContentDataBooleanValueFacetResult | ContentDataDoubleValueFacetResult | ContentDataIntegerValueFacetResult | DataObjectFacetResult | DataObjectDoubleRangeFacetResult | DataObjectDoubleRangesFacetResult | DataObjectStringValueFacetResult | DataObjectBooleanValueFacetResult | DataObjectDoubleValueFacetResult | PriceRangeFacetResult | PriceRangesFacetResult | ProductCategoryDataObjectFacetResult | ProductCategoryDataDoubleRangeFacetResult | ProductCategoryDataDoubleRangesFacetResult | ProductCategoryDataStringValueFacetResult | ProductCategoryDataBooleanValueFacetResult | ProductCategoryDataDoubleValueFacetResult | ProductDataObjectFacetResult | ProductDataDoubleRangeFacetResult | ProductDataDoubleRangesFacetResult | ProductDataStringValueFacetResult | ProductDataBooleanValueFacetResult | ProductDataDoubleValueFacetResult | ProductDataIntegerValueFacetResult | VariantSpecificationFacetResult): TemplateResult<1> {
         if (facet.$type.includes('PriceRangesFacetResult') || 
             facet.$type.includes('ProductDataDoubleRangesFacetResult')) {
             return html`
-                <relewise-checklist-ranges-object-value-facet .result=${facet}></relewise-checklist-ranges-object-value-facet>
+                <relewise-checklist-ranges-object-value-facet
+                    .label=${label}
+                    .result=${facet}>
+                </relewise-checklist-ranges-object-value-facet>
             `;
         }
 
         if (facet.$type.includes('ProductAssortmentFacetResult') ||
             facet.$type.includes('ProductDataDoubleValueFacetResult')) {
             return html`
-                <relewise-checklist-number-value-facet .result=${facet}></relewise-checklist-number-value-facet>
+                <relewise-checklist-number-value-facet
+                    .label=${label}    
+                    .result=${facet}>
+                </relewise-checklist-number-value-facet>
             `;
         }
 
         if (facet.$type.includes('BrandFacetResult') ||
             facet.$type.includes('CategoryFacetResult')) {
             return html`
-                <relewise-checklist-object-value-facet .result=${facet}></relewise-checklist-object-value-facet>
+                <relewise-checklist-object-value-facet 
+                    .label=${label}
+                    .result=${facet}>
+                </relewise-checklist-object-value-facet>
             `;
         }
 
         if (facet.$type.includes('ProductDataBooleanValueFacetResult')) {
             return html`
-                <relewise-checklist-boolean-value-facet .result=${facet}></relewise-checklist-boolean-value-facet>
+                <relewise-checklist-boolean-value-facet
+                    .label=${label}
+                    .result=${facet}>
+                </relewise-checklist-boolean-value-facet>
             `;
         }
 
         if (facet.$type.includes('ProductDataStringValueFacetResult')) {
             return html`
-                <relewise-checklist-string-value-facet .result=${facet}></relewise-checklist-string-value-facet>
+                <relewise-checklist-string-value-facet
+                    .label=${label}
+                    .result=${facet}>
+                </relewise-checklist-string-value-facet>
             `;
         }
 
         if (facet.$type.includes('ProductDataDoubleRangeFacetResult') ||
             facet.$type.includes('PriceRangeFacetResult')) {
             return html`
-                <relewise-number-range-facet .result=${facet}></relewise-number-range-facet>
+                <relewise-number-range-facet
+                    .label=${label}
+                    .result=${facet}>
+                </relewise-number-range-facet>
             `;
         }
 
@@ -105,8 +126,8 @@ export class Facets extends LitElement {
                 html`
                 <div class="rw-facets-container">
                     ${this.showDimmingOverlay ? html`<div class="rw-dimming-overlay"></div>`: nothing}
-                    ${this.facetResult?.items?.map(item => {
-                        return this.renderFacet(item);
+                    ${this.facetResult?.items?.map((item, index) => {
+                        return this.renderFacet(this.labels[index], item);
                     })}
                 </div>
             ` : nothing}

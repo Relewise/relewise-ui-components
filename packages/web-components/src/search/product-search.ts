@@ -7,7 +7,7 @@ import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOp
 import { theme } from '../theme';
 import { SortingEnum } from './enums';
 import { getSearcher } from './searcher';
-import { RelewiseUISearchOptions } from 'src';
+import { RelewiseFacetBuilder, RelewiseUISearchOptions } from '../app';
 
 export class ProductSearch extends LitElement {
     
@@ -31,6 +31,9 @@ export class ProductSearch extends LitElement {
 
     @state()
     abortController: AbortController = new AbortController();
+
+    @state()
+    facetLabels: string[] = [];
 
     async connectedCallback() {
         if (!this.displayedAtLocation) {
@@ -115,7 +118,9 @@ export class ProductSearch extends LitElement {
             })
             .facets(builder => {
                 if (this.searchOptions && this.searchOptions.facets) {
-                    this.searchOptions.facets.facetBuilder(builder);
+                    const facetBuilder = new RelewiseFacetBuilder(builder);
+                    this.searchOptions.facets.facetBuilder(facetBuilder);
+                    this.facetLabels = facetBuilder.getLabels();
                 }
             })
             .sorting(builder => {
@@ -294,7 +299,10 @@ export class ProductSearch extends LitElement {
             </div>
             <div class="result-container">
                 ${this.searchResult?.facets ? html`
-                    <relewise-facets .facetResult=${this.searchResult?.facets}></relewise-facets>
+                    <relewise-facets
+                        .labels=${this.facetLabels}
+                        .facetResult=${this.searchResult?.facets}>
+                    </relewise-facets>
                 `: nothing}
                 <div class="rw-full-width">
                     <relewise-product-search-results class="rw-full-width" .products=${this.products}></relewise-product-search-results>

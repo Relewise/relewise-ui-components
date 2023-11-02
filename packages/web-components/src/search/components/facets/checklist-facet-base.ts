@@ -15,6 +15,9 @@ export abstract class ChecklistFacetBase extends LitElement {
     @property({ type: Object })
     result: (BrandFacetResult | CategoryFacetResult | ProductDataStringValueFacetResult | ProductDataBooleanValueFacetResult | ProductAssortmentFacetResult | PriceRangesFacetResult | ProductDataDoubleRangesFacetResult | ProductDataDoubleValueFacetResult) | null = null;
 
+    @property()
+    label: string = '';
+
     @state()
     selectedValues: string[] = [];
 
@@ -30,18 +33,6 @@ export abstract class ChecklistFacetBase extends LitElement {
                 this.selectedValues = readCurrentUrlStateValues(this.result.field);
             }
         }
-    }
-
-    getLabelDisplayValue(): string {
-        if (!this.result) {
-            return '';
-        }  
-
-        if ('key' in this.result && this.result.key) {
-            return this.result.key;
-        }
-
-        return this.result.field;
     }
 
     updateUrlState() {
@@ -79,7 +70,7 @@ export abstract class ChecklistFacetBase extends LitElement {
 
         return html`
         <div class="rw-facet-content">
-            <h3>${this.getLabelDisplayValue()}</h3>
+            <h3>${this.label}</h3>
             ${facetResultsToShow.map((item, index) => {
                     return html`
                     ${item.value !== undefined ? html`
