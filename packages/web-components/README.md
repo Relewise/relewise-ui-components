@@ -253,7 +253,7 @@ useSearch({
     The amount of time, in milliseconds, that must pass between requests to Relewise with a new search call.
 
 #### Product Search
-This component renders a searche bar that [searches for products](https://docs.relewise.com/docs/intro/search.html#product-search) in Relewise and show results, faceting and sorting options.
+This component renders a search bar that [searches for products](https://docs.relewise.com/docs/intro/search.html#product-search) in Relewise and shows results, faceting and sorting options.
 
 ```html
 <relewise-product-search displayed-at-location="LOCATION"></relewise-product-search>
@@ -263,7 +263,7 @@ This component renders a searche bar that [searches for products](https://docs.r
 
 - **displayed-at-location** : 
     
-    Where the search bar is being shown. 
+    Where the search component is being shown. 
     
     For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_6-making-search-requests).
 
@@ -287,7 +287,7 @@ useSearch({
 #### Facets
 By default the component will not render any facets.
 
-To start doing so include your facet configuration in the `useSearch` function.
+To start doing so, include your facet configuration in the `useSearch` function.
 
 ```ts
 useSearch({
@@ -301,7 +301,7 @@ useSearch({
 });
 ```
 
-To overwrite the layout of the components include the components inside the `relewise-product-search` html tag.
+To overwrite the layout of the components, include the components inside the `relewise-product-search` html tag.
 
 Every tag inside the `relewise-product-search` html tag, will be rendered as regular html so you can expand the content as needed and create your own layout.
 
@@ -323,15 +323,15 @@ Every tag inside the `relewise-product-search` html tag, will be rendered as reg
 </relewise-product-search>
 ```
 
-***Note: once including your own layout nothing from the default will be rendered!***
+***Note: once including your own layout nothing from the default layout will be rendered!***
 
 ##### Components
-These components are all included in the default layout and can also be used in custom layout.
+These components are all included in the default layout and can also be used in custom layouts.
 
 You do not have to worry about setting data on these components, this is handled internally by the Product Search component.
 
 ###### Search bar
-Renders a search bar with a button.
+Renders a search bar with a search button.
 
 The component will search as the user types or presses the search button.
 
