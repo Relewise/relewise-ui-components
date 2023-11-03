@@ -64,38 +64,37 @@ export class ProductSearchResults extends LitElement {
     }
 
     static styles = [theme, css`
-    :host {
-        font-family: var(--font);
-    }
-
-    .rw-result-container {
-        position: relative;
-        padding: 1rem;
-    }
-
-    .rw-loading-spinner-container {
-        display: flex;
-        justify-content: center;
-        margin: 1rem;
-    }
-
-    .rw-product-grid {
-        display: grid;
-        grid-template-columns: repeat(2,1fr);
-        gap: 1rem;
-    }
-
-    .rw-product-tile {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    @media (min-width: 1023px) {
-        .rw-product-grid {
-            grid-template-columns: repeat(4,1fr);
+        :host {
+            font-family: var(--font);
         }
-    }
+
+        .rw-result-container {
+            position: relative;
+        }
+
+        .rw-loading-spinner-container {
+            display: flex;
+            justify-content: center;
+            margin: 1rem;
+        }
+
+        .rw-product-grid {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 1rem;
+        }
+
+        .rw-product-tile {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @media (min-width: 1023px) {
+            .rw-product-grid {
+                grid-template-columns: repeat(4,1fr);
+            }
+        }
     `];
 }
 

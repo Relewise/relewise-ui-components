@@ -117,9 +117,9 @@ export class ProductSearch extends LitElement {
                 }
             })
             .facets(builder => {
-                if (this.searchOptions && this.searchOptions.facetBuilder) {
+                if (this.searchOptions && this.searchOptions.facets) {
                     const facetBuilder = new RelewiseFacetBuilder(builder);
-                    this.searchOptions.facetBuilder(facetBuilder);
+                    this.searchOptions.facets(facetBuilder);
                     this.facetLabels = facetBuilder.getLabels();
                 }
             })
@@ -341,6 +341,7 @@ export class ProductSearch extends LitElement {
             .result-container {
                 display: flex;
                 width: 100%;
+                gap: 1rem;
             }
         }
     `];

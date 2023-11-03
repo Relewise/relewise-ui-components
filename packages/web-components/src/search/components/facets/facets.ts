@@ -138,7 +138,7 @@ export class Facets extends LitElement {
         .rw-facets-container {
             display: flex;
             flex-direction: column;
-            gap: .5rem;
+            gap: 1rem;
         }
 
         .rw-facet-button {
@@ -154,7 +154,6 @@ export class Facets extends LitElement {
 
         @media (min-width: 1024px) {
             .rw-facets-container {
-                margin-right: .5rem;
                 min-width: 15rem;
             }
 

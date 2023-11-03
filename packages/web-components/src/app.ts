@@ -25,7 +25,7 @@ import { updateContextSettings } from './updateContextSettings';
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
     templates?: SearchTemplates;
-    facetBuilder?: (builder: RelewiseFacetBuilder) => void;
+    facets?: (builder: RelewiseFacetBuilder) => void;
     localization?: SearchLocalization;
     rememberScrollPosition?: boolean;
 }
@@ -38,8 +38,9 @@ export class RelewiseFacetBuilder {
         this.builder = builder;
     }
 
-    addFacet(label: string, facet: (builder: FacetBuilder) => void): this {
-        this.labels.push(label);
+    addFacet(facet: (builder: FacetBuilder) => void, options: { heading: string }): this {
+        this.labels.push(options.heading);
+
         facet(this.builder);
         return this;
     }
