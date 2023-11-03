@@ -99,7 +99,7 @@ export class ProductSearch extends LitElement {
         const numberOfProductsToFetch = getNumberOfProductSearchResults();
 
         const relewiseUIOptions = getRelewiseUIOptions();
-        const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
+        const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search');
         const searcher = getSearcher(relewiseUIOptions);
 
         const requestBuilder = new ProductSearchBuilder(settings)
@@ -148,7 +148,6 @@ export class ProductSearch extends LitElement {
                     builder.sortByProductPopularity('Descending', (n) => n.sortByProductRelevance());
                     break;
                 }
-
             });
 
         const request = requestBuilder.build();
@@ -254,23 +253,22 @@ export class ProductSearch extends LitElement {
     setDataOnNodes(nodes: Node[]) {
         nodes.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE && node instanceof HTMLElement) {
-                const element = node as HTMLElement;
-
-                if (element.tagName.toLowerCase() === 'relewise-product-search-results') {
-                    element.setAttribute('products', JSON.stringify(this.products));
+  
+                if (node.tagName.toLowerCase() === 'relewise-product-search-results') {
+                    node.setAttribute('products', JSON.stringify(this.products));
                 }
 
-                if (element.tagName.toLowerCase() === 'relewise-product-search-load-more-button') {
-                    element.setAttribute('products-loaded', this.products.length.toString());
-                    element.setAttribute('hits', this.searchResult?.hits.toString() ?? '');
+                if (node.tagName.toLowerCase() === 'relewise-product-search-load-more-button') {
+                    node.setAttribute('products-loaded', this.products.length.toString());
+                    node.setAttribute('hits', this.searchResult?.hits.toString() ?? '');
                 }
                 
-                if (element.tagName.toLowerCase() === 'relewise-facets') {
-                    element.setAttribute('facets-result', JSON.stringify(this.searchResult?.facets));                    
+                if (node.tagName.toLowerCase() === 'relewise-facets') {
+                    node.setAttribute('facets-result', JSON.stringify(this.searchResult?.facets));                    
                 }
 
-                if (element.children.length > 0) {
-                    this.setDataOnNodes(Array.from(element.childNodes));
+                if (node.children.length > 0) {
+                    this.setDataOnNodes(Array.from(node.childNodes));
                 }
             }
         });
