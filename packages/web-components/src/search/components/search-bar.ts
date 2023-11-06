@@ -23,10 +23,18 @@ export class SearchBar extends LitElement {
         super.connectedCallback();
     }
 
+    focusSearchInput() {
+        const searchInput = this.shadowRoot?.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.focus();
+        }
+    }
+
     render() {
         return html`
         <div class="rw-search-bar rw-border" @keydown=${this.handleKeyEvent}>
             <input 
+                id="searchInput"
                 class="rw-search-bar-input"
                 type="text"
                 placeholder=${this.placeholder ?? 'Search'}
@@ -34,7 +42,15 @@ export class SearchBar extends LitElement {
                 @input=${(e: InputEvent) => this.setSearchTerm((e.target as HTMLInputElement).value)}
                 @focus=${() => this.setSearchBarInFocus(true)} 
                 @blur=${() => this.setSearchBarInFocus(false)}>
-            ${this.term ? html`<div class="rw-clear" @click=${() => this.setSearchTerm('')}><relewise-x-icon></relewise-x-icon></div>`  : html`<div class="rw-search-icon"><relewise-search-icon></relewise-search-icon></div>`}
+            ${this.term ? 
+                html`
+                    <div class="rw-icon" @click=${() => this.setSearchTerm('')}>
+                        <relewise-x-icon></relewise-x-icon>
+                    </div>` : html`
+                    <div class="rw-icon" @click=${() => this.focusSearchInput()}>
+                        <relewise-search-icon></relewise-search-icon>
+                    </div>
+                `}
         </div>
         `;
     }
@@ -61,19 +77,20 @@ export class SearchBar extends LitElement {
                 all: unset;
                 max-width: calc(100% - 2rem); 
                 min-width: calc(100% - 2rem);
+                height: 100%;
             }
 
             .rw-search-bar-input::placeholder {
                 color: var(--color);
             }
 
-            .rw-clear {
+            .rw-icon {
+                width: 100%;
+                height: 100%;
                 cursor: pointer;
-                margin: auto;
-            }
-
-            .rw-search-icon {
-                margin: auto;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
     `];
 }
