@@ -299,6 +299,7 @@ export class ProductSearch extends LitElement {
         return html`
         <slot>
             <relewise-product-search-bar
+                class="rw-product-search-bar"
                 debounce-time=${this.debounceTime}></relewise-product-search-bar>
             <div class="rw-sorting-button-container">
                 <relewise-product-search-sorting class="rw-sorting-button"></relewise-product-search-sorting>
@@ -326,6 +327,11 @@ export class ProductSearch extends LitElement {
     static styles = [theme, css`
         :host {
             font-family: var(--font);
+        }
+
+        .rw-product-search-bar {
+            margin-top: var(--relewise-product-search-bar-margin-top, 1rem);
+            margin-bottom: var(--relewise-product-search-bar-margin-bottom, 1rem);
         }
 
         .rw-sorting-button-container {

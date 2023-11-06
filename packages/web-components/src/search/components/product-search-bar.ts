@@ -63,8 +63,6 @@ export class ProductSearchBar extends LitElement {
         css`
             :host {
                 display: flex;
-                margin-top: var(--relewise-product-search-bar-margin-top, 1rem);
-                margin-bottom: var(--relewise-product-search-bar-margin-bottom, 1rem);
             }
 
             .rw-search-bar {
