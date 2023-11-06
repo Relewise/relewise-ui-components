@@ -17,6 +17,9 @@ export class ProductSearch extends LitElement {
     @property({ type: Number, attribute: 'search-result-page-size' })
     searchResultPageSize: number = 16;
 
+    @property({ type: Number, attribute: 'debounce-time' })
+    debounceTime: number = 250;
+
     @state()
     searchResult: ProductSearchResponse | null = null;
 
@@ -269,6 +272,10 @@ export class ProductSearch extends LitElement {
                     element.setAttribute('facets-result', JSON.stringify(this.searchResult?.facets));                    
                 }
 
+                if (element.tagName.toLowerCase() === 'relewise-product-search-bar') {
+                    element.setAttribute('debounce-time', this.debounceTime.toString());                    
+                }
+
                 if (element.children.length > 0) {
                     this.setDataOnNodes(Array.from(element.childNodes));
                 }
@@ -293,7 +300,8 @@ export class ProductSearch extends LitElement {
     render() {
         return html`
         <slot>
-            <relewise-product-search-bar></relewise-product-search-bar>
+            <relewise-product-search-bar
+                debounce-time=${this.debounceTime}></relewise-product-search-bar>
             <div class="rw-sorting-button-container">
                 <relewise-product-search-sorting class="rw-sorting-button"></relewise-product-search-sorting>
             </div>

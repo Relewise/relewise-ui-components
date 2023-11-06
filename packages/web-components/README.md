@@ -273,6 +273,10 @@ This component renders a search bar that [searches for products](https://docs.re
 
     The number of products to search for initially.
 
+- **debounce-time** (Optional, *Default 250*): 
+
+    The amount of time, in milliseconds, that must pass between requests to Relewise with a new search call.
+
 #### Scroll position
 When the user navigates to another page or leaves the site, the component will by default not remember where the user last scrolled to.
 
