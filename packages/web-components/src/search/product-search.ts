@@ -193,6 +193,10 @@ export class ProductSearch extends LitElement {
         }
 
         this.getSelectedStrings(facet);
+        
+        if (!facet.settings) {
+            facet.settings = { alwaysIncludeSelectedInAvailable: true, includeZeroHitsInAvailable: false };
+        }
     }
 
     getSelectedRange(facet: ContentAssortmentFacet | ProductAssortmentFacet | ProductCategoryAssortmentFacet | BrandFacet | CategoryFacet | CategoryHierarchyFacet | ContentDataObjectFacet | ContentDataDoubleRangeFacet | ContentDataDoubleRangesFacet | ContentDataStringValueFacet | ContentDataBooleanValueFacet | ContentDataDoubleValueFacet | ContentDataIntegerValueFacet | DataObjectFacet | DataObjectDoubleRangeFacet | DataObjectDoubleRangesFacet | DataObjectStringValueFacet | DataObjectBooleanValueFacet | DataObjectDoubleValueFacet | PriceRangeFacet | PriceRangesFacet | ProductCategoryDataObjectFacet | ProductCategoryDataDoubleRangeFacet | ProductCategoryDataDoubleRangesFacet | ProductCategoryDataStringValueFacet | ProductCategoryDataBooleanValueFacet | ProductCategoryDataDoubleValueFacet | ProductDataObjectFacet | ProductDataDoubleRangeFacet | ProductDataDoubleRangesFacet | ProductDataStringValueFacet | ProductDataBooleanValueFacet | ProductDataDoubleValueFacet | ProductDataIntegerValueFacet | VariantSpecificationFacet) {
