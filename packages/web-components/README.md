@@ -386,6 +386,8 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-font: Arial, Helvetica, sans-serif;
             --relewise-color: lightgray;
             --relewise-accent-color: #3764e4;
+            --relewise-border: 2px solid;
+            --relewise-border-radius: 1rem;
             
             --relewise-image-align: start;
 
@@ -397,8 +399,6 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-hover-color: whitesmoke;
 
             --relewise-button-height: 3.25rem;
-            --relewise-button-border: 2px solid;
-            --relewise-button-border-radius: 1rem;
             --relewise-button-text-color: white;
             --relewise-button-text-font-weight: 100;
             --relewise-button-icon-padding: .5rem;
@@ -449,6 +449,9 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-product-search-sorting-background-color: #eee;
             --relewise-product-search-sorting-padding: .5rem;
 
+            --relewise-load-more-text-size: 1rem;
+            --relewise-load-more-text-color: black;
+
             --relewise-product-search-bar-margin-top: 1rem;
             --relewise-product-search-bar-margin-bottom: 1rem;
             --relewise-product-search-bar-width: 100%;
@@ -469,7 +472,8 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-number-range-input-border: 2px solid;
             --relewise-number-range-input-border-radius: 1rem;
             --relewise-number-range-input-height: 2rem;  
-            --relewise-number-range-input-width: 4rem;  
+            --relewise-number-range-input-width: 4rem;
+            --relewise-number-range-save-text-color: black;
         }
     </style>
 ```

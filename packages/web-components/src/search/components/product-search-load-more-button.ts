@@ -41,8 +41,8 @@ export class LoadMoreProducts extends LitElement {
         }
         const localization = getRelewiseUISearchOptions()?.localization?.loadMoreButton;
         return html`
-            <relewise-button class="rw-button" @click=${() => window.dispatchEvent(new CustomEvent(Events.loadMoreProducts))}>
-                ${localization?.loadMore ?? 'Load More'}
+            <relewise-button class="rw-button rw-border" @click=${() => window.dispatchEvent(new CustomEvent(Events.loadMoreProducts))}>
+                <span class="rw-load-more-text">${localization?.loadMore ?? 'Load More'}</span>
             </relewise-button>
         `;
     }
@@ -56,10 +56,14 @@ export class LoadMoreProducts extends LitElement {
 
         .rw-button {
             height: 3.25rem;
-            border: 2px solid;
-            border-color: var(--accent-color);
-            border-radius: 1rem;
-            background-color: var(--accent-color);
+            border-color: var(--color);
+            background-color: var(--color);
+        }
+
+        .rw-load-more-text {
+            font-family: var(--font);
+            font-size: var(--relewise-load-more-text-size, 1rem);
+            color: var(--relewise-load-more-text-color, black);
         }
     `];
 }

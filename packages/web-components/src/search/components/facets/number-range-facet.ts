@@ -119,7 +119,7 @@ export class NumberRangeFacet extends LitElement {
         <div class="rw-facet-content">
             <h3>${this.label}</h3>
             <div class="rw-flex">
-                <div class="rw-input-container">
+                <div class="rw-input-container rw-border">
                     <input
                     type="number"
                         .value=${this.lowerBound?.toString() ?? ''}
@@ -128,7 +128,7 @@ export class NumberRangeFacet extends LitElement {
                         @keydown=${this.handleKeyEvent}>
                 </div>
                         <span class="rw-range-delimiter">-</span>
-                <div class="rw-input-container">
+                <div class="rw-input-container rw-border">
                     <input
                         type="number"
                         .value=${this.upperBound?.toString() ?? ''}
@@ -136,7 +136,9 @@ export class NumberRangeFacet extends LitElement {
                         class="rw-input"
                         @keydown=${this.handleKeyEvent}>
                 </div>
-                <relewise-button class="rw-button rw-save" @click=${this.save}>${localization?.save ?? 'Save'}</relewise-button>
+                <relewise-button class="rw-save" @click=${this.save}>
+                    <span class="rw-save-text">${localization?.save ?? 'Save'}</span>
+                </relewise-button>
             </div>
         </div>
       `;
@@ -144,8 +146,9 @@ export class NumberRangeFacet extends LitElement {
 
     static styles = [theme, css`
         :host {
-            border-radius: 1rem;
-            background-color: lightgray;
+            font-family: var(--font);
+            border-radius: var(--border-radius);
+            background-color: var(--color);
             height: fit-content;
         }
 
@@ -156,6 +159,16 @@ export class NumberRangeFacet extends LitElement {
         .rw-save {
             height: 2rem;
             margin-left: .5rem;
+            border: var(--border);
+            border-radius: var(--border-radius);
+            border-color: lightgray;
+            background-color: lightgray
+        }
+
+        .rw-save-text {
+            font-size: 1rem;
+            font-family: var(--font);
+            color: var(--relewise-number-range-save-text-color, black);
         }
 
         .rw-input {
@@ -168,10 +181,8 @@ export class NumberRangeFacet extends LitElement {
             align-items: center;
             padding-left: 1rem;
             padding-right: 1rem;
-            border: var(--relewise-number-range-input-border, 2px solid);
-            border-color: var(--color);
-            border-radius: var(--relewise-number-range-input-border-radius, 1rem);
             background: white;
+            border-color: var(--color);
             height: var(--relewise-number-range-input-height, 2rem);  
             width: var(--relewise-number-range-input-width, 100%);  
         }
