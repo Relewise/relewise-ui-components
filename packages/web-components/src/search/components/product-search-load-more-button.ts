@@ -41,7 +41,7 @@ export class LoadMoreProducts extends LitElement {
         }
         const localization = getRelewiseUISearchOptions()?.localization?.loadMoreButton;
         return html`
-            <span class="rw-products-shown">${this.productsLoaded} - ${this.hits}</span>
+            <span class="rw-products-shown">${localization?.showing ?? 'Showing'} ${this.productsLoaded} ${localization?.outOf ?? 'out of'} ${this.hits} ${localization?.products ?? 'products'}</span>
             <div class="rw-button-container">
                 <relewise-button class="rw-button rw-border" @click=${() => window.dispatchEvent(new CustomEvent(Events.loadMoreProducts))}>
                     <span class="rw-load-more-text">${localization?.loadMore ?? 'Load More'}</span>
@@ -76,7 +76,7 @@ export class LoadMoreProducts extends LitElement {
         .rw-products-shown {
             display: flex;
             justify-content: center;
-            color: var(--relewise-products-shown-color, gray);
+            color: var(--relewise-products-shown-color, black);
             font-size: var(--relewise-products-shown-font-size, .75rem);
             margin-top: .5rem;
             margin-bottom: .5rem;

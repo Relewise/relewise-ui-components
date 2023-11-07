@@ -73,7 +73,10 @@ export interface SortingLocalization {
 }
 
 export interface LoadMoreLocalization {
-    loadMore?: string; 
+    loadMore?: string;
+    showing?: string;
+    outOf?: string;
+    products?: string;
 }
 
 export interface FacetLocalization {

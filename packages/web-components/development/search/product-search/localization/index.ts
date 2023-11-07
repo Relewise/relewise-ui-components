@@ -22,6 +22,9 @@ initializeRelewiseUI(
     localization: {
         loadMoreButton: {
             loadMore: 'Hent flere!',
+            showing: 'Viser',
+            outOf: 'ud af',
+            products: 'produkter',
         },
         searchBar: {
             placeholder: 'Du kan søge her',

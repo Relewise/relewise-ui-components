@@ -193,7 +193,10 @@ useSearch({
             no: 'No'
         },
         loadMoreButton: {
-            loadMore: 'Load More',
+            loadMore: 'Hent flere!',
+            showing: 'Viser',
+            outOf: 'ud af',
+            products: 'produkter',
         },
         searchBar: {
             placeholder: 'Search',
