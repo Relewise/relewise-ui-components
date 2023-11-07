@@ -213,7 +213,7 @@ export class ProductSearch extends LitElement {
                 lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field + facet.key);
             } else {
                 upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field);
-                lowerBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field);
+                lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field);
             }
     
             facet.selected = {
