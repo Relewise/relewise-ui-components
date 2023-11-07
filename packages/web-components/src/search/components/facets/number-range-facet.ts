@@ -153,7 +153,7 @@ export class NumberRangeFacet extends LitElement {
         }
 
         .rw-facet-content {
-            margin: .5rem;
+            margin: 1rem;
         }
 
         .rw-save {
