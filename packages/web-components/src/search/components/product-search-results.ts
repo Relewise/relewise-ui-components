@@ -2,7 +2,7 @@ import { ProductResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { theme } from '../../theme';
-import { Events } from '../../helpers';
+import { Events, getRelewiseUISearchOptions } from '../../helpers';
 
 export class ProductSearchResults extends LitElement {
 
@@ -45,6 +45,7 @@ export class ProductSearchResults extends LitElement {
     }
 
     render() {
+        const localization = getRelewiseUISearchOptions()?.localization?.searchResults;
         return html`
             <div class="rw-result-container">
                 ${this.showDimmingOverlay ? html`<div class="rw-dimming-overlay"></div>`: nothing}
@@ -55,7 +56,11 @@ export class ProductSearchResults extends LitElement {
                         })
                         }
                 </div>
-                ` : nothing}
+                ` : html`
+                        ${!this.showDimmingOverlay && !this.showLoadingSpinner ? html`
+                            <span class="rw-no-results-message">${localization?.noResults ?? 'No results found'}</span>
+                        ` : nothing}
+                `}
                 ${this.showLoadingSpinner ? html`
                     <div class="rw-loading-spinner-container"><relewise-loading-spinner></relewise-loading-spinner></div>
                 ` : nothing}
@@ -88,6 +93,13 @@ export class ProductSearchResults extends LitElement {
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .rw-no-results-message {
+            position: fixed;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
         }
         
         @media (min-width: 1023px) {

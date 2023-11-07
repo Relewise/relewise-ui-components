@@ -334,8 +334,8 @@ export class ProductSearch extends LitElement {
         }
 
         .rw-product-search-bar {
-            margin-top: var(--relewise-product-search-bar-margin-top, 1rem);
-            margin-bottom: var(--relewise-product-search-bar-margin-bottom, 1rem);
+            margin-top: var(--relewise-product-search-bar-margin-top, .5rem);
+            margin-bottom: var(--relewise-product-search-bar-margin-bottom, .5rem);
         }
 
         .rw-sorting-button-container {
