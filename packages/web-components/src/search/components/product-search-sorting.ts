@@ -17,7 +17,7 @@ export class ProductSearchSorting extends LitElement {
         const selectElement = event.target as HTMLSelectElement;
         this.selectedOption = selectElement.value;
         updateUrlState(QueryKeys.sortBy, this.selectedOption);
-        window.dispatchEvent(new CustomEvent(Events.search));
+        window.dispatchEvent(new CustomEvent(Events.applySorting));
     }
 
     getOptionText(sortingValue: string): string {

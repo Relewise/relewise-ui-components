@@ -94,7 +94,7 @@ export class NumberRangeFacet extends LitElement {
             updateUrlState(QueryKeys.facetLowerbound + this.result.field, this.lowerBound.toString());
         }
         
-        window.dispatchEvent(new CustomEvent(Events.search));
+        window.dispatchEvent(new CustomEvent(Events.applyFacet));
     }
 
     handleKeyEvent(event: KeyboardEvent): void {

@@ -53,6 +53,8 @@ export class ProductSearch extends LitElement {
         this.search(false);
 
         window.addEventListener(Events.search, () => this.handleSearchEvent());
+        window.addEventListener(Events.applyFacet, () => this.handleSearchEvent());
+        window.addEventListener(Events.applySorting, () => this.handleSearchEvent());
         window.addEventListener(Events.loadMoreProducts, () => this.handleLoadMoreEvent());
         if (this.searchOptions?.rememberScrollPosition) {
             window.addEventListener('scroll', async() => this.handleScrollEvent()); 
@@ -63,6 +65,8 @@ export class ProductSearch extends LitElement {
 
     disconnectedCallback() {
         window.removeEventListener(Events.search, this.handleSearchEvent);
+        window.removeEventListener(Events.applyFacet, this.handleSearchEvent);
+        window.removeEventListener(Events.applySorting, this.handleSearchEvent);
         window.removeEventListener(Events.loadMoreProducts, this.handleLoadMoreEvent);
         
         if (this.searchOptions?.rememberScrollPosition) {

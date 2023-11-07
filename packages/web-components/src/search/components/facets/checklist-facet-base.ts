@@ -26,6 +26,8 @@ export abstract class ChecklistFacetBase extends LitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
+        window.addEventListener(Events.search, () => this.clearSelectedValues());
+
         if (this.result) {
             if ('key' in this.result)  {
                 this.selectedValues = readCurrentUrlStateValues(QueryKeys.facet + this.result.field + this.result.key);
@@ -33,6 +35,16 @@ export abstract class ChecklistFacetBase extends LitElement {
                 this.selectedValues = readCurrentUrlStateValues(QueryKeys.facet + this.result.field);
             }
         }
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener(Events.search, this.clearSelectedValues);
+        super.disconnectedCallback();
+    }
+
+    clearSelectedValues() {
+        this.selectedValues = [];
+        this.updateUrlState();
     }
 
     updateUrlState() {
@@ -46,7 +58,7 @@ export abstract class ChecklistFacetBase extends LitElement {
             updateUrlStateValues(QueryKeys.facet + this.result.field, this.selectedValues);
         }
 
-        window.dispatchEvent(new CustomEvent(Events.search));
+        window.dispatchEvent(new CustomEvent(Events.applyFacet));
     }
 
     render() {
