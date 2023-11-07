@@ -453,6 +453,9 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-load-more-text-size: 1rem;
             --relewise-load-more-text-color: black;
 
+            --relewise-products-shown-color: gray;
+            --relewise-products-shown-font-size: .75rem;
+
             --relewise-product-search-bar-margin-top: 1rem;
             --relewise-product-search-bar-margin-bottom: 1rem;
             --relewise-product-search-bar-width: 100%;

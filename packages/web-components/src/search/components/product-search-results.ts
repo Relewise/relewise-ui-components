@@ -55,7 +55,7 @@ export class ProductSearchResults extends LitElement {
                             return html`<relewise-product-tile class="rw-product-tile" .product=${product}></relewise-product-tile>`;
                         })
                         }
-                </div>
+                    </div>
                 ` : html`
                         ${!this.showDimmingOverlay && !this.showLoadingSpinner ? html`
                             <span class="rw-no-results-message">${localization?.noResults ?? 'No results found'}</span>

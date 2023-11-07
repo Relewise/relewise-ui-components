@@ -316,9 +316,12 @@ export class ProductSearch extends LitElement {
                     </relewise-facets>
                 `: nothing}
                 <div class="rw-full-width">
-                    <relewise-product-search-results class="rw-full-width" .products=${this.products}></relewise-product-search-results>
+                    <relewise-product-search-results
+                        class="rw-full-width"
+                        .products=${this.products}>
+                    </relewise-product-search-results>
                     <relewise-product-search-load-more-button
-                        class="rw-center"
+                        class="rw-load-more"
                         .productsLoaded=${this.products.length}
                         .hits=${this.searchResult?.hits ?? null}>
                     </relewise-product-search-load-more-button>
@@ -350,6 +353,10 @@ export class ProductSearch extends LitElement {
 
         .rw-sorting-button {
             margin-bottom: .5rem;
+        }
+
+        .rw-load-more {
+            margin: .5rem;
         }
 
         @media (min-width: 1024px) {

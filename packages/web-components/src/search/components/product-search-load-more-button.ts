@@ -41,17 +41,24 @@ export class LoadMoreProducts extends LitElement {
         }
         const localization = getRelewiseUISearchOptions()?.localization?.loadMoreButton;
         return html`
-            <relewise-button class="rw-button rw-border" @click=${() => window.dispatchEvent(new CustomEvent(Events.loadMoreProducts))}>
-                <span class="rw-load-more-text">${localization?.loadMore ?? 'Load More'}</span>
-            </relewise-button>
+            <span class="rw-products-shown">${this.productsLoaded} - ${this.hits}</span>
+            <div class="rw-button-container">
+                <relewise-button class="rw-button rw-border" @click=${() => window.dispatchEvent(new CustomEvent(Events.loadMoreProducts))}>
+                    <span class="rw-load-more-text">${localization?.loadMore ?? 'Load More'}</span>
+                </relewise-button>
+            </div>
         `;
     }
 
     static styles = [theme, css`
         :host {
-            margin: 1rem;
             justify-content: center;
+        }
+
+        .rw-button-container {
             display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .rw-button {
@@ -64,6 +71,15 @@ export class LoadMoreProducts extends LitElement {
             font-family: var(--font);
             font-size: var(--relewise-load-more-text-size, .85rem);
             color: var(--relewise-load-more-text-color, black);
+        }
+
+        .rw-products-shown {
+            display: flex;
+            justify-content: center;
+            color: var(--relewise-products-shown-color, gray);
+            font-size: var(--relewise-products-shown-font-size, .75rem);
+            margin-top: .5rem;
+            margin-bottom: .5rem;
         }
     `];
 }
