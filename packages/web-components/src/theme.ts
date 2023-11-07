@@ -15,11 +15,13 @@ export const theme = css`
   .rw-button {
     margin: 0;
     padding: 0;
-    height: var(--relewise-button-height, 3.25rem);
+    font-family: var(--font);
+    height: var(--relewise-button-height, 3rem);
     border: var(--border);
     border-radius: var(--border-radius);
     border-color: var(--accent-color);
     background-color: var(--accent-color);
+    font-size: .85rem;
   }
 
   .rw-border {

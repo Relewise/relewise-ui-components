@@ -342,22 +342,25 @@ export class ProductSearch extends LitElement {
             display: var(--relewise-sorting-button-container-display, flex);
         }
 
-        .rw-sorting-button {
-            margin-left: var(--relewise-sorting-button-margin-left, auto);
-            --relewise-sorting-options-right: .5rem;
-        }
-
         .rw-full-width {
             display: flex;
             flex-direction: column;
             width: 100%;
         }
 
+        .rw-sorting-button {
+            margin-bottom: .5rem;
+        }
+
         @media (min-width: 1024px) {
             .result-container {
                 display: flex;
                 width: 100%;
-                gap: 1rem;
+                gap: .5rem;
+            }
+
+            .rw-sorting-button {
+                margin-left: var(--relewise-sorting-button-margin-left, auto);
             }
         }
     `];

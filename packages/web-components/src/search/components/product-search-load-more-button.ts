@@ -55,14 +55,14 @@ export class LoadMoreProducts extends LitElement {
         }
 
         .rw-button {
-            height: 3.25rem;
+            height: 2.5rem;
             border-color: var(--color);
             background-color: var(--color);
         }
 
         .rw-load-more-text {
             font-family: var(--font);
-            font-size: var(--relewise-load-more-text-size, 1rem);
+            font-size: var(--relewise-load-more-text-size, .85rem);
             color: var(--relewise-load-more-text-color, black);
         }
     `];

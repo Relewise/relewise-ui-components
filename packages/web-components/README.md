@@ -445,6 +445,7 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-product-search-result-overlay-product-list-price-text-color: darkgray;
 
             --relewise-product-search-sorting-font-size: 1rem;
+            --relewise-product-search-sorting-font-weight: 400;
             --relewise-product-search-sorting-border-color: #eee;
             --relewise-product-search-sorting-background-color: #eee;
             --relewise-product-search-sorting-padding: .5rem;

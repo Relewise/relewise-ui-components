@@ -119,8 +119,8 @@ export class Facets extends LitElement {
                 class="rw-button rw-facet-button"
                 @click=${() => this.showFacets = !this.showFacets}>
                     ${this.showFacets ?
-                        html`<relewise-x-icon></relewise-x-icon>` :
-                        html`<relewise-filter-icon></relewise-filter-icon>`}
+                        html`<relewise-x-icon class="rw-icon"></relewise-x-icon>` :
+                        html`<relewise-filter-icon class="rw-icon"></relewise-filter-icon>`}
             </relewise-button>
             ${this.showFacets ? 
                 html`
@@ -138,11 +138,19 @@ export class Facets extends LitElement {
         .rw-facets-container {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: .5rem;
         }
 
         .rw-facet-button {
             margin-bottom: .5rem;
+            height: 2.5rem;
+            border-color: var(--color);
+            background-color: var(--color);
+            --relewise-button-text-color: black;
+        }
+
+        .rw-icon {
+            --relewise-icon-color: black;
         }
 
         @media (min-width: 480px) and (max-width: 1023px) {

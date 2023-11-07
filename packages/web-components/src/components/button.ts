@@ -54,7 +54,7 @@ export class Button extends LitElement {
             width: 100%;
             text-align: left;
             color: var(--relewise-button-text-color, white);
-            font-weight: var(--relewise-button-text-font-weight, 100);
+            font-weight: var(--relewise-button-text-font-weight, 400);
         }
         
         .rw-button-icon {

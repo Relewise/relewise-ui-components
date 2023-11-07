@@ -58,7 +58,8 @@ export class ProductSearchSorting extends LitElement {
     static styles = [theme, css`
         .rw-select {
             font-family: var(--font);
-            font-size: var(--relewise-product-search-sorting-font-size, 1rem);
+            font-size: var(--relewise-product-search-sorting-font-size, .85rem);
+            font-weight: var(--relewise-product-search-sorting-font-weight, 400);
             border-color: var(--relewise-product-search-sorting-border-color, #eee);
             background-color: var(--relewise-product-search-sorting-background-color, #eee);
             padding: var(--relewise-product-search-sorting-padding, .5rem);
