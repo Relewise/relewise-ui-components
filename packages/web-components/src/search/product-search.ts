@@ -3,7 +3,7 @@ import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { RelewiseFacetBuilder, RelewiseUISearchOptions } from '../app';
 import { defaultProductProperties } from '../defaultProductProperties';
-import { Events, QueryKeys, getNumberOfProductSearchResults, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
+import { Events, QueryKeys, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { SortingEnum } from './enums';
@@ -45,7 +45,7 @@ export class ProductSearch extends LitElement {
 
         this.searchOptions = getRelewiseUISearchOptions();
 
-        const productsToFetch = getNumberOfProductSearchResults();
+        const productsToFetch = getNumberOfProductsToFetch();
         if (productsToFetch) {
             this.page = productsToFetch / this.searchResultPageSize;
         }
@@ -103,7 +103,7 @@ export class ProductSearch extends LitElement {
 
         const term = readCurrentUrlState(QueryKeys.term) ?? null;
 
-        const numberOfProductsToFetch = getNumberOfProductSearchResults();
+        const numberOfProductsToFetch = getNumberOfProductsToFetch();
 
         const relewiseUIOptions = getRelewiseUIOptions();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search');

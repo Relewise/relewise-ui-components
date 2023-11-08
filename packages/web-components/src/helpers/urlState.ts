@@ -43,7 +43,7 @@ export function readCurrentUrlStateValues(queryParamName: string): string[] {
     return currentUrl.searchParams.getAll(queryParamName);
 }
 
-export function getNumberOfProductSearchResults(): number | null {
+export function getNumberOfProductsToFetch(): number | null {
     const productSearchResultsToLoad = readCurrentUrlState(QueryKeys.take);
 
     if (!productSearchResultsToLoad) {
