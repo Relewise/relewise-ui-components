@@ -27,14 +27,13 @@ export class ProductSearchBar extends LitElement {
     }
 
     setSearchTerm(term: string) {
-        this.term = term;
-        updateUrlState(QueryKeys.term, term);
-        
         if (this.debounceTimeoutHandlerId) {
             clearTimeout(this.debounceTimeoutHandlerId);
         }
 
         this.debounceTimeoutHandlerId = setTimeout(() => {
+            this.term = term;
+            updateUrlState(QueryKeys.term, term);
             window.dispatchEvent(new CustomEvent(Events.search));
         }, this.debounceTime);
     }
