@@ -316,7 +316,8 @@ export class ProductSearch extends LitElement {
                 ${this.searchResult?.facets ? html`
                     <relewise-facets
                         .labels=${this.facetLabels}
-                        .facetResult=${this.searchResult?.facets}>
+                        .facetResult=${this.searchResult?.facets}
+                        class="rw-facets">
                     </relewise-facets>
                 `: nothing}
                 <div class="rw-full-width">
@@ -363,11 +364,20 @@ export class ProductSearch extends LitElement {
             margin: .5rem;
         }
 
+        .rw-facets {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: .5rem;
+        }
+
         @media (min-width: 1024px) {
             .result-container {
                 display: flex;
                 width: 100%;
-                gap: .5rem;
+            }
+
+            .rw-facets {
+                margin-right: .5rem;
             }
 
             .rw-sorting-button {

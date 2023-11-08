@@ -96,10 +96,9 @@ export class ProductSearchResults extends LitElement {
         }
 
         .rw-no-results-message {
-            position: fixed;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
+            display: flex;
+            align-items: center; /* Vertically center the content */
+            justify-content: center; /* Horizontally center the content */
         }
         
         @media (min-width: 1023px) {
