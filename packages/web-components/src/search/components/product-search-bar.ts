@@ -21,7 +21,13 @@ export class ProductSearchBar extends LitElement {
         switch (event.key) {
         case 'Enter':
             event.preventDefault();
-            window.dispatchEvent(new CustomEvent(Events.search));
+            if (this.debounceTimeoutHandlerId) {
+                clearTimeout(this.debounceTimeoutHandlerId);
+            }
+    
+            this.debounceTimeoutHandlerId = setTimeout(() => {
+                window.dispatchEvent(new CustomEvent(Events.search));
+            }, this.debounceTime);
             break;
         }
     }
