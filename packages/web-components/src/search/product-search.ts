@@ -3,7 +3,7 @@ import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { RelewiseFacetBuilder, RelewiseUISearchOptions } from '../app';
 import { defaultProductProperties } from '../defaultProductProperties';
-import { Events, QueryKeys, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
+import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { SortingEnum } from './enums';
@@ -87,7 +87,7 @@ export class ProductSearch extends LitElement {
     }
 
     handleScrollEvent() {
-        sessionStorage.setItem('relewise-scroll-position', window.scrollY.toString());
+        sessionStorage.setItem(SessionVariables.scrollPosition, window.scrollY.toString());
     }
     
     async search(shouldClearOldResult: boolean) {
@@ -294,7 +294,7 @@ export class ProductSearch extends LitElement {
             return;
         }
 
-        const valueFromStorage = sessionStorage.getItem('relewise-scroll-position');
+        const valueFromStorage = sessionStorage.getItem(SessionVariables.scrollPosition);
         if (!valueFromStorage || +valueFromStorage === window.scrollY) {
             return;
         }
