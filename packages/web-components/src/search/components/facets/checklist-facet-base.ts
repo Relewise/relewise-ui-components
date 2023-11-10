@@ -1,19 +1,19 @@
-import { BooleanAvailableFacetValue, BrandFacetResult, BrandNameAndIdResultAvailableFacetValue, CategoryFacetResult, DecimalNullableChainableRangeAvailableFacetValue, Int32AvailableFacetValue, PriceRangesFacetResult, ProductAssortmentFacetResult, ProductDataBooleanValueFacetResult, ProductDataDoubleRangesFacetResult, ProductDataDoubleValueFacetResult, ProductDataStringValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlStateValues, updateUrlStateValues } from '../../../helpers';
 import { theme } from '../../../theme';
+import { CheckListFacet, CheckListFacetValue } from '../../types';
 
 export abstract class ChecklistFacetBase extends LitElement {
 
-    abstract handleChange(e: Event, item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue | DecimalNullableChainableRangeAvailableFacetValue): void;
+    abstract handleChange(e: Event, item: CheckListFacetValue): void;
     
-    abstract getOptionDisplayValue(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue | DecimalNullableChainableRangeAvailableFacetValue): string;
+    abstract getOptionDisplayValue(item: CheckListFacetValue): string;
 
-    abstract shouldOptionBeChecked(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue | DecimalNullableChainableRangeAvailableFacetValue): boolean;
+    abstract shouldOptionBeChecked(item: CheckListFacetValue): boolean;
 
     @property({ type: Object })
-    result: (BrandFacetResult | CategoryFacetResult | ProductDataStringValueFacetResult | ProductDataBooleanValueFacetResult | ProductAssortmentFacetResult | PriceRangesFacetResult | ProductDataDoubleRangesFacetResult | ProductDataDoubleValueFacetResult) | null = null;
+    result: CheckListFacet | null = null;
 
     @property()
     label: string = '';

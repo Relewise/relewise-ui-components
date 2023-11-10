@@ -1,8 +1,10 @@
-import { BrandFacetResult, CategoryFacetResult, CategoryHierarchyFacetResult, ContentAssortmentFacetResult, ContentDataBooleanValueFacetResult, ContentDataDoubleRangeFacetResult, ContentDataDoubleRangesFacetResult, ContentDataDoubleValueFacetResult, ContentDataIntegerValueFacetResult, ContentDataObjectFacetResult, ContentDataStringValueFacetResult, DataObjectBooleanValueFacetResult, DataObjectDoubleRangeFacetResult, DataObjectDoubleRangesFacetResult, DataObjectDoubleValueFacetResult, DataObjectFacetResult, DataObjectStringValueFacetResult, PriceRangeFacetResult, PriceRangesFacetResult, ProductAssortmentFacetResult, ProductCategoryAssortmentFacetResult, ProductCategoryDataBooleanValueFacetResult, ProductCategoryDataDoubleRangeFacetResult, ProductCategoryDataDoubleRangesFacetResult, ProductCategoryDataDoubleValueFacetResult, ProductCategoryDataObjectFacetResult, ProductCategoryDataStringValueFacetResult, ProductDataBooleanValueFacetResult, ProductDataDoubleRangeFacetResult, ProductDataDoubleRangesFacetResult, ProductDataDoubleValueFacetResult, ProductDataIntegerValueFacetResult, ProductDataObjectFacetResult, ProductDataStringValueFacetResult, ProductFacetResult, VariantSpecificationFacetResult } from '@relewise/client';
+import { ProductFacetResult } from '@relewise/client';
 import { LitElement, TemplateResult, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import { FacetResult } from 'src/search/types';
+import { Events, getRelewiseUISearchOptions } from '../../../helpers';
 import { theme } from '../../../theme';
-import { Events, getRelewiseUISearchOptions } from '../../../helpers';;
+;
 
 export class Facets extends LitElement {
 
@@ -49,61 +51,61 @@ export class Facets extends LitElement {
         this.showDimmingOverlay = false;
     }
 
-    renderFacet(label: string, facet: ProductAssortmentFacetResult | ContentAssortmentFacetResult | ProductCategoryAssortmentFacetResult | BrandFacetResult | CategoryFacetResult | CategoryHierarchyFacetResult | ContentDataObjectFacetResult | ContentDataDoubleRangeFacetResult | ContentDataDoubleRangesFacetResult | ContentDataStringValueFacetResult | ContentDataBooleanValueFacetResult | ContentDataDoubleValueFacetResult | ContentDataIntegerValueFacetResult | DataObjectFacetResult | DataObjectDoubleRangeFacetResult | DataObjectDoubleRangesFacetResult | DataObjectStringValueFacetResult | DataObjectBooleanValueFacetResult | DataObjectDoubleValueFacetResult | PriceRangeFacetResult | PriceRangesFacetResult | ProductCategoryDataObjectFacetResult | ProductCategoryDataDoubleRangeFacetResult | ProductCategoryDataDoubleRangesFacetResult | ProductCategoryDataStringValueFacetResult | ProductCategoryDataBooleanValueFacetResult | ProductCategoryDataDoubleValueFacetResult | ProductDataObjectFacetResult | ProductDataDoubleRangeFacetResult | ProductDataDoubleRangesFacetResult | ProductDataStringValueFacetResult | ProductDataBooleanValueFacetResult | ProductDataDoubleValueFacetResult | ProductDataIntegerValueFacetResult | VariantSpecificationFacetResult): TemplateResult<1> {
-        if (facet.$type.includes('PriceRangesFacetResult') || 
-            facet.$type.includes('ProductDataDoubleRangesFacetResult')) {
+    renderFacet(label: string, facetResult: FacetResult): TemplateResult<1> {
+        if (facetResult.$type.includes('PriceRangesFacetResult') || 
+            facetResult.$type.includes('ProductDataDoubleRangesFacetResult')) {
             return html`
                 <relewise-checklist-ranges-object-value-facet
                     .label=${label}
-                    .result=${facet}>
+                    .result=${facetResult}>
                 </relewise-checklist-ranges-object-value-facet>
             `;
         }
 
-        if (facet.$type.includes('ProductAssortmentFacetResult') ||
-            facet.$type.includes('ProductDataDoubleValueFacetResult')) {
+        if (facetResult.$type.includes('ProductAssortmentFacetResult') ||
+            facetResult.$type.includes('ProductDataDoubleValueFacetResult')) {
             return html`
                 <relewise-checklist-number-value-facet
                     .label=${label}    
-                    .result=${facet}>
+                    .result=${facetResult}>
                 </relewise-checklist-number-value-facet>
             `;
         }
 
-        if (facet.$type.includes('BrandFacetResult') ||
-            facet.$type.includes('CategoryFacetResult')) {
+        if (facetResult.$type.includes('BrandFacetResult') ||
+            facetResult.$type.includes('CategoryFacetResult')) {
             return html`
                 <relewise-checklist-object-value-facet 
                     .label=${label}
-                    .result=${facet}>
+                    .result=${facetResult}>
                 </relewise-checklist-object-value-facet>
             `;
         }
 
-        if (facet.$type.includes('ProductDataBooleanValueFacetResult')) {
+        if (facetResult.$type.includes('ProductDataBooleanValueFacetResult')) {
             return html`
                 <relewise-checklist-boolean-value-facet
                     .label=${label}
-                    .result=${facet}>
+                    .result=${facetResult}>
                 </relewise-checklist-boolean-value-facet>
             `;
         }
 
-        if (facet.$type.includes('ProductDataStringValueFacetResult')) {
+        if (facetResult.$type.includes('ProductDataStringValueFacetResult')) {
             return html`
                 <relewise-checklist-string-value-facet
                     .label=${label}
-                    .result=${facet}>
+                    .result=${facetResult}>
                 </relewise-checklist-string-value-facet>
             `;
         }
 
-        if (facet.$type.includes('ProductDataDoubleRangeFacetResult') ||
-            facet.$type.includes('PriceRangeFacetResult')) {
+        if (facetResult.$type.includes('ProductDataDoubleRangeFacetResult') ||
+            facetResult.$type.includes('PriceRangeFacetResult')) {
             return html`
                 <relewise-number-range-facet
                     .label=${label}
-                    .result=${facet}>
+                    .result=${facetResult}>
                 </relewise-number-range-facet>
             `;
         }
