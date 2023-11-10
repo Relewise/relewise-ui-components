@@ -50,6 +50,10 @@ export class Button extends LitElement {
         }
 
         .rw-button-text {
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            line-height: 1em;
             padding: .5rem;
             width: 100%;
             text-align: left;
