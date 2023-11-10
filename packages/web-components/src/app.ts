@@ -65,7 +65,7 @@ export interface SearchBarLocalization {
 
 export interface SortingLocalization {
     sorting?: string;
-    popularity?: string;
+    relevance?: string;
     salesPriceAscending?: string;
     salesPriceDescending?: string;
     alphabeticalAscending?: string;

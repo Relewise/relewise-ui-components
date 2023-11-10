@@ -209,7 +209,7 @@ useSearch({
             sorting: 'sorting'
             alphabeticalAscending: 'a - z',
             alphabeticalDescending: 'z - a',
-            popularity: 'popularity',
+            relevance: 'Relevance',
             salesPriceAscending: 'low - high',
             salesPriceDescending: 'high - low',
         },

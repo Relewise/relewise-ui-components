@@ -36,7 +36,7 @@ initializeRelewiseUI(
         sortingButton: {
             alphabeticalAscending: 'a - å',
             alphabeticalDescending: 'å - a',
-            popularity: 'populært',
+            relevance: 'relevans',
             salesPriceAscending: 'laveste pris først',
             salesPriceDescending: 'højeste pris først',
             sorting: 'Du kan sortere her',

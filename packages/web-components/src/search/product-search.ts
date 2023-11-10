@@ -133,10 +133,6 @@ export class ProductSearch extends LitElement {
             .sorting(builder => {
                 const sorting = readCurrentUrlState(QueryKeys.sortBy);
                 const sortingEnum = SortingEnum[sorting as keyof typeof SortingEnum];
-                
-                if (!sortingEnum) {
-                    return;
-                }
 
                 switch (sortingEnum) {
                 case SortingEnum.SalesPriceAsc:
@@ -151,8 +147,8 @@ export class ProductSearch extends LitElement {
                 case SortingEnum.AlphabeticallyDesc:
                     builder.sortByProductAttribute('DisplayName', 'Descending', (n) => n.sortByProductRelevance());
                     break;
-                case SortingEnum.Popularity:
-                    builder.sortByProductPopularity('Descending', (n) => n.sortByProductRelevance());
+                default:
+                    builder.sortByProductRelevance('Descending', (n) => n.sortByProductRelevance());
                     break;
                 }
             });

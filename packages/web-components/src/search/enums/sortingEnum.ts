@@ -1,5 +1,5 @@
 export enum SortingEnum {
-    Popularity = 'Popularity',
+    Relevance = 'Relevance',
     SalesPriceAsc = 'SalesPriceAsc',
     SalesPriceDesc = 'SalesPriceDesc',
     AlphabeticallyAsc = 'AlphabeticallyAsc',

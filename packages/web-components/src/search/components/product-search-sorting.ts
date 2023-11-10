@@ -6,11 +6,11 @@ import { SortingEnum } from '../enums';
 
 export class ProductSearchSorting extends LitElement {
     @state()
-    selectedOption: string = SortingEnum.Popularity;
+    selectedOption: string = SortingEnum.Relevance;
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.selectedOption = readCurrentUrlState(QueryKeys.sortBy) ?? SortingEnum.Popularity;
+        this.selectedOption = readCurrentUrlState(QueryKeys.sortBy) ?? SortingEnum.Relevance;
     }
 
     setSelectedValue(event: Event) {
@@ -34,8 +34,8 @@ export class ProductSearchSorting extends LitElement {
             return localization?.alphabeticalAscending ?? 'Name: a - z';
         case SortingEnum.AlphabeticallyDesc:
             return localization?.alphabeticalDescending ?? 'Name: z - a';
-        case SortingEnum.Popularity:
-            return localization?.popularity ?? 'Popularity';
+        case SortingEnum.Relevance:
+            return localization?.relevance  ?? 'Relevance';
         default:
             return '';
         }
