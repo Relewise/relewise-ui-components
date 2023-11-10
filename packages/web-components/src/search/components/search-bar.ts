@@ -24,7 +24,7 @@ export class SearchBar extends LitElement {
     }
 
     focusSearchInput() {
-        const searchInput = this.shadowRoot?.getElementById('searchInput');
+        const searchInput = this.shadowRoot?.getElementById('search-input');
         if (searchInput) {
             searchInput.focus();
         }
@@ -34,7 +34,7 @@ export class SearchBar extends LitElement {
         return html`
         <div class="rw-search-bar rw-border" @keydown=${this.handleKeyEvent}>
             <input 
-                id="searchInput"
+                id="search-input"
                 class="rw-search-bar-input"
                 type="text"
                 placeholder=${this.placeholder ?? 'Search'}
