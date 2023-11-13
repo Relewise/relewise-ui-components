@@ -51,13 +51,14 @@ export class Facets extends LitElement {
         this.showDimmingOverlay = false;
     }
 
-    renderFacet(label: string, facetResult: FacetResult): TemplateResult<1> {
+    renderFacet(label: string, facetResult: FacetResult, styling: string): TemplateResult<1> {
         if (facetResult.$type.includes('PriceRangesFacetResult') || 
             facetResult.$type.includes('ProductDataDoubleRangesFacetResult')) {
             return html`
                 <relewise-checklist-ranges-object-value-facet
                     .label=${label}
-                    .result=${facetResult}>
+                    .result=${facetResult}
+                    class=${styling}>
                 </relewise-checklist-ranges-object-value-facet>
             `;
         }
@@ -67,7 +68,8 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-number-value-facet
                     .label=${label}    
-                    .result=${facetResult}>
+                    .result=${facetResult}
+                    class=${styling}>
                 </relewise-checklist-number-value-facet>
             `;
         }
@@ -77,7 +79,8 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-object-value-facet 
                     .label=${label}
-                    .result=${facetResult}>
+                    .result=${facetResult}
+                    class=${styling}>
                 </relewise-checklist-object-value-facet>
             `;
         }
@@ -86,7 +89,8 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-boolean-value-facet
                     .label=${label}
-                    .result=${facetResult}>
+                    .result=${facetResult}
+                    class=${styling}>
                 </relewise-checklist-boolean-value-facet>
             `;
         }
@@ -95,7 +99,8 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-string-value-facet
                     .label=${label}
-                    .result=${facetResult}>
+                    .result=${facetResult}
+                    class=${styling}>
                 </relewise-checklist-string-value-facet>
             `;
         }
@@ -105,7 +110,8 @@ export class Facets extends LitElement {
             return html`
                 <relewise-number-range-facet
                     .label=${label}
-                    .result=${facetResult}>
+                    .result=${facetResult}
+                    class=${styling}>
                 </relewise-number-range-facet>
             `;
         }
@@ -127,9 +133,8 @@ export class Facets extends LitElement {
             ${this.showFacets ? 
                 html`
                 <div class="rw-facets-container">
-                    ${this.showDimmingOverlay ? html`<div class="rw-dimming-overlay"></div>`: nothing}
                     ${this.facetResult?.items?.map((item, index) => {
-                        return this.renderFacet(this.labels[index], item);
+                        return this.renderFacet(this.labels[index], item, this.showDimmingOverlay ? 'rw-dimmed' : '');
                     })}
                 </div>
             ` : nothing}
@@ -153,6 +158,10 @@ export class Facets extends LitElement {
 
         .rw-icon {
             --relewise-icon-color: black;
+        }
+
+        .rw-dimmed {
+            opacity: .5;
         }
 
         @media (min-width: 480px) and (max-width: 1023px) {

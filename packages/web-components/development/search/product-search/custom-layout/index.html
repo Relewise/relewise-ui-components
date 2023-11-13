@@ -7,6 +7,14 @@
     <title>Web components</title>
 </head>
 
+<style>
+    .my-grid {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 5rem;
+    }
+</style>
+
 <body>
     <script type="module" src="index.ts"></script>
     <h1>Product Search - Custom Layout</h1>
@@ -19,7 +27,7 @@
             <relewise-product-search-bar></relewise-product-search-bar>
             <div>
                 <h1>Here are your results!</h1>
-                <relewise-product-search-results></relewise-product-search-results>
+                <relewise-product-search-results class="my-grid"></relewise-product-search-results>
                 <relewise-product-search-load-more-button></relewise-product-search-load-more-button>
             </div>
         </div>

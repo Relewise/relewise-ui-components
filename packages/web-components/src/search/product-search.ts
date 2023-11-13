@@ -1,4 +1,4 @@
-import { BrandFacet, CategoryFacet, CategoryHierarchyFacet, ContentAssortmentFacet, ContentDataBooleanValueFacet, ContentDataDoubleRangeFacet, ContentDataDoubleRangesFacet, ContentDataDoubleValueFacet, ContentDataIntegerValueFacet, ContentDataObjectFacet, ContentDataStringValueFacet, DataObjectBooleanValueFacet, DataObjectDoubleRangeFacet, DataObjectDoubleRangesFacet, DataObjectDoubleValueFacet, DataObjectFacet, DataObjectStringValueFacet, DoubleNullableRange, PriceRangeFacet, PriceRangesFacet, ProductAssortmentFacet, ProductCategoryAssortmentFacet, ProductCategoryDataBooleanValueFacet, ProductCategoryDataDoubleRangeFacet, ProductCategoryDataDoubleRangesFacet, ProductCategoryDataDoubleValueFacet, ProductCategoryDataObjectFacet, ProductCategoryDataStringValueFacet, ProductDataBooleanValueFacet, ProductDataDoubleRangeFacet, ProductDataDoubleRangesFacet, ProductDataDoubleValueFacet, ProductDataIntegerValueFacet, ProductDataObjectFacet, ProductDataStringValueFacet, ProductResult, ProductSearchBuilder, ProductSearchResponse, VariantSpecificationFacet } from '@relewise/client';
+import { DoubleNullableRange, ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { RelewiseFacetBuilder, RelewiseUISearchOptions } from '../app';
@@ -319,7 +319,6 @@ export class ProductSearch extends LitElement {
                 `: nothing}
                 <div class="rw-full-width">
                     <relewise-product-search-results
-                        class="rw-full-width"
                         .products=${this.products}>
                     </relewise-product-search-results>
                     <relewise-product-search-load-more-button

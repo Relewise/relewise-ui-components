@@ -28,13 +28,4 @@ export const theme = css`
     border: var(--border);
     border-radius: var(--border-radius)
   }
-
-  .rw-dimming-overlay {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.5);
-    z-index: 999;
-    display: block;
-  }
 `;

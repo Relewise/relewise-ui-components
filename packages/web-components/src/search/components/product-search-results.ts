@@ -1,8 +1,8 @@
 import { ProductResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { theme } from '../../theme';
 import { Events, getRelewiseUISearchOptions } from '../../helpers';
+import { theme } from '../../theme';
 
 export class ProductSearchResults extends LitElement {
 
@@ -46,47 +46,44 @@ export class ProductSearchResults extends LitElement {
 
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.searchResults;
-        return html`
-            <div class="rw-result-container">
-                ${this.showDimmingOverlay ? html`<div class="rw-dimming-overlay"></div>`: nothing}
-                ${this.products.length > 0 ? html`
-                    <div class="rw-product-grid">
-                        ${this.products.map(product => {
-                            return html`<relewise-product-tile class="rw-product-tile" .product=${product}></relewise-product-tile>`;
-                        })
-                        }
-                    </div>
-                ` : html`
-                        ${!this.showDimmingOverlay && !this.showLoadingSpinner ? html`
-                            <span class="rw-no-results-message">${localization?.noResults ?? 'No results found'}</span>
-                        ` : nothing}
-                `}
+        if (this.products.length > 0) {
+            return html`
+                ${this.products.map(product => {
+                    return html`
+                        <relewise-product-tile
+                            class="rw-product-tile ${this.showDimmingOverlay ? 'rw-dimmed' : ''}"
+                            .product=${product}>
+                        </relewise-product-tile>`;
+                })}
                 ${this.showLoadingSpinner ? html`
-                    <div class="rw-loading-spinner-container"><relewise-loading-spinner></relewise-loading-spinner></div>
-                ` : nothing}
-            </div>
-        `;
+                    <div class="rw-fill-grid"><relewise-loading-spinner></relewise-loading-spinner></div>
+                `: nothing}
+            `;
+        }
+
+        if (this.showLoadingSpinner) {
+            return html`
+                <div class="rw-fill-grid"><relewise-loading-spinner></relewise-loading-spinner></div>
+            `;
+        }
+        
+
+        if (!this.showLoadingSpinner && !this.showDimmingOverlay) {
+            return html`<span class="rw-fill-grid">${localization?.noResults ?? 'No results found'}</span>`;
+        }
     }
 
     static styles = [theme, css`
         :host {
             font-family: var(--font);
-        }
-
-        .rw-result-container {
             position: relative;
-        }
-
-        .rw-loading-spinner-container {
-            display: flex;
-            justify-content: center;
-            margin: 1rem;
-        }
-
-        .rw-product-grid {
             display: grid;
             grid-template-columns: repeat(2,1fr);
             gap: 1rem;
+        }
+
+        .rw-dimmed {
+            opacity: .5;
         }
 
         .rw-product-tile {
@@ -95,15 +92,27 @@ export class ProductSearchResults extends LitElement {
             justify-content: center;
         }
 
-        .rw-no-results-message {
+        .rw-fill-grid {
             display: flex;
-            align-items: center; /* Vertically center the content */
-            justify-content: center; /* Horizontally center the content */
+            align-items: center;
+            justify-content: center;
+            grid-column: 1/-1;
         }
         
         @media (min-width: 1023px) {
-            .rw-product-grid {
+            :host {
+                font-family: var(--font);
+                position: relative;
+                display: grid;
                 grid-template-columns: repeat(4,1fr);
+                gap: 1rem;
+            }
+
+            .rw-fill-grid {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                grid-column: 1/-1;
             }
         }
     `];
