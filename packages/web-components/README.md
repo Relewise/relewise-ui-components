@@ -258,7 +258,7 @@ useSearch({
     The amount of time, in milliseconds, that must pass between requests to Relewise with a new search call.
 
 #### Product Search
-This component renders a search bar that [searches for products](https://docs.relewise.com/docs/intro/search.html#product-search) in Relewise and shows results, faceting and sorting options.
+This component renders a search component that [searches for products](https://docs.relewise.com/docs/intro/search.html#product-search) in Relewise and shows results, faceting and sorting options.
 
 ```html
 <relewise-product-search displayed-at-location="LOCATION"></relewise-product-search>
