@@ -309,7 +309,7 @@ useSearch({
     },
 });
 ```
-
+#### Layout
 To overwrite the layout of the components, include the components inside the `relewise-product-search` html tag.
 
 Every tag inside the `relewise-product-search` html tag, will be rendered as regular html so you can expand the content as needed and create your own layout.
