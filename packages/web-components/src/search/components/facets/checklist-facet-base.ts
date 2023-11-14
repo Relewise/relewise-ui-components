@@ -91,7 +91,7 @@ export abstract class ChecklistFacetBase extends LitElement {
                                 <input
                                     type="checkbox"
                                     id=${`${this.result?.field}-${this.result?.$type}-${index}`}
-                                    name=${index}
+                                    name=${`${this.result?.field}-${this.result?.$type}-${index}`}
                                     .checked=${this.shouldOptionBeChecked(item)}
                                     @click=${(e: Event) => {
                                         e.preventDefault();
