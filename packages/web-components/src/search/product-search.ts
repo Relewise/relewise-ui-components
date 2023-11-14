@@ -15,8 +15,8 @@ export class ProductSearch extends LitElement {
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;
 
-    @property({ type: Number, attribute: 'search-result-page-size' })
-    searchResultPageSize: number = 16;
+    @property({ type: Number, attribute: 'number-of-products' })
+    numberOfProducts: number = 16;
 
     @property({ type: Number, attribute: 'debounce-time' })
     debounceTime: number = 250;
@@ -48,7 +48,7 @@ export class ProductSearch extends LitElement {
 
         const productsToFetch = getNumberOfProductsToFetch();
         if (productsToFetch) {
-            this.page = productsToFetch / this.searchResultPageSize;
+            this.page = productsToFetch / this.numberOfProducts;
         }
          
         this.search(false);
@@ -83,7 +83,7 @@ export class ProductSearch extends LitElement {
 
     handleLoadMoreEvent() {
         this.page = this.page + 1;
-        updateUrlState(QueryKeys.take, (this.searchResultPageSize * this.page).toString());
+        updateUrlState(QueryKeys.take, (this.numberOfProducts * this.page).toString());
         this.search(false);
     }
 
@@ -114,7 +114,7 @@ export class ProductSearch extends LitElement {
             .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
             .setTerm(term  ? term : null)
             .pagination(p => p
-                .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.searchResultPageSize)
+                .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)
                 .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))
             .filters(builder => {
                 if (relewiseUIOptions.filters?.product) {

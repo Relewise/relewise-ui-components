@@ -272,7 +272,7 @@ This component renders a search bar that [searches for products](https://docs.re
     
     For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_6-making-search-requests).
 
-- **search-result-page-size** (Optional, *Default 16*): 
+- **number-of-products** (Optional, *Default 16*): 
 
     The number of products to search for initially.
 
