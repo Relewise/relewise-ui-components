@@ -120,8 +120,8 @@ export class ProductSearchOverlay extends LitElement {
                     if (relewiseUIOptions.filters?.product) {
                         relewiseUIOptions.filters.product(builder);
                     }
-                    if (searchOptions && searchOptions.filters?.productSearch) {
-                        searchOptions.filters.productSearch(builder);
+                    if (searchOptions && searchOptions.filters?.product) {
+                        searchOptions.filters.product(builder);
                     }
                 })
                 .build());

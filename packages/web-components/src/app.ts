@@ -25,7 +25,7 @@ import { updateContextSettings } from './updateContextSettings';
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
     templates?: SearchTemplates;
-    facets?: (builder: RelewiseFacetBuilder) => void;
+    facets?: SearchFacets;
     localization?: SearchLocalization;
     rememberScrollPosition?: boolean;
 }
@@ -93,7 +93,11 @@ export interface SearchResultLocalization {
 }
 
 export interface SearchFilters {
-    productSearch?: (builder: FilterBuilder) => void
+    product?: (builder: FilterBuilder) => void
+}
+
+export interface SearchFacets {
+    product?: (builder: RelewiseFacetBuilder) => void;
 }
 
 export interface SearchTemplates {

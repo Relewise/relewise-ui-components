@@ -120,14 +120,14 @@ export class ProductSearch extends LitElement {
                 if (relewiseUIOptions.filters?.product) {
                     relewiseUIOptions.filters.product(builder);
                 }
-                if (this.searchOptions && this.searchOptions.filters?.productSearch) {
-                    this.searchOptions.filters.productSearch(builder);
+                if (this.searchOptions && this.searchOptions.filters?.product) {
+                    this.searchOptions.filters.product(builder);
                 }
             })
             .facets(builder => {
-                if (this.searchOptions && this.searchOptions.facets) {
+                if (this.searchOptions && this.searchOptions.facets?.product) {
                     const facetBuilder = new RelewiseFacetBuilder(builder);
-                    this.searchOptions.facets(facetBuilder);
+                    this.searchOptions.facets.product(facetBuilder);
                     this.facetLabels = facetBuilder.getLabels();
                 }
             })

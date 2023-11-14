@@ -19,10 +19,12 @@ initializeRelewiseUI(
         },
     },
 ).useSearch({
-    facets(builder) {
-        builder
-            .addFacet((f) => f.addBrandFacet(), { heading: 'Mærke' })
-            .addFacet((f) => f.addCategoryFacet('ImmediateParent'), { heading: 'Kategori' })
-            .addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Salgs pris' });
+    facets: {
+        product(builder) {
+            builder
+                .addFacet((f) => f.addBrandFacet(), { heading: 'Mærke' })
+                .addFacet((f) => f.addCategoryFacet('ImmediateParent'), { heading: 'Kategori' })
+                .addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Salgs pris' });
+        },
     },
 });
