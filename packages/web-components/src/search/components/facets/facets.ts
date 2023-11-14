@@ -107,6 +107,7 @@ export class Facets extends LitElement {
 
         if (facetResult.$type.includes('ProductDataDoubleRangeFacetResult') ||
             facetResult.$type.includes('PriceRangeFacetResult')) {
+            console.log(facetResult);
             return html`
                 <relewise-number-range-facet
                     .label=${label}

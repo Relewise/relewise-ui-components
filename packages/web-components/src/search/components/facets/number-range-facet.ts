@@ -26,12 +26,12 @@ export class NumberRangeFacet extends LitElement {
             let lowerBound = null;
             
             if ('key' in this.result) {
-                upperBound = readCurrentUrlState(this.result.field + this.result.key + 'upperbound');
-                lowerBound = readCurrentUrlState(this.result.field + this.result.key + 'lowerbound');
+                upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + this.result.field + this.result.key);
+                lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + this.result.field + this.result.key);
                 
             } else {
-                upperBound = readCurrentUrlState(this.result.field + 'upperbound');
-                lowerBound = readCurrentUrlState(this.result.field + 'lowerbound');
+                upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + this.result.field);
+                lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + this.result.field);
             }
             
             if (upperBound && !isNaN(+upperBound)) {
@@ -40,14 +40,6 @@ export class NumberRangeFacet extends LitElement {
 
             if (lowerBound && !isNaN(+lowerBound)) {
                 this.lowerBound = +lowerBound;
-            }
-
-            if (!this.upperBound && this.result.available && this.result.available.value) {
-                this.upperBound = this.result.available.value.upperBoundInclusive;
-            }
-
-            if (!this.lowerBound && this.result.available && this.result.available.value) {
-                this.lowerBound = this.result.available.value.lowerBoundInclusive;
             }
         }
     }
@@ -122,7 +114,7 @@ export class NumberRangeFacet extends LitElement {
                 <div class="rw-input-container rw-border">
                     <input
                     type="number"
-                        .value=${this.lowerBound?.toString() ?? ''}
+                        .value=${this.lowerBound?.toString() ?? this.result.available.value.lowerBoundInclusive.toString()}
                         @input=${this.handleLowerBoundChange}
                         class="rw-input"
                         @keydown=${this.handleKeyEvent}>
@@ -131,7 +123,7 @@ export class NumberRangeFacet extends LitElement {
                 <div class="rw-input-container rw-border">
                     <input
                         type="number"
-                        .value=${this.upperBound?.toString() ?? ''}
+                        .value=${this.upperBound?.toString() ?? this.result.available.value.upperBoundInclusive.toString()}
                         @input=${this.handleUpperBoundChange}
                         class="rw-input"
                         @keydown=${this.handleKeyEvent}>
