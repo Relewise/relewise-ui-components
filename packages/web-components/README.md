@@ -302,11 +302,12 @@ The label will be displayed at the top of the facet card.
 
 ```ts
 useSearch({
-    facetBuilder(builder) {
+    facets(builder) {
         builder
-            .addFacet('Brand label', (facetBuilder) => facetBuilder.addBrandFacet())
-            .addFacet('Category label', (facetBuilder) => facetBuilder.addCategoryFacet('ImmediateParent'));
-    },
+            .addFacet((f) => f.addBrandFacet(), { heading: 'Mærke' })
+            .addFacet((f) => f.addCategoryFacet('ImmediateParent'), { heading: 'Kategori' })
+            .addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Salgs pris' });
+    }
 });
 ```
 #### Layout
