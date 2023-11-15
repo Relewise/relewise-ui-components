@@ -17,7 +17,7 @@ export class ChecklistObjectValueFacet extends ChecklistFacetBase {
         if (checkbox.checked) {
             this.selectedValues.push(item.value.id);
         } else {
-            const newValue =  this.selectedValues.filter(x => x !== item.value!.id);
+            const newValue = this.selectedValues.filter(x => x !== item.value?.id);
             this.selectedValues = newValue;
         }
 
@@ -28,7 +28,7 @@ export class ChecklistObjectValueFacet extends ChecklistFacetBase {
         if (!item.value || !item.value.displayName) {
             return '';
         }
-     
+
         return item.value.displayName;
     }
 
@@ -36,7 +36,7 @@ export class ChecklistObjectValueFacet extends ChecklistFacetBase {
         if (!item.value || !item.value.id) {
             return false;
         }
-        
+
         return item.selected;
     }
 }

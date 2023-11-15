@@ -17,7 +17,7 @@ export class ChecklistStringValueFacet extends ChecklistFacetBase {
         if (checkbox.checked) {
             this.selectedValues.push(item.value);
         } else {
-            const newValue =  this.selectedValues.filter(x => x !== item.value);
+            const newValue = this.selectedValues.filter(x => x !== item.value);
             this.selectedValues = newValue;
         }
 

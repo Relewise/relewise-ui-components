@@ -17,14 +17,14 @@ export class ChecklistRangesObjectValueFacet extends ChecklistFacetBase {
             !this.result) {
             return;
         }
-        
+
         if (checkbox.checked) {
             this.selectedValues.push(`${item.value.lowerBoundInclusive}-${item.value.upperBoundExclusive}`);
         } else {
-            const newValue =  this.selectedValues.filter(x => x !== `${item.value!.lowerBoundInclusive}-${item.value!.upperBoundExclusive}`);
+            const newValue = this.selectedValues.filter(x => x !== `${item.value!.lowerBoundInclusive}-${item.value!.upperBoundExclusive}`);
             this.selectedValues = newValue;
         }
-        
+
         this.updateUrlState();
     }
 
@@ -36,7 +36,7 @@ export class ChecklistRangesObjectValueFacet extends ChecklistFacetBase {
             item.value.upperBoundExclusive === null) {
             return '';
         }
-     
+
         return `${item.value.lowerBoundInclusive} - ${item.value.upperBoundExclusive}`;
     }
 

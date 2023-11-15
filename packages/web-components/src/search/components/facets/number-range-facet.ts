@@ -24,16 +24,14 @@ export class NumberRangeFacet extends LitElement {
 
             let upperBound = null;
             let lowerBound = null;
-            
+
             if ('key' in this.result) {
                 upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + this.result.field + this.result.key);
                 lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + this.result.field + this.result.key);
-                
             } else {
                 upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + this.result.field);
                 lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + this.result.field);
             }
-            
             if (upperBound && !isNaN(+upperBound)) {
                 this.upperBound = +upperBound;
             }
@@ -51,18 +49,17 @@ export class NumberRangeFacet extends LitElement {
         if (!this.result || isNaN(+lowerBoundValue)) {
             return;
         }
-        
         if (this.upperBound && +lowerBoundValue > this.upperBound) {
             return;
         }
 
         this.lowerBound = +lowerBoundValue;
     }
-      
+
     handleUpperBoundChange(event: Event) {
         const inputElement = event.target as HTMLInputElement;
         const upperBoundValue = inputElement.value;
-       
+
         if (!this.result || isNaN(+upperBoundValue)) {
             return;
         }
@@ -85,7 +82,7 @@ export class NumberRangeFacet extends LitElement {
             updateUrlState(QueryKeys.facetUpperbound + this.result.field, this.upperBound.toString());
             updateUrlState(QueryKeys.facetLowerbound + this.result.field, this.lowerBound.toString());
         }
-        
+
         window.dispatchEvent(new CustomEvent(Events.applyFacet));
     }
 
@@ -101,7 +98,7 @@ export class NumberRangeFacet extends LitElement {
     render() {
         if (!this.result?.available ||
             !this.result.available.value ||
-            !this.result.available.value.lowerBoundInclusive || 
+            !this.result.available.value.lowerBoundInclusive ||
             !this.result.available.value.upperBoundInclusive) {
             return;
         }

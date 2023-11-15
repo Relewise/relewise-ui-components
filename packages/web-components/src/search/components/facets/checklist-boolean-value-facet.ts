@@ -14,11 +14,11 @@ export class ChecklistBooleanValueFacet extends ChecklistFacetBase {
         if (item.value === undefined || item.value === null || !this.result) {
             return;
         }
-       
+
         if (checkbox.checked) {
             this.selectedValues.push(item.value.toString());
         } else {
-            const newValue =  this.selectedValues.filter(x => x !== item.value.toString());
+            const newValue = this.selectedValues.filter(x => x !== item.value.toString());
             this.selectedValues = newValue;
         }
 
