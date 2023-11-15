@@ -11,7 +11,7 @@ import { getSearcher } from './searcher';
 import { Facet } from './types';
 
 export class ProductSearch extends LitElement {
-    
+
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;
 
@@ -39,7 +39,7 @@ export class ProductSearch extends LitElement {
     handleSearchEventBound = this.handleSearchEvent.bind(this);
     handleLoadMoreEventBound = this.handleLoadMoreEvent.bind(this);
     handleScrollEventBound = this.handleScrollEvent.bind(this);
-    
+
     async connectedCallback() {
         if (!this.displayedAtLocation) {
             console.error('No displayedAtLocation defined!');
@@ -51,7 +51,7 @@ export class ProductSearch extends LitElement {
         if (productsToFetch) {
             this.page = productsToFetch / this.numberOfProducts;
         }
-         
+
         this.search(false);
 
         window.addEventListener(Events.search, this.handleSearchEventBound);
@@ -60,7 +60,7 @@ export class ProductSearch extends LitElement {
         window.addEventListener(Events.loadMoreProducts, this.handleLoadMoreEventBound);
 
         if (this.searchOptions?.rememberScrollPosition) {
-            window.addEventListener('scroll', this.handleScrollEventBound); 
+            window.addEventListener('scroll', this.handleScrollEventBound);
         }
 
         super.connectedCallback();
@@ -71,7 +71,7 @@ export class ProductSearch extends LitElement {
         window.removeEventListener(Events.applyFacet, this.handleSearchEventBound);
         window.removeEventListener(Events.applySorting, this.handleSearchEventBound);
         window.removeEventListener(Events.loadMoreProducts, this.handleLoadMoreEventBound);
-        
+
         if (this.searchOptions?.rememberScrollPosition) {
             window.removeEventListener('scroll', this.handleScrollEventBound);
         }
@@ -92,7 +92,7 @@ export class ProductSearch extends LitElement {
     handleScrollEvent() {
         sessionStorage.setItem(SessionVariables.scrollPosition, window.scrollY.toString());
     }
-    
+
     async search(shouldClearOldResult: boolean) {
         this.abortController.abort();
 
@@ -114,7 +114,7 @@ export class ProductSearch extends LitElement {
 
         const requestBuilder = new ProductSearchBuilder(settings)
             .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
-            .setTerm(term  ? term : null)
+            .setTerm(term ? term : null)
             .pagination(p => p
                 .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)
                 .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))
@@ -157,7 +157,7 @@ export class ProductSearch extends LitElement {
             });
 
         const request = requestBuilder.build();
-        
+
         if (request.facets) {
             request.facets.items.forEach(facet => {
                 this.getSelectedValuesForFacet(facet);
@@ -168,7 +168,7 @@ export class ProductSearch extends LitElement {
         const response = await searcher.searchProducts(request, { abortSignal: this.abortController.signal });
         if (!response) {
             return;
-        } 
+        }
 
         if (shouldClearOldResult) {
             this.products = [];
@@ -189,24 +189,24 @@ export class ProductSearch extends LitElement {
             return;
         }
 
-        if (facet.$type.includes('PriceRangesFacet') || 
+        if (facet.$type.includes('PriceRangesFacet') ||
             facet.$type.includes('ProductDataDoubleRangesFacet')) {
             this.getSelectedRanges(facet);
             return;
         }
 
         this.getSelectedStrings(facet);
-        
+
         if (!facet.settings) {
             facet.settings = { alwaysIncludeSelectedInAvailable: true, includeZeroHitsInAvailable: false };
         }
     }
 
     getSelectedRange(facet: Facet) {
-        if ('selected' in facet) { 
+        if ('selected' in facet) {
             let upperBound = null;
             let lowerBound = null;
-                            
+
             if ('key' in facet) {
                 upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field + facet.key);
                 lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field + facet.key);
@@ -214,7 +214,7 @@ export class ProductSearch extends LitElement {
                 upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field);
                 lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field);
             }
-    
+
             facet.selected = {
                 lowerBoundInclusive: lowerBound ? +lowerBound : null,
                 upperBoundInclusive: upperBound ? +upperBound : null,
@@ -223,10 +223,10 @@ export class ProductSearch extends LitElement {
     }
 
     getSelectedRanges(facet: Facet) {
-        if ('selected' in facet) { 
+        if ('selected' in facet) {
             let queryValues = null;
             if ('key' in facet) {
-                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key); 
+                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key);
             } else {
                 queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field);
             }
@@ -241,17 +241,17 @@ export class ProductSearch extends LitElement {
     }
 
     getSelectedStrings(facet: Facet) {
-        if ('selected' in facet) { 
+        if ('selected' in facet) {
             let queryValues = null;
             if ('key' in facet) {
-                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key); 
+                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key);
             } else {
                 queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field);
             }
             facet.selected = queryValues;
         }
     }
-    
+
     setSearchResultOnSlotChilderen() {
         const slot = this.renderRoot.querySelector('slot');
         if (slot) {
@@ -263,7 +263,7 @@ export class ProductSearch extends LitElement {
     setDataOnNodes(nodes: Node[]) {
         nodes.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE && node instanceof HTMLElement) {
-  
+
                 if (node.tagName.toLowerCase() === 'relewise-product-search-results') {
                     node.setAttribute('products', JSON.stringify(this.products));
                 }
@@ -272,9 +272,9 @@ export class ProductSearch extends LitElement {
                     node.setAttribute('products-loaded', this.products.length.toString());
                     node.setAttribute('hits', this.searchResult?.hits.toString() ?? '');
                 }
-                
+
                 if (node.tagName.toLowerCase() === 'relewise-facets') {
-                    node.setAttribute('facets-result', JSON.stringify(this.searchResult?.facets));                    
+                    node.setAttribute('facets-result', JSON.stringify(this.searchResult?.facets));
                 }
 
                 if (node.children.length > 0) {
@@ -297,7 +297,7 @@ export class ProductSearch extends LitElement {
         // Ensure render completed before scrolling
         setTimeout(() => window.scrollTo(0, +valueFromStorage), 0);
     }
-      
+
     render() {
         return html`
         <slot>

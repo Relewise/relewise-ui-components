@@ -17,28 +17,29 @@ export class ProductSearchBar extends LitElement {
     handleKeyDown(event: KeyboardEvent): void {
         switch (event.key) {
         case 'Enter':
-            event.preventDefault();
             if (this.debounceTimeoutHandlerId) {
                 clearTimeout(this.debounceTimeoutHandlerId);
             }
-    
-            this.debounceTimeoutHandlerId = setTimeout(() => {
-                window.dispatchEvent(new CustomEvent(Events.search));
-            }, getRelewiseUISearchOptions()?.debounceTimeInMs);
+
+            this.setSearchTerm((event.target as HTMLInputElement).value);
             break;
         }
     }
 
-    setSearchTerm(term: string) {
+    debouncedSetSearchTerm(term: string) {
         if (this.debounceTimeoutHandlerId) {
             clearTimeout(this.debounceTimeoutHandlerId);
         }
 
         this.debounceTimeoutHandlerId = setTimeout(() => {
-            this.term = term;
-            updateUrlState(QueryKeys.term, term);
-            window.dispatchEvent(new CustomEvent(Events.search));
+            this.setSearchTerm(term);
         }, getRelewiseUISearchOptions()?.debounceTimeInMs);
+    }
+
+    setSearchTerm(term: string) {
+        this.term = term;
+        updateUrlState(QueryKeys.term, term);
+        window.dispatchEvent(new CustomEvent(Events.search));
     }
 
     render() {
@@ -46,7 +47,7 @@ export class ProductSearchBar extends LitElement {
         return html`
         <relewise-search-bar 
             .term=${this.term ?? ''}
-            .setSearchTerm=${(term: string)=> this.setSearchTerm(term)}
+            .setSearchTerm=${(term: string) => this.debouncedSetSearchTerm(term)}
             .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
             .placeholder=${localization?.placeholder ?? 'Search'}
             class="rw-search-bar">
