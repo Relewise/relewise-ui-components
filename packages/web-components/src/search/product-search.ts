@@ -18,9 +18,6 @@ export class ProductSearch extends LitElement {
     @property({ type: Number, attribute: 'number-of-products' })
     numberOfProducts: number = 16;
 
-    @property({ type: Number, attribute: 'debounce-time' })
-    debounceTime: number = 250;
-
     @state()
     searchResult: ProductSearchResponse | null = null;
 
@@ -280,10 +277,6 @@ export class ProductSearch extends LitElement {
                     node.setAttribute('facets-result', JSON.stringify(this.searchResult?.facets));                    
                 }
 
-                if (node.tagName.toLowerCase() === 'relewise-product-search-bar') {
-                    node.setAttribute('debounce-time', this.debounceTime.toString());                    
-                }
-
                 if (node.children.length > 0) {
                     this.setDataOnNodes(Array.from(node.childNodes));
                 }
@@ -309,8 +302,7 @@ export class ProductSearch extends LitElement {
         return html`
         <slot>
             <relewise-product-search-bar
-                class="rw-product-search-bar"
-                debounce-time=${this.debounceTime}></relewise-product-search-bar>
+                class="rw-product-search-bar"></relewise-product-search-bar>
             <div class="rw-sorting-button-container">
                 <relewise-product-search-sorting class="rw-sorting-button"></relewise-product-search-sorting>
             </div>

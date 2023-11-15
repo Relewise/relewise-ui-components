@@ -22,9 +22,6 @@ export class ProductSearchOverlay extends LitElement {
     @property({ type: Number, attribute: 'number-of-search-term-predictions' })
     numberOfSearchTermPredictions: number = 3;
 
-    @property({ type: Number, attribute: 'debounce-time' })
-    debounceTime: number = 250;
-
     @state()
     results: SearchResult[] | null = null;
 
@@ -68,7 +65,7 @@ export class ProductSearchOverlay extends LitElement {
 
         this.debounceTimeoutHandlerId = setTimeout(() => {
             this.search(term);
-        }, this.debounceTime);
+        }, getRelewiseUISearchOptions()?.debounceTimeInMs);
     }
 
     handleKeyDown(event: KeyboardEvent): void {

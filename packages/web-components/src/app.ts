@@ -28,6 +28,7 @@ export interface RelewiseUISearchOptions {
     facets?: SearchFacets;
     localization?: SearchLocalization;
     rememberScrollPosition?: boolean;
+    debounceTimeInMs?: number;
 }
 
 export class RelewiseFacetBuilder {
@@ -144,6 +145,7 @@ export function useBehavioralTracking() {
 
 export function useSearch(options?: RelewiseUISearchOptions) {
     if (options) {
+        options.debounceTimeInMs = options.debounceTimeInMs ?? 250;
         window.relewiseUISearchOptions = options;
     }
 

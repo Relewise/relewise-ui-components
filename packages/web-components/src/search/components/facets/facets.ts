@@ -4,7 +4,6 @@ import { property, state } from 'lit/decorators.js';
 import { FacetResult } from 'src/search/types';
 import { Events, getRelewiseUISearchOptions } from '../../../helpers';
 import { theme } from '../../../theme';
-;
 
 export class Facets extends LitElement {
 
@@ -149,7 +148,7 @@ export class Facets extends LitElement {
         .rw-facets-container {
             display: flex;
             flex-direction: column;
-            gap: .5rem;
+            gap: 1rem;
         }
 
         .rw-facet-button {
