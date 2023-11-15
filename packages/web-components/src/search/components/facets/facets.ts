@@ -20,18 +20,22 @@ export class Facets extends LitElement {
     @state()
     showDimmingOverlay: boolean = false;
 
+    handleResizeEventBound = this.handleResizeEvent.bind(this);
+    handleDimPreviousResultEventBound = this.handleDimPreviousResultEvent.bind(this);
+    handleSearchingForProductsCompletedEventBound = this.handleSearchingForProductsCompletedEvent.bind(this);
+
     connectedCallback(): void {
         super.connectedCallback();
         
-        window.addEventListener('resize', () => this.handleResizeEvent());
-        window.addEventListener(Events.dimPreviousResult, () => this.handleDimPreviousResultEvent());
-        window.addEventListener(Events.searchingForProductsCompleted, () => this.handleSearchingForProductsCompletedEvent());
+        window.addEventListener('resize', () => this.handleResizeEventBound());
+        window.addEventListener(Events.dimPreviousResult, () => this.handleDimPreviousResultEventBound());
+        window.addEventListener(Events.searchingForProductsCompleted, () => this.handleSearchingForProductsCompletedEventBound());
     }
 
     disconnectedCallback(): void {
-        window.removeEventListener('resize', this.handleResizeEvent);
-        window.removeEventListener(Events.dimPreviousResult, this.handleDimPreviousResultEvent);
-        window.removeEventListener(Events.searchingForProductsCompleted, this.handleSearchingForProductsCompletedEvent);
+        window.removeEventListener('resize', this.handleResizeEventBound);
+        window.removeEventListener(Events.dimPreviousResult, this.handleDimPreviousResultEventBound);
+        window.removeEventListener(Events.searchingForProductsCompleted, this.handleSearchingForProductsCompletedEventBound);
 
         super.disconnectedCallback();
     }

@@ -39,6 +39,10 @@ export class ProductSearch extends LitElement {
     @state()
     facetLabels: string[] = [];
 
+    handleSearchEventBound = this.handleSearchEvent.bind(this);
+    handleLoadMoreEventBound = this.handleLoadMoreEvent.bind(this);
+    handleScrollEventBound = this.handleScrollEvent.bind(this);
+    
     async connectedCallback() {
         if (!this.displayedAtLocation) {
             console.error('No displayedAtLocation defined!');
@@ -53,25 +57,26 @@ export class ProductSearch extends LitElement {
          
         this.search(false);
 
-        window.addEventListener(Events.search, () => this.handleSearchEvent());
-        window.addEventListener(Events.applyFacet, () => this.handleSearchEvent());
-        window.addEventListener(Events.applySorting, () => this.handleSearchEvent());
-        window.addEventListener(Events.loadMoreProducts, () => this.handleLoadMoreEvent());
+        window.addEventListener(Events.search, () => this.handleSearchEventBound());
+        window.addEventListener(Events.applyFacet, () => this.handleSearchEventBound());
+        window.addEventListener(Events.applySorting, () => this.handleSearchEventBound());
+        window.addEventListener(Events.loadMoreProducts, () => this.handleLoadMoreEventBound());
+
         if (this.searchOptions?.rememberScrollPosition) {
-            window.addEventListener('scroll', async() => this.handleScrollEvent()); 
+            window.addEventListener('scroll', async() => this.handleScrollEventBound()); 
         }
 
         super.connectedCallback();
     }
 
     disconnectedCallback() {
-        window.removeEventListener(Events.search, this.handleSearchEvent);
-        window.removeEventListener(Events.applyFacet, this.handleSearchEvent);
-        window.removeEventListener(Events.applySorting, this.handleSearchEvent);
-        window.removeEventListener(Events.loadMoreProducts, this.handleLoadMoreEvent);
+        window.removeEventListener(Events.search, this.handleSearchEventBound);
+        window.removeEventListener(Events.applyFacet, this.handleSearchEventBound);
+        window.removeEventListener(Events.applySorting, this.handleSearchEventBound);
+        window.removeEventListener(Events.loadMoreProducts, this.handleLoadMoreEventBound);
         
         if (this.searchOptions?.rememberScrollPosition) {
-            window.removeEventListener('scroll', this.handleScrollEvent);
+            window.removeEventListener('scroll', this.handleScrollEventBound);
         }
 
         super.disconnectedCallback();

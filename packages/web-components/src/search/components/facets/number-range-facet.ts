@@ -71,16 +71,26 @@ export class NumberRangeFacet extends LitElement {
     }
 
     save() {
-        if (!this.result || !this.lowerBound || !this.upperBound) {
+        if (!this.result) {
             return;
         }
 
+        const upperBound = this.upperBound;
+        if (!upperBound) {
+            this.result.available?.value?.upperBoundInclusive;
+        }
+
+        const lowerBound = this.lowerBound;
+        if (!lowerBound) {
+            this.result.available?.value?.lowerBoundInclusive;
+        }
+
         if ('key' in this.result) {
-            updateUrlState(QueryKeys.facetUpperbound + this.result.field + this.result.key, this.upperBound.toString());
-            updateUrlState(QueryKeys.facetLowerbound + this.result.field + this.result.key, this.lowerBound.toString());
+            updateUrlState(QueryKeys.facetUpperbound + this.result.field + this.result.key, upperBound?.toString() ?? '');
+            updateUrlState(QueryKeys.facetLowerbound + this.result.field + this.result.key, lowerBound?.toString() ?? '');
         } else {
-            updateUrlState(QueryKeys.facetUpperbound + this.result.field, this.upperBound.toString());
-            updateUrlState(QueryKeys.facetLowerbound + this.result.field, this.lowerBound.toString());
+            updateUrlState(QueryKeys.facetUpperbound + this.result.field, upperBound?.toString() ?? '');
+            updateUrlState(QueryKeys.facetLowerbound + this.result.field, lowerBound?.toString() ?? '');
         }
 
         window.dispatchEvent(new CustomEvent(Events.applyFacet));

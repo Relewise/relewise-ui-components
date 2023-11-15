@@ -24,9 +24,11 @@ export abstract class ChecklistFacetBase extends LitElement {
     @state()
     showAll: boolean = false;
 
+    clearSelectedValuesBound = this.clearSelectedValues.bind(this);
+
     connectedCallback(): void {
         super.connectedCallback();
-        window.addEventListener(Events.search, () => this.clearSelectedValues());
+        window.addEventListener(Events.search, () => this.clearSelectedValuesBound());
 
         if (this.result) {
             if ('key' in this.result)  {
@@ -38,7 +40,7 @@ export abstract class ChecklistFacetBase extends LitElement {
     }
 
     disconnectedCallback() {
-        window.removeEventListener(Events.search, this.clearSelectedValues);
+        window.removeEventListener(Events.search, this.clearSelectedValuesBound);
         super.disconnectedCallback();
     }
 

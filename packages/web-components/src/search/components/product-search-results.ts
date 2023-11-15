@@ -15,18 +15,22 @@ export class ProductSearchResults extends LitElement {
     @state()
     showDimmingOverlay: boolean = false;
 
+    handleShowLoadingSpinnerEventBound = this.handleShowLoadingSpinnerEvent.bind(this);
+    handleDimPreviousResultEventBound = this.handleDimPreviousResultEvent.bind(this);
+    handleSearchingForProductsCompletedEventBound = this.handleSearchingForProductsCompletedEvent.bind(this);
+
     connectedCallback(): void {
         super.connectedCallback();
 
-        window.addEventListener(Events.showLoadingSpinner, () => this.handleShowLoadingSpinnerEvent());
-        window.addEventListener(Events.dimPreviousResult, () => this.handleDimPreviousResultEvent());
-        window.addEventListener(Events.searchingForProductsCompleted, () => this.handleSearchingForProductsCompletedEvent());
+        window.addEventListener(Events.showLoadingSpinner, () => this.handleShowLoadingSpinnerEventBound());
+        window.addEventListener(Events.dimPreviousResult, () => this.handleDimPreviousResultEventBound());
+        window.addEventListener(Events.searchingForProductsCompleted, () => this.handleSearchingForProductsCompletedEventBound());
     }
 
     disconnectedCallback(): void {
-        window.removeEventListener(Events.showLoadingSpinner, this.handleShowLoadingSpinnerEvent);
-        window.removeEventListener(Events.dimPreviousResult, this.handleDimPreviousResultEvent);
-        window.removeEventListener(Events.searchingForProductsCompleted, this.handleSearchingForProductsCompletedEvent);
+        window.removeEventListener(Events.showLoadingSpinner, this.handleShowLoadingSpinnerEventBound);
+        window.removeEventListener(Events.dimPreviousResult, this.handleDimPreviousResultEventBound);
+        window.removeEventListener(Events.searchingForProductsCompleted, this.handleSearchingForProductsCompletedEventBound);
 
         super.disconnectedCallback();
     }

@@ -16,6 +16,8 @@ export abstract class ProductRecommendationBase extends LitElement {
     @state()
     products: ProductResult[] | null = null;
 
+    fetchAndUpdateProductsBound = this.fetchAndUpdateProducts.bind(this);
+
     async connectedCallback() {
         super.connectedCallback();
         if (!this.displayedAtLocation) {
@@ -23,11 +25,11 @@ export abstract class ProductRecommendationBase extends LitElement {
         }
 
         await this.fetchAndUpdateProducts();
-        window.addEventListener(Events.contextSettingsUpdated, () => this.fetchAndUpdateProducts());
+        window.addEventListener(Events.contextSettingsUpdated, () => this.fetchAndUpdateProductsBound());
     }
 
     disconnectedCallback() {
-        window.removeEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateProducts);
+        window.removeEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateProductsBound);
 
         super.disconnectedCallback();
     }
