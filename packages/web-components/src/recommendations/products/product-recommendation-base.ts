@@ -25,7 +25,7 @@ export abstract class ProductRecommendationBase extends LitElement {
         }
 
         await this.fetchAndUpdateProducts();
-        window.addEventListener(Events.contextSettingsUpdated, () => this.fetchAndUpdateProductsBound());
+        window.addEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateProductsBound);
     }
 
     disconnectedCallback() {

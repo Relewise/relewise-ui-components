@@ -27,9 +27,9 @@ export class Facets extends LitElement {
     connectedCallback(): void {
         super.connectedCallback();
         
-        window.addEventListener('resize', () => this.handleResizeEventBound());
-        window.addEventListener(Events.dimPreviousResult, () => this.handleDimPreviousResultEventBound());
-        window.addEventListener(Events.searchingForProductsCompleted, () => this.handleSearchingForProductsCompletedEventBound());
+        window.addEventListener('resize', this.handleResizeEventBound);
+        window.addEventListener(Events.dimPreviousResult, this.handleDimPreviousResultEventBound);
+        window.addEventListener(Events.searchingForProductsCompleted, this.handleSearchingForProductsCompletedEventBound);
     }
 
     disconnectedCallback(): void {

@@ -28,7 +28,7 @@ export abstract class ChecklistFacetBase extends LitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
-        window.addEventListener(Events.search, () => this.clearSelectedValuesBound());
+        window.addEventListener(Events.search, this.clearSelectedValuesBound);
 
         if (this.result) {
             if ('key' in this.result)  {

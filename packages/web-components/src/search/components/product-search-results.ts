@@ -22,9 +22,9 @@ export class ProductSearchResults extends LitElement {
     connectedCallback(): void {
         super.connectedCallback();
 
-        window.addEventListener(Events.showLoadingSpinner, () => this.handleShowLoadingSpinnerEventBound());
-        window.addEventListener(Events.dimPreviousResult, () => this.handleDimPreviousResultEventBound());
-        window.addEventListener(Events.searchingForProductsCompleted, () => this.handleSearchingForProductsCompletedEventBound());
+        window.addEventListener(Events.showLoadingSpinner, this.handleShowLoadingSpinnerEventBound);
+        window.addEventListener(Events.dimPreviousResult, this.handleDimPreviousResultEventBound);
+        window.addEventListener(Events.searchingForProductsCompleted, this.handleSearchingForProductsCompletedEventBound);
     }
 
     disconnectedCallback(): void {

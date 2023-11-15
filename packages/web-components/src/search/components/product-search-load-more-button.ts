@@ -19,8 +19,8 @@ export class LoadMoreProducts extends LitElement {
     connectedCallback(): void {
         super.connectedCallback();
 
-        window.addEventListener(Events.showLoadingSpinner, () => this.handleShowLoadingSpinnerEventBound());
-        window.addEventListener(Events.searchingForProductsCompleted, () => this.handleSearchingForProductsCompletedEventBound());
+        window.addEventListener(Events.showLoadingSpinner, this.handleShowLoadingSpinnerEventBound);
+        window.addEventListener(Events.searchingForProductsCompleted, this.handleSearchingForProductsCompletedEventBound);
     }
 
     disconnectedCallback(): void {
