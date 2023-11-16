@@ -49,7 +49,7 @@ export abstract class ChecklistFacetBase extends LitElement {
         this.updateUrlState();
     }
 
-    updateUrlState() {
+    updateUrlState(searchForProducts: boolean = false) {
         if (!this.result) {
             return;
         }  
@@ -60,7 +60,9 @@ export abstract class ChecklistFacetBase extends LitElement {
             updateUrlStateValues(QueryKeys.facet + this.result.field, this.selectedValues);
         }
 
-        window.dispatchEvent(new CustomEvent(Events.applyFacet));
+        if (searchForProducts) {
+            window.dispatchEvent(new CustomEvent(Events.applyFacet));
+        }
     }
 
     render() {

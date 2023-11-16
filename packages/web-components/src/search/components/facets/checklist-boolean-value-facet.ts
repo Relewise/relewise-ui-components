@@ -22,7 +22,7 @@ export class ChecklistBooleanValueFacet extends ChecklistFacetBase {
             this.selectedValues = newValue;
         }
 
-        this.updateUrlState();
+        this.updateUrlState(true);
     }
 
     getOptionDisplayValue(item: BooleanAvailableFacetValue): string {

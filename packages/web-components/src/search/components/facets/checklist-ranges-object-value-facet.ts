@@ -25,7 +25,7 @@ export class ChecklistRangesObjectValueFacet extends ChecklistFacetBase {
             this.selectedValues = newValue;
         }
 
-        this.updateUrlState();
+        this.updateUrlState(true);
     }
 
     getOptionDisplayValue(item: DecimalNullableChainableRangeAvailableFacetValue): string {

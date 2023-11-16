@@ -21,7 +21,7 @@ export class ChecklistNumberValueFacet extends ChecklistFacetBase {
             this.selectedValues = newValue;
         }
 
-        this.updateUrlState();
+        this.updateUrlState(true);
     }
 
     getOptionDisplayValue(item: Int32AvailableFacetValue): string {
