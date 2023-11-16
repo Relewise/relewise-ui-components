@@ -1,7 +1,7 @@
 import { DoubleNullableRange, ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { RelewiseFacetBuilder, RelewiseUISearchOptions } from '../app';
+import { RelewiseFacetBuilder } from '../app';
 import { defaultProductProperties } from '../defaultProductProperties';
 import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
@@ -28,7 +28,7 @@ export class ProductSearch extends LitElement {
     page: number = 1;
 
     @state()
-    searchOptions: RelewiseUISearchOptions | undefined | null = null;
+    rememberScrollPosition: boolean | undefined = undefined;
 
     @state()
     abortController: AbortController = new AbortController();
@@ -45,7 +45,7 @@ export class ProductSearch extends LitElement {
             console.error('No displayedAtLocation defined!');
         }
 
-        this.searchOptions = getRelewiseUISearchOptions();
+        this.rememberScrollPosition = getRelewiseUISearchOptions()?.rememberScrollPosition;
 
         const productsToFetch = getNumberOfProductsToFetch();
         if (productsToFetch) {
@@ -59,7 +59,7 @@ export class ProductSearch extends LitElement {
         window.addEventListener(Events.applySorting, this.handleSearchEventBound);
         window.addEventListener(Events.loadMoreProducts, this.handleLoadMoreEventBound);
 
-        if (this.searchOptions?.rememberScrollPosition) {
+        if (this.rememberScrollPosition) {
             window.addEventListener('scroll', this.handleScrollEventBound);
         }
 
@@ -72,7 +72,7 @@ export class ProductSearch extends LitElement {
         window.removeEventListener(Events.applySorting, this.handleSearchEventBound);
         window.removeEventListener(Events.loadMoreProducts, this.handleLoadMoreEventBound);
 
-        if (this.searchOptions?.rememberScrollPosition) {
+        if (this.rememberScrollPosition) {
             window.removeEventListener('scroll', this.handleScrollEventBound);
         }
 
@@ -110,6 +110,7 @@ export class ProductSearch extends LitElement {
 
         const relewiseUIOptions = getRelewiseUIOptions();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search');
+        const searchOptions = getRelewiseUISearchOptions();
         const searcher = getSearcher(relewiseUIOptions);
 
         const requestBuilder = new ProductSearchBuilder(settings)
@@ -122,14 +123,14 @@ export class ProductSearch extends LitElement {
                 if (relewiseUIOptions.filters?.product) {
                     relewiseUIOptions.filters.product(builder);
                 }
-                if (this.searchOptions && this.searchOptions.filters?.product) {
-                    this.searchOptions.filters.product(builder);
+                if (searchOptions && searchOptions.filters?.product) {
+                    searchOptions.filters.product(builder);
                 }
             })
             .facets(builder => {
-                if (this.searchOptions && this.searchOptions.facets?.product) {
+                if (searchOptions && searchOptions.facets?.product) {
                     const facetBuilder = new RelewiseFacetBuilder(builder);
-                    this.searchOptions.facets.product(facetBuilder);
+                    searchOptions.facets.product(facetBuilder);
                     this.facetLabels = facetBuilder.getLabels();
                 }
             })
@@ -285,7 +286,7 @@ export class ProductSearch extends LitElement {
     }
 
     async updated() {
-        if (!this.searchOptions?.rememberScrollPosition) {
+        if (!this.rememberScrollPosition) {
             return;
         }
 

@@ -20,6 +20,7 @@ export class ProductSearchBar extends LitElement {
             if (this.debounceTimeoutHandlerId) {
                 clearTimeout(this.debounceTimeoutHandlerId);
             }
+
             this.setSearchTerm((event.target as HTMLInputElement).value);
             break;
         }
