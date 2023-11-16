@@ -8,8 +8,20 @@ export class ProductSearchSorting extends LitElement {
     @state()
     selectedOption: string = SortingEnum.Relevance;
 
+    readSortingFromUrlBound = this.readSortingFromUrl.bind(this);
+
     connectedCallback(): void {
         super.connectedCallback();
+        this.selectedOption = readCurrentUrlState(QueryKeys.sortBy) ?? SortingEnum.Relevance;
+        window.addEventListener(Events.search, this.readSortingFromUrlBound);
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener(Events.search, this.readSortingFromUrlBound);
+        super.disconnectedCallback();
+    }
+
+    readSortingFromUrl() {
         this.selectedOption = readCurrentUrlState(QueryKeys.sortBy) ?? SortingEnum.Relevance;
     }
 

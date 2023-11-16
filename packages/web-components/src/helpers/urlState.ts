@@ -20,6 +20,12 @@ export function updateUrlState(queryParamName: string, value: string | null) {
     window.history.replaceState({}, document.title, currentUrl);
 }
 
+export function clearUrlState() {
+    const currentUrl = new URL(window.location.href);
+    currentUrl.search = '';
+    window.history.replaceState({}, document.title, currentUrl);
+}
+
 export function updateUrlStateValues(queryParamName: string, values: string[]) {
     const currentUrl = new URL(window.location.href);
     

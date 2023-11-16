@@ -1,6 +1,6 @@
 import { LitElement, css, html } from 'lit';
 import { state } from 'lit/decorators.js';
-import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../helpers';
+import { Events, QueryKeys, clearUrlState, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../helpers';
 import { theme } from '../../theme';
 
 export class ProductSearchBar extends LitElement {
@@ -38,7 +38,10 @@ export class ProductSearchBar extends LitElement {
 
     setSearchTerm(term: string) {
         this.term = term;
+
+        clearUrlState();
         updateUrlState(QueryKeys.term, term);
+
         window.dispatchEvent(new CustomEvent(Events.search));
     }
 
