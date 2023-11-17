@@ -37,6 +37,9 @@ export class ProductSearchBar extends LitElement {
     }
 
     setSearchTerm(term: string) {
+        if (this.term === term) {
+            return;
+        }
         this.term = term;
 
         clearUrlState();
