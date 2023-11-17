@@ -15,7 +15,7 @@ export function getRelewiseUIOptions(): RelewiseUIOptions {
     return options;
 }
 
-export function getRelewiseUISearchOptions(): RelewiseUISearchOptions {
+export function getRelewiseUISearchOptions(): RelewiseUISearchOptions | undefined {
     return window.relewiseUISearchOptions;
 }
 

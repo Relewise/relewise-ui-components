@@ -1,7 +1,5 @@
 import { LitElement, css, html } from 'lit';
-import { customElement } from 'lit/decorators.js';
 
-@customElement('relewise-x-icon')
 export class XIcon extends LitElement {
 
     connectedCallback(): void {
@@ -20,9 +18,9 @@ export class XIcon extends LitElement {
 
     static styles = css`
         #svg-icon {
-            width: 1rem;
-            height: 1rem;
-            fill: var(--relewise-x-icon-color);
+            width: var(--relewise-icon-width, 1rem);
+            height: var(--relewise-icon-height, 1rem);
+            fill: var(--relewise-icon-color);
         }
     `;
 }

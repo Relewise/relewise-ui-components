@@ -16,20 +16,11 @@ export class ProductSearchOverlay extends LitElement {
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;
 
-    @property({ attribute: 'search-bar-placeholder' })
-    searchBarPlaceholder: string | null = null;
-
     @property({ type: Number, attribute: 'number-of-products' })
     numberOfProducts: number = 5;
 
     @property({ type: Number, attribute: 'number-of-search-term-predictions' })
     numberOfSearchTermPredictions: number = 3;
-
-    @property({ attribute: 'no-results-message' })
-    noResultsMessage: string | null = null;
-
-    @property({ type: Number, attribute: 'debounce-time' })
-    debounceTime: number = 250;
 
     @state()
     results: SearchResult[] | null = null;
@@ -74,7 +65,7 @@ export class ProductSearchOverlay extends LitElement {
 
         this.debounceTimeoutHandlerId = setTimeout(() => {
             this.search(term);
-        }, this.debounceTime);
+        }, getRelewiseUISearchOptions()?.debounceTimeInMs);
     }
 
     handleKeyDown(event: KeyboardEvent): void {
@@ -126,8 +117,8 @@ export class ProductSearchOverlay extends LitElement {
                     if (relewiseUIOptions.filters?.product) {
                         relewiseUIOptions.filters.product(builder);
                     }
-                    if (searchOptions && searchOptions.filters?.productSearch) {
-                        searchOptions.filters.productSearch(builder);
+                    if (searchOptions && searchOptions.filters?.product) {
+                        searchOptions.filters.product(builder);
                     }
                 })
                 .build());
@@ -163,12 +154,13 @@ export class ProductSearchOverlay extends LitElement {
     }
 
     render() {
+        const localization = getRelewiseUISearchOptions()?.localization;
         return html`
             <relewise-search-bar 
                 .term=${this.term}
                 .setSearchTerm=${(term: string)=> this.setSearchTerm(term)}
                 .setSearchBarInFocus=${(inFocus: boolean) => this.searchBarInFocus = inFocus}
-                .placeholder=${this.searchBarPlaceholder}
+                .placeholder=${localization?.searchBar?.placeholder ?? 'Search'}
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
                 ></relewise-search-bar>    
             ${(this.searchBarInFocus &&
@@ -179,7 +171,7 @@ export class ProductSearchOverlay extends LitElement {
                     .selectedIndex=${this.selectedIndex}
                     .results=${this.results} 
                     .setSearchTerm=${(term: string)=> this.setSearchTerm(term)}
-                    .noResultsMessage=${this.noResultsMessage}
+                    .noResultsMessage=${localization?.searchResults?.noResults ?? 'No products found'}
                     .setResultOverlayHovered=${(hovered: boolean) => this.resultBoxIsHovered = hovered }>
                     </relewise-product-search-overlay-results> ` : nothing
             }

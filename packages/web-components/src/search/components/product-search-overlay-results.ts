@@ -20,14 +20,13 @@ export class ProductSearchOverlayResults extends LitElement {
     @property()
     setResultOverlayHovered = (hovered: boolean) => {};
 
-
     connectedCallback(): void {
         super.connectedCallback();
     }
 
     render() {
         return html`
-            <div class="rw-result-container"
+            <div class="rw-result-container rw-border"
                 @mouseover=${() => this.setResultOverlayHovered(true)}
                 @mouseleave=${() => this.setResultOverlayHovered(false)}>
                 ${(!this.results ||
@@ -75,9 +74,7 @@ export class ProductSearchOverlayResults extends LitElement {
             overflow: hidden;
             background-color: var(--relewise-product-search-overlay-background-color, white);
             box-shadow: var(--relewise-product-search-overlay-box-shadow, 0 10px 15px rgb(0 0 0 / 0.2));
-            border: var(--relewise-product-search-overlay-border, 2px solid);
             border-color: var(--accent-color);
-            border-radius: var(--relewise-product-search-overlay-border-radius, 1rem);
         }
         
         .rw-no-results {
@@ -109,17 +106,17 @@ export class ProductSearchOverlayResults extends LitElement {
         }
 
         .rw-prediction-item-container:hover {
-            background-color: whitesmoke;
+            background-color: var(--relewise-hover-color, whitesmoke);
         }
 
         .rw-product-item-container:hover {
-            background-color: whitesmoke;
+            background-color: var(--relewise-hover-color, whitesmoke);
         }
 
         .rw-search-icon {
             margin: auto;
             padding-right: 1rem;
-            --relewise-search-icon-color: var(--accent-color);
+            --relewise-icon-color: var(--accent-color);
         }
     `];
 }

@@ -178,6 +178,45 @@ useSearch({
 });
 ```
 
+#### Localization
+To overwrite words and sentences used by the search components, call the `useSearch` function with the desired localization configuration.
+
+```ts
+useSearch({
+    localization: {
+        facets: {
+            save: 'Save',
+            showLess: 'Show Less',
+            showMore: 'Show More',
+            toggle: 'Filter',
+            yes: 'Yes',
+            no: 'No'
+        },
+        loadMoreButton: {
+            loadMore: 'Hent flere!',
+            showing: 'Viser',
+            outOf: 'ud af',
+            products: 'produkter',
+        },
+        searchBar: {
+            placeholder: 'Search',
+            search: 'Search',
+        },
+        searchResults: {
+            noResults: 'No products found',
+        },
+        sortingButton: {
+            sorting: 'sorting'
+            alphabeticalAscending: 'a - z',
+            alphabeticalDescending: 'z - a',
+            relevance: 'Relevance',
+            salesPriceAscending: 'low - high',
+            salesPriceDescending: 'high - low',
+        },
+    },
+});
+```
+
 #### Product Search Overlay
 This component renders a search bar that will [search for products](https://docs.relewise.com/docs/intro/search.html#product-search) in Relewise and show results in an overlay.
 
@@ -206,10 +245,6 @@ useSearch({
     
     For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_6-making-search-requests).
 
-- **search-bar-placeholder** (Optional, *Default "Search"*):
-    
-    The placeholder used in the search bar.
-
 - **number-of-products** (Optional, *Default 5*): 
 
     The number of products shown in the results overlay.
@@ -218,13 +253,135 @@ useSearch({
 
     The number of search term predictions shown in the results overlay.
 
-- **no-results-message** (Optional, *Default "No search results found"*): 
+- **debounce-time** (Optional, *Default 250*): 
 
-    The message shown in the overlay when there are no results found.
+    The amount of time, in milliseconds, that must pass between requests to Relewise with a new search call.
+
+#### Product Search
+This component renders a search component that [searches for products](https://docs.relewise.com/docs/intro/search.html#product-search) in Relewise and shows results, faceting and sorting options.
+
+```html
+<relewise-product-search displayed-at-location="LOCATION"></relewise-product-search>
+```
+
+##### Attributes
+
+- **displayed-at-location** : 
+    
+    Where the search component is being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_6-making-search-requests).
+
+- **number-of-products** (Optional, *Default 16*): 
+
+    The number of products to search for initially.
 
 - **debounce-time** (Optional, *Default 250*): 
 
     The amount of time, in milliseconds, that must pass between requests to Relewise with a new search call.
+
+#### Scroll position
+When the user navigates to another page or leaves the site, the component will by default not remember where the user last scrolled to.
+
+This can be toggled to do so, to ensure a smooth transition when the user returns back to the site.
+
+This setting is part of the configuration supplied to the `useSearch` function.
+
+```ts
+useSearch({
+    rememberScrollPosition: true
+});
+```
+
+#### Facets
+By default the component will not render any facets.
+
+To start doing so, include your facet configuration in the `useSearch` function.
+
+The label will be displayed at the top of the facet card.
+
+```ts
+useSearch({
+    facets: {
+        product(builder) {
+            builder
+                .addFacet((f) => f.addBrandFacet(), { heading: 'Mærke' })
+                .addFacet((f) => f.addCategoryFacet('ImmediateParent'), { heading: 'Kategori' })
+                .addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Salgs pris' });
+        },
+    }
+});
+```
+#### Layout
+To overwrite the layout of the components, include the components inside the `relewise-product-search` html tag.
+
+Every tag inside the `relewise-product-search` html tag, will be rendered as regular html so you can expand the content as needed and create your own layout.
+
+```html
+<relewise-product-search displayed-at-location="LOCATION">
+    <relewise-product-search-bar></relewise-product-search-bar>
+    <div>
+        <relewise-product-search-sorting></relewise-product-search-sorting>
+    </div>
+    <div>
+        <relewise-facets></relewise-facets>
+        <hr>
+        <h1>Results</h1>
+        <div>
+            <relewise-product-search-results></relewise-product-search-results>
+            <relewise-product-search-load-more-button></relewise-product-search-load-more-button>
+        </div>
+    </div>
+</relewise-product-search>
+```
+
+***Note: once including your own layout nothing from the default layout will be rendered!***
+
+##### Components
+These components are all included in the default layout and can also be used in custom layouts.
+
+You do not have to worry about setting data on these components, this is handled internally by the Product Search component.
+
+###### Search bar
+Renders a search bar with a search button.
+
+The component will search as the user types or presses the search button.
+
+```html
+<relewise-product-search-bar></relewise-product-search-bar>
+```
+
+###### Sorting
+Renders a sorting button with options in an overlay.
+
+```html
+<relewise-product-search-sorting></relewise-product-search-sorting>
+```
+
+###### Facets
+This component renders facets configured in the `useSearch` function.
+
+On smaller screens, this component will also include a button to toggle the visability of the facet cards.
+
+```html
+<relewise-facets></relewise-facets>
+```
+
+###### Product search results
+Renders a grid of product tiles.
+
+To overwrite the default product tile, [call the initialise function with the desired template](#template-overwriting). 
+
+```html
+<relewise-product-search-results></relewise-product-search-results>
+```
+
+###### Product search results
+Renders button that will load more results once pressed.
+
+```html
+<relewise-product-search-load-more-button></relewise-product-search-load-more-button>
+```
 
 ## Overwriting styling
 If you want to overwrite the styling of the grid and the default product tile, you can do so by using css variables.
@@ -235,6 +392,8 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-font: Arial, Helvetica, sans-serif;
             --relewise-color: lightgray;
             --relewise-accent-color: #3764e4;
+            --relewise-border: 2px solid;
+            --relewise-border-radius: 1rem;
             
             --relewise-image-align: start;
 
@@ -242,6 +401,16 @@ If you want to overwrite the styling of the grid and the default product tile, y
 
             --relewise-image-width: 100%;
             --relewise-image-height: auto;
+            
+            --relewise-hover-color: whitesmoke;
+
+            --relewise-button-height: 3.25rem;
+            --relewise-button-text-color: white;
+            --relewise-button-text-font-weight: 100;
+            --relewise-button-icon-padding: .5rem;
+
+            --relewise-icon-width: 1rem;
+            --relewise-icon-height: 1rem;
 
             --relewise-sales-price-font-weight: 600;
             --relewise-sales-price-font-size: 1rem;
@@ -262,14 +431,9 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-display-name-font-size: 0.75rem;
             --relewise-display-name-margin: 0rem 0rem 0rem 0rem;
 
-            --relewise-product-search-overlay-search-bar-border: 2px solid;
-            --relewise-product-search-overlay-search-bar-border-radius: 1rem;
             --relewise-product-search-overlay-search-bar-height: 3rem;
-
             --relewise-product-search-overlay-background-color: white;
             --relewise-product-search-overlay-box-shadow: 0 10px 15px rgb(0 0 0 / 0.2);
-            --relewise-product-search-overlay-border: 2px solid;
-            --relewise-product-search-overlay-border-radius: 1rem;
             --relewise-product-search-overlay-no-results-message-font-weight: 600;
             --relewise-product-search-overlay-no-results-message-color: #212427;
             --relewise-product-search-overlay-prediction-item-font-weight: 600;
@@ -285,6 +449,41 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-product-search-result-overlay-product-list-price-font-size: 1rem;
             --relewise-product-search-result-overlay-product-list-price-text-decoration: line-through;
             --relewise-product-search-result-overlay-product-list-price-text-color: darkgray;
+
+            --relewise-product-search-sorting-font-size: 1rem;
+            --relewise-product-search-sorting-font-weight: 400;
+            --relewise-product-search-sorting-border-color: #eee;
+            --relewise-product-search-sorting-background-color: #eee;
+            --relewise-product-search-sorting-padding: .5rem;
+
+            --relewise-load-more-text-size: 1rem;
+            --relewise-load-more-text-color: black;
+
+            --relewise-products-shown-color: gray;
+            --relewise-products-shown-font-size: .75rem;
+
+            --relewise-product-search-bar-margin-top: 1rem;
+            --relewise-product-search-bar-margin-bottom: 1rem;
+            --relewise-product-search-bar-width: 100%;
+            --relewise-product-search-margin-right: .5rem;
+
+            --relewise-sorting-options-postion: absolute;
+            --relewise-sorting-options-z-index: 10;
+            --relewise-sorting-options-background-color: white;
+            --relewise-sorting-options-margin-top: .25rem;
+
+            --relewise-checklist-facet-border-radius: 1rem;
+            --relewise-checklist-facet-border-color: lightgray;
+            --relewise-checklist-facet-background-color: lightgray;
+            --relewise-checklist-facet-show-more-text-color: black;
+            --relewise-checklist-facet-hits-color: gray;
+            --relewise-checklist-facet-hits-font-size: .75rem;
+
+            --relewise-number-range-input-border: 2px solid;
+            --relewise-number-range-input-border-radius: 1rem;
+            --relewise-number-range-input-height: 2rem;  
+            --relewise-number-range-input-width: 4rem;
+            --relewise-number-range-save-text-color: black;
         }
     </style>
 ```

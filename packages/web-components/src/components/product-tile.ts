@@ -81,9 +81,9 @@ export class ProductTile extends LitElement {
         }
 
         .rw-object-cover {
-            object-fit: cover;
+            object-fit: contain;
             max-width: var(--relewise-image-width, 100%);
-            height: var(--relewise-image-height, auto);
+            height: var(--relewise-image-height, 16rem);
         }
 
         .rw-price {
