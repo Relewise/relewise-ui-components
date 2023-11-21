@@ -206,7 +206,7 @@ useSearch({
             noResults: 'No products found',
         },
         sortingButton: {
-            sorting: 'sorting'
+            sorting: 'sorting',
             alphabeticalAscending: 'a - z',
             alphabeticalDescending: 'z - a',
             relevance: 'Relevance',
