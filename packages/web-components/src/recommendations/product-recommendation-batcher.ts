@@ -36,6 +36,18 @@ export class RecommendationBatcher extends LitElement {
         });
     }
 
+    async connectedCallback() {
+        super.connectedCallback();
+      
+        window.addEventListener(Events.contextSettingsUpdated, this.batch);
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener(Events.contextSettingsUpdated, this.batch);
+
+        super.disconnectedCallback();
+    }
+
     async batch() {
         if (this.data.requests.length === 0) {
             // No recommendation components found to batch
@@ -55,8 +67,6 @@ export class RecommendationBatcher extends LitElement {
         const newState: BatchingContextValue = { requests: this.data.requests };
         newState.requests.forEach((x, index) => x.result = response.responses[index]);
         this.data = newState;
-
-
     }
 
     render() {
