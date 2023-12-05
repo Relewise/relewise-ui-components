@@ -28,7 +28,8 @@ export class RecommendationBatcher extends LitElement {
             e.preventDefault();
 
             const newState: BatchingContextValue = { requests: this.data.requests };
-            newState.requests.push({ request: (e as CustomEvent).detail, id: (e as CustomEvent).target });
+            const event: CustomEvent = (e as CustomEvent);
+            newState.requests.push({ request: event.detail, id: event.target });
             this.data = newState;
 
             if (this.timeoutHandler) { clearTimeout(this.timeoutHandler); }
@@ -65,7 +66,11 @@ export class RecommendationBatcher extends LitElement {
         }
 
         const newState: BatchingContextValue = { requests: this.data.requests };
-        newState.requests.forEach((x, index) => x.result = response.responses[index]);
+        newState.requests.forEach((x, index) => {
+            if (response.responses) {
+                x.result = response.responses[index];
+            }
+        });
         this.data = newState;
     }
 
