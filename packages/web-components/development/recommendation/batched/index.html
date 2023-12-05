@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <title>Web components</title>
+</head>
+
+<style>
+
+</style>
+
+<body>
+    <script type="module" src="index.ts"></script>
+
+    <relewise-recommendation-batcher>
+        <h1>Popular Products</h1>
+        <relewise-popular-products displayed-at-location="web component dev"></relewise-popular-products>
+        <hr>
+        <h1>Viewed after viewing</h1>
+        <relewise-products-viewed-after-viewing-product product-id="1"></relewise-products-viewed-after-viewing-product>
+    </relewise-recommendation-batcher>
+    <hr>
+    <h1>Not batched</h1>
+    <relewise-popular-products displayed-at-location="web component dev"></relewise-popular-products>
+</body>
+
+</html>

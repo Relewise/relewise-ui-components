@@ -10,20 +10,23 @@ export class PopularProducts extends ProductRecommendationBase {
     @property({ type: Number, attribute: 'since-minutes-ago' })
     sinceMinutesAgo: number = 20160; // 14 days
 
-    @property({attribute: 'based-on'})
+    @property({ attribute: 'based-on' })
     basedOn: 'MostPurchased' | 'MostViewed' = 'MostPurchased';
 
     fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
         const recommender = getRecommender(getRelewiseUIOptions());
-        const builder = getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(
+        return recommender.recommendPopularProducts(this.buildRequest());
+    }
+
+    buildRequest() {
+        return getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(
             settings => new PopularProductsBuilder(settings),
             this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Popular Products',
         )
             .sinceMinutesAgo(this.sinceMinutesAgo)
             .basedOn(this.basedOn)
-            .setNumberOfRecommendations(this.numberOfRecommendations);
-
-        return recommender.recommendPopularProducts(builder.build());
+            .setNumberOfRecommendations(this.numberOfRecommendations)
+            .build();
     }
 }
 
