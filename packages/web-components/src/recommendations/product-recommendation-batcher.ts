@@ -32,14 +32,17 @@ export class RecommendationBatcher extends LitElement {
             newState.requests.push({ request: event.detail, id: event.target });
             this.data = newState;
 
-            if (this.timeoutHandler) { clearTimeout(this.timeoutHandler); }
+            if (this.timeoutHandler) {
+                clearTimeout(this.timeoutHandler);
+            }
+
             this.timeoutHandler = setTimeout(() => this.batch(), 100);
         });
     }
 
     async connectedCallback() {
         super.connectedCallback();
-      
+
         window.addEventListener(Events.contextSettingsUpdated, this.batch);
     }
 

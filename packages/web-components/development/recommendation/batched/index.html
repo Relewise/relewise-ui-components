@@ -11,16 +11,30 @@
 
 </style>
 
-<body>
+<body style="max-width: 1400px; margin: auto;">
     <script type="module" src="index.ts"></script>
 
-    <relewise-recommendation-batcher>
-        <h1>Popular Products</h1>
-        <relewise-popular-products displayed-at-location="web component dev"></relewise-popular-products>
-        <hr>
-        <h1>Viewed after viewing</h1>
-        <relewise-products-viewed-after-viewing-product product-id="1"></relewise-products-viewed-after-viewing-product>
-    </relewise-recommendation-batcher>
+    <div style="background-color: lightgray; padding: 15px;">
+        <relewise-product-recommendation-batcher>
+            <h1>Popular Products</h1>
+            <relewise-popular-products displayed-at-location="web component dev"></relewise-popular-products>
+            <hr>
+            <h1>Viewed after viewing</h1>
+            <relewise-products-viewed-after-viewing-product
+                product-id="1"></relewise-products-viewed-after-viewing-product>
+        </relewise-product-recommendation-batcher>
+    </div>
+    <hr>
+    <div style="background-color: lightcoral; padding: 15px;">
+        <relewise-product-recommendation-batcher>
+            <h1>Popular Products</h1>
+            <relewise-popular-products displayed-at-location="web component dev"></relewise-popular-products>
+            <hr>
+            <h1>Viewed after viewing</h1>
+            <relewise-products-viewed-after-viewing-product
+                product-id="1"></relewise-products-viewed-after-viewing-product>
+        </relewise-product-recommendation-batcher>
+    </div>
     <hr>
     <h1>Not batched</h1>
     <relewise-popular-products displayed-at-location="web component dev"></relewise-popular-products>
