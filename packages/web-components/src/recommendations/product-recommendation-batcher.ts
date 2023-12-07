@@ -19,36 +19,28 @@ export class RecommendationBatcher extends LitElement {
 
     timeoutHandler: ReturnType<typeof setTimeout> | undefined;
 
+    batchBound = this.batch.bind(this);
+    registerEventBound = this.registerEvent.bind(this);
+
     constructor() {
         super();
 
         this.attachShadow({ mode: 'open' });
 
-        this.shadowRoot?.addEventListener(Events.registerProductRecommendation, (e) => {
-            e.preventDefault();
-
-            const newState: BatchingContextValue = { requests: this.data.requests };
-            const event: CustomEvent = (e as CustomEvent);
-            newState.requests.push({ request: event.detail, id: event.target });
-            this.data = newState;
-
-            if (this.timeoutHandler) {
-                clearTimeout(this.timeoutHandler);
-            }
-
-            this.timeoutHandler = setTimeout(() => this.batch(), 100);
-        });
+        
     }
 
     async connectedCallback() {
         super.connectedCallback();
 
-        window.addEventListener(Events.contextSettingsUpdated, this.batch);
+        window.addEventListener(Events.contextSettingsUpdated, this.batchBound);
+        this.shadowRoot?.addEventListener(Events.registerProductRecommendation, this.registerEventBound);
     }
 
     disconnectedCallback() {
-        window.removeEventListener(Events.contextSettingsUpdated, this.batch);
-
+        window.removeEventListener(Events.contextSettingsUpdated, this.batchBound);
+        this.shadowRoot?.removeEventListener(Events.registerProductRecommendation, this.registerEventBound);
+        
         super.disconnectedCallback();
     }
 
@@ -75,6 +67,21 @@ export class RecommendationBatcher extends LitElement {
             }
         });
         this.data = newState;
+    }
+
+    registerEvent(e) {
+        e.preventDefault();
+
+        const newState: BatchingContextValue = { requests: this.data.requests };
+        const event: CustomEvent = (e as CustomEvent);
+        newState.requests.push({ request: event.detail, id: event.target });
+        this.data = newState;
+
+        if (this.timeoutHandler) {
+            clearTimeout(this.timeoutHandler);
+        }
+
+        this.timeoutHandler = setTimeout(() => this.batch(), 100);
     }
 
     render() {
