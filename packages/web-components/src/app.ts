@@ -21,6 +21,7 @@ import { ProductSearch } from './search/product-search';
 import { ProductSearchOverlay } from './search/product-search-overlay';
 import { BrandView, ContentCategoryView, ContentView, ProductCategoryView, ProductView } from './tracking';
 import { updateContextSettings } from './updateContextSettings';
+import { RecommendationBatcher } from './recommendations/product-recommendation-batcher';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -128,6 +129,7 @@ export class App {
 }
 
 export function useRecommendations() {
+    tryRegisterElement('relewise-product-recommendation-batcher', RecommendationBatcher);
     tryRegisterElement('relewise-popular-products', PopularProducts);
     tryRegisterElement('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);
     tryRegisterElement('relewise-purchased-with-product', PurchasedWithProduct);

@@ -7,4 +7,5 @@ export const Events = {
     showLoadingSpinner: 'relewise-ui-components:show-loading-spinner',
     dimPreviousResult: 'relewise-ui-components:dim-previous-result',
     searchingForProductsCompleted: 'relewise-ui-components:search-for-products-completed',
+    registerProductRecommendation: 'relewise-ui-components:register-product-recommendation-component',
 };

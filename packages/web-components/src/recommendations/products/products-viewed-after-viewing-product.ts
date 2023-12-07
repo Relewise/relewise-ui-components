@@ -1,4 +1,4 @@
-import { ProductRecommendationResponse, ProductsViewedAfterViewingProductBuilder } from '@relewise/client';
+import { ProductRecommendationResponse, ProductsViewedAfterViewingProductBuilder, ProductsViewedAfterViewingProductRequest } from '@relewise/client';
 import { property } from 'lit/decorators.js';
 import { getRecommender } from '../recommender';
 import { ProductRecommendationBase } from './product-recommendation-base';
@@ -14,13 +14,22 @@ export class ProductsViewedAfterViewingProduct extends ProductRecommendationBase
     variantId: string | undefined = undefined;
 
     fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
+        const recommender = getRecommender(getRelewiseUIOptions());
+        const request = this.buildRequest();
+        if (!request) { 
+            return; 
+        }
+
+        return recommender.recommendProductsViewedAfterViewingProduct(request);
+    }
+
+    buildRequest(): ProductsViewedAfterViewingProductRequest | undefined {
         if (!this.productId) {
             console.error('No productId provided!');
             return;
         }
 
-        const recommender = getRecommender(getRelewiseUIOptions());
-        const builder = getProductRecommendationBuilderWithDefaults<ProductsViewedAfterViewingProductBuilder>(
+        return getProductRecommendationBuilderWithDefaults<ProductsViewedAfterViewingProductBuilder>(
             settings => new ProductsViewedAfterViewingProductBuilder(settings),
             this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Products Viewed After Viewing Product',
         )
@@ -28,9 +37,8 @@ export class ProductsViewedAfterViewingProduct extends ProductRecommendationBase
                 productId: this.productId,
                 variantId: this.variantId,
             })
-            .setNumberOfRecommendations(this.numberOfRecommendations);
-
-        return recommender.recommendProductsViewedAfterViewingProduct(builder.build());
+            .setNumberOfRecommendations(this.numberOfRecommendations)
+            .build();
     }
 }
 

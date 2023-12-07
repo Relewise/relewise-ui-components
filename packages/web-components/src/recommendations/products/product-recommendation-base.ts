@@ -1,11 +1,18 @@
-import { ProductRecommendationResponse, ProductResult } from '@relewise/client';
+import { ProductRecommendationRequest, ProductRecommendationResponse, ProductResult } from '@relewise/client';
 import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
+import { consume } from '@lit/context';
+import { BatchingContextValue, context } from '../product-recommendation-batcher';
 
 export abstract class ProductRecommendationBase extends LitElement {
 
+    @consume({ context, subscribe: true })
+    @state()
+    providedData?: BatchingContextValue;
+
     abstract fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined;
+    abstract buildRequest(): ProductRecommendationRequest | undefined;
 
     @property({ type: Number, attribute: 'number-of-recommendations' })
     numberOfRecommendations: number = 4;
@@ -17,6 +24,16 @@ export abstract class ProductRecommendationBase extends LitElement {
     products: ProductResult[] | null = null;
 
     fetchAndUpdateProductsBound = this.fetchAndUpdateProducts.bind(this);
+
+    constructor() {
+        super();
+        setTimeout(() => {
+            const request = this.buildRequest();
+            if (request) {
+                this.dispatchEvent(new CustomEvent(Events.registerProductRecommendation, { bubbles: true, composed: true, detail: request }));
+            }
+        }, 0);
+    }
 
     async connectedCallback() {
         super.connectedCallback();
@@ -35,13 +52,17 @@ export abstract class ProductRecommendationBase extends LitElement {
     }
 
     async fetchAndUpdateProducts() {
+        if (this.providedData?.requests) return;
+
         const result = await this.fetchProducts();
         this.products = result?.recommendations ?? null;
     };
 
     render() {
-        if (this.products) {
-            return html`${this.products.map(product =>
+        const products = this.providedData?.requests.filter(x => x.id === this)[0];
+
+        if (this.products || products?.result?.recommendations) {
+            return html`${(products?.result?.recommendations ?? this.products ?? []).map(product =>
                 html`<relewise-product-tile .product=${product}></relewise-product-tile>`)
                 }`;
         }
