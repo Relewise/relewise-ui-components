@@ -14,13 +14,22 @@ export class PurchasedWithProduct extends ProductRecommendationBase {
     variantId: string | undefined = undefined;
 
     fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
+        const recommender = getRecommender(getRelewiseUIOptions());
+        const request = this.buildRequest();
+        if (!request) { 
+            return; 
+        }
+
+        return recommender.recommendProductsViewedAfterViewingProduct(request);
+    }
+
+    buildRequest() {
         if (!this.productId) {
             console.error('No productId provided!');
             return;
         }
 
-        const recommender = getRecommender(getRelewiseUIOptions());
-        const builder = getProductRecommendationBuilderWithDefaults<PurchasedWithProductBuilder>(
+        return getProductRecommendationBuilderWithDefaults<PurchasedWithProductBuilder>(
             settings => new PurchasedWithProductBuilder(settings),
             this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Purchased With Product',
         )
@@ -28,9 +37,8 @@ export class PurchasedWithProduct extends ProductRecommendationBase {
                 productId: this.productId,
                 variantId: this.variantId,
             })
-            .setNumberOfRecommendations(this.numberOfRecommendations);
-
-        return recommender.recommendPurchasedWithProduct(builder.build());
+            .setNumberOfRecommendations(this.numberOfRecommendations)
+            .build();
     }
 }
 

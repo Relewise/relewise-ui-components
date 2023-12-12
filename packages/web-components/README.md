@@ -155,6 +155,19 @@ This component renders [products typically purchased with a given product](https
 
     The number of products recommendations to render.
 
+#### Product Recommendation Batcher
+This component batches multiple product recommendations into a single request against Relewise.
+This inceases performance, and ensures that there are no duplicate products in the recommendation sliders
+
+```html
+<relewise-product-recommendation-batcher>
+    <h1>Purchased with</h1>
+    <relewise-purchased-with-product product-id="PRODUCT_ID" displayed-at-location="LOCATION"></relewise-purchased-with-product>
+
+    <h1>Viewed after viewing</h1>
+    <relewise-products-viewed-after-viewing-product product-id="PRODUCT_ID" displayed-at-location="LOCATION"></relewise-products-viewed-after-viewing-product>
+</relewise-product-recommendation-batcher>
+```
 
 ### Search
 Call the useSearch function to start rendering search components.
