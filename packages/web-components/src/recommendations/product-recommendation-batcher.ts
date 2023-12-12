@@ -26,8 +26,6 @@ export class RecommendationBatcher extends LitElement {
         super();
 
         this.attachShadow({ mode: 'open' });
-
-        
     }
 
     async connectedCallback() {

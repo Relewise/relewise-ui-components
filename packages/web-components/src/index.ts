@@ -6,6 +6,7 @@ export * from './initialize';
 export * from './defaultProductProperties';
 export * from './tracking';
 export * from './updateContextSettings';
+export * from './facetBuilder';
 export * from './app';
 export * from './search';
 export * from './theme';
