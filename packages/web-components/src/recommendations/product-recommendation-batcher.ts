@@ -69,7 +69,7 @@ export class RecommendationBatcher extends LitElement {
         this.data = newState;
     }
 
-    registerEvent(e) {
+    registerEvent(e: Event) {
         e.preventDefault();
 
         const newState: BatchingContextValue = { requests: this.data.requests };

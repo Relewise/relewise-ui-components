@@ -1,4 +1,4 @@
-import { FacetBuilder, FilterBuilder, ProductResult } from '@relewise/client';
+import { FilterBuilder, ProductResult } from '@relewise/client';
 import { TemplateResult } from 'lit';
 import { FilterIcon, ProductTile, SearchIcon, SortIcon, XIcon } from './components';
 import { Button } from './components/button';
@@ -22,6 +22,7 @@ import { ProductSearchOverlay } from './search/product-search-overlay';
 import { BrandView, ContentCategoryView, ContentView, ProductCategoryView, ProductView } from './tracking';
 import { updateContextSettings } from './updateContextSettings';
 import { RecommendationBatcher } from './recommendations/product-recommendation-batcher';
+import { RelewiseFacetBuilder } from './facetBuilder';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -30,26 +31,6 @@ export interface RelewiseUISearchOptions {
     localization?: SearchLocalization;
     rememberScrollPosition?: boolean;
     debounceTimeInMs?: number;
-}
-
-export class RelewiseFacetBuilder {
-    builder: FacetBuilder;
-    private labels: string[] = [];
-
-    constructor(builder: FacetBuilder) {
-        this.builder = builder;
-    }
-
-    addFacet(facet: (builder: FacetBuilder) => void, options: { heading: string }): this {
-        this.labels.push(options.heading);
-
-        facet(this.builder);
-        return this;
-    }
-
-    getLabels(): string[] {
-        return this.labels;
-    }
 }
 
 export interface SearchLocalization {

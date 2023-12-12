@@ -1,7 +1,6 @@
 import { DoubleNullableRange, ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { RelewiseFacetBuilder } from '../app';
 import { defaultProductProperties } from '../defaultProductProperties';
 import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
@@ -9,6 +8,7 @@ import { theme } from '../theme';
 import { SortingEnum } from './enums';
 import { getSearcher } from './searcher';
 import { Facet } from './types';
+import { RelewiseFacetBuilder } from 'src/facetBuilder';
 
 export class ProductSearch extends LitElement {
 
