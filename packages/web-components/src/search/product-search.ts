@@ -8,7 +8,7 @@ import { theme } from '../theme';
 import { SortingEnum } from './enums';
 import { getSearcher } from './searcher';
 import { Facet } from './types';
-import { RelewiseFacetBuilder } from 'src/facetBuilder';
+import { RelewiseFacetBuilder } from '../facetBuilder';
 
 export class ProductSearch extends LitElement {
 
