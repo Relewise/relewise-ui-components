@@ -29,7 +29,7 @@
     "clean": "rimraf ./build ./dist",
     "preview": "vite preview",
     "lint": "eslint",
-    "test": "wtr --config web-test-runner-config.js",
+    "test": "wtr --config web-test-runner-config.mjs",
     "publish": "npm run build && npm run build:types"
   },
   "dependencies": {
