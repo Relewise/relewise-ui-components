@@ -1,6 +1,6 @@
 import { Settings } from '@relewise/client';
 import { RelewiseUIOptions } from '../initialize';
-import { RelewiseUISearchOptions } from 'src';
+import { RelewiseUISearchOptions } from '../app';
 
 export function getRelewiseUIOptions(): RelewiseUIOptions {
     const options = window.relewiseUIOptions;
