@@ -1,5 +1,5 @@
 import { Tracker } from '@relewise/client';
-import { RelewiseUIOptions } from 'src/initialize';
+import { RelewiseUIOptions } from '../initialize';
 
 export function getTracker(options: RelewiseUIOptions): Tracker {
     return new Tracker(

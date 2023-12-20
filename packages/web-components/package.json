@@ -1,7 +1,5 @@
 {
   "name": "@relewise/web-components",
-  "type": "module",
-  "types": "dist/index.d.ts",
   "version": "1.0.0-beta.2",
   "description": "Relewise is a next generation personalization SaaS-platform, which offers functionality within product- and content recommendations and personalized search. Our official Web Components provide simple and easy components for rendering personalized experiences.",
   "repository": {
@@ -20,6 +18,7 @@
   "main": "dist/cjs/relewise-web-components.js",
   "module": "dist/esm/relewise-web-components.js",
   "browser": "dist/browser/relewise-web-components.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -30,7 +29,7 @@
     "clean": "rimraf ./build ./dist",
     "preview": "vite preview",
     "lint": "eslint",
-    "test": "wtr --config web-test-runner-config.js",
+    "test": "wtr --config web-test-runner-config.mjs",
     "publish": "npm run build && npm run build:types"
   },
   "dependencies": {
@@ -42,7 +41,7 @@
     "@relewise/client": "^1.17.0"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "^7.36.4",
+    "@microsoft/api-extractor": "^7.39.0",
     "@open-wc/testing": "^3.1.5",
     "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-node-resolve": "^15.2.1",

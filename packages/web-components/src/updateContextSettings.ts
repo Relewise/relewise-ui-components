@@ -1,4 +1,4 @@
-import { ContextSettings } from 'src/initialize';
+import { ContextSettings } from './initialize';
 import { Events } from './helpers';
 
 export function updateContextSettings(contextSettings: Partial<ContextSettings>) {

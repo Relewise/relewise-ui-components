@@ -1,7 +1,7 @@
 import { ProductFacetResult } from '@relewise/client';
 import { LitElement, TemplateResult, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { FacetResult } from 'src/search/types';
+import { FacetResult } from '../../types';
 import { Events, getRelewiseUISearchOptions } from '../../../helpers';
 import { theme } from '../../../theme';
 
