@@ -37,7 +37,7 @@ export class ChecklistNumberValueFacet extends ChecklistFacetBase {
             return false;
         }
 
-        return this.selectedValues.filter(selectedValue => selectedValue === item.value!.toString()).length > 0;
+        return item.selected;
     }
 }
 
