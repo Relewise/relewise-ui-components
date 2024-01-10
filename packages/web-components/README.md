@@ -414,6 +414,8 @@ If you want to overwrite the styling of the grid and the default product tile, y
 
             --relewise-image-width: 100%;
             --relewise-image-height: auto;
+            --relewise-image-padding: 0;
+            --relewise-image-background-color: #fff;
             
             --relewise-hover-color: whitesmoke;
 

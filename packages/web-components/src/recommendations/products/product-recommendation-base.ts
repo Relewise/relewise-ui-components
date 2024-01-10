@@ -71,6 +71,7 @@ export abstract class ProductRecommendationBase extends LitElement {
     static styles = css`
         :host {
             display: grid;
+            width: 100%;
             grid-template-columns: repeat(4,1fr);
             gap: 1rem;
             grid-auto-rows: 1fr;

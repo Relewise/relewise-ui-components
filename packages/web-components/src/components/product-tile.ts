@@ -42,7 +42,7 @@ export class ProductTile extends LitElement {
                 ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${product.data['ImageUrl'].value} /></div>`
                 : nothing
             }
-            <div class='information-container'>
+            <div class='rw-information-container'>
                 <h5 class='rw-display-name'>${product.displayName}</h5>
                 <div class='rw-price'>
                     <span>${formatPrice(product.salesPrice)}</span>
@@ -72,12 +72,13 @@ export class ProductTile extends LitElement {
 
         .rw-image-container {
             display: flex;
-            position: relative;
-            justify-content: var(--relewise-image-align, start);
+            padding: var(--relewise-image-padding, 0);
+            background-color: var(--relewise-image-background-color, #fff);
+            justify-content: var(--relewise-image-align, center);
         }
 
         .rw-information-container {
-            margin: var(--relewise-information-container-margin, 0.5rem 0.5rem 0.5rem 0.5rem);
+            margin: var(--relewise-information-container-margin, 0.5rem 0);
         }
 
         .rw-object-cover {
@@ -90,7 +91,7 @@ export class ProductTile extends LitElement {
             line-height: 1;
             display: flex;
             font-weight: var(--relewise-sales-price-font-weight, 600);
-            font-size: var(--relewise-sales-price-font-size, 1rem);
+            font-size: var(--relewise-sales-price-font-size, 1.25rem);
             color: var(--relewise-sales-price-color, #212427);
             justify-content: var(--relewise-sales-price-alignment, start);
             margin: var(--relewise-sales-price-margin, 0.5rem 0rem 0rem 0rem);
@@ -98,18 +99,18 @@ export class ProductTile extends LitElement {
 
         .rw-display-name {
             display: flex;
-            letter-spacing: var(--relewise-display-name-letter-spacing, -0.025rem);;
+            letter-spacing: var(--relewise-display-name-letter-spacing, -0.025rem);
             justify-content: var(--relewise-display-name-alignment, start);
             color: var(--relewise-display-name-color, #212427);
             line-height: var(--relewise-display-name-line-height, 1.25rem);
             font-weight: var(--relewise-display-name-font-weight, 600);
-            font-size: var(--relewise-display-name-font-size, 0.75rem);
+            font-size: var(--relewise-display-name-font-size, 1rem);
             margin: var(--relewise-display-name-margin, 0rem 0rem 0rem 0rem);
 
         }
 
         .rw-list-price {
-            font-size: var(--relewise-list-price-font-size, .5rem);
+            font-size: var(--relewise-list-price-font-size, .8rem);
             text-decoration: var(--relewise-list-price-text-decoration, line-through);
             color: var(--relewise-list-price-color, darkgray);
             margin: var(--relewise-list-price-margin, .25rem);
