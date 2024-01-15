@@ -6,7 +6,7 @@ import { SearchResult } from '../product-search-overlay';
 export class ProductSearchOverlayResults extends LitElement {
 
     @property()
-    setSearchTerm = (term: string) => {};
+    setSearchTerm = (term: string) => { };
 
     @property()
     noResultsMessage: string | null = null;
@@ -16,9 +16,9 @@ export class ProductSearchOverlayResults extends LitElement {
 
     @property({ type: Number })
     selectedIndex = -1;
-    
+
     @property()
-    setResultOverlayHovered = (hovered: boolean) => {};
+    setResultOverlayHovered = (hovered: boolean) => { };
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -35,7 +35,7 @@ export class ProductSearchOverlayResults extends LitElement {
                 ` : html`
                 <div>
                     ${this.results.map((result, index) => {
-                        return html`
+                    return html`
                         <div ?selected=${index === this.selectedIndex} class="rw-selected-result">
                         ${result.searchTermPrediction ?
                             html`
@@ -45,15 +45,15 @@ export class ProductSearchOverlayResults extends LitElement {
                                     </span>
                                     <relewise-search-icon class="rw-search-icon"></relewise-search-icon>
                                 </div>
-                            ` : 
+                            ` :
                             html`
                                 <div class="rw-product-item-container">
                                     <relewise-product-search-overlay-product .product=${result.product}></relewise-product-search-overlay-product>
                                 </div>
                             `}
                         </div>`;
-                    },
-                    )}
+                },
+                )}
                 </div>`}
             </div>
         `;
@@ -90,7 +90,7 @@ export class ProductSearchOverlayResults extends LitElement {
         }
 
         .rw-products-container {
-            display :flex;
+            display: flex;
             flex-direction: column;
         }
 
@@ -102,7 +102,7 @@ export class ProductSearchOverlayResults extends LitElement {
         }
 
         .rw-selected-result[selected] {
-            background-color: whitesmoke;
+            background-color: var(--relewise-hover-color, whitesmoke);
         }
 
         .rw-prediction-item-container:hover {
