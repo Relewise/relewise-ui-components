@@ -12,7 +12,7 @@ export class SearchResult {
 }
 
 export class ProductSearchOverlay extends LitElement {
-    
+
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;
 
@@ -27,8 +27,8 @@ export class ProductSearchOverlay extends LitElement {
 
     @state()
     term: string = '';
-    
-    @state() 
+
+    @state()
     selectedIndex = -1;
 
     @state()
@@ -41,7 +41,7 @@ export class ProductSearchOverlay extends LitElement {
     hasCompletedSearchRequest: boolean = false;
 
     private debounceTimeoutHandlerId: ReturnType<typeof setTimeout> | null = null;
-    
+
     async connectedCallback() {
         if (!this.displayedAtLocation) {
             console.error('No displayedAtLocation defined!');
@@ -98,8 +98,23 @@ export class ProductSearchOverlay extends LitElement {
             this.setSearchTerm(result.searchTermPrediction.term ?? '');
         }
 
-        if (result.product && result.product.data && 'Url' in result.product.data) {
-            window.location.href = result.product.data['Url'].value ?? '';
+        if (result.product) {
+            const selectedProduct = this.shadowRoot!
+                .querySelector('relewise-product-search-overlay-results')
+                ?.shadowRoot
+                ?.querySelector('.rw-selected-result[selected]');
+
+            if (selectedProduct) {
+                const productLink = selectedProduct
+                    .querySelector('relewise-product-search-overlay-product')
+                    ?.shadowRoot
+                    ?.querySelector('a')
+                    ?.getAttribute('href');
+
+                if (productLink) {
+                    window.location.href = productLink;
+                }
+            }
         }
     }
 
@@ -130,7 +145,7 @@ export class ProductSearchOverlay extends LitElement {
                 .addEntityType('Product')
                 .build());
         }
-            
+
 
         const response = await searcher.batch(requestBuilder.build());
         if (response && response.responses) {
@@ -158,7 +173,7 @@ export class ProductSearchOverlay extends LitElement {
         return html`
             <relewise-search-bar 
                 .term=${this.term}
-                .setSearchTerm=${(term: string)=> this.setSearchTerm(term)}
+                .setSearchTerm=${(term: string) => this.setSearchTerm(term)}
                 .setSearchBarInFocus=${(inFocus: boolean) => this.searchBarInFocus = inFocus}
                 .placeholder=${localization?.searchBar?.placeholder ?? 'Search'}
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
@@ -166,13 +181,13 @@ export class ProductSearchOverlay extends LitElement {
             ${(this.searchBarInFocus &&
                 this.hasCompletedSearchRequest &&
                 this.term) ||
-                this.resultBoxIsHovered ? 
+                this.resultBoxIsHovered ?
                 html`<relewise-product-search-overlay-results
                     .selectedIndex=${this.selectedIndex}
                     .results=${this.results} 
-                    .setSearchTerm=${(term: string)=> this.setSearchTerm(term)}
+                    .setSearchTerm=${(term: string) => this.setSearchTerm(term)}
                     .noResultsMessage=${localization?.searchResults?.noResults ?? 'No products found'}
-                    .setResultOverlayHovered=${(hovered: boolean) => this.resultBoxIsHovered = hovered }>
+                    .setResultOverlayHovered=${(hovered: boolean) => this.resultBoxIsHovered = hovered}>
                     </relewise-product-search-overlay-results> ` : nothing
             }
         `;
