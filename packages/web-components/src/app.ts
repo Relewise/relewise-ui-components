@@ -23,6 +23,7 @@ import { BrandView, ContentCategoryView, ContentView, ProductCategoryView, Produ
 import { updateContextSettings } from './updateContextSettings';
 import { RecommendationBatcher } from './recommendations/product-recommendation-batcher';
 import { RelewiseFacetBuilder } from './facetBuilder';
+import { ArrowUpIcon } from './components/icons/arrow-up-icon';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -158,6 +159,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
 function registerGenericComponents() {
     tryRegisterElement('relewise-product-tile', ProductTile);
     tryRegisterElement('relewise-search-icon', SearchIcon);
+    tryRegisterElement('relewise-arrow-up-icon', ArrowUpIcon);
     tryRegisterElement('relewise-filter-icon', FilterIcon);
     tryRegisterElement('relewise-x-icon', XIcon);
     tryRegisterElement('relewise-sort-icon', SortIcon);

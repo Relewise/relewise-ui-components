@@ -1,4 +1,4 @@
-import { LitElement, css, html } from 'lit';
+import { LitElement, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { theme } from '../../theme';
 import { SearchResult } from '../product-search-overlay';
@@ -37,6 +37,13 @@ export class ProductSearchOverlayResults extends LitElement {
                     ${this.results.map((result, index) => {
                     return html`
                         <div ?selected=${index === this.selectedIndex} class="rw-selected-result">
+                        ${result.redirect ? html`
+                            <div class="rw-prediction-item-container" @click=${() => window.location.href = result.redirect?.destination ?? ''}>
+                                <span class="rw-prediction-item">
+                                    ${result.redirect.data?.Title}
+                                </span>
+                                <relewise-arrow-up-icon class="rw-search-icon"></relewise-arrow-up-icon>
+                            </div>` : nothing}
                         ${result.searchTermPrediction ?
                             html`
                                 <div class="rw-prediction-item-container" @click=${() => this.setSearchTerm(result.searchTermPrediction!.term ?? '')}>
