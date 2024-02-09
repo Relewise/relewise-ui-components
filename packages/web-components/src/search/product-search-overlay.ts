@@ -1,4 +1,4 @@
-import { ProductResult, ProductSearchBuilder, ProductSearchResponse, SearchCollectionBuilder, SearchTermPredictionBuilder, SearchTermPredictionResponse, SearchTermPredictionResult } from '@relewise/client';
+import { ProductResult, ProductSearchBuilder, ProductSearchResponse, RedirectResult, SearchCollectionBuilder, SearchTermPredictionBuilder, SearchTermPredictionResponse, SearchTermPredictionResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
@@ -9,6 +9,7 @@ import { theme } from '../theme';
 export class SearchResult {
     product?: ProductResult;
     searchTermPrediction?: SearchTermPredictionResult;
+    redirect?: RedirectResult;
 }
 
 export class ProductSearchOverlay extends LitElement {
@@ -24,6 +25,9 @@ export class ProductSearchOverlay extends LitElement {
 
     @state()
     results: SearchResult[] | null = null;
+
+    @state()
+    redirects?: RedirectResult[] | null = null;
 
     @state()
     term: string = '';
@@ -53,7 +57,7 @@ export class ProductSearchOverlay extends LitElement {
     setSearchTerm(term: string) {
         this.term = term;
         this.selectedIndex = -1;
-        
+
         if (!term) {
             this.results = null;
             this.hasCompletedSearchRequest = false;
@@ -95,11 +99,11 @@ export class ProductSearchOverlay extends LitElement {
     }
 
     handleActionOnResult(result: SearchResult) {
-        if (result.searchTermPrediction) {
+        if (result?.searchTermPrediction) {
             this.setSearchTerm(result.searchTermPrediction.term ?? '');
         }
 
-        if (result.product) {
+        else if (result?.product) {
             const selectedProduct = this.shadowRoot!
                 .querySelector('relewise-product-search-overlay-results')
                 ?.shadowRoot
@@ -115,6 +119,14 @@ export class ProductSearchOverlay extends LitElement {
                 if (productLink) {
                     window.location.href = productLink;
                 }
+            }
+        } else if (result?.redirect) {
+            // We have valided previous the the destination is a valid URL.
+            window.location.href = result?.redirect.destination ?? '';
+        }
+        else if (this.redirects && this.redirects.length > 0 && URL.canParse(this.redirects[0].destination ?? '')) {
+            if (this.redirects[0].destination) {
+                window.location.href = this.redirects[0].destination;
             }
         }
     }
@@ -158,7 +170,9 @@ export class ProductSearchOverlay extends LitElement {
                 searchResult.product = result;
                 return searchResult;
             }) ?? [];
-
+            this.redirects = productSearchResult.redirects;
+            const redirects: SearchResult[] = productSearchResult.redirects?.filter(x => x.data?.Title && URL.canParse(x.destination ?? '')).map(x => ({ redirect: x })) ?? [];
+            
             const searchTermPredictionResult = response.responses[1] as SearchTermPredictionResponse;
             const searchTermPredictions = searchTermPredictionResult.predictions?.map(result => {
                 const searchResult = new SearchResult();
@@ -166,7 +180,7 @@ export class ProductSearchOverlay extends LitElement {
                 return searchResult;
             }) ?? [];
 
-            this.results = searchTermPredictions.concat(products);
+            this.results = redirects.concat(searchTermPredictions).concat(products);
             this.hasCompletedSearchRequest = true;
         }
     }
