@@ -172,7 +172,7 @@ export class ProductSearchOverlay extends LitElement {
             }) ?? [];
             this.redirects = productSearchResult.redirects;
             const redirects: SearchResult[] = productSearchResult.redirects?.filter(x => x.data?.Title && URL.canParse(x.destination ?? '')).map(x => ({ redirect: x })) ?? [];
-            console.log(redirects);
+            
             const searchTermPredictionResult = response.responses[1] as SearchTermPredictionResponse;
             const searchTermPredictions = searchTermPredictionResult.predictions?.map(result => {
                 const searchResult = new SearchResult();
