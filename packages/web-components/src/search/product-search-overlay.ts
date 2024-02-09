@@ -120,7 +120,11 @@ export class ProductSearchOverlay extends LitElement {
                     window.location.href = productLink;
                 }
             }
-        } else if (this.redirects && this.redirects.length > 0 && URL.canParse(this.redirects[0].destination ?? '')) {
+        } else if (result?.redirect) {
+            // We have valided previous the the destination is a valid URL.
+            window.location.href = result?.redirect.destination ?? '';
+        }
+        else if (this.redirects && this.redirects.length > 0 && URL.canParse(this.redirects[0].destination ?? '')) {
             if (this.redirects[0].destination) {
                 window.location.href = this.redirects[0].destination;
             }
@@ -167,7 +171,7 @@ export class ProductSearchOverlay extends LitElement {
                 return searchResult;
             }) ?? [];
             this.redirects = productSearchResult.redirects;
-            const redirects: SearchResult[] = productSearchResult.redirects?.filter(x => x.data?.Title && URL.canParse(x.destination ?? '')).map(x => ({redirect: x})) ?? [];
+            const redirects: SearchResult[] = productSearchResult.redirects?.filter(x => x.data?.Title && URL.canParse(x.destination ?? '')).map(x => ({ redirect: x })) ?? [];
             console.log(redirects);
             const searchTermPredictionResult = response.responses[1] as SearchTermPredictionResponse;
             const searchTermPredictions = searchTermPredictionResult.predictions?.map(result => {
