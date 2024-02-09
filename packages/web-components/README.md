@@ -233,6 +233,9 @@ useSearch({
 #### Product Search Overlay
 This component renders a search bar that will [search for products](https://docs.relewise.com/docs/intro/search.html#product-search) in Relewise and show results in an overlay.
 
+Search Redirects is supported in the product search overlay, by default we redirect the user on "Enter", when a Redirect matches the search term.
+If you want the Redirects listed as suggestions, you can add a "Title" data entry on the Redirect to get them shown.
+
 ```html
 <relewise-product-search-overlay displayed-at-location="LOCATION"></relewise-product-search-overlay>
 ```
