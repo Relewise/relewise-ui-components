@@ -127,9 +127,12 @@ export function useBehavioralTracking() {
 } 
 
 export function useSearch(options?: RelewiseUISearchOptions) {
+    const defaultDebounceTimeInMs = 250;
     if (options) {
-        options.debounceTimeInMs = options.debounceTimeInMs ?? 250;
+        options.debounceTimeInMs = options.debounceTimeInMs ?? defaultDebounceTimeInMs;
         window.relewiseUISearchOptions = options;
+    } else {
+        window.relewiseUISearchOptions = { debounceTimeInMs: defaultDebounceTimeInMs };
     }
 
     tryRegisterElement('relewise-product-search-overlay', ProductSearchOverlay);
