@@ -41,6 +41,7 @@ export class ProductSearchOverlay extends LitElement {
     hasCompletedSearchRequest: boolean = false;
 
     private debounceTimeoutHandlerId: ReturnType<typeof setTimeout> | null = null;
+    private abortController = new AbortController();
 
     async connectedCallback() {
         if (!this.displayedAtLocation) {
@@ -52,7 +53,7 @@ export class ProductSearchOverlay extends LitElement {
     setSearchTerm(term: string) {
         this.term = term;
         this.selectedIndex = -1;
-
+        
         if (!term) {
             this.results = null;
             this.hasCompletedSearchRequest = false;
@@ -119,6 +120,8 @@ export class ProductSearchOverlay extends LitElement {
     }
 
     async search(searchTerm: string) {
+        this.abortController.abort();
+
         const relewiseUIOptions = getRelewiseUIOptions();
         const searchOptions = getRelewiseUISearchOptions();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
@@ -146,8 +149,8 @@ export class ProductSearchOverlay extends LitElement {
                 .build());
         }
 
-
-        const response = await searcher.batch(requestBuilder.build());
+        this.abortController = new AbortController();
+        const response = await searcher.batch(requestBuilder.build(), { abortSignal: this.abortController.signal });
         if (response && response.responses) {
             const productSearchResult = response.responses[0] as ProductSearchResponse;
             const products = productSearchResult.results?.map(result => {
