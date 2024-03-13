@@ -20,7 +20,7 @@ export class PurchasedWithProduct extends ProductRecommendationBase {
             return; 
         }
 
-        return recommender.recommendProductsViewedAfterViewingProduct(request);
+        return recommender.recommendPurchasedWithProduct(request);
     }
 
     buildRequest() {
