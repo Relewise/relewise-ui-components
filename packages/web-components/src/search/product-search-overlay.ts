@@ -116,15 +116,9 @@ export class ProductSearchOverlay extends LitElement {
         if (result?.showAllResults === true) {
             if (!this.searchPageUrl) return;
             this.redirectToSearchPage();
-            return;
-        }
-
-        if (result?.searchTermPrediction) {
+        } else if (result?.searchTermPrediction) {
             this.setSearchTerm(result.searchTermPrediction.term ?? '');
-            return;
-        }
-
-        if (result?.product) {
+        } else if (result?.product) {
             const selectedProduct = this.shadowRoot!
                 .querySelector('relewise-product-search-overlay-results')
                 ?.shadowRoot
@@ -141,26 +135,15 @@ export class ProductSearchOverlay extends LitElement {
                     window.location.href = productLink;
                 }
             }
-
-            return;
-        }
-
-        if (result?.redirect) {
+        } else if (result?.redirect) {
             // We have valided previous the the destination is a valid URL.
             window.location.href = result?.redirect.destination ?? '';
-            return;
-        }
-
-        if (this.redirects && this.redirects.length > 0 && URL.canParse(this.redirects[0].destination ?? '')) {
+        } else if (this.redirects && this.redirects.length > 0 && URL.canParse(this.redirects[0].destination ?? '')) {
             if (this.redirects[0].destination) {
                 window.location.href = this.redirects[0].destination;
             }
-            return;
-        }
-
-        if ((!result && this.searchPageUrl)) {
+        } else if ((!result && this.searchPageUrl)) {
             this.redirectToSearchPage();
-            return;
         }
     }
 
@@ -216,7 +199,7 @@ export class ProductSearchOverlay extends LitElement {
 
             this.results = redirects.concat(searchTermPredictions).concat(products);
 
-            if (this.searchPageUrl && productSearchResult.hits > 0) this.results.push({ showAllResults: true })
+            if (this.searchPageUrl && productSearchResult.hits > 0) this.results.push({ showAllResults: true });
 
             this.hasCompletedSearchRequest = true;
         }

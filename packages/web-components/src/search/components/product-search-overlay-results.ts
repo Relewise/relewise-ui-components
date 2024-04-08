@@ -15,9 +15,6 @@ export class ProductSearchOverlayResults extends LitElement {
     @property({ type: Number })
     hits = 0;
 
-    @property({ type: Boolean })
-    showAllResultsButton = false;
-
     @property()
     noResultsMessage: string | null = null;
 
@@ -117,18 +114,6 @@ export class ProductSearchOverlayResults extends LitElement {
         .rw-products-container {
             display: flex;
             flex-direction: column;
-        }
-
-        .rw-see-all-results-container {
-            color: var(--accent-color);
-            padding: 1rem;
-            padding-bottom: .5rem;
-            cursor: pointer;
-        }
-        
-        .rw-see-all-results-container:hover {
-            curson: pointer;
-            text-decoration: underline;
         }
 
         .rw-item {
