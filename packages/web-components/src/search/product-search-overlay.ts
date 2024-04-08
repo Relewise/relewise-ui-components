@@ -10,6 +10,7 @@ export class SearchResult {
     product?: ProductResult;
     searchTermPrediction?: SearchTermPredictionResult;
     redirect?: RedirectResult;
+    showAllResults?: boolean = false;
 }
 
 export class ProductSearchOverlay extends LitElement {
@@ -22,6 +23,9 @@ export class ProductSearchOverlay extends LitElement {
 
     @property({ type: Number, attribute: 'number-of-search-term-predictions' })
     numberOfSearchTermPredictions: number = 3;
+
+    @property({ attribute: 'search-page-url' })
+    searchPageUrl?: string = undefined;
 
     @state()
     results: SearchResult[] | null = null;
@@ -43,6 +47,9 @@ export class ProductSearchOverlay extends LitElement {
 
     @state()
     hasCompletedSearchRequest: boolean = false;
+
+    @state()
+    productSearchResultHits: number = 0;
 
     private debounceTimeoutHandlerId: ReturnType<typeof setTimeout> | null = null;
     private abortController = new AbortController();
@@ -79,31 +86,45 @@ export class ProductSearchOverlay extends LitElement {
         }
 
         switch (event.key) {
-        case 'ArrowUp':
-            event.preventDefault();
-            this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
-            break;
-        case 'ArrowDown':
-            event.preventDefault();
-            this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
-            break;
-        case 'Tab':
-            event.preventDefault();
-            this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
-            break;
-        case 'Enter':
-            event.preventDefault();
-            this.handleActionOnResult(this.results[this.selectedIndex]);
-            break;
+            case 'ArrowUp':
+                event.preventDefault();
+                this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+                break;
+            case 'ArrowDown':
+                event.preventDefault();
+                this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
+                break;
+            case 'Tab':
+                event.preventDefault();
+                this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
+                break;
+            case 'Enter':
+                event.preventDefault();
+                this.handleActionOnResult(this.results[this.selectedIndex]);
+                break;
         }
     }
 
-    handleActionOnResult(result: SearchResult) {
-        if (result?.searchTermPrediction) {
-            this.setSearchTerm(result.searchTermPrediction.term ?? '');
+    redirectToSearchPage() {
+        if (!this.searchPageUrl) return;
+        const url = new URL(this.searchPageUrl, window.location.href);
+        url.searchParams.set('rw-term', this.term);
+        window.location.href = url.toString();
+    }
+
+    handleActionOnResult(result?: SearchResult) {
+        if (result?.showAllResults === true) {
+            if (!this.searchPageUrl) return;
+            this.redirectToSearchPage();
+            return;
         }
 
-        else if (result?.product) {
+        if (result?.searchTermPrediction) {
+            this.setSearchTerm(result.searchTermPrediction.term ?? '');
+            return;
+        }
+
+        if (result?.product) {
             const selectedProduct = this.shadowRoot!
                 .querySelector('relewise-product-search-overlay-results')
                 ?.shadowRoot
@@ -120,14 +141,26 @@ export class ProductSearchOverlay extends LitElement {
                     window.location.href = productLink;
                 }
             }
-        } else if (result?.redirect) {
+
+            return;
+        }
+
+        if (result?.redirect) {
             // We have valided previous the the destination is a valid URL.
             window.location.href = result?.redirect.destination ?? '';
+            return;
         }
-        else if (this.redirects && this.redirects.length > 0 && URL.canParse(this.redirects[0].destination ?? '')) {
+
+        if (this.redirects && this.redirects.length > 0 && URL.canParse(this.redirects[0].destination ?? '')) {
             if (this.redirects[0].destination) {
                 window.location.href = this.redirects[0].destination;
             }
+            return;
+        }
+
+        if ((!result && this.searchPageUrl)) {
+            this.redirectToSearchPage();
+            return;
         }
     }
 
@@ -165,6 +198,7 @@ export class ProductSearchOverlay extends LitElement {
         const response = await searcher.batch(requestBuilder.build(), { abortSignal: this.abortController.signal });
         if (response && response.responses) {
             const productSearchResult = response.responses[0] as ProductSearchResponse;
+            this.productSearchResultHits = productSearchResult.hits;
             const products = productSearchResult.results?.map(result => {
                 const searchResult = new SearchResult();
                 searchResult.product = result;
@@ -172,7 +206,7 @@ export class ProductSearchOverlay extends LitElement {
             }) ?? [];
             this.redirects = productSearchResult.redirects;
             const redirects: SearchResult[] = productSearchResult.redirects?.filter(x => x.data?.Title && URL.canParse(x.destination ?? '')).map(x => ({ redirect: x })) ?? [];
-            
+
             const searchTermPredictionResult = response.responses[1] as SearchTermPredictionResponse;
             const searchTermPredictions = searchTermPredictionResult.predictions?.map(result => {
                 const searchResult = new SearchResult();
@@ -181,6 +215,9 @@ export class ProductSearchOverlay extends LitElement {
             }) ?? [];
 
             this.results = redirects.concat(searchTermPredictions).concat(products);
+
+            if (this.searchPageUrl && productSearchResult.hits > 0) this.results.push({ showAllResults: true })
+
             this.hasCompletedSearchRequest = true;
         }
     }
@@ -203,8 +240,10 @@ export class ProductSearchOverlay extends LitElement {
                     .selectedIndex=${this.selectedIndex}
                     .results=${this.results} 
                     .setSearchTerm=${(term: string) => this.setSearchTerm(term)}
+                    .redirectToSearchPage=${() => this.redirectToSearchPage()}
                     .noResultsMessage=${localization?.searchResults?.noResults ?? 'No products found'}
-                    .setResultOverlayHovered=${(hovered: boolean) => this.resultBoxIsHovered = hovered}>
+                    .setResultOverlayHovered=${(hovered: boolean) => this.resultBoxIsHovered = hovered}
+                    .hits=${this.productSearchResultHits}>
                     </relewise-product-search-overlay-results> ` : nothing
             }
         `;
