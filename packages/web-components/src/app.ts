@@ -74,6 +74,7 @@ export interface FacetLocalization {
 
 export interface SearchResultLocalization {
     noResults?: string;
+    showAllResults?: string;
 }
 
 export interface SearchFilters {
@@ -115,7 +116,7 @@ export function useRecommendations() {
     tryRegisterElement('relewise-popular-products', PopularProducts);
     tryRegisterElement('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);
     tryRegisterElement('relewise-purchased-with-product', PurchasedWithProduct);
-    
+
     registerGenericComponents();
 }
 
@@ -125,7 +126,7 @@ export function useBehavioralTracking() {
     tryRegisterElement('relewise-track-content-view', ContentView);
     tryRegisterElement('relewise-track-content-category-view', ContentCategoryView);
     tryRegisterElement('relewise-track-brand-view', BrandView);
-} 
+}
 
 export function useSearch(options?: RelewiseUISearchOptions) {
     const defaultDebounceTimeInMs = 250;

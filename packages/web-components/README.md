@@ -217,6 +217,7 @@ useSearch({
         },
         searchResults: {
             noResults: 'No products found',
+            showAllResults: 'Show all results',
         },
         sortingButton: {
             sorting: 'sorting',
@@ -268,6 +269,10 @@ useSearch({
 - **number-of-search-term-predictions** (Optional, *Default 3*): 
 
     The number of search term predictions shown in the results overlay.
+
+- **search-page-url** (Optional): 
+
+    The url of your search page. When provided, an option to go to the search page will be present, when results are found.
 
 - **debounce-time** (Optional, *Default 250*): 
 
