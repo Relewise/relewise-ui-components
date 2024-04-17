@@ -8,13 +8,13 @@ export class SearchBar extends LitElement {
     term: string = '';
 
     @property()
-    setSearchTerm = (term: string) => {};
+    setSearchTerm = (term: string) => { };
 
     @property()
-    handleKeyEvent = (event: KeyboardEvent) => {};
+    handleKeyEvent = (event: KeyboardEvent) => { };
 
     @property()
-    setSearchBarInFocus = (inFocus: boolean) => {};
+    setSearchBarInFocus = (inFocus: boolean) => { };
 
     @property()
     placeholder: string | null = null;
@@ -43,7 +43,7 @@ export class SearchBar extends LitElement {
                 @input=${(e: InputEvent) => this.setSearchTerm((e.target as HTMLInputElement).value)}
                 @focus=${() => this.setSearchBarInFocus(true)} 
                 @blur=${() => this.setSearchBarInFocus(false)}>
-            ${this.term ? 
+            ${this.term ?
                 html`
                     <div class="rw-icon" @click=${() => this.setSearchTerm('')}>
                         <relewise-x-icon></relewise-x-icon>
@@ -65,7 +65,7 @@ export class SearchBar extends LitElement {
                 padding-left: 1rem;
                 padding-right: 1rem;
                 border-color: var(--color);
-                height: var(--relewise-product-search-overlay-search-bar-height, 3rem);
+                height: var(--relewise-product-search-bar-height, 3rem);
             }
 
             .rw-search-bar:focus-within {

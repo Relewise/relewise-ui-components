@@ -7,7 +7,7 @@ import { CheckListFacet, CheckListFacetValue } from '../../types';
 export abstract class ChecklistFacetBase extends LitElement {
 
     abstract handleChange(e: Event, item: CheckListFacetValue): void;
-    
+
     abstract getOptionDisplayValue(item: CheckListFacetValue): string;
 
     abstract shouldOptionBeChecked(item: CheckListFacetValue): boolean;
@@ -31,7 +31,7 @@ export abstract class ChecklistFacetBase extends LitElement {
         window.addEventListener(Events.search, this.clearSelectedValuesBound);
 
         if (this.result) {
-            if ('key' in this.result)  {
+            if ('key' in this.result) {
                 this.selectedValues = readCurrentUrlStateValues(QueryKeys.facet + this.result.field + this.result.key);
             } else {
                 this.selectedValues = readCurrentUrlStateValues(QueryKeys.facet + this.result.field);
@@ -52,7 +52,7 @@ export abstract class ChecklistFacetBase extends LitElement {
     updateUrlState(searchForProducts: boolean = false) {
         if (!this.result) {
             return;
-        }  
+        }
 
         if ('key' in this.result) {
             updateUrlStateValues(QueryKeys.facet + this.result.field + this.result.key, this.selectedValues);
@@ -88,7 +88,7 @@ export abstract class ChecklistFacetBase extends LitElement {
         <div class="rw-facet-content">
             <h3>${this.label}</h3>
             ${facetResultsToShow.map((item, index) => {
-                    return html`
+            return html`
                     ${item.value !== undefined ? html`
                         <div>
                             <label class="rw-label" for=${`${this.result?.field}-${this.result?.$type}-${index}`}>
@@ -98,16 +98,16 @@ export abstract class ChecklistFacetBase extends LitElement {
                                     name=${`${this.result?.field}-${this.result?.$type}-${index}`}
                                     .checked=${this.shouldOptionBeChecked(item)}
                                     @click=${(e: Event) => {
-                                        e.preventDefault();
-                                        this.handleChange(e, item);
-                                    }} />
+                        e.preventDefault();
+                        this.handleChange(e, item);
+                    }} />
                                 ${this.getOptionDisplayValue(item)}
                                 <span class="rw-hits">(${item.hits})</span>
                             </label>
                         </div>
                     ` : nothing}
                     `;
-                })}
+        })}
             ${this.result.available.length > 10 ? html`
                 ${this.showAll ? html`
                     <relewise-button
@@ -127,9 +127,9 @@ export abstract class ChecklistFacetBase extends LitElement {
 
     static styles = [theme, css`
         :host {
-            border-radius: var(--relewise-checklist-facet-border-radius, 1rem);
+            border-radius: var(--border-radius);
             border-color: var(--relewise-checklist-facet-border-color, #eee);
-            background-color: var(--relewise-checklist-facet-background-color, #eee);
+            background-color: var(--color);
             height: fit-content;
         }
 
