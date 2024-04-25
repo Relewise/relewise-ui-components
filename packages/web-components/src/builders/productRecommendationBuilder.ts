@@ -8,6 +8,7 @@ export function getProductRecommendationBuilderWithDefaults<T extends ProductSet
 
     return createBuilder(settings)
         .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
+        .setSelectedVariantProperties(relewiseUIOptions.selectedPropertiesSettings?.variant ?? {})
         .filters(builder => {
             if (relewiseUIOptions.filters?.product) {
                 relewiseUIOptions.filters.product(builder);
