@@ -141,7 +141,7 @@ export class ProductSearchOverlay extends LitElement {
         const requestBuilder = new SearchCollectionBuilder()
             .addRequest(new ProductSearchBuilder(settings)
                 .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
-                .setSelectedVariantProperties(relewiseUIOptions.selectedPropertiesSettings?.variant ?? {})
+                .setSelectedVariantProperties(relewiseUIOptions.selectedPropertiesSettings?.variant ?? null)
                 .setTerm(searchTerm)
                 .pagination(p => p.setPageSize(this.numberOfProducts))
                 .filters(builder => {
