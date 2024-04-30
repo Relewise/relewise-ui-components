@@ -21,7 +21,7 @@ export const theme = css`
     border-radius: var(--border-radius);
     border-color: var(--accent-color);
     background-color: var(--accent-color);
-    font-size: .85rem;
+    font-size:  var(--relewise-button-font-size, 1rem);
   }
 
   .rw-border {

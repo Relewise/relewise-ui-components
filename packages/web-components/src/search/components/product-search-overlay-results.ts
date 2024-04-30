@@ -2,11 +2,18 @@ import { LitElement, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { theme } from '../../theme';
 import { SearchResult } from '../product-search-overlay';
+import { getRelewiseUISearchOptions } from '../../helpers';
 
 export class ProductSearchOverlayResults extends LitElement {
 
     @property()
     setSearchTerm = (term: string) => { };
+
+    @property()
+    redirectToSearchPage = () => { };
+
+    @property({ type: Number })
+    hits = 0;
 
     @property()
     noResultsMessage: string | null = null;
@@ -25,6 +32,8 @@ export class ProductSearchOverlayResults extends LitElement {
     }
 
     render() {
+        const localization = getRelewiseUISearchOptions()?.localization?.searchResults;
+
         return html`
             <div class="rw-result-container rw-border"
                 @mouseover=${() => this.setResultOverlayHovered(true)}
@@ -33,35 +42,41 @@ export class ProductSearchOverlayResults extends LitElement {
                 this.results.length < 1) ? html`
                     <div class="rw-no-results">${this.noResultsMessage ?? 'No search results found'}</div>
                 ` : html`
-                <div>
                     ${this.results.map((result, index) => {
                     return html`
                         <div ?selected=${index === this.selectedIndex} class="rw-selected-result">
                         ${result.redirect ? html`
-                            <div class="rw-prediction-item-container" @click=${() => window.location.href = result.redirect?.destination ?? ''}>
-                                <span class="rw-prediction-item">
+                            <div class="rw-item-container" @click=${() => window.location.href = result.redirect?.destination ?? ''}>
+                                <span class="rw-item">
                                     ${result.redirect.data?.Title}
                                 </span>
-                                <relewise-arrow-up-icon class="rw-search-icon"></relewise-arrow-up-icon>
+                                <relewise-arrow-up-icon class="rw-icon"></relewise-arrow-up-icon>
                             </div>` : nothing}
                         ${result.searchTermPrediction ?
                             html`
-                                <div class="rw-prediction-item-container" @click=${() => this.setSearchTerm(result.searchTermPrediction!.term ?? '')}>
-                                    <span class="rw-prediction-item">
+                                <div class="rw-item-container" @click=${() => this.setSearchTerm(result.searchTermPrediction!.term ?? '')}>
+                                    <span class="rw-item">
                                         ${result.searchTermPrediction.term}
                                     </span>
-                                    <relewise-search-icon class="rw-search-icon"></relewise-search-icon>
+                                    <relewise-search-icon class="rw-icon"></relewise-search-icon>
                                 </div>
-                            ` :
+                            ` : nothing}
+                        ${result.product ?
                             html`
                                 <div class="rw-product-item-container">
                                     <relewise-product-search-overlay-product .product=${result.product}></relewise-product-search-overlay-product>
                                 </div>
-                            `}
-                        </div>`;
+                            ` : nothing}
+                        ${result.showAllResults ?
+                            html`
+                                <div class="rw-item-container" @click=${() => this.redirectToSearchPage()}>
+                                    <span class="rw-item">${localization?.showAllResults ?? 'Show all results'} (${this.hits})</span>
+                                    <relewise-arrow-up-icon class="rw-icon"></relewise-arrow-up-icon>
+                                </div>
+                            ` : nothing}
+                    </div>`;
                 },
-                )}
-                </div>`}
+                )}`}
             </div>
         `;
     }
@@ -90,7 +105,7 @@ export class ProductSearchOverlayResults extends LitElement {
             color: var(--relewise-product-search-overlay-no-results-message-color, #212427);
         }
 
-        .rw-prediction-item-container {
+        .rw-item-container {
             cursor: pointer;
             display: flex;
             color: var(--relewise-product-search-result-overlay-prediction-item-color, #212427);
@@ -101,7 +116,7 @@ export class ProductSearchOverlayResults extends LitElement {
             flex-direction: column;
         }
 
-        .rw-prediction-item {
+        .rw-item {
             border-radius: 1rem;
             margin: .5rem 1rem .5rem 1rem;
             font-weight: var(--relewise-product-search-overlay-prediction-item-font-weight, 600);
@@ -112,7 +127,7 @@ export class ProductSearchOverlayResults extends LitElement {
             background-color: var(--relewise-hover-color, whitesmoke);
         }
 
-        .rw-prediction-item-container:hover {
+        .rw-item-container:hover {
             background-color: var(--relewise-hover-color, whitesmoke);
         }
 
@@ -120,7 +135,7 @@ export class ProductSearchOverlayResults extends LitElement {
             background-color: var(--relewise-hover-color, whitesmoke);
         }
 
-        .rw-search-icon {
+        .rw-icon {
             margin: auto;
             padding-right: 1rem;
             --relewise-icon-color: var(--accent-color);

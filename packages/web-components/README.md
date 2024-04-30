@@ -217,6 +217,7 @@ useSearch({
         },
         searchResults: {
             noResults: 'No products found',
+            showAllResults: 'Show all results',
         },
         sortingButton: {
             sorting: 'sorting',
@@ -268,6 +269,10 @@ useSearch({
 - **number-of-search-term-predictions** (Optional, *Default 3*): 
 
     The number of search term predictions shown in the results overlay.
+
+- **search-page-url** (Optional): 
+
+    The url of your search page. When provided, an option to go to the search page will be present, when results are found.
 
 - **debounce-time** (Optional, *Default 250*): 
 
@@ -426,6 +431,7 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-button-text-color: white;
             --relewise-button-text-font-weight: 100;
             --relewise-button-icon-padding: .5rem;
+            --relewise-button-font-size: 1rem;
 
             --relewise-icon-width: 1rem;
             --relewise-icon-height: 1rem;
@@ -449,7 +455,7 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-display-name-font-size: 0.75rem;
             --relewise-display-name-margin: 0rem 0rem 0rem 0rem;
 
-            --relewise-product-search-overlay-search-bar-height: 3rem;
+            --relewise-product-search-bar-height: 3rem;
             --relewise-product-search-overlay-background-color: white;
             --relewise-product-search-overlay-box-shadow: 0 10px 15px rgb(0 0 0 / 0.2);
             --relewise-product-search-overlay-no-results-message-font-weight: 600;

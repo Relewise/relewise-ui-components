@@ -38,18 +38,18 @@ export class ProductSearchSorting extends LitElement {
         const localization = getRelewiseUISearchOptions()?.localization?.sortingButton;
 
         switch (sortingEnum) {
-        case SortingEnum.SalesPriceAsc:
-            return localization?.salesPriceAscending ?? 'Price: low - high';
-        case SortingEnum.SalesPriceDesc:
-            return localization?.salesPriceDescending ?? 'Price: high - low';
-        case SortingEnum.AlphabeticallyAsc:
-            return localization?.alphabeticalAscending ?? 'Name: a - z';
-        case SortingEnum.AlphabeticallyDesc:
-            return localization?.alphabeticalDescending ?? 'Name: z - a';
-        case SortingEnum.Relevance:
-            return localization?.relevance  ?? 'Relevance';
-        default:
-            return '';
+            case SortingEnum.SalesPriceAsc:
+                return localization?.salesPriceAscending ?? 'Price: low - high';
+            case SortingEnum.SalesPriceDesc:
+                return localization?.salesPriceDescending ?? 'Price: high - low';
+            case SortingEnum.AlphabeticallyAsc:
+                return localization?.alphabeticalAscending ?? 'Name: a - z';
+            case SortingEnum.AlphabeticallyDesc:
+                return localization?.alphabeticalDescending ?? 'Name: z - a';
+            case SortingEnum.Relevance:
+                return localization?.relevance ?? 'Relevance';
+            default:
+                return '';
         }
     }
 
@@ -57,12 +57,12 @@ export class ProductSearchSorting extends LitElement {
         return html`
             <select @change=${this.setSelectedValue} class="rw-select rw-border">
                 ${Object.keys(SortingEnum).map((item) => {
-                    return html`
+            return html`
                         <option value=${item} ?selected=${this.selectedOption === item}>
                             <span>${this.getOptionText(item)}</span>
                         </option>
                     `;
-                })}
+        })}
             </select>
         `;
     }
@@ -70,7 +70,7 @@ export class ProductSearchSorting extends LitElement {
     static styles = [theme, css`
         .rw-select {
             font-family: var(--font);
-            font-size: var(--relewise-product-search-sorting-font-size, .85rem);
+            font-size: var(--relewise-product-search-sorting-font-size, 1rem);
             font-weight: var(--relewise-product-search-sorting-font-weight, 400);
             border-color: var(--relewise-product-search-sorting-border-color, #eee);
             background-color: var(--relewise-product-search-sorting-background-color, #eee);
