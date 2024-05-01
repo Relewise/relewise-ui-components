@@ -34,11 +34,10 @@
   },
   "dependencies": {
     "@lit/context": "^1.1.0",
-    "@relewise/client": "^1.17.0",
     "lit": "^2.7.6"
   },
   "peerDependencies": {
-    "@relewise/client": "^1.17.0"
+    "@relewise/client": "^1.26.0"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.39.0",

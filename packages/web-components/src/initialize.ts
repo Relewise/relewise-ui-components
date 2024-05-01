@@ -1,4 +1,4 @@
-import { FilterBuilder, ProductResult, RelewiseClientOptions, SelectedProductPropertiesSettings, User } from '@relewise/client';
+import { FilterBuilder, ProductResult, RelewiseClientOptions, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
 import { TemplateResult } from 'lit';
 import { App, RelewiseUISearchOptions } from './app';
 
@@ -8,6 +8,7 @@ export interface RelewiseUIOptions {
     contextSettings: ContextSettings;
     selectedPropertiesSettings?: {
         product?: Partial<SelectedProductPropertiesSettings>;
+        variant?: Partial<SelectedVariantPropertiesSettings>;
     };
     clientOptions: RelewiseClientOptions;
     templates?: Templates;
