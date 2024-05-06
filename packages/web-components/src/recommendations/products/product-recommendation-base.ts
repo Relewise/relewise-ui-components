@@ -72,14 +72,14 @@ export abstract class ProductRecommendationBase extends LitElement {
         :host {
             display: grid;
             width: 100%;
-            grid-template-columns: repeat(4,1fr);
+            grid-template-columns: var(--relewise-product-recommendations-grid-columns, repeat(4,1fr));
             gap: 1rem;
             grid-auto-rows: 1fr;
         }
 
         @media (max-width: 768px) {
             :host {
-                grid-template-columns: repeat(2,1fr);
+                grid-template-columns: var(--relewise-product-recommendations-grid-columns-mobile, repeat(2,1fr));
             }
         }    
     `;

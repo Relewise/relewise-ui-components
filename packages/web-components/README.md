@@ -508,6 +508,9 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-number-range-input-height: 2rem;  
             --relewise-number-range-input-width: 4rem;
             --relewise-number-range-save-text-color: black;
+
+            --relewise-product-recommendations-grid-columns: repeat(4,1fr);
+            --relewise-product-recommendations-grid-columns-mobile: repeat(2,1fr);
         }
     </style>
 ```
