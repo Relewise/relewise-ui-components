@@ -2,9 +2,18 @@ import { Settings } from '@relewise/client';
 import { RelewiseUIOptions } from '../initialize';
 import { RelewiseUISearchOptions } from '../app';
 
-export function getRelewiseUIOptions(): RelewiseUIOptions {
-    const options = window.relewiseUIOptions;
+let options: RelewiseUIOptions | null = null;
+let searchOptions: RelewiseUISearchOptions | null | undefined;
 
+export function setOptions(opt: RelewiseUIOptions) {
+    options = opt;
+}
+
+export function setSearchOptions(opt: RelewiseUISearchOptions) {
+    searchOptions = opt;
+}
+
+export function getRelewiseUIOptions(): RelewiseUIOptions {
     if (!options ||
         !options.datasetId ||
         !options.apiKey ||
@@ -15,8 +24,8 @@ export function getRelewiseUIOptions(): RelewiseUIOptions {
     return options;
 }
 
-export function getRelewiseUISearchOptions(): RelewiseUISearchOptions | undefined {
-    return window.relewiseUISearchOptions;
+export function getRelewiseUISearchOptions(): RelewiseUISearchOptions | null | undefined {
+    return searchOptions;
 }
 
 export function getRelewiseContextSettings(displayedAtLocation: string): Settings {
