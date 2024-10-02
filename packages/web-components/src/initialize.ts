@@ -1,6 +1,7 @@
 import { FilterBuilder, ProductResult, RelewiseClientOptions, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
 import { TemplateResult } from 'lit';
 import { App, RelewiseUISearchOptions } from './app';
+import { setOptions } from './helpers';
 
 export interface RelewiseUIOptions {
     datasetId: string;
@@ -37,7 +38,7 @@ export interface Templates {
 }
 
 export function initializeRelewiseUI(options: RelewiseUIOptions): App {
-    window.relewiseUIOptions = options;
+    setOptions(options);
 
     return new App();
 }
