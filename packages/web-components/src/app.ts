@@ -24,6 +24,7 @@ import { updateContextSettings } from './updateContextSettings';
 import { RecommendationBatcher } from './recommendations/product-recommendation-batcher';
 import { RelewiseFacetBuilder } from './facetBuilder';
 import { ArrowUpIcon } from './components/icons/arrow-up-icon';
+import { setSearchOptions } from './helpers';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -132,9 +133,9 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     const defaultDebounceTimeInMs = 250;
     if (options) {
         options.debounceTimeInMs = options.debounceTimeInMs ?? defaultDebounceTimeInMs;
-        window.relewiseUISearchOptions = options;
+        setSearchOptions(options);
     } else {
-        window.relewiseUISearchOptions = { debounceTimeInMs: defaultDebounceTimeInMs };
+        setSearchOptions({ debounceTimeInMs: defaultDebounceTimeInMs });
     }
 
     tryRegisterElement('relewise-product-search-overlay', ProductSearchOverlay);

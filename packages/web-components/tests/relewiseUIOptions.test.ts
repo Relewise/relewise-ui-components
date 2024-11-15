@@ -1,11 +1,10 @@
 import { assert } from '@esm-bundle/chai';
-import { getRelewiseContextSettings, getRelewiseUIOptions, initializeRelewiseUI } from '../src';
+import { getRelewiseContextSettings, getRelewiseUIOptions, initializeRelewiseUI, RelewiseUIOptions, setOptions } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('relewiseUIOptions', () => {
     test('getRelewiseUIOptions throws error when ui not initialized', () => {
-        window.relewiseUIOptions = undefined!;
-
+        setOptions(undefined as unknown as RelewiseUIOptions);
         assert.Throw(() =>  getRelewiseUIOptions());
     });
     
@@ -13,7 +12,7 @@ suite('relewiseUIOptions', () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
     
-        window.relewiseUIOptions.datasetId = undefined!;
+        getRelewiseUIOptions().datasetId = undefined!;
     
         assert.Throw(() =>  getRelewiseUIOptions());
     });
@@ -22,7 +21,7 @@ suite('relewiseUIOptions', () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
     
-        window.relewiseUIOptions.apiKey = undefined!;
+        getRelewiseUIOptions().apiKey = undefined!;
         
         assert.Throw(() =>  getRelewiseUIOptions());
     });
@@ -31,7 +30,7 @@ suite('relewiseUIOptions', () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
     
-        window.relewiseUIOptions.contextSettings = undefined!;
+        getRelewiseUIOptions().contextSettings = undefined!;
         
         assert.Throw(() =>  getRelewiseUIOptions());
     });
