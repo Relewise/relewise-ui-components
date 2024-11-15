@@ -12,7 +12,7 @@ Components for building an awesome UI with Relewise.
 
 | Package | Version | Description |
 | --- | --- | --- |
-| [`relewise-web-components`](packages/web-components) | [![npm version](https://img.shields.io/npm/v/@relewise%2Fweb-components.svg)](https://badge.fury.io/js/@relewise%2Fweb-components) | Relewise Web Components are reusable, self-contained html extentions for Relewise. 
+| [`@relewise/web-components`](packages/web-components) | [![npm version](https://img.shields.io/npm/v/@relewise%2Fweb-components.svg)](https://badge.fury.io/js/@relewise%2Fweb-components) | Relewise Web Components are reusable, self-contained html extentions for Relewise. 
 
 ## Contributing
 
