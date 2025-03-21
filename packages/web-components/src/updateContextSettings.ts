@@ -1,18 +1,18 @@
 import { ContextSettings } from './initialize';
-import { Events } from './helpers';
+import { Events, getRelewiseUIOptions } from './helpers';
 
 export function updateContextSettings(contextSettings: Partial<ContextSettings>) {
 
     if (contextSettings.getUser) {
-        window.relewiseUIOptions.contextSettings.getUser = contextSettings.getUser;
+        getRelewiseUIOptions().contextSettings.getUser = contextSettings.getUser;
     }
 
     if (contextSettings.currency) {
-        window.relewiseUIOptions.contextSettings.currency = contextSettings.currency;
+        getRelewiseUIOptions().contextSettings.currency = contextSettings.currency;
     }
 
     if (contextSettings.language) {
-        window.relewiseUIOptions.contextSettings.language = contextSettings.language;
+        getRelewiseUIOptions().contextSettings.language = contextSettings.language;
     }
 
     const relewiseContextSettingsUpdatedEvent = new CustomEvent(Events.contextSettingsUpdated);
