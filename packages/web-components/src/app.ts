@@ -4,7 +4,7 @@ import { FilterIcon, ProductTile, SearchIcon, SortIcon, XIcon } from './componen
 import { Button } from './components/button';
 import { LoadingSpinner } from './components/loading-spinner';
 import { ContextSettings, TemplateExtensions } from './initialize';
-import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithProduct } from './recommendations';
+import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct } from './recommendations';
 import { ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar } from './search';
 import { ChecklistBooleanValueFacet } from './search/components/facets/checklist-boolean-value-facet';
 import { ChecklistNumberValueFacet } from './search/components/facets/checklist-number-value-facet';
@@ -116,6 +116,7 @@ export function useRecommendations() {
     tryRegisterElement('relewise-popular-products', PopularProducts);
     tryRegisterElement('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);
     tryRegisterElement('relewise-purchased-with-product', PurchasedWithProduct);
+    tryRegisterElement('relewise-purchased-with-multiple-products', PurchasedWithMultipleProducts);
 
     registerGenericComponents();
 }
