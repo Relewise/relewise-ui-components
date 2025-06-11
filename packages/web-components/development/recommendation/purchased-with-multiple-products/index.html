@@ -46,22 +46,33 @@
 <body>
     <script type="module" src="index.ts"></script>
     <h2>Purchased With Multiple Products</h2>
-    <relewise-purchased-with-multiple-products
-        product-and-variant-ids='[{"productId": "1922"}, {"productId": "1823", "variantId": "1615"}]'
-        displayed-at-location="web component dev"></relewise-purchased-with-multiple-products>
+    <relewise-purchased-with-multiple-products displayed-at-location="web component dev">
+        <product-and-variant-id product-id="1922"></product-and-variant-id>
+        <product-and-variant-id product-id="1823" variant-id="1615"></product-and-variant-id>
+    </relewise-purchased-with-multiple-products>
+
     <h3>Without product and variant ids</h3>
-    <relewise-purchased-with-multiple-products
-        displayed-at-location="web component dev"></relewise-purchased-with-multiple-products>
+    <relewise-purchased-with-multiple-products displayed-at-location="web component dev">
+    </relewise-purchased-with-multiple-products>
+
     <h3>Custom styling on html tag</h3>
-    <relewise-purchased-with-multiple-products product-and-variant-ids='[{"productId": "1922"}]'
-        displayed-at-location="web component dev" class="custom"></relewise-purchased-with-multiple-products>
+    <relewise-purchased-with-multiple-products displayed-at-location="web component dev" class="custom">
+        <product-and-variant-id product-id="1922"></product-and-variant-id>
+        <product-and-variant-id product-id="1823" variant-id="1615"></product-and-variant-id>
+
+    </relewise-purchased-with-multiple-products>
+
     <h3>CSS variables</h3>
-    <relewise-purchased-with-multiple-products product-and-variant-ids='[{"productId": "1922"}]'
-        displayed-at-location="web component dev" class="variables"></relewise-purchased-with-multiple-products>
+    <relewise-purchased-with-multiple-products displayed-at-location="web component dev" class="variables">
+        <product-and-variant-id product-id="1922"></product-and-variant-id>
+        <product-and-variant-id product-id="1823" variant-id="1615"></product-and-variant-id>
+    </relewise-purchased-with-multiple-products>
+
     <h3>Show 10 results</h3>
-    <relewise-purchased-with-multiple-products product-and-variant-ids='[{"productId": "1922"}]'
-        displayed-at-location="web component dev"
-        number-of-recommendations="10"></relewise-purchased-with-multiple-products>
+    <relewise-purchased-with-multiple-products displayed-at-location="web component dev" numbr-of-recommendations="10">
+        <product-and-variant-id product-id="1922"></product-and-variant-id>
+        <product-and-variant-id product-id="1823" variant-id="1615"></product-and-variant-id>
+    </relewise-purchased-with-multiple-products>
 </body>
 
 </html>

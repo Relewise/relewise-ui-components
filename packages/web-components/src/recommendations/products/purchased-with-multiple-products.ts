@@ -1,5 +1,4 @@
 import { ProductRecommendationResponse, PurchasedWithMultipleProductsBuilder, PurchasedWithMultipleProductsRequest } from '@relewise/client';
-import { property } from 'lit/decorators.js';
 import { getRecommender } from '../recommender';
 import { ProductRecommendationBase } from './product-recommendation-base';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
@@ -7,8 +6,27 @@ import { getProductRecommendationBuilderWithDefaults } from '../../builders/prod
 
 export class PurchasedWithMultipleProducts extends ProductRecommendationBase {
 
-    @property({ type: Array, attribute: 'product-and-variant-ids' })
-    productAndVariantIds: { productId: string, variantId?: string }[] | undefined = undefined;
+    private productAndVariantIds: { productId: string, variantId?: string }[] = [];
+
+    connectedCallback(): Promise<void> {
+        this.parseProductAndVariantIds();
+        return super.connectedCallback();
+    }
+
+    private parseProductAndVariantIds(): void {
+        const productAndVariantElements = this.querySelectorAll('product-and-variant-id');
+        const productAndVariantIds: { productId: string, variantId?: string }[] = [];
+
+        productAndVariantElements.forEach(element => {
+            const productId = element.getAttribute('product-id');
+            if (productId) {
+                const variantId = element.getAttribute('variant-id');
+                productAndVariantIds.push({ productId, variantId: variantId || undefined });
+            }
+        });
+
+        this.productAndVariantIds = productAndVariantIds;
+    }
 
     fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
         const recommender = getRecommender(getRelewiseUIOptions());
