@@ -156,7 +156,7 @@ This component renders [products typically purchased with a given product](https
     The number of products recommendations to render.
 
 #### Products Purchased with Multiple Products
-This component renders [products typically purchased with multiple products](https://docs.relewise.com/docs/recommendations/recommendation-types.html#purchased-with-multiple-products).
+This component renders [products purchased with multiple products](https://docs.relewise.com/docs/recommendations/recommendation-types.html#purchased-with-multiple-products).
 
 The recommendation requires child elements specifying which products and, optionally, variants to base the recommendation on.
 
