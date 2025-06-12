@@ -155,6 +155,37 @@ This component renders [products typically purchased with a given product](https
 
     The number of products recommendations to render.
 
+#### Products Purchased with Multiple Products
+This component renders [products purchased with multiple products](https://docs.relewise.com/docs/recommendations/recommendation-types.html#purchased-with-multiple-products).
+
+The recommendation requires child elements specifying which products and, optionally, variants to base the recommendation on.
+
+```html
+<relewise-purchased-with-multiple-products displayed-at-location="LOCATION">
+    <product-and-variant-id product-id="PRODUCT_ID"></product-and-variant-id>
+    <product-and-variant-id product-id="PRODUCT_ID" variant-id="VARIANT_ID"></product-and-variant-id>
+</relewise-purchased-with-multiple-products>
+```
+##### Attributes product-and-variant-id
+- **product-id**:
+    
+    The id of the product the recommendations should be based on.
+
+- **variant-id** (Optional):
+    
+    The id of the product variant the recommendations should be based on.
+
+##### Attributes relewise-purchased-with-multiple-products
+- **displayed-at-location** : 
+    
+    Where the recommendations are being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
+
+- **number-of-recommendations** (Optional, *Default 4*): 
+
+    The number of products recommendations to render.
+
 #### Product Recommendation Batcher
 This component batches multiple product recommendations into a single request against Relewise.
 This inceases performance, and ensures that there are no duplicate products in the recommendation sliders
