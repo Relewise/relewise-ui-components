@@ -1,36 +1,43 @@
 import { ProductResult } from '@relewise/client';
-import { LitElement, css, html, nothing } from 'lit';
-import { property } from 'lit/decorators.js';
+import { LitElement, TemplateResult, css, html, nothing } from 'lit';
+import { property, state } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 
 export class ProductTile extends LitElement {
 
     @property({ type: Object })
     product: ProductResult | null = null;
 
+    @state()
+    private renderedTemplate: TemplateResult<1> | null = null;
+
     connectedCallback(): void {
         super.connectedCallback();
+        this.fetchTemplate();
     }
 
-    render() {
+    async fetchTemplate(): Promise<void> { 
         if (!this.product) {
             return;
         }
         const settings = getRelewiseUIOptions(); 
         if (settings.templates?.product) {
-            return settings.templates.product(this.product, { html, helpers: { formatPrice } });
+            this.renderedTemplate = await settings.templates.product(this.product, { html, helpers: { formatPrice, unsafeHTML } }); 
+            return;
         }
 
         if (this.product.data && 'Url' in this.product.data) {
-            return html`
+            this.renderedTemplate = html`
                 <a class='rw-tile' href=${this.product.data['Url'].value ?? ''}>
                     ${this.renderTileContent(this.product)}
                 </a>`;
+            return;
         }
 
-        return html`
+        this.renderedTemplate = html`
             <div class='rw-tile'>
                 ${this.renderTileContent(this.product)}
             </div>`;
@@ -53,6 +60,10 @@ export class ProductTile extends LitElement {
                     }
                 </div>
             </div>`;
+    }
+
+    render() {
+        return this.renderedTemplate ?? nothing;
     }
 
     static styles = [

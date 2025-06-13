@@ -1,6 +1,7 @@
 import { FilterBuilder, ProductResult, RelewiseClientOptions, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
 import { TemplateResult } from 'lit';
 import { App, RelewiseUISearchOptions } from './app';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 
 export interface RelewiseUIOptions {
     datasetId: string;
@@ -29,11 +30,12 @@ export interface TemplateExtensions {
     html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>;
     helpers: {
         formatPrice: (price: string | number | null | undefined) => string | number | null | undefined;
+        unsafeHTML: typeof unsafeHTML;
     }
 }
 
 export interface Templates {
-    product?: (product: ProductResult, extensions: TemplateExtensions) => TemplateResult<1>;
+    product?: (product: ProductResult, extensions: TemplateExtensions) => Promise<TemplateResult<1>>;
 }
 
 export function initializeRelewiseUI(options: RelewiseUIOptions): App {
