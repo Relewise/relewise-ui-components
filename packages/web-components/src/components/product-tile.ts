@@ -34,7 +34,6 @@ export class ProductTile extends LitElement {
                 <a class='rw-tile' href=${this.product.data['Url'].value ?? ''}>
                     ${this.renderTileContent(this.product)}
                 </a>`;
-            return;
         }
 
         return html`
