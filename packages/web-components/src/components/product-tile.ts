@@ -1,43 +1,43 @@
 import { ProductResult } from '@relewise/client';
-import { LitElement, TemplateResult, css, html, nothing } from 'lit';
-import { property, state } from 'lit/decorators.js';
+import { LitElement, css, html, nothing } from 'lit';
+import { property } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
+import { until } from 'lit-html/directives/until.js';
 
 export class ProductTile extends LitElement {
 
     @property({ type: Object })
     product: ProductResult | null = null;
 
-    @state()
-    private renderedTemplate: TemplateResult<1> | null = null;
-
     connectedCallback(): void {
         super.connectedCallback();
-        this.fetchTemplate();
     }
 
-    async fetchTemplate(): Promise<void> { 
+    render() { 
         if (!this.product) {
             return;
         }
+
         const settings = getRelewiseUIOptions(); 
         if (settings.templates?.product) {
-            this.renderedTemplate = await settings.templates.product(this.product, { html, helpers: { formatPrice, unsafeHTML } }); 
-            return;
+            return html`
+                ${until(settings.templates.product(this.product, { html, helpers: { formatPrice, unsafeHTML } })
+                    .then(result => result))}
+            `; 
         }
 
         if (this.product.data && 'Url' in this.product.data) {
-            this.renderedTemplate = html`
+            return html`
                 <a class='rw-tile' href=${this.product.data['Url'].value ?? ''}>
                     ${this.renderTileContent(this.product)}
                 </a>`;
             return;
         }
 
-        this.renderedTemplate = html`
+        return html`
             <div class='rw-tile'>
                 ${this.renderTileContent(this.product)}
             </div>`;
@@ -60,10 +60,6 @@ export class ProductTile extends LitElement {
                     }
                 </div>
             </div>`;
-    }
-
-    render() {
-        return this.renderedTemplate ?? nothing;
     }
 
     static styles = [
