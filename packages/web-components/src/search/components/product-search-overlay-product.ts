@@ -1,6 +1,6 @@
 import { ProductResult } from '@relewise/client';
-import { LitElement, css, html, nothing } from 'lit';
-import { property } from 'lit/decorators.js';
+import { LitElement, TemplateResult, css, html, nothing } from 'lit';
+import { property, state } from 'lit/decorators.js';
 import { getRelewiseUISearchOptions } from '../../helpers';
 import formatPrice from '../../helpers/formatPrice';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
@@ -9,29 +9,35 @@ export class ProductSearchOverlayProduct extends LitElement {
 
     @property({ type: Object })
     product: ProductResult | undefined | null = null;
+    
+    @state()
+    private renderedTemplate: TemplateResult<1> | null = null;
 
     connectedCallback(): void {
         super.connectedCallback();
+        this.fetchTemplate();
     }
 
-    render() {
+    async fetchTemplate(): Promise<void> {
         if (!this.product) {
             return;
         }
 
         const settings = getRelewiseUISearchOptions(); 
         if (settings?.templates?.searchOverlayProductResult) {
-            return settings.templates.searchOverlayProductResult(this.product, { html, helpers: { formatPrice, unsafeHTML } });
+            this.renderedTemplate = await settings.templates.searchOverlayProductResult(this.product, { html, helpers: { formatPrice, unsafeHTML } });
+            return;
         }
 
         if (this.product.data && 'Url' in this.product.data) {
-            return html`
+            this.renderedTemplate = html`
                 <a class='rw-tile' href=${this.product.data['Url'].value ?? ''}>
                     ${this.renderTileContent(this.product)}
                 </a>`;
+            return;
         }
 
-        return html`
+        this.renderedTemplate = html`
             <div class='rw-tile'>
                 ${this.renderTileContent(this.product)}
             </div>`;
@@ -53,6 +59,10 @@ export class ProductSearchOverlayProduct extends LitElement {
                     ` : nothing
                 }
             </div>`;
+    }
+
+    render() {
+        return this.renderedTemplate ?? nothing;
     }
 
     static styles = css`
