@@ -4,6 +4,8 @@ import { property } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
+import { until } from 'lit-html/directives/until.js';
 
 export class ProductTile extends LitElement {
 
@@ -14,13 +16,17 @@ export class ProductTile extends LitElement {
         super.connectedCallback();
     }
 
-    render() {
+    render() { 
         if (!this.product) {
             return;
         }
+
         const settings = getRelewiseUIOptions(); 
         if (settings.templates?.product) {
-            return settings.templates.product(this.product, { html, helpers: { formatPrice } });
+            return html`
+                ${until(settings.templates.product(this.product, { html, helpers: { formatPrice, unsafeHTML } })
+                    .then(result => result))}
+            `; 
         }
 
         if (this.product.data && 'Url' in this.product.data) {

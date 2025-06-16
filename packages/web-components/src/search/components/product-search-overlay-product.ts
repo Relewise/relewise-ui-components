@@ -3,6 +3,8 @@ import { LitElement, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { getRelewiseUISearchOptions } from '../../helpers';
 import formatPrice from '../../helpers/formatPrice';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
+import { until } from 'lit-html/directives/until.js';
 
 export class ProductSearchOverlayProduct extends LitElement {
 
@@ -20,7 +22,9 @@ export class ProductSearchOverlayProduct extends LitElement {
 
         const settings = getRelewiseUISearchOptions(); 
         if (settings?.templates?.searchOverlayProductResult) {
-            return settings.templates.searchOverlayProductResult(this.product, { html, helpers: { formatPrice } });
+            return html`
+                ${until(settings.templates.searchOverlayProductResult(this.product, { html, helpers: { formatPrice, unsafeHTML } })
+                    .then(result => result))}`;
         }
 
         if (this.product.data && 'Url' in this.product.data) {

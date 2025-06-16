@@ -86,7 +86,7 @@ export interface SearchFacets {
 }
 
 export interface SearchTemplates {
-    searchOverlayProductResult?: (product: ProductResult, extensions: TemplateExtensions) => TemplateResult<1>;
+    searchOverlayProductResult?: (product: ProductResult, extensions: TemplateExtensions) => Promise<TemplateResult<1>>;
 }
 
 export class App {
