@@ -18,7 +18,15 @@
 <body>
     <script type="module" src="index.ts"></script>
     <h1>Product Search - Custom Layout</h1>
-    <relewise-product-search displayed-at-location="web component dev">
+    
+    <script>
+        console.log(window.relewiseUIFilterTemplates)
+        window.relewiseUIFilterTemplates.addTemplate({ name: "plp", builder: (b) => b.addProductCategoryIdFilter('ImmediateParent', 'f-1') });
+        console.log("added")
+    </script>
+
+    <relewise-product-search displayed-at-location="web component dev" filter-template-id="plp">
+    
         <div>
             <relewise-product-search-sorting></relewise-product-search-sorting>
         </div>

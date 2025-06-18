@@ -1,5 +1,6 @@
 import { ContextSettings } from './initialize';
 import { Events } from './helpers';
+import { FilterBuilder } from '@relewise/client';
 
 export function updateContextSettings(contextSettings: Partial<ContextSettings>) {
 
@@ -17,4 +18,12 @@ export function updateContextSettings(contextSettings: Partial<ContextSettings>)
 
     const relewiseContextSettingsUpdatedEvent = new CustomEvent(Events.contextSettingsUpdated);
     window.dispatchEvent(relewiseContextSettingsUpdatedEvent);
+}
+
+export function addFilterTemplate(options: {
+        name: string;
+        builder: (builder: FilterBuilder) => void;
+    }) {
+
+    window.relewiseUIFilterTemplates.addTemplate(options);
 }

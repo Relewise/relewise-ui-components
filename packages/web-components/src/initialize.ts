@@ -2,6 +2,7 @@ import { FilterBuilder, ProductResult, RelewiseClientOptions, SelectedProductPro
 import { TemplateResult } from 'lit';
 import { App, RelewiseUISearchOptions } from './app';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
+import { FilterTemplates } from './filterTemplate';
 
 export interface RelewiseUIOptions {
     datasetId: string;
@@ -17,7 +18,8 @@ export interface RelewiseUIOptions {
 }
 
 export interface Filters {
-    product?: (builder: FilterBuilder) => void
+    product?: (builder: FilterBuilder) => void;
+    productTemplates?: (builder: FilterTemplates) => void;
 }
 
 export interface ContextSettings {
@@ -39,8 +41,8 @@ export interface Templates {
 }
 
 export function initializeRelewiseUI(options: RelewiseUIOptions): App {
+    window.relewiseUIFilterTemplates = new FilterTemplates(options.filters?.productTemplates);
     window.relewiseUIOptions = options;
-
     return new App();
 }
 
@@ -48,5 +50,6 @@ declare global {
     interface Window {
         relewiseUIOptions: RelewiseUIOptions;
         relewiseUISearchOptions: RelewiseUISearchOptions;
+        relewiseUIFilterTemplates: FilterTemplates;
     }
 }
