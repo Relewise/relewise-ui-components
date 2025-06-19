@@ -93,7 +93,6 @@ export class ProductSearchResults extends LitElement {
         .rw-product-tile {
             display: flex;
             align-items: center;
-            justify-content: center;
         }
 
         .rw-fill-grid {
