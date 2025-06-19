@@ -205,6 +205,11 @@ export class NumberRangeFacet extends LitElement {
             display: flex;
             height: 2rem;
         }
+
+        h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+        }
     `];
 }
 

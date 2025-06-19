@@ -138,11 +138,14 @@ export abstract class ChecklistFacetBase extends LitElement {
             display: block;
             padding-left: 1.5em;
             text-indent: -1.5rem; 
-            word-break: break-all
+            word-break: break-all;
+            margin-top: .25rem;
+            margin-bottom: .25rem;
         }
 
         .rw-label input {
             cursor: pointer;
+            margin-left: 0;
         }
 
         .rw-facet-content {
