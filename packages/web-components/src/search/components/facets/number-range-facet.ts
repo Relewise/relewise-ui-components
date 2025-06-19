@@ -168,6 +168,9 @@ export class NumberRangeFacet extends LitElement {
             font-size: 1rem;
             font-family: var(--font);
             color: var(--relewise-number-range-save-text-color, black);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .rw-input {

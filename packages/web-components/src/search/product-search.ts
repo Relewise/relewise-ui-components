@@ -367,7 +367,9 @@ export class ProductSearch extends LitElement {
 
         @media (min-width: 1024px) {
             .result-container {
-                display: flex;
+                display: grid;
+                grid-template-columns: 1fr 3fr;
+                gap: .5rem;
                 width: 100%;
             }
 
