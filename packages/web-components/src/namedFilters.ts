@@ -1,14 +1,14 @@
 import { FilterBuilder } from '@relewise/client';
 
-export class FilterTemplates {
+export class NamedFilters {
     private templates = new Map<string, (builder: FilterBuilder) => void>();
 
-    constructor(initialValues?: (builder: FilterTemplates) => void) {
+    constructor(initialValues?: (builder: NamedFilters) => void) {
         console.log(initialValues);
         if (initialValues) initialValues(this);
     }
 
-    addTemplate(options: {
+    addNamedFilter(options: {
         name: string;
         builder: (builder: FilterBuilder) => void;
     }): this {
@@ -18,11 +18,11 @@ export class FilterTemplates {
         return this;
     }
 
-    hasTemplate(name: string): boolean {
+    hasFilter(name: string): boolean {
         return this.templates.has(name);
     }
 
-    handleTemplate(name: string, builder: FilterBuilder) {
+    handledNamedFilter(name: string, builder: FilterBuilder) {
         console.log(this.templates.has(name));
 
         const tmpl = this.templates.get(name);
