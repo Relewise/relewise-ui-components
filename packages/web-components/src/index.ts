@@ -10,4 +10,4 @@ export * from './facetBuilder';
 export * from './app';
 export * from './search';
 export * from './theme';
-export * from './namedFilters';
+export * from './targetedOptions';

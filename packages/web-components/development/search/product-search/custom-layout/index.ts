@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 import { UserFactory } from '@relewise/client';
-import { addFilterTemplate, initializeRelewiseUI } from '../../../../src/index';
+import { initializeRelewiseUI } from '../../../../src/index';
 
 initializeRelewiseUI(
     {
@@ -17,12 +17,6 @@ initializeRelewiseUI(
         clientOptions: {
             serverUrl: import.meta.env.VITE_SERVER_URL,
         },
-        filters: {
-            productTemplates(b) {
-                b.addTemplate({ name: 'test', builder: (b) => b.addProductCategoryIdFilter('ImmediateParent', 'f-1') });
-                b.addTemplate({ name: 'test2', builder: (b) => b.addProductCategoryIdFilter('ImmediateParent', 'f-1') });
-            },
-        },
     },
 )
     .useSearch({
@@ -35,4 +29,11 @@ initializeRelewiseUI(
             },
         },
     });
-addFilterTemplate({ name: 'plp', builder: (b) => b.addProductCategoryIdFilter('ImmediateParent', 'f-1')});
+// .addTargetedOptions('plp', {
+//     facet(builder) {
+//         builder.addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Salgs pris' });
+//     },
+//     filter(builder) {
+//         builder.addProductCategoryIdFilter('ImmediateParent', ['123']);
+//     },
+// });
