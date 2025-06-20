@@ -15,12 +15,12 @@ export class TargetedConfigurations {
         if (initialValues) initialValues(this);
     }
 
-    add(options: {
+    add(configuration: {
         target: string;
         configuration: TargetedConfiguration;
     }): this {
 
-        this.templates.set(options.target, options.configuration);
+        this.templates.set(configuration.target, configuration.configuration);
 
         return this;
     }

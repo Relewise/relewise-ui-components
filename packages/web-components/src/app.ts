@@ -112,8 +112,8 @@ export class App {
         return this;
     }
 
-    addTargetedOptions(target: string, options: TargetedConfiguration): App {
-        addTargetedConfiguration(target, options);
+    addTargetedOptions(target: string, configuration: TargetedConfiguration): App {
+        addTargetedConfiguration(target, configuration);
         return this;
     }
 }
@@ -136,11 +136,11 @@ export function useBehavioralTracking() {
     tryRegisterElement('relewise-track-brand-view', BrandView);
 }
 
-export function addTargetedConfiguration(target: string, options: TargetedConfiguration) {
-    const targetedOptions = getRelewiseTargetedConfigurations();
-    targetedOptions.add({
+export function addTargetedConfiguration(target: string, configuration: TargetedConfiguration) {
+    const targetedConfigurations = getRelewiseTargetedConfigurations();
+    targetedConfigurations.add({
         target: target,
-        configuration: options,
+        configuration: configuration,
     });
 }
 
