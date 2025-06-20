@@ -13,9 +13,9 @@ export class PurchasedWithProduct extends ProductRecommendationBase {
     @property({ attribute: 'variant-id' })
     variantId: string | undefined = undefined;
 
-    fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
+    async fetchProducts(): Promise<ProductRecommendationResponse | undefined> {
         const recommender = getRecommender(getRelewiseUIOptions());
-        const request = this.buildRequest();
+        const request = await this.buildRequest();
         if (!request) { 
             return; 
         }
@@ -23,16 +23,17 @@ export class PurchasedWithProduct extends ProductRecommendationBase {
         return recommender.recommendPurchasedWithProduct(request);
     }
 
-    buildRequest() {
+    async buildRequest() {
         if (!this.productId) {
             console.error('No productId provided!');
             return;
         }
 
-        return getProductRecommendationBuilderWithDefaults<PurchasedWithProductBuilder>(
+        return (await getProductRecommendationBuilderWithDefaults<PurchasedWithProductBuilder>(
             settings => new PurchasedWithProductBuilder(settings),
             this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Purchased With Product',
-        )
+            this.target,
+        ))
             .product({
                 productId: this.productId,
                 variantId: this.variantId,

@@ -7,6 +7,6 @@ registerSearchTarget('plp', {
         builder.addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Salgs pris' });
     },
     filter(builder) {
-        // builder.addProductCategoryIdFilter('ImmediateParent', ['123']);
+        builder.addProductCategoryIdFilter('ImmediateParent', ['123']);
     },
 });
