@@ -119,7 +119,7 @@ export class App {
     }
 
     registerRecommendationTarget(target: string, configuration: TargetedRecommendationConfiguration): App {
-        registerSearchTarget(target, configuration);
+        registerRecommendationTarget(target, configuration);
         return this;
     }
 }
