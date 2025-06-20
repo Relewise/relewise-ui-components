@@ -24,8 +24,8 @@ import { updateContextSettings } from './updateContextSettings';
 import { RecommendationBatcher } from './recommendations/product-recommendation-batcher';
 import { RelewiseFacetBuilder } from './facetBuilder';
 import { ArrowUpIcon } from './components/icons/arrow-up-icon';
-import { TargetedConfiguration } from './targetedOptions';
-import { getRelewiseTargetedOptions } from './helpers';
+import { TargetedConfiguration } from './targetedConfigurations';
+import { getRelewiseTargetedConfigurations } from './helpers';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -113,7 +113,7 @@ export class App {
     }
 
     addTargetedOptions(target: string, options: TargetedConfiguration): App {
-        addTargetedOptions(target, options);
+        addTargetedConfiguration(target, options);
         return this;
     }
 }
@@ -136,8 +136,8 @@ export function useBehavioralTracking() {
     tryRegisterElement('relewise-track-brand-view', BrandView);
 }
 
-export function addTargetedOptions(target: string, options: TargetedConfiguration) {
-    const targetedOptions = getRelewiseTargetedOptions();
+export function addTargetedConfiguration(target: string, options: TargetedConfiguration) {
+    const targetedOptions = getRelewiseTargetedConfigurations();
     targetedOptions.add({
         target: target,
         configuration: options,
