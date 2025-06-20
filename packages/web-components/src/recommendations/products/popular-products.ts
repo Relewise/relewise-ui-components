@@ -13,16 +13,17 @@ export class PopularProducts extends ProductRecommendationBase {
     @property({ attribute: 'based-on' })
     basedOn: 'MostPurchased' | 'MostViewed' = 'MostPurchased';
 
-    fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
+    async fetchProducts(): Promise<ProductRecommendationResponse | undefined> {
         const recommender = getRecommender(getRelewiseUIOptions());
-        return recommender.recommendPopularProducts(this.buildRequest());
+        return recommender.recommendPopularProducts(await this.buildRequest());
     }
 
-    buildRequest() {
-        return getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(
+    async buildRequest() {
+        return (await getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(
             settings => new PopularProductsBuilder(settings),
             this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Popular Products',
-        )
+            this.target,
+        ))
             .sinceMinutesAgo(this.sinceMinutesAgo)
             .basedOn(this.basedOn)
             .setNumberOfRecommendations(this.numberOfRecommendations)

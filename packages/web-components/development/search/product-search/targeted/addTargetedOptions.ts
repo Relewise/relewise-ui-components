@@ -1,0 +1,12 @@
+/// <reference types="vite/client" />
+
+import { registerSearchTarget } from '../../../../src/index';
+
+registerSearchTarget('plp', {
+    overwriteFacets(builder) {
+        builder.addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Salgs pris' });
+    },
+    filters(builder) {
+        builder.addProductCategoryIdFilter('ImmediateParent', ['4797']);
+    },
+});

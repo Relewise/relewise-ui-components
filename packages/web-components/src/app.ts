@@ -24,6 +24,9 @@ import { updateContextSettings } from './updateContextSettings';
 import { RecommendationBatcher } from './recommendations/product-recommendation-batcher';
 import { RelewiseFacetBuilder } from './facetBuilder';
 import { ArrowUpIcon } from './components/icons/arrow-up-icon';
+import { TargetedSearchConfiguration } from './targetedSearchConfigurations';
+import { getRelewiseRecommendationTargetedConfigurations, getRelewiseSearchTargetedConfigurations } from './helpers';
+import { TargetedRecommendationConfiguration } from './targetedRecommendationConfigurations';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -109,6 +112,16 @@ export class App {
         useSearch(options);
         return this;
     }
+
+    registerSearchTarget(target: string, configuration: TargetedSearchConfiguration): App {
+        registerSearchTarget(target, configuration);
+        return this;
+    }
+
+    registerRecommendationTarget(target: string, configuration: TargetedRecommendationConfiguration): App {
+        registerRecommendationTarget(target, configuration);
+        return this;
+    }
 }
 
 export function useRecommendations() {
@@ -127,6 +140,22 @@ export function useBehavioralTracking() {
     tryRegisterElement('relewise-track-content-view', ContentView);
     tryRegisterElement('relewise-track-content-category-view', ContentCategoryView);
     tryRegisterElement('relewise-track-brand-view', BrandView);
+}
+
+export function registerSearchTarget(target: string, configuration: TargetedSearchConfiguration) {
+    const targetedConfigurations = getRelewiseSearchTargetedConfigurations();
+    targetedConfigurations.add({
+        target: target,
+        configuration: configuration,
+    });
+}
+
+export function registerRecommendationTarget(target: string, configuration: TargetedRecommendationConfiguration) {
+    const targetedConfigurations = getRelewiseRecommendationTargetedConfigurations();
+    targetedConfigurations.add({
+        target: target,
+        configuration: configuration,
+    });
 }
 
 export function useSearch(options?: RelewiseUISearchOptions) {

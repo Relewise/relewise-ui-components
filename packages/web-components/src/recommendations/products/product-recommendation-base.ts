@@ -7,12 +7,15 @@ import { BatchingContextValue, context } from '../product-recommendation-batcher
 
 export abstract class ProductRecommendationBase extends LitElement {
 
+    @property({ type: String, attribute: 'target' })
+    target: string | null = null;
+
     @consume({ context, subscribe: true })
     @state()
     providedData?: BatchingContextValue;
 
     abstract fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined;
-    abstract buildRequest(): ProductRecommendationRequest | undefined;
+    abstract buildRequest(): Promise<ProductRecommendationRequest | undefined>;
 
     @property({ type: Number, attribute: 'number-of-recommendations' })
     numberOfRecommendations: number = 4;
