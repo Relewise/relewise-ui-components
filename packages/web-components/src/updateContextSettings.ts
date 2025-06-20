@@ -1,6 +1,5 @@
 import { ContextSettings } from './initialize';
-import { Events, getRelewiseNamedFilters } from './helpers';
-import { FilterBuilder } from '@relewise/client';
+import { Events } from './helpers';
 
 export function updateContextSettings(contextSettings: Partial<ContextSettings>) {
 
@@ -18,14 +17,4 @@ export function updateContextSettings(contextSettings: Partial<ContextSettings>)
 
     const relewiseContextSettingsUpdatedEvent = new CustomEvent(Events.contextSettingsUpdated);
     window.dispatchEvent(relewiseContextSettingsUpdatedEvent);
-}
-
-export function addNamedFilter(options: {
-        name: string;
-        builder: (builder: FilterBuilder) => void;
-    }) {
-
-    const namedFilters = getRelewiseNamedFilters();
-
-    namedFilters.add(options);
 }

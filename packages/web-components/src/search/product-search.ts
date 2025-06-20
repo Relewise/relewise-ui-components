@@ -117,10 +117,10 @@ export class ProductSearch extends LitElement {
         const searchOptions = getRelewiseUISearchOptions();
         const searcher = getSearcher(relewiseUIOptions);
 
-        // // If we need to support async or defered loading here.
-        // if (this.namedFilter && !namedFilters.has(this.namedFilter)) {
-        //     await Promise.resolve();
-        // }
+        // We wait here if the named filter is injected via the global addNamedFilter-method
+        if (this.namedFilter && !namedFilters.has(this.namedFilter)) {
+            await new Promise(r => setTimeout(r, 0));
+        }
 
         const requestBuilder = new ProductSearchBuilder(settings)
             .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
