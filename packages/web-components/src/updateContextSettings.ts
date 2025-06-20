@@ -27,5 +27,5 @@ export function addNamedFilter(options: {
 
     const namedFilters = getRelewiseNamedFilters();
 
-    namedFilters.addNamedFilter(options);
+    namedFilters.add(options);
 }

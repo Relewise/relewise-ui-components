@@ -4,11 +4,10 @@ export class NamedFilters {
     private templates = new Map<string, (builder: FilterBuilder) => void>();
 
     constructor(initialValues?: (builder: NamedFilters) => void) {
-        console.log(initialValues);
         if (initialValues) initialValues(this);
     }
 
-    addNamedFilter(options: {
+    add(options: {
         name: string;
         builder: (builder: FilterBuilder) => void;
     }): this {
@@ -18,11 +17,11 @@ export class NamedFilters {
         return this;
     }
 
-    hasFilter(name: string): boolean {
+    has(name: string): boolean {
         return this.templates.has(name);
     }
 
-    handledNamedFilter(name: string, builder: FilterBuilder) {
+    handled(name: string, builder: FilterBuilder) {
         console.log(this.templates.has(name));
 
         const tmpl = this.templates.get(name);

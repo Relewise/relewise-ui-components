@@ -112,15 +112,15 @@ export class ProductSearch extends LitElement {
         const numberOfProductsToFetch = getNumberOfProductsToFetch();
 
         const relewiseUIOptions = getRelewiseUIOptions();
-        const filterTemplates = getRelewiseNamedFilters();
+        const namedFilters = getRelewiseNamedFilters();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search');
         const searchOptions = getRelewiseUISearchOptions();
         const searcher = getSearcher(relewiseUIOptions);
 
-        // If we need to support async or defered loading here.
-        if (this.namedFilter && !filterTemplates.hasFilter(this.namedFilter)) {
-            await new Promise(r => setTimeout(r, 0));
-        }
+        // // If we need to support async or defered loading here.
+        // if (this.namedFilter && !namedFilters.has(this.namedFilter)) {
+        //     await Promise.resolve();
+        // }
 
         const requestBuilder = new ProductSearchBuilder(settings)
             .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
@@ -137,7 +137,7 @@ export class ProductSearch extends LitElement {
                     searchOptions.filters.product(builder);
                 }
                 if (this.namedFilter) {
-                    filterTemplates.handledNamedFilter(this.namedFilter, builder);
+                    namedFilters.handled(this.namedFilter, builder);
                 }
                 
             })
