@@ -3,7 +3,7 @@ import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
 import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
-import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
+import { getRelewiseContextSettings, getRelewiseNamedFilters, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { SortingEnum } from './enums';
 import { getSearcher } from './searcher';
@@ -17,6 +17,9 @@ export class ProductSearch extends LitElement {
 
     @property({ type: Number, attribute: 'number-of-products' })
     numberOfProducts: number = 16;
+
+    @property({ type: String, attribute: 'named-filter' })
+    namedFilter: string | null = null;
 
     @state()
     searchResult: ProductSearchResponse | null = null;
@@ -109,9 +112,15 @@ export class ProductSearch extends LitElement {
         const numberOfProductsToFetch = getNumberOfProductsToFetch();
 
         const relewiseUIOptions = getRelewiseUIOptions();
+        const namedFilters = getRelewiseNamedFilters();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search');
         const searchOptions = getRelewiseUISearchOptions();
         const searcher = getSearcher(relewiseUIOptions);
+
+        // We wait here if the named filter is injected via the global addNamedFilter-method
+        if (this.namedFilter && !namedFilters.has(this.namedFilter)) {
+            await new Promise(r => setTimeout(r, 0));
+        }
 
         const requestBuilder = new ProductSearchBuilder(settings)
             .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
@@ -127,6 +136,10 @@ export class ProductSearch extends LitElement {
                 if (searchOptions && searchOptions.filters?.product) {
                     searchOptions.filters.product(builder);
                 }
+                if (this.namedFilter) {
+                    namedFilters.handled(this.namedFilter, builder);
+                }
+                
             })
             .facets(builder => {
                 if (searchOptions && searchOptions.facets?.product) {

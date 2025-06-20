@@ -1,6 +1,7 @@
 import { Settings } from '@relewise/client';
 import { RelewiseUIOptions } from '../initialize';
 import { RelewiseUISearchOptions } from '../app';
+import { NamedFilters } from '../namedFilters';
 
 export function getRelewiseUIOptions(): RelewiseUIOptions {
     const options = window.relewiseUIOptions;
@@ -17,6 +18,10 @@ export function getRelewiseUIOptions(): RelewiseUIOptions {
 
 export function getRelewiseUISearchOptions(): RelewiseUISearchOptions | undefined {
     return window.relewiseUISearchOptions;
+}
+
+export function getRelewiseNamedFilters(): NamedFilters {
+    return window.relewiseUINamedFilters;
 }
 
 export function getRelewiseContextSettings(displayedAtLocation: string): Settings {
