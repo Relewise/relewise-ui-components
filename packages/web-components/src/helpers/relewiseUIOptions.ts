@@ -2,6 +2,7 @@ import { Settings } from '@relewise/client';
 import { RelewiseUIOptions } from '../initialize';
 import { RelewiseUISearchOptions } from '../app';
 import { TargetedSearchConfigurations } from '../targetedSearchConfigurations';
+import { TargetedRecommendationConfigurations } from 'src/targetedRecommendationConfigurations';
 
 export function getRelewiseUIOptions(): RelewiseUIOptions {
     const options = window.relewiseUIOptions;
@@ -24,7 +25,7 @@ export function getRelewiseSearchTargetedConfigurations(): TargetedSearchConfigu
     return window.relewiseUISearchTargetedConfigurations;
 }
 
-export function getRelewiseRecommendationTargetedConfigurations(): TargetedSearchConfigurations {
+export function getRelewiseRecommendationTargetedConfigurations(): TargetedRecommendationConfigurations {
     return window.relewiseUIRecommendationTargetedConfigurations;
 }
 
