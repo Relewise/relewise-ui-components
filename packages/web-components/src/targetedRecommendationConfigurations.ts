@@ -1,23 +1,20 @@
 import { FilterBuilder } from '@relewise/client';
-import { RelewiseFacetBuilder } from './facetBuilder';
 
-
-export type TargetedConfiguration = {
-  facet?: (builder: RelewiseFacetBuilder) => void,
+export type TargetedRecommendationConfiguration = {
   filter?: (builder: FilterBuilder) => void;
 };
 
-export class TargetedConfigurations {
+export class TargetedRecommendationConfigurations {
 
-    private templates = new Map<string, TargetedConfiguration>();
+    private templates = new Map<string, TargetedRecommendationConfiguration>();
 
-    constructor(initialValues?: (builder: TargetedConfigurations) => void) {
+    constructor(initialValues?: (builder: TargetedRecommendationConfigurations) => void) {
         if (initialValues) initialValues(this);
     }
 
     add(configuration: {
         target: string;
-        configuration: TargetedConfiguration;
+        configuration: TargetedRecommendationConfiguration;
     }): this {
 
         this.templates.set(configuration.target, configuration.configuration);
@@ -34,17 +31,6 @@ export class TargetedConfigurations {
 
         if (configuration && configuration.filter) {
             configuration.filter(builder);
-        }
-        else {
-            console.error(`Relewise Web Components: Could not find search configuration with target: '${target}'`);
-        }
-    }
-
-    handleFacets(target: string, builder: RelewiseFacetBuilder) {
-        const configuration = this.templates.get(target);
-
-        if (configuration && configuration.facet) {
-            configuration.facet(builder);
         }
         else {
             console.error(`Relewise Web Components: Could not find search configuration with target: '${target}'`);

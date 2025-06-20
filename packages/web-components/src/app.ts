@@ -24,8 +24,9 @@ import { updateContextSettings } from './updateContextSettings';
 import { RecommendationBatcher } from './recommendations/product-recommendation-batcher';
 import { RelewiseFacetBuilder } from './facetBuilder';
 import { ArrowUpIcon } from './components/icons/arrow-up-icon';
-import { TargetedConfiguration } from './targetedConfigurations';
-import { getRelewiseTargetedConfigurations } from './helpers';
+import { TargetedSearchConfiguration } from './targetedSearchConfigurations';
+import { getRelewiseRecommendationTargetedConfigurations, getRelewiseSearchTargetedConfigurations } from './helpers';
+import { TargetedRecommendationConfiguration } from './targetedRecommendationConfigurations';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -112,8 +113,13 @@ export class App {
         return this;
     }
 
-    addTargetedOptions(target: string, configuration: TargetedConfiguration): App {
-        addTargetedConfiguration(target, configuration);
+    registerSearchTarget(target: string, configuration: TargetedSearchConfiguration): App {
+        registerSearchTarget(target, configuration);
+        return this;
+    }
+
+    registerRecommendationTarget(target: string, configuration: TargetedRecommendationConfiguration): App {
+        registerSearchTarget(target, configuration);
         return this;
     }
 }
@@ -136,8 +142,16 @@ export function useBehavioralTracking() {
     tryRegisterElement('relewise-track-brand-view', BrandView);
 }
 
-export function addTargetedConfiguration(target: string, configuration: TargetedConfiguration) {
-    const targetedConfigurations = getRelewiseTargetedConfigurations();
+export function registerSearchTarget(target: string, configuration: TargetedSearchConfiguration) {
+    const targetedConfigurations = getRelewiseSearchTargetedConfigurations();
+    targetedConfigurations.add({
+        target: target,
+        configuration: configuration,
+    });
+}
+
+export function registerRecommendationTarget(target: string, configuration: TargetedRecommendationConfiguration) {
+    const targetedConfigurations = getRelewiseRecommendationTargetedConfigurations();
     targetedConfigurations.add({
         target: target,
         configuration: configuration,

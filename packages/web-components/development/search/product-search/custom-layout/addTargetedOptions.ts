@@ -1,8 +1,8 @@
 /// <reference types="vite/client" />
 
-import { addTargetedConfiguration } from '../../../../src/index';
+import { registerSearchTarget } from '../../../../src/index';
 
-addTargetedConfiguration('plp', {
+registerSearchTarget('plp', {
     facet(builder) {
         builder.addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Salgs pris' });
     },

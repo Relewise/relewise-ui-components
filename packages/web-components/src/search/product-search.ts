@@ -3,7 +3,7 @@ import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
 import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
-import { getRelewiseContextSettings, getRelewiseTargetedConfigurations, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
+import { getRelewiseContextSettings, getRelewiseSearchTargetedConfigurations, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { SortingEnum } from './enums';
 import { getSearcher } from './searcher';
@@ -18,8 +18,8 @@ export class ProductSearch extends LitElement {
     @property({ type: Number, attribute: 'number-of-products' })
     numberOfProducts: number = 16;
 
-    @property({ type: String, attribute: 'target-id' })
-    targetId: string | null = null;
+    @property({ type: String, attribute: 'target' })
+    target: string | null = null;
 
     @state()
     searchResult: ProductSearchResponse | null = null;
@@ -112,13 +112,13 @@ export class ProductSearch extends LitElement {
         const numberOfProductsToFetch = getNumberOfProductsToFetch();
 
         const relewiseUIOptions = getRelewiseUIOptions();
-        const namedFilters = getRelewiseTargetedConfigurations();
+        const targetedConfiguration = getRelewiseSearchTargetedConfigurations();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search');
         const searchOptions = getRelewiseUISearchOptions();
         const searcher = getSearcher(relewiseUIOptions);
 
-        // We wait here if the named filter is injected via the global addNamedFilter-method
-        if (this.targetId && !namedFilters.has(this.targetId)) {
+        // We wait here if the configuration is injected via the global register-method
+        if (this.target && !targetedConfiguration.has(this.target)) {
             await new Promise(r => setTimeout(r, 0));
         }
 
@@ -130,8 +130,8 @@ export class ProductSearch extends LitElement {
                 .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)
                 .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))
             .filters(builder => {
-                if (this.targetId) {
-                    namedFilters.handleFilters(this.targetId, builder);
+                if (this.target) {
+                    targetedConfiguration.handleFilters(this.target, builder);
                     return;
                 }
                 if (relewiseUIOptions.filters?.product) {
@@ -142,13 +142,13 @@ export class ProductSearch extends LitElement {
                 }
             })
             .facets(builder => {
-                const facetBuilder = new RelewiseFacetBuilder(builder);
-                if (this.targetId) {
-                    namedFilters.handleFacets(this.targetId, facetBuilder);
+                if (this.target) {
+                    targetedConfiguration.handleFacets(this.target,  new RelewiseFacetBuilder(builder));
                     return;
                 }
 
                 if (searchOptions && searchOptions.facets?.product) {
+                    const facetBuilder = new RelewiseFacetBuilder(builder);
                     searchOptions.facets.product(facetBuilder);
                     this.facetLabels = facetBuilder.getLabels();
                 }
