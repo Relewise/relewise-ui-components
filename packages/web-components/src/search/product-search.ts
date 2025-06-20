@@ -277,6 +277,7 @@ export class ProductSearch extends LitElement {
 
                 if (node.tagName.toLowerCase() === 'relewise-facets') {
                     node.setAttribute('facets-result', JSON.stringify(this.searchResult?.facets));
+                    node.setAttribute('labels',  JSON.stringify(this.facetLabels));
                 }
 
                 if (node.children.length > 0) {
