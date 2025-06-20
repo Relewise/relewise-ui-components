@@ -1,7 +1,7 @@
 import { FilterBuilder } from '@relewise/client';
 
 export type TargetedRecommendationConfiguration = {
-  filter?: (builder: FilterBuilder) => void;
+  filters?: (builder: FilterBuilder) => void;
 };
 
 export class TargetedRecommendationConfigurations {
@@ -29,8 +29,8 @@ export class TargetedRecommendationConfigurations {
     handleFilters(target: string, builder: FilterBuilder) {
         const configuration = this.templates.get(target);
 
-        if (configuration && configuration.filter) {
-            configuration.filter(builder);
+        if (configuration && configuration.filters) {
+            configuration.filters(builder);
         }
         else {
             console.error(`Relewise Web Components: Could not find search configuration with target: '${target}'`);

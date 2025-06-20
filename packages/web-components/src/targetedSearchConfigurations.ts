@@ -3,8 +3,8 @@ import { RelewiseFacetBuilder } from './facetBuilder';
 
 
 export type TargetedSearchConfiguration = {
-  facet?: (builder: RelewiseFacetBuilder) => void,
-  filter?: (builder: FilterBuilder) => void;
+  overwriteFacets?: (builder: RelewiseFacetBuilder) => void,
+  filters?: (builder: FilterBuilder) => void;
 };
 
 export class TargetedSearchConfigurations {
@@ -29,11 +29,16 @@ export class TargetedSearchConfigurations {
         return this.templates.has(target);
     }
 
+    hasOverwrittenFacets(target: string): boolean {
+        const config = this.templates.get(target);
+        return typeof config?.overwriteFacets === 'function';
+    }
+
     handleFilters(target: string, builder: FilterBuilder) {
         const configuration = this.templates.get(target);
 
-        if (configuration && configuration.filter) {
-            configuration.filter(builder);
+        if (configuration && configuration.filters) {
+            configuration.filters(builder);
         }
         else {
             console.error(`Relewise Web Components: Could not find search configuration with target: '${target}'`);
@@ -43,11 +48,11 @@ export class TargetedSearchConfigurations {
     handleFacets(target: string, builder: RelewiseFacetBuilder) {
         const configuration = this.templates.get(target);
 
-        if (configuration && configuration.facet) {
-            configuration.facet(builder);
+        if (configuration && configuration.overwriteFacets) {
+            configuration.overwriteFacets(builder);
         }
         else {
             console.error(`Relewise Web Components: Could not find search configuration with target: '${target}'`);
         }
     }
-}   
+}

@@ -130,29 +130,29 @@ export class ProductSearch extends LitElement {
                 .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)
                 .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))
             .filters(builder => {
-                if (this.target) {
-                    targetedConfiguration.handleFilters(this.target, builder);
-                    return;
-                }
                 if (relewiseUIOptions.filters?.product) {
                     relewiseUIOptions.filters.product(builder);
                 }
                 if (searchOptions && searchOptions.filters?.product) {
                     searchOptions.filters.product(builder);
                 }
+                if (this.target) {
+                    targetedConfiguration.handleFilters(this.target, builder);
+                }
+
             })
             .facets(builder => {
-                if (this.target) {
+                if (this.target && targetedConfiguration.hasOverwrittenFacets(this.target)) {
                     targetedConfiguration.handleFacets(this.target,  new RelewiseFacetBuilder(builder));
+                    // TODO: Labels?
                     return;
+                } else {
+                    if (searchOptions && searchOptions.facets?.product) {
+                        const facetBuilder = new RelewiseFacetBuilder(builder);
+                        searchOptions.facets.product(facetBuilder);
+                        this.facetLabels = facetBuilder.getLabels();
+                    }
                 }
-
-                if (searchOptions && searchOptions.facets?.product) {
-                    const facetBuilder = new RelewiseFacetBuilder(builder);
-                    searchOptions.facets.product(facetBuilder);
-                    this.facetLabels = facetBuilder.getLabels();
-                }
-
             })
             .sorting(builder => {
                 const sorting = readCurrentUrlState(QueryKeys.sortBy);
