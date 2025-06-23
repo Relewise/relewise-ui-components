@@ -16,13 +16,12 @@ export async function getProductRecommendationBuilderWithDefaults<T extends Prod
         .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
         .setSelectedVariantProperties(relewiseUIOptions.selectedPropertiesSettings?.variant ?? null)
         .filters(builder => {
-            if (target) {
-                targetedConfiguration.handleFilters(target, builder);
-                return;
-            }
-            
             if (relewiseUIOptions.filters?.product) {
                 relewiseUIOptions.filters.product(builder);
+            }
+
+            if (target) {
+                targetedConfiguration.handleFilters(target, builder);
             }
         });
 }
