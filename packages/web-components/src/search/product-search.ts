@@ -136,20 +136,13 @@ export class ProductSearch extends LitElement {
                 if (searchOptions && searchOptions.filters?.product) {
                     searchOptions.filters.product(builder);
                 }
-                if (this.target) {
-                    targetedConfiguration.handleFilters(this.target, builder);
-                }
-
             })
             .facets(builder => {
-                if (this.target && targetedConfiguration.hasOverwrittenFacets(this.target)) {
-                    this.facetLabels = targetedConfiguration.handleFacets(this.target,  new RelewiseFacetBuilder(builder));
-                } else {
-                    if (searchOptions && searchOptions.facets?.product) {
-                        const facetBuilder = new RelewiseFacetBuilder(builder);
-                        searchOptions.facets.product(facetBuilder);
-                        this.facetLabels = facetBuilder.getLabels();
-                    }
+                if ((!this.target || !targetedConfiguration.hasOverwrittenFacets(this.target)) 
+                    && searchOptions && searchOptions.facets?.product) {
+                    const facetBuilder = new RelewiseFacetBuilder(builder);
+                    searchOptions.facets.product(facetBuilder);
+                    this.facetLabels = facetBuilder.getLabels();
                 }
             })
             .sorting(builder => {
@@ -174,6 +167,13 @@ export class ProductSearch extends LitElement {
                     break;
                 }
             });
+
+        if (this.target)  {
+            const config = targetedConfiguration.handle(this.target, requestBuilder);
+            if (config.labels) {
+                this.facetLabels = config.labels;
+            }
+        }
 
         const request = requestBuilder.build();
 

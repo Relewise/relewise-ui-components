@@ -1,4 +1,4 @@
-import { FilterBuilder } from '@relewise/client';
+import { FilterBuilder, ProductSearchBuilder } from '@relewise/client';
 import { RelewiseFacetBuilder } from './facetBuilder';
 
 
@@ -34,26 +34,31 @@ export class TargetedSearchConfigurations {
         return typeof config?.overwriteFacets === 'function';
     }
 
-    handleFilters(target: string, builder: FilterBuilder) {
+    handle(target: string, builder: ProductSearchBuilder): { labels?: string[] } {
         const configuration = this.templates.get(target);
 
-        if (configuration && configuration.filters) {
-            configuration.filters(builder);
-        }
-        else {
+        if (!configuration) {
             console.error(`Relewise Web Components: Could not find search configuration with target: '${target}'`);
-        }
-    }
-
-    handleFacets(target: string, builder: RelewiseFacetBuilder): string[] {
-        const configuration = this.templates.get(target);
-
-        if (!configuration || !configuration.overwriteFacets) {
-            console.error(`Relewise Web Components: Could not find search configuration with target: '${target}'`);
-            return [];
+            return {
+                labels: [],
+            };
         }
 
-        configuration.overwriteFacets(builder);
-        return builder.getLabels();
+        let facetLabels: string[] | undefined = undefined;
+        if (this.hasOverwrittenFacets(target) && configuration.overwriteFacets) {
+            builder.facets(b => {
+                const facetBuilder = new RelewiseFacetBuilder(b);
+                configuration.overwriteFacets!(facetBuilder);
+                facetLabels = facetBuilder.getLabels();
+            });
+        }
+
+        if (configuration.filters) {
+            builder.filters(b => configuration.filters!(b));
+        }
+        
+        return {
+            labels: facetLabels,
+        };
     }
 }

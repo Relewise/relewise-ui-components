@@ -12,16 +12,18 @@ export async function getProductRecommendationBuilderWithDefaults<T extends Prod
         await new Promise(r => setTimeout(r, 0));
     }
         
-    return createBuilder(settings)
+    const builder = createBuilder(settings)
         .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
         .setSelectedVariantProperties(relewiseUIOptions.selectedPropertiesSettings?.variant ?? null)
         .filters(builder => {
             if (relewiseUIOptions.filters?.product) {
                 relewiseUIOptions.filters.product(builder);
             }
-
-            if (target) {
-                targetedConfiguration.handleFilters(target, builder);
-            }
         });
+    
+    if (target) {
+        targetedConfiguration.handle(target, builder);
+    }
+
+    return builder;
 }
