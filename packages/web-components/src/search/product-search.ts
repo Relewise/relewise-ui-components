@@ -143,8 +143,7 @@ export class ProductSearch extends LitElement {
             })
             .facets(builder => {
                 if (this.target && targetedConfiguration.hasOverwrittenFacets(this.target)) {
-                    targetedConfiguration.handleFacets(this.target,  new RelewiseFacetBuilder(builder));
-                    // TODO: Labels?
+                    this.facetLabels = targetedConfiguration.handleFacets(this.target,  new RelewiseFacetBuilder(builder));
                     return;
                 } else {
                     if (searchOptions && searchOptions.facets?.product) {

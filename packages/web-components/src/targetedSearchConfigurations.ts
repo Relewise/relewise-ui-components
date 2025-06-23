@@ -45,14 +45,15 @@ export class TargetedSearchConfigurations {
         }
     }
 
-    handleFacets(target: string, builder: RelewiseFacetBuilder) {
+    handleFacets(target: string, builder: RelewiseFacetBuilder): string[] {
         const configuration = this.templates.get(target);
 
-        if (configuration && configuration.overwriteFacets) {
-            configuration.overwriteFacets(builder);
-        }
-        else {
+        if (!configuration || !configuration.overwriteFacets) {
             console.error(`Relewise Web Components: Could not find search configuration with target: '${target}'`);
+            return [];
         }
+
+        configuration.overwriteFacets(builder);
+        return builder.getLabels();
     }
 }
