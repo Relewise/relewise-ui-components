@@ -16,6 +16,7 @@ export interface RelewiseUIOptions {
     clientOptions: RelewiseClientOptions;
     templates?: Templates;
     filters?: Filters;
+    targets?: Targets;
 }
 
 export interface Filters {
@@ -40,10 +41,15 @@ export interface Templates {
     product?: (product: ProductResult, extensions: TemplateExtensions) => Promise<TemplateResult<1>>;
 }
 
+export interface Targets {
+    searchTargets?: (builder: TargetedSearchConfigurations) => void;
+    recommendationTargets?: (builder: TargetedRecommendationConfigurations) => void;
+}
+
 export function initializeRelewiseUI(options: RelewiseUIOptions): App {
     window.relewiseUIOptions = options;
-    window.relewiseUISearchTargetedConfigurations = new TargetedSearchConfigurations();
-    window.relewiseUIRecommendationTargetedConfigurations = new TargetedRecommendationConfigurations();
+    window.relewiseUISearchTargetedConfigurations = new TargetedSearchConfigurations(options.targets?.searchTargets);
+    window.relewiseUIRecommendationTargetedConfigurations = new TargetedRecommendationConfigurations(options.targets?.recommendationTargets);
     return new App();
 }
 
