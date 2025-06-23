@@ -25,7 +25,7 @@ export class PurchasedWithProduct extends ProductRecommendationBase {
 
     async buildRequest() {
         if (!this.productId) {
-            console.error('No productId provided!');
+            console.error('No product-id was provided for relewise-purchased-with-product.');
             return;
         }
 

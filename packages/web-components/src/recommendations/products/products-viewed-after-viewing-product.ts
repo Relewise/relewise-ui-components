@@ -25,7 +25,7 @@ export class ProductsViewedAfterViewingProduct extends ProductRecommendationBase
 
     async buildRequest(): Promise<ProductsViewedAfterViewingProductRequest | undefined> {
         if (!this.productId) {
-            console.error('No productId provided!');
+            console.error('No product-id attribute was provided for relewise-products-viewed-after-viewing-product.');
             return;
         }
 

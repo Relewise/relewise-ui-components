@@ -3,7 +3,7 @@ import { getRelewiseContextSettings, getRelewiseRecommendationTargetedConfigurat
 import { defaultProductProperties } from '../defaultProductProperties';
 
 export async function getProductRecommendationBuilderWithDefaults<T extends ProductSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T, displayedAtLocation: string, target?: string | null): Promise<T> {
-    const settings = getRelewiseContextSettings(displayedAtLocation ?? '');
+    const settings = getRelewiseContextSettings(displayedAtLocation);
     const relewiseUIOptions = getRelewiseUIOptions();
     const targetedConfiguration = getRelewiseRecommendationTargetedConfigurations();
 

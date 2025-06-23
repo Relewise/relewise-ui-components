@@ -40,7 +40,7 @@ export class PurchasedWithMultipleProducts extends ProductRecommendationBase {
 
     async buildRequest(): Promise<PurchasedWithMultipleProductsRequest | undefined> {
         if (!this.productAndVariantIds || this.productAndVariantIds.length === 0) {
-            console.error('No product and variant ids provided!');
+            console.error('No product and variant ids was provided for relewise-purchased-with-multiple-products.');
             return;
         }
         

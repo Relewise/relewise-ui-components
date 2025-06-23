@@ -10,21 +10,21 @@ export abstract class ProductRecommendationBase extends LitElement {
     @property({ type: String, attribute: 'target' })
     target: string | null = null;
 
-    @consume({ context, subscribe: true })
-    @state()
-    providedData?: BatchingContextValue;
-
-    abstract fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined;
-    abstract buildRequest(): Promise<ProductRecommendationRequest | undefined>;
-
     @property({ type: Number, attribute: 'number-of-recommendations' })
     numberOfRecommendations: number = 4;
 
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;
 
+    @consume({ context, subscribe: true })
+    @state()
+    providedData?: BatchingContextValue;
+
     @state()
     products: ProductResult[] | null = null;
+
+    abstract fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined;
+    abstract buildRequest(): Promise<ProductRecommendationRequest | undefined>;
 
     fetchAndUpdateProductsBound = this.fetchAndUpdateProducts.bind(this);
 
@@ -41,7 +41,7 @@ export abstract class ProductRecommendationBase extends LitElement {
     async connectedCallback() {
         super.connectedCallback();
         if (!this.displayedAtLocation) {
-            console.error('No displayedAtLocation defined!');
+            console.error('Missing displayed-at-location attribute on recommendation component.');
         }
 
         await this.fetchAndUpdateProducts();
