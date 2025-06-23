@@ -30,8 +30,8 @@ export abstract class ProductRecommendationBase extends LitElement {
 
     constructor() {
         super();
-        setTimeout(() => {
-            const request = this.buildRequest();
+        setTimeout(async() => {
+            const request = await this.buildRequest();
             if (request) {
                 this.dispatchEvent(new CustomEvent(Events.registerProductRecommendation, { bubbles: true, composed: true, detail: request }));
             }
