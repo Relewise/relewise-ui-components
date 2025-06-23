@@ -11,3 +11,4 @@ export * from './app';
 export * from './search';
 export * from './theme';
 export * from './targetedSearchConfigurations';
+export * from './targetedRecommendationConfigurations';
