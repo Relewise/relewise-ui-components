@@ -105,6 +105,10 @@ This component renders the most [popular products](https://docs.relewise.com/doc
 
     The type of behavioral data that recommendations should be based on.
 
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
 #### Products viewed after viewing Product
 This component renders [products typically viewed after viewing a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#products-viewed-after-viewing-product).
 
@@ -130,6 +134,10 @@ This component renders [products typically viewed after viewing a given product]
 
     The number of product recommendations to render.
 
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
 #### Products purchased with Product
 This component renders [products typically purchased with a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#purchased-with-product).
 
@@ -154,6 +162,10 @@ This component renders [products typically purchased with a given product](https
 - **number-of-recommendations** (Optional, *Default 4*): 
 
     The number of products recommendations to render.
+
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
 
 #### Products Purchased with Multiple Products
 This component renders [products purchased with multiple products](https://docs.relewise.com/docs/recommendations/recommendation-types.html#purchased-with-multiple-products).
@@ -186,6 +198,10 @@ The recommendation requires child elements specifying which products and, option
 
     The number of products recommendations to render.
 
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
 #### Product Recommendation Batcher
 This component batches multiple product recommendations into a single request against Relewise.
 This inceases performance, and ensures that there are no duplicate products in the recommendation sliders
@@ -199,6 +215,25 @@ This inceases performance, and ensures that there are no duplicate products in t
     <relewise-products-viewed-after-viewing-product product-id="PRODUCT_ID" displayed-at-location="LOCATION"></relewise-products-viewed-after-viewing-product>
 </relewise-product-recommendation-batcher>
 ```
+
+#### Targeted Recommendations
+You can target specific recommendations to ensure certain filters are only applied to the target. This can be done by calling `registerRecommendationTarget` either during initialization or afterwards by calling the function independently.
+
+```ts
+registerRecommendationTarget('target', {
+    filters(builder) {
+        builder.addProductCategoryIdFilter('ImmediateParent', ['4774']);
+    },
+});
+```
+
+To specify which recommendation component the configuration should be applied to, simply add the target attribute to the component.
+
+```html
+<relewise-popular-products target="target"></relewise-popular-products>
+```
+
+***Note: The target must match the target specified when calling `registerRecommendationTarget`!***
 
 ### Search
 Call the useSearch function to start rendering search components.
@@ -332,6 +367,10 @@ This component renders a search component that [searches for products](https://d
 
     The amount of time, in milliseconds, that must pass between requests to Relewise with a new search call.
 
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-search).
+
 #### Scroll position
 When the user navigates to another page or leaves the site, the component will by default not remember where the user last scrolled to.
 
@@ -434,6 +473,28 @@ Renders button that will load more results once pressed.
 ```html
 <relewise-product-search-load-more-button></relewise-product-search-load-more-button>
 ```
+
+#### Targeted Search
+You can target specific search components to ensure certain filters are only applied to the target and overwrite the facets used. This can be done by calling `registerSearchTarget` either during initialization or afterwards by calling the function independently.
+
+```ts
+registerSearchTarget('target', {
+    overwriteFacets(builder) {
+        builder.addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Sales price' });
+    },
+    filters(builder) {
+        builder.addProductCategoryIdFilter('ImmediateParent', ['4797']);
+    },
+});
+```
+
+To specify which search component the configuration should be applied to, simply add the target attribute to the component.
+
+```html
+<relewise-product-search target="target"></relewise-product-search>
+```
+
+***Note: The target must match the target specified when calling `registerSearchTarget`!***
 
 ## Overwriting styling
 If you want to overwrite the styling of the grid and the default product tile, you can do so by using css variables.
