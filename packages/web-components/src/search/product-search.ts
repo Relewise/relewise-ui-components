@@ -295,6 +295,7 @@ export class ProductSearch extends LitElement {
 
                 if (node.tagName.toLowerCase() === 'relewise-facets') {
                     node.setAttribute('facets-result', JSON.stringify(this.searchResult?.facets));
+                    node.setAttribute('labels',  JSON.stringify(this.facetLabels));
                 }
 
                 if (node.children.length > 0) {
@@ -385,12 +386,15 @@ export class ProductSearch extends LitElement {
 
         @media (min-width: 1024px) {
             .result-container {
-                display: flex;
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                gap: 1rem;
                 width: 100%;
             }
 
-            .rw-facets {
-                margin-right: .5rem;
+            /* Only create two columns when facets exist */
+            .result-container:has(.rw-facets) {
+                grid-template-columns: 1fr 3fr;
             }
 
             .rw-sorting-button {

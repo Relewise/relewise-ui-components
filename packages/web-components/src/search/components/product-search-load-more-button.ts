@@ -74,6 +74,9 @@ export class LoadMoreProducts extends LitElement {
             font-family: var(--font);
             font-size: var(--relewise-load-more-text-size, .85rem);
             color: var(--relewise-load-more-text-color, black);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .rw-products-shown {
