@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 import { UserFactory } from '@relewise/client';
-import { initializeRelewiseUI } from '../../../../src/index';
+import { initializeRelewiseUI } from '../../../src/index';
 
 initializeRelewiseUI(
     {
@@ -18,14 +18,4 @@ initializeRelewiseUI(
             serverUrl: import.meta.env.VITE_SERVER_URL,
         },
     },
-)
-    .useSearch({
-        facets: {
-            product(builder) {
-                builder
-                    .addFacet((f) => f.addBrandFacet(), { heading: 'Mærke' })
-                    .addFacet((f) => f.addCategoryFacet('ImmediateParent'), { heading: 'Kategori' })
-                    .addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Salgs pris' });
-            },
-        },
-    });
+).useRecommendations();

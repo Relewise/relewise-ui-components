@@ -3,7 +3,7 @@ import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { defaultProductProperties } from '../defaultProductProperties';
 import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
-import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
+import { getRelewiseContextSettings, getRelewiseSearchTargetedConfigurations, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { SortingEnum } from './enums';
 import { getSearcher } from './searcher';
@@ -17,6 +17,9 @@ export class ProductSearch extends LitElement {
 
     @property({ type: Number, attribute: 'number-of-products' })
     numberOfProducts: number = 16;
+
+    @property({ type: String, attribute: 'target' })
+    target: string | null = null;
 
     @state()
     searchResult: ProductSearchResponse | null = null;
@@ -109,9 +112,15 @@ export class ProductSearch extends LitElement {
         const numberOfProductsToFetch = getNumberOfProductsToFetch();
 
         const relewiseUIOptions = getRelewiseUIOptions();
+        const targetedConfiguration = getRelewiseSearchTargetedConfigurations();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search');
         const searchOptions = getRelewiseUISearchOptions();
         const searcher = getSearcher(relewiseUIOptions);
+
+        // We wait here if the configuration is injected via the global register-method
+        if (this.target && !targetedConfiguration.has(this.target)) {
+            await new Promise(r => setTimeout(r, 0));
+        }
 
         const requestBuilder = new ProductSearchBuilder(settings)
             .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
@@ -157,6 +166,13 @@ export class ProductSearch extends LitElement {
                     break;
                 }
             });
+
+        if (this.target)  {
+            const overwrittenConfigSettings  = targetedConfiguration.handle(this.target, requestBuilder);
+            if (overwrittenConfigSettings.facetLabels) {
+                this.facetLabels = overwrittenConfigSettings.facetLabels;
+            }
+        }
 
         const request = requestBuilder.build();
 

@@ -1,12 +1,18 @@
 import { ProductSettingsRecommendationBuilder, Settings } from '@relewise/client';
-import { getRelewiseContextSettings, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
+import { getRelewiseContextSettings, getRelewiseRecommendationTargetedConfigurations, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { defaultProductProperties } from '../defaultProductProperties';
 
-export function getProductRecommendationBuilderWithDefaults<T extends ProductSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T, displayedAtLocation: string): T {
-    const settings = getRelewiseContextSettings(displayedAtLocation ?? '');
+export async function getProductRecommendationBuilderWithDefaults<T extends ProductSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T, displayedAtLocation: string, target?: string | null): Promise<T> {
+    const settings = getRelewiseContextSettings(displayedAtLocation);
     const relewiseUIOptions = getRelewiseUIOptions();
+    const targetedConfiguration = getRelewiseRecommendationTargetedConfigurations();
 
-    return createBuilder(settings)
+    // We wait here if the configuration is injected via the global register-method
+    if (target && !targetedConfiguration.has(target)) {
+        await new Promise(r => setTimeout(r, 0));
+    }
+        
+    const builder = createBuilder(settings)
         .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
         .setSelectedVariantProperties(relewiseUIOptions.selectedPropertiesSettings?.variant ?? null)
         .filters(builder => {
@@ -14,4 +20,10 @@ export function getProductRecommendationBuilderWithDefaults<T extends ProductSet
                 relewiseUIOptions.filters.product(builder);
             }
         });
+    
+    if (target) {
+        targetedConfiguration.handle(target, builder);
+    }
+
+    return builder;
 }

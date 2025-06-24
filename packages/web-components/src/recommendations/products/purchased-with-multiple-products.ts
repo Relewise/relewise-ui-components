@@ -28,9 +28,9 @@ export class PurchasedWithMultipleProducts extends ProductRecommendationBase {
         this.productAndVariantIds = productAndVariantIds;
     }
 
-    fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined {
+    async fetchProducts(): Promise<ProductRecommendationResponse | undefined> {
         const recommender = getRecommender(getRelewiseUIOptions());
-        const request = this.buildRequest();
+        const request = await this.buildRequest();
         if (!request) { 
             return; 
         }
@@ -38,16 +38,17 @@ export class PurchasedWithMultipleProducts extends ProductRecommendationBase {
         return recommender.recommendPurchasedWithMultipleProducts(request);
     }
 
-    buildRequest(): PurchasedWithMultipleProductsRequest | undefined {
+    async buildRequest(): Promise<PurchasedWithMultipleProductsRequest | undefined> {
         if (!this.productAndVariantIds || this.productAndVariantIds.length === 0) {
-            console.error('No product and variant ids provided!');
+            console.error('No product and variant ids was provided for relewise-purchased-with-multiple-products.');
             return;
         }
-
-        return getProductRecommendationBuilderWithDefaults<PurchasedWithMultipleProductsBuilder>(
+        
+        return (await getProductRecommendationBuilderWithDefaults<PurchasedWithMultipleProductsBuilder>(
             settings => new PurchasedWithMultipleProductsBuilder(settings),
             this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Purchased With Multiple Products',
-        )
+            this.target,
+        ))
             .addProducts(this.productAndVariantIds)
             .setNumberOfRecommendations(this.numberOfRecommendations)
             .build();

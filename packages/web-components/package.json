@@ -37,7 +37,7 @@
     "lit": "^2.7.6"
   },
   "peerDependencies": {
-    "@relewise/client": ">=2.0.0 <3.0.0"
+    "@relewise/client": ">=2.13.0 <3.0.0"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.47.9",
