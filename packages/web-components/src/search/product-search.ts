@@ -170,7 +170,7 @@ export class ProductSearch extends LitElement {
         if (this.target)  {
             const overwrittenConfigSettings  = targetedConfiguration.handle(this.target, requestBuilder);
             if (overwrittenConfigSettings.facetLabels) {
-                this.facetLabels = overwrittenConfigSettings .facetLabels;
+                this.facetLabels = overwrittenConfigSettings.facetLabels;
             }
         }
 
