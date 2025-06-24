@@ -168,9 +168,9 @@ export class ProductSearch extends LitElement {
             });
 
         if (this.target)  {
-            const config = targetedConfiguration.handle(this.target, requestBuilder);
-            if (config.labels) {
-                this.facetLabels = config.labels;
+            const overwrittenConfigSettings  = targetedConfiguration.handle(this.target, requestBuilder);
+            if (overwrittenConfigSettings .labels) {
+                this.facetLabels = overwrittenConfigSettings .labels;
             }
         }
 
