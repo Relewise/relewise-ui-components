@@ -34,13 +34,13 @@ export class TargetedSearchConfigurations {
         return typeof config?.overwriteFacets === 'function';
     }
 
-    handle(target: string, builder: ProductSearchBuilder): { labels?: string[] } {
+    handle(target: string, builder: ProductSearchBuilder): { facetLabels?: string[] } {
         const configuration = this.templates.get(target);
 
         if (!configuration) {
             console.error(`Relewise Web Components: Could not find search configuration with target: '${target}'`);
             return {
-                labels: [],
+                facetLabels: [],
             };
         }
 
@@ -59,7 +59,7 @@ export class TargetedSearchConfigurations {
         }
         
         return {
-            labels: facetLabels,
+            facetLabels: facetLabels,
         };
     }
 }
