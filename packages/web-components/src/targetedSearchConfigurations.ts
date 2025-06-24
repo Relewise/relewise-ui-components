@@ -46,6 +46,7 @@ export class TargetedSearchConfigurations {
 
         let facetLabels: string[] | undefined = undefined;
         if (this.hasOverwrittenFacets(target) && configuration.overwriteFacets) {
+            builder.facets(b => b.clear());
             builder.facets(b => {
                 const facetBuilder = new RelewiseFacetBuilder(b);
                 configuration.overwriteFacets!(facetBuilder);

@@ -138,8 +138,7 @@ export class ProductSearch extends LitElement {
                 }
             })
             .facets(builder => {
-                if ((!this.target || !targetedConfiguration.hasOverwrittenFacets(this.target)) 
-                    && searchOptions && searchOptions.facets?.product) {
+                if (searchOptions && searchOptions.facets?.product) {
                     const facetBuilder = new RelewiseFacetBuilder(builder);
                     searchOptions.facets.product(facetBuilder);
                     this.facetLabels = facetBuilder.getLabels();
