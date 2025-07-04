@@ -125,7 +125,7 @@ export class ProductSearch extends LitElement {
         const requestBuilder = new ProductSearchBuilder(settings)
             .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
             .setSelectedVariantProperties(relewiseUIOptions.selectedPropertiesSettings?.variant ?? null)
-            .setExplodedVariants(searchOptions?.productSearchSettings?.explodedVariants ?? defaultExplodedVariants)
+            .setExplodedVariants(searchOptions?.explodedVariants ?? defaultExplodedVariants)
             .setTerm(term ? term : null)
             .pagination(p => p
                 .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)

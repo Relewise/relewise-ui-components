@@ -25,7 +25,5 @@ initializeRelewiseUI(
             showAllResults: 'Se alle resultater',
         },
     },
-    productSearchSettings: {
-        explodedVariants: 4,
-    },
+    explodedVariants:  4,
 });
