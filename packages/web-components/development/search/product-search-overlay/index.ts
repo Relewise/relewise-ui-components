@@ -25,5 +25,5 @@ initializeRelewiseUI(
             showAllResults: 'Se alle resultater',
         },
     },
-    explodedVariants:  4,
+    explodedVariants: 1,
 });
