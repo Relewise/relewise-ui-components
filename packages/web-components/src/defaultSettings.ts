@@ -5,3 +5,5 @@ export const defaultProductProperties: Partial<SelectedProductPropertiesSettings
     pricing: true,
     dataKeys: ['ImageUrl', 'Url'],
 };
+
+export const defaultExplodedVariants = 1;

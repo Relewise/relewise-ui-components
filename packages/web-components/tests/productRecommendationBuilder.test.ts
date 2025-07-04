@@ -1,7 +1,7 @@
 import { assert } from '@esm-bundle/chai';
 import { PopularProductsBuilder } from '@relewise/client';
 import { getProductRecommendationBuilderWithDefaults, getRelewiseContextSettings, initializeRelewiseUI } from '../src';
-import { defaultProductProperties } from '../src/defaultProductProperties';
+import { defaultProductProperties } from '../src/defaultSettings';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('productRecommendationBuilder', () => {

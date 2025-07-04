@@ -3,7 +3,7 @@ export * from './recommendations';
 export * from './helpers';
 export * from './builders';
 export * from './initialize';
-export * from './defaultProductProperties';
+export * from './defaultSettings';
 export * from './tracking';
 export * from './updateContextSettings';
 export * from './facetBuilder';

@@ -35,6 +35,7 @@ export interface RelewiseUISearchOptions {
     localization?: SearchLocalization;
     rememberScrollPosition?: boolean;
     debounceTimeInMs?: number;
+    explodedVariants?: number;
 }
 
 export interface SearchLocalization {

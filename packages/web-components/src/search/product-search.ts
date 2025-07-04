@@ -1,7 +1,7 @@
 import { DoubleNullableRange, ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { defaultProductProperties } from '../defaultProductProperties';
+import { defaultExplodedVariants, defaultProductProperties } from '../defaultSettings';
 import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseSearchTargetedConfigurations, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
@@ -125,6 +125,7 @@ export class ProductSearch extends LitElement {
         const requestBuilder = new ProductSearchBuilder(settings)
             .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
             .setSelectedVariantProperties(relewiseUIOptions.selectedPropertiesSettings?.variant ?? null)
+            .setExplodedVariants(searchOptions?.explodedVariants ?? defaultExplodedVariants)
             .setTerm(term ? term : null)
             .pagination(p => p
                 .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)

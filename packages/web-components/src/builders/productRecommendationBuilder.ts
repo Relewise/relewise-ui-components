@@ -1,6 +1,6 @@
 import { ProductSettingsRecommendationBuilder, Settings } from '@relewise/client';
 import { getRelewiseContextSettings, getRelewiseRecommendationTargetedConfigurations, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
-import { defaultProductProperties } from '../defaultProductProperties';
+import { defaultProductProperties } from '../defaultSettings';
 
 export async function getProductRecommendationBuilderWithDefaults<T extends ProductSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T, displayedAtLocation: string, target?: string | null): Promise<T> {
     const settings = getRelewiseContextSettings(displayedAtLocation);

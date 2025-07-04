@@ -1,7 +1,7 @@
 import { ProductResult, ProductSearchBuilder, ProductSearchResponse, RedirectResult, SearchCollectionBuilder, SearchTermPredictionBuilder, SearchTermPredictionResponse, SearchTermPredictionResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { defaultProductProperties } from '../defaultProductProperties';
+import { defaultExplodedVariants, defaultProductProperties } from '../defaultSettings';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { getSearcher } from './searcher';
 import { theme } from '../theme';
@@ -86,22 +86,22 @@ export class ProductSearchOverlay extends LitElement {
         }
 
         switch (event.key) {
-            case 'ArrowUp':
-                event.preventDefault();
-                this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
-                break;
-            case 'ArrowDown':
-                event.preventDefault();
-                this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
-                break;
-            case 'Tab':
-                event.preventDefault();
-                this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
-                break;
-            case 'Enter':
-                event.preventDefault();
-                this.handleActionOnResult(this.results[this.selectedIndex]);
-                break;
+        case 'ArrowUp':
+            event.preventDefault();
+            this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+            break;
+        case 'ArrowDown':
+            event.preventDefault();
+            this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
+            break;
+        case 'Tab':
+            event.preventDefault();
+            this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
+            break;
+        case 'Enter':
+            event.preventDefault();
+            this.handleActionOnResult(this.results[this.selectedIndex]);
+            break;
         }
     }
 
@@ -158,6 +158,7 @@ export class ProductSearchOverlay extends LitElement {
             .addRequest(new ProductSearchBuilder(settings)
                 .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
                 .setSelectedVariantProperties(relewiseUIOptions.selectedPropertiesSettings?.variant ?? null)
+                .setExplodedVariants(searchOptions?.explodedVariants ?? defaultExplodedVariants)
                 .setTerm(searchTerm)
                 .pagination(p => p.setPageSize(this.numberOfProducts))
                 .filters(builder => {
