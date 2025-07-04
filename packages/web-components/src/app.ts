@@ -1,4 +1,4 @@
-import { FilterBuilder, ProductResult } from '@relewise/client';
+import { FilterBuilder, ProductResult, ProductSearchSettings } from '@relewise/client';
 import { TemplateResult } from 'lit';
 import { FilterIcon, ProductTile, SearchIcon, SortIcon, XIcon } from './components';
 import { Button } from './components/button';
@@ -35,6 +35,8 @@ export interface RelewiseUISearchOptions {
     localization?: SearchLocalization;
     rememberScrollPosition?: boolean;
     debounceTimeInMs?: number;
+    productSearchSettings?: Partial<Omit<ProductSearchSettings, 'selectedProductProperties' | 'selectedVariantProperties' | 'recommendationSettings' | 'selectedBrandProperties'>>;
+    explodedVariants?: number;
 }
 
 export interface SearchLocalization {

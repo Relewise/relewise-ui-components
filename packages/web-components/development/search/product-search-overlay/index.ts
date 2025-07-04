@@ -22,7 +22,10 @@ initializeRelewiseUI(
     localization: {
         searchResults: {
             noResults: 'Vi fandt ikke noget',
-            showAllResults: 'Se alle resultater'
-        }
+            showAllResults: 'Se alle resultater',
+        },
+    },
+    productSearchSettings: {
+        explodedVariants: 4,
     },
 });
