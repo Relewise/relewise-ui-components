@@ -402,6 +402,17 @@ useSearch({
 });
 ```
 
+#### Exploded Variants
+This allows you to control how many variants you want returned, if they match the search term, for both the search overlay and the product search.
+
+This setting is part of the configuration supplied to the `useSearch` function.
+
+```ts
+useSearch({
+    explodedVariants: 1
+});
+```
+
 #### Facets
 By default the component will not render any facets.
 
