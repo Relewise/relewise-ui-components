@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <title>Web components</title>
+</head>
+
+<style>
+    .custom {
+        display: flex;
+        background: beige;
+    }
+
+    .variables {
+        --relewise-font: Fantasy;
+
+        --relewise-image-align: center;
+
+        --relewise-information-container-margin: 0.5rem 0.5rem 0.5rem 0.5rem;
+
+        --relewise-image-width: 10rem;
+        --relewise-image-height: 10rem;
+
+        --relewise-sales-price-font-weight: 100;
+        --relewise-sales-price-font-size: 3rem;
+        --relewise-sales-price-color: green;
+        --relewise-sales-price-alignment: start;
+        --relewise-sales-price-margin: 0.5rem 0rem 0rem 0rem;
+
+        --relewise-list-price-font-size: 1rem;
+        --relewise-list-price-text-decoration: line-through;
+        --relewise-list-price-color: red;
+        --relewise-list-price-margin: .25rem;
+
+        --relewise-display-name-letter-spacing: 0rem;
+        --relewise-display-name-alignment: center;
+        --relewise-display-name-color: blue;
+        --relewise-display-name-line-height: 2rem;
+        --relewise-display-name-font-weight: 100;
+        --relewise-display-name-font-size: 1rem;
+        --relewise-display-name-margin: 0rem 0rem 0rem 0rem;
+    }
+</style>
+
+<body>
+    <script type="module" src="index.ts"></script>
+    <h1>Popular Products</h1>
+    <relewise-personal-products displayed-at-location="web component dev"></relewise-personal-products>
+    <h3>Custom styling on html tag</h3>
+    <relewise-personal-products displayed-at-location="web component dev" class="custom"></relewise-personal-products>
+    <h3>CSS variables</h3>
+    <relewise-personal-products displayed-at-location="web component dev"
+        class="variables"></relewise-personal-products>
+    <h3>Show 10 results</h3>
+    <relewise-personal-products displayed-at-location="web component dev" number-of-recommendations="10"
+        based-on="MostPurchased"></relewise-personal-products>
+</body>
+
+</html>
