@@ -728,7 +728,7 @@ initializeRelewiseUI(
 ```
 The builder is a type exposed from the [relewise-sdk-javascript](https://github.com/Relewise/relewise-sdk-javascript).
 
-For more examples and information about filters visit the official [docs](https://docs.relewise.com/).
+For more examples and information about relevance modifiers visit the official [docs](https://docs.relewise.com/).
 
 ## Template overwriting
 It is possible to overwrite the template used for rendering products. This is done using [lit templating](https://lit.dev/docs/templates/overview/).
