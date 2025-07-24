@@ -1,10 +1,11 @@
-import { FilterBuilder, ProductSearchBuilder } from '@relewise/client';
+import { FilterBuilder, ProductSearchBuilder, RelevanceModifierBuilder } from '@relewise/client';
 import { RelewiseFacetBuilder } from './facetBuilder';
 
 
 export type TargetedSearchConfiguration = {
   overwriteFacets?: (builder: RelewiseFacetBuilder) => void,
   filters?: (builder: FilterBuilder) => void;
+  relevanceModifiers?: (builder: RelevanceModifierBuilder) => void;
 };
 
 export class TargetedSearchConfigurations {
@@ -56,6 +57,10 @@ export class TargetedSearchConfigurations {
 
         if (configuration.filters) {
             builder.filters(b => configuration.filters!(b));
+        }
+
+        if (configuration.relevanceModifiers) {
+            builder.relevanceModifiers(b => configuration.relevanceModifiers!(b));
         }
         
         return {

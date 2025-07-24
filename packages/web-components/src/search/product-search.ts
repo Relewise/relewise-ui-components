@@ -130,6 +130,11 @@ export class ProductSearch extends LitElement {
             .pagination(p => p
                 .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)
                 .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))
+            .relevanceModifiers(builder => {
+                if (relewiseUIOptions.relevanceModifiers?.product) {
+                    relewiseUIOptions.relevanceModifiers.product(builder);
+                }
+            })
             .filters(builder => {
                 if (relewiseUIOptions.filters?.product) {
                     relewiseUIOptions.filters.product(builder);

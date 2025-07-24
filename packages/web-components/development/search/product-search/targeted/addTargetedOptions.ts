@@ -9,4 +9,7 @@ registerSearchTarget('plp', {
     filters(builder) {
         builder.addProductCategoryIdFilter('ImmediateParent', ['4797']);
     },
+    relevanceModifiers(builder) {
+        builder.addBrandIdRelevanceModifier('83', 1000);
+    },
 });

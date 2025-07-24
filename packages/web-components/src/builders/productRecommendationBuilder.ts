@@ -15,6 +15,11 @@ export async function getProductRecommendationBuilderWithDefaults<T extends Prod
     const builder = createBuilder(settings)
         .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
         .setSelectedVariantProperties(relewiseUIOptions.selectedPropertiesSettings?.variant ?? null)
+        .relevanceModifiers(builder => {
+            if (relewiseUIOptions.relevanceModifiers?.product) {
+                relewiseUIOptions.relevanceModifiers.product(builder);
+            }
+        })
         .filters(builder => {
             if (relewiseUIOptions.filters?.product) {
                 relewiseUIOptions.filters.product(builder);
