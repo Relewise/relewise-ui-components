@@ -697,6 +697,27 @@ The builder is a type exposed from the [relewise-sdk-javascript](https://github.
 
 For more examples and information about filters visit the official [docs](https://docs.relewise.com/).
 
+## Relevance Modifiers
+With Relevance Modifiers you can influence the order of enteties shown in search and recommendations.
+
+Here is an example of setting up Relevance Modifiers.
+```ts
+initializeRelewiseUI(
+    {
+        ...
+        relevanceModifiers: {
+            product(builder) {
+                builder
+                    .addBrandIdRelevanceModifier('brand1', 100)
+                    .addProductIdRelevanceModifier(['productId1', 'productId2'], 50);
+            },
+        },
+    });
+```
+The builder is a type exposed from the [relewise-sdk-javascript](https://github.com/Relewise/relewise-sdk-javascript).
+
+For more examples and information about filters visit the official [docs](https://docs.relewise.com/).
+
 ## Template overwriting
 It is possible to overwrite the template used for rendering products. This is done using [lit templating](https://lit.dev/docs/templates/overview/).
 
