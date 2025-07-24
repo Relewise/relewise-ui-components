@@ -202,6 +202,23 @@ The recommendation requires child elements specifying which products and, option
 
     The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
 
+#### Personal Products
+This component renders [personal products](https://docs.relewise.com/docs/recommendations/recommendation-types.html#personal-product).
+
+```html
+<relewise-personal-products displayed-at-location="LOCATION"></relewise-personal-products>
+```
+##### Attributes
+- **displayed-at-location** : 
+    
+    Where the recommendations are being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
+    
+- **number-of-recommendations** (Optional, *Default 4*): 
+    
+    The amount of products to render.
+
 #### Product Recommendation Batcher
 This component batches multiple product recommendations into a single request against Relewise.
 This inceases performance, and ensures that there are no duplicate products in the recommendation sliders

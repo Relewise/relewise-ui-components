@@ -27,6 +27,7 @@ import { ArrowUpIcon } from './components/icons/arrow-up-icon';
 import { TargetedSearchConfiguration } from './targetedSearchConfigurations';
 import { getRelewiseRecommendationTargetedConfigurations, getRelewiseSearchTargetedConfigurations } from './helpers';
 import { TargetedRecommendationConfiguration } from './targetedRecommendationConfigurations';
+import { PersonalProducts } from './recommendations/products/personal-products';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -131,6 +132,7 @@ export function useRecommendations() {
     tryRegisterElement('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);
     tryRegisterElement('relewise-purchased-with-product', PurchasedWithProduct);
     tryRegisterElement('relewise-purchased-with-multiple-products', PurchasedWithMultipleProducts);
+    tryRegisterElement('relewise-personal-products', PersonalProducts);
 
     registerGenericComponents();
 }
