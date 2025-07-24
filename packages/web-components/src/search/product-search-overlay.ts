@@ -161,6 +161,11 @@ export class ProductSearchOverlay extends LitElement {
                 .setExplodedVariants(searchOptions?.explodedVariants ?? defaultExplodedVariants)
                 .setTerm(searchTerm)
                 .pagination(p => p.setPageSize(this.numberOfProducts))
+                .relevanceModifiers(builder => {
+                    if (relewiseUIOptions.relevanceModifiers?.product) {
+                        relewiseUIOptions.relevanceModifiers.product(builder);
+                    }
+                })
                 .filters(builder => {
                     if (relewiseUIOptions.filters?.product) {
                         relewiseUIOptions.filters.product(builder);
