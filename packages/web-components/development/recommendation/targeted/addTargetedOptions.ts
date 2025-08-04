@@ -6,6 +6,9 @@ registerRecommendationTarget('first', {
     filters(builder) {
         builder.addProductCategoryIdFilter('ImmediateParent', ['4774']);
     },
+    relevanceModifiers(builder) {
+        builder.addBrandIdRelevanceModifier('83', 1000);
+    },
 });
 
 registerRecommendationTarget('second', {

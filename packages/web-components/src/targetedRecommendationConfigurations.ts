@@ -1,7 +1,8 @@
-import { FilterBuilder, ProductSettingsRecommendationBuilder } from '@relewise/client';
+import { FilterBuilder, ProductSettingsRecommendationBuilder, RelevanceModifierBuilder } from '@relewise/client';
 
 export type TargetedRecommendationConfiguration = {
   filters?: (builder: FilterBuilder) => void;
+  relevanceModifiers?: (builder: RelevanceModifierBuilder) => void;
 };
 
 export class TargetedRecommendationConfigurations {
@@ -36,6 +37,10 @@ export class TargetedRecommendationConfigurations {
     
         if (configuration.filters) {
             builder.filters(b => configuration.filters!(b));
+        }
+
+        if (configuration.relevanceModifiers) {
+            builder.relevanceModifiers(b => configuration.relevanceModifiers!(b));
         }
     }
 }   

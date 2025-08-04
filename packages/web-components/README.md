@@ -234,7 +234,7 @@ This inceases performance, and ensures that there are no duplicate products in t
 ```
 
 #### Targeted Recommendations
-You can target specific recommendations to ensure certain filters are only applied to the target. This can be done by calling `registerRecommendationTarget` either during initialization or afterwards by calling the function independently.
+You can target specific recommendations to ensure certain filters and/or relevance modifiers are only applied to the target. This can be done by calling `registerRecommendationTarget` either during initialization or afterwards by calling the function independently.
 
 
 ```ts
@@ -247,6 +247,9 @@ initializeRelewiseUI(
                     filters(filterBuilder) {
                         filterBuilder.addProductCategoryIdFilter('ImmediateParent', ['4774']);
                     },
+                    relevanceModifiers(builder) {
+                        builder.addBrandIdRelevanceModifier('brand1', 1000);
+                    },
                 }});
             },
         },
@@ -258,6 +261,9 @@ initializeRelewiseUI(
 registerRecommendationTarget('target', {
     filters(builder) {
         builder.addProductCategoryIdFilter('ImmediateParent', ['4774']);
+    },
+    relevanceModifiers(builder) {
+        builder.addBrandIdRelevanceModifier('brand1', 1000);
     },
 });
 ```
@@ -521,7 +527,7 @@ Renders button that will load more results once pressed.
 ```
 
 #### Targeted Search
-You can target specific search components to ensure certain filters are only applied to the target and overwrite the facets used. This can be done by calling `registerSearchTarget` either during initialization or afterwards by calling the function independently.
+You can target specific search components to ensure certain filters and/or relevance modfiers are only applied to the target and overwrite the facets used. This can be done by calling `registerSearchTarget` either during initialization or afterwards by calling the function independently.
 
 ```ts
 initializeRelewiseUI(
@@ -538,6 +544,9 @@ initializeRelewiseUI(
                         filters(filterBuilder) {
                             filterBuilder.addProductCategoryIdFilter('ImmediateParent', ['4797']);
                         },
+                        relevanceModifiers(builder) {
+                            builder.addBrandIdRelevanceModifier('brand1', 1000);
+                        },
                     },
                 });
             },
@@ -553,6 +562,9 @@ registerSearchTarget('target', {
     },
     filters(builder) {
         builder.addProductCategoryIdFilter('ImmediateParent', ['4797']);
+    },
+    relevanceModifiers(builder) {
+        builder.addBrandIdRelevanceModifier('brand1', 1000);
     },
 });
 ```
@@ -713,6 +725,27 @@ initializeRelewiseUI(
 The builder is a type exposed from the [relewise-sdk-javascript](https://github.com/Relewise/relewise-sdk-javascript).
 
 For more examples and information about filters visit the official [docs](https://docs.relewise.com/).
+
+## Relevance Modifiers
+With Relevance Modifiers you can influence the order of enteties shown in search and recommendations.
+
+Here is an example of setting up Relevance Modifiers.
+```ts
+initializeRelewiseUI(
+    {
+        ...
+        relevanceModifiers: {
+            product(builder) {
+                builder
+                    .addBrandIdRelevanceModifier('brand1', 100)
+                    .addProductIdRelevanceModifier(['productId1', 'productId2'], 50);
+            },
+        },
+    });
+```
+The builder is a type exposed from the [relewise-sdk-javascript](https://github.com/Relewise/relewise-sdk-javascript).
+
+For more examples and information about relevance modifiers visit the official [docs](https://docs.relewise.com/).
 
 ## Template overwriting
 It is possible to overwrite the template used for rendering products. This is done using [lit templating](https://lit.dev/docs/templates/overview/).
