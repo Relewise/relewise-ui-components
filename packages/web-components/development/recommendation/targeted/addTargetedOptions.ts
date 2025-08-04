@@ -2,7 +2,6 @@
 
 import { registerRecommendationTarget } from '../../../src';
 
-
 registerRecommendationTarget('first', {
     filters(builder) {
         builder.addProductCategoryIdFilter('ImmediateParent', ['4774']);
