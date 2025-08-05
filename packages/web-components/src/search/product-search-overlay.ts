@@ -155,8 +155,7 @@ export class ProductSearchOverlay extends LitElement {
         const searcher = getSearcher(relewiseUIOptions);
         const requestBuilder = new SearchCollectionBuilder()
             .addRequest(createProductSearchBuilder(this.term, settings.displayedAtLocation)
-                .pagination(p => p.setPageSize(this.numberOfProducts))
-                
+                .pagination(p => p.setPageSize(this.numberOfProducts))              
                 .build());
 
         if (this.numberOfSearchTermPredictions > 0) {

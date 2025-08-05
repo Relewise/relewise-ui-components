@@ -124,8 +124,7 @@ export class ProductSearch extends LitElement {
         const requestBuilder = createProductSearchBuilder(term, this.displayedAtLocation ?? 'Relewise Product Search')
             .pagination(p => p
                 .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)
-                .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))
-        
+                .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))       
             .facets(builder => {
                 if (searchOptions && searchOptions.facets?.product) {
                     const facetBuilder = new RelewiseFacetBuilder(builder);
