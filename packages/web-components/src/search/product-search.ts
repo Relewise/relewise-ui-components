@@ -1,14 +1,14 @@
-import { DoubleNullableRange, ProductResult, ProductSearchBuilder, ProductSearchResponse } from '@relewise/client';
+import { DoubleNullableRange, ProductResult, ProductSearchResponse } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { defaultExplodedVariants, defaultProductProperties } from '../defaultSettings';
 import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
-import { getRelewiseContextSettings, getRelewiseSearchTargetedConfigurations, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
+import { getRelewiseSearchTargetedConfigurations, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { SortingEnum } from './enums';
 import { getSearcher } from './searcher';
 import { Facet } from './types';
 import { RelewiseFacetBuilder } from '../facetBuilder';
+import { createProductSearchBuilder } from '../builders';
 
 export class ProductSearch extends LitElement {
 
@@ -113,7 +113,6 @@ export class ProductSearch extends LitElement {
 
         const relewiseUIOptions = getRelewiseUIOptions();
         const targetedConfiguration = getRelewiseSearchTargetedConfigurations();
-        const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search');
         const searchOptions = getRelewiseUISearchOptions();
         const searcher = getSearcher(relewiseUIOptions);
 
@@ -122,27 +121,10 @@ export class ProductSearch extends LitElement {
             await new Promise(r => setTimeout(r, 0));
         }
 
-        const requestBuilder = new ProductSearchBuilder(settings)
-            .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
-            .setSelectedVariantProperties(relewiseUIOptions.selectedPropertiesSettings?.variant ?? null)
-            .setExplodedVariants(searchOptions?.explodedVariants ?? defaultExplodedVariants)
-            .setTerm(term ? term : null)
+        const requestBuilder = createProductSearchBuilder(term, this.displayedAtLocation ?? 'Relewise Product Search')
             .pagination(p => p
                 .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)
-                .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))
-            .relevanceModifiers(builder => {
-                if (relewiseUIOptions.relevanceModifiers?.product) {
-                    relewiseUIOptions.relevanceModifiers.product(builder);
-                }
-            })
-            .filters(builder => {
-                if (relewiseUIOptions.filters?.product) {
-                    relewiseUIOptions.filters.product(builder);
-                }
-                if (searchOptions && searchOptions.filters?.product) {
-                    searchOptions.filters.product(builder);
-                }
-            })
+                .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))       
             .facets(builder => {
                 if (searchOptions && searchOptions.facets?.product) {
                     const facetBuilder = new RelewiseFacetBuilder(builder);
