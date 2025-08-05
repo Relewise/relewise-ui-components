@@ -1,10 +1,10 @@
-import { ProductResult, ProductSearchBuilder, ProductSearchResponse, RedirectResult, SearchCollectionBuilder, SearchTermPredictionBuilder, SearchTermPredictionResponse, SearchTermPredictionResult } from '@relewise/client';
+import { ProductResult, ProductSearchResponse, RedirectResult, SearchCollectionBuilder, SearchTermPredictionBuilder, SearchTermPredictionResponse, SearchTermPredictionResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { defaultExplodedVariants, defaultProductProperties } from '../defaultSettings';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { getSearcher } from './searcher';
 import { theme } from '../theme';
+import { createProductSearchBuilder } from '../builders';
 
 export class SearchResult {
     product?: ProductResult;
@@ -151,29 +151,12 @@ export class ProductSearchOverlay extends LitElement {
         this.abortController.abort();
 
         const relewiseUIOptions = getRelewiseUIOptions();
-        const searchOptions = getRelewiseUISearchOptions();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
         const searcher = getSearcher(relewiseUIOptions);
         const requestBuilder = new SearchCollectionBuilder()
-            .addRequest(new ProductSearchBuilder(settings)
-                .setSelectedProductProperties(relewiseUIOptions.selectedPropertiesSettings?.product ?? defaultProductProperties)
-                .setSelectedVariantProperties(relewiseUIOptions.selectedPropertiesSettings?.variant ?? null)
-                .setExplodedVariants(searchOptions?.explodedVariants ?? defaultExplodedVariants)
-                .setTerm(searchTerm)
+            .addRequest(createProductSearchBuilder(this.term, settings.displayedAtLocation)
                 .pagination(p => p.setPageSize(this.numberOfProducts))
-                .relevanceModifiers(builder => {
-                    if (relewiseUIOptions.relevanceModifiers?.product) {
-                        relewiseUIOptions.relevanceModifiers.product(builder);
-                    }
-                })
-                .filters(builder => {
-                    if (relewiseUIOptions.filters?.product) {
-                        relewiseUIOptions.filters.product(builder);
-                    }
-                    if (searchOptions && searchOptions.filters?.product) {
-                        searchOptions.filters.product(builder);
-                    }
-                })
+                
                 .build());
 
         if (this.numberOfSearchTermPredictions > 0) {
