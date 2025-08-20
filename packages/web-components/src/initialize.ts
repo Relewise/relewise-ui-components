@@ -39,8 +39,8 @@ export interface TemplateExtensions {
     helpers: {
         formatPrice: (price: string | number | null | undefined) => string | number | null | undefined;
         unsafeHTML: typeof unsafeHTML;
+        nothing: typeof nothing;
     };
-    nothing: typeof nothing;
 }
 
 export interface Templates {

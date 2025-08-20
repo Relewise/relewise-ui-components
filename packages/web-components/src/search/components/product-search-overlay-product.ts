@@ -23,7 +23,7 @@ export class ProductSearchOverlayProduct extends LitElement {
         const settings = getRelewiseUISearchOptions(); 
         if (settings?.templates?.searchOverlayProductResult) {
             const markup = html`
-                ${until(settings.templates.searchOverlayProductResult(this.product, { html, helpers: { formatPrice, unsafeHTML }, nothing })
+                ${until(settings.templates.searchOverlayProductResult(this.product, { html, helpers: { formatPrice, unsafeHTML, nothing } })
                     .then(result => {
                         if (result === nothing) {
                             this.toggleAttribute('hidden', true);
