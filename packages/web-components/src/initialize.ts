@@ -1,5 +1,5 @@
 import { FilterBuilder, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
-import { TemplateResult } from 'lit';
+import { nothing, TemplateResult } from 'lit';
 import { App, RelewiseUISearchOptions } from './app';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { TargetedSearchConfigurations } from './targetedSearchConfigurations';
@@ -39,11 +39,12 @@ export interface TemplateExtensions {
     helpers: {
         formatPrice: (price: string | number | null | undefined) => string | number | null | undefined;
         unsafeHTML: typeof unsafeHTML;
-    }
+        nothing: typeof nothing;
+    };
 }
 
 export interface Templates {
-    product?: (product: ProductResult, extensions: TemplateExtensions) => Promise<TemplateResult<1>>;
+    product?: (product: ProductResult, extensions: TemplateExtensions) => Promise<TemplateResult<1> | typeof nothing>;
 }
 
 export interface Targets {

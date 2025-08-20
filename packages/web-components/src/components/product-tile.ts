@@ -23,10 +23,17 @@ export class ProductTile extends LitElement {
 
         const settings = getRelewiseUIOptions(); 
         if (settings.templates?.product) {
-            return html`
-                ${until(settings.templates.product(this.product, { html, helpers: { formatPrice, unsafeHTML } })
-                    .then(result => result))}
-            `; 
+            const markup =
+                until(settings.templates.product(this.product, { html, helpers: { formatPrice, unsafeHTML, nothing } })
+                    .then(result => {
+                        if (result === nothing) {
+                            this.toggleAttribute('hidden', true);
+                        }
+
+                        return result;
+                    }));
+            
+            return html`${markup}`;
         }
 
         if (this.product.data && 'Url' in this.product.data) {
