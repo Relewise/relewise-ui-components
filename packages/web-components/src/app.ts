@@ -1,5 +1,5 @@
 import { FilterBuilder, ProductResult } from '@relewise/client';
-import { TemplateResult } from 'lit';
+import { nothing, TemplateResult } from 'lit';
 import { FilterIcon, ProductTile, SearchIcon, SortIcon, XIcon } from './components';
 import { Button } from './components/button';
 import { LoadingSpinner } from './components/loading-spinner';
@@ -91,7 +91,7 @@ export interface SearchFacets {
 }
 
 export interface SearchTemplates {
-    searchOverlayProductResult?: (product: ProductResult, extensions: TemplateExtensions) => Promise<TemplateResult<1>>;
+    searchOverlayProductResult?: (product: ProductResult, extensions: TemplateExtensions) => Promise<TemplateResult<1> | typeof nothing>;
 }
 
 export class App {

@@ -22,9 +22,17 @@ export class ProductSearchOverlayProduct extends LitElement {
 
         const settings = getRelewiseUISearchOptions(); 
         if (settings?.templates?.searchOverlayProductResult) {
-            return html`
-                ${until(settings.templates.searchOverlayProductResult(this.product, { html, helpers: { formatPrice, unsafeHTML } })
-                    .then(result => result))}`;
+            const markup = html`
+                ${until(settings.templates.searchOverlayProductResult(this.product, { html, helpers: { formatPrice, unsafeHTML }, nothing })
+                    .then(result => {
+                        if (result === nothing) {
+                            this.toggleAttribute('hidden', true);
+                        }
+
+                        return result;
+                    }))}`;
+
+            return html`${markup}`;
         }
 
         if (this.product.data && 'Url' in this.product.data) {
