@@ -219,6 +219,24 @@ This component renders [personal products](https://docs.relewise.com/docs/recomm
     
     The amount of products to render.
 
+#### Recently Viewed Products
+This component renders [recently viewed products](https://docs.relewise.com/docs/recommendations/recommendation-types.html#recently-viewed-products).
+The component will only render results for users who can be identified through tracking. This requires that the user has been tracked with at least an email, identifier, authenticated ID or temporary ID.
+
+```html
+<relewise-recently-viewed-products displayed-at-location="LOCATION"></relewise-recently-viewed-products>
+```
+##### Attributes
+- **displayed-at-location** : 
+    
+    Where the recommendations are being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
+    
+- **number-of-recommendations** (Optional, *Default 4*): 
+    
+    The amount of products to render.
+
 #### Product Recommendation Batcher
 This component batches multiple product recommendations into a single request against Relewise.
 This inceases performance, and ensures that there are no duplicate products in the recommendation sliders
