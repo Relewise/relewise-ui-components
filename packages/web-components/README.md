@@ -221,6 +221,7 @@ This component renders [personal products](https://docs.relewise.com/docs/recomm
 
 #### Recently Viewed Products
 This component renders [recently viewed products](https://docs.relewise.com/docs/recommendations/recommendation-types.html#recently-viewed-products).
+The component will only render results for users who can be identified through tracking. This requires that the user has been tracked with at least an email, identifier, authenticated ID or temporary ID.
 
 ```html
 <relewise-recently-viewed-products displayed-at-location="LOCATION"></relewise-recently-viewed-products>
