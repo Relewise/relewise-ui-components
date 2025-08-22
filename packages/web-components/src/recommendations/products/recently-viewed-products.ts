@@ -11,7 +11,7 @@ export class RecentlyViewedProducts extends ProductRecommendationBase {
 
         const user = options.contextSettings.getUser();
         
-        // The API will never return a result for a user than can't be identified
+        // The API will never return a result for a user that can't be identified
         if ((!user.authenticatedId || user.authenticatedId === '') 
         && (!user.temporaryId || user.temporaryId === '')
         && (!user.email || user.email === '')
