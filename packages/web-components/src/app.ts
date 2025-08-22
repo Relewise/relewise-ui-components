@@ -4,7 +4,7 @@ import { FilterIcon, ProductTile, SearchIcon, SortIcon, XIcon } from './componen
 import { Button } from './components/button';
 import { LoadingSpinner } from './components/loading-spinner';
 import { ContextSettings, TemplateExtensions } from './initialize';
-import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct } from './recommendations';
+import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts } from './recommendations';
 import { ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar } from './search';
 import { ChecklistBooleanValueFacet } from './search/components/facets/checklist-boolean-value-facet';
 import { ChecklistNumberValueFacet } from './search/components/facets/checklist-number-value-facet';
@@ -27,7 +27,6 @@ import { ArrowUpIcon } from './components/icons/arrow-up-icon';
 import { TargetedSearchConfiguration } from './targetedSearchConfigurations';
 import { getRelewiseRecommendationTargetedConfigurations, getRelewiseSearchTargetedConfigurations } from './helpers';
 import { TargetedRecommendationConfiguration } from './targetedRecommendationConfigurations';
-import { PersonalProducts } from './recommendations/products/personal-products';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -133,6 +132,7 @@ export function useRecommendations() {
     tryRegisterElement('relewise-purchased-with-product', PurchasedWithProduct);
     tryRegisterElement('relewise-purchased-with-multiple-products', PurchasedWithMultipleProducts);
     tryRegisterElement('relewise-personal-products', PersonalProducts);
+    tryRegisterElement('relewise-recently-viewed-products', RecentlyViewedProducts);
 
     registerGenericComponents();
 }
