@@ -9,7 +9,7 @@ export const theme = css`
     --relewise-icon-color: var(--color);
     --relewise-x-icon-color: var(--color);
     --border-radius: var(--relewise-border-radius, 1rem);
-    --border: var(--relewise-border, 2px solid)
+    --border: var(--relewise-border, 1px solid)
   }
 
   .rw-button {

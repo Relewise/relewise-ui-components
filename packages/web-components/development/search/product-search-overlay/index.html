@@ -15,7 +15,7 @@
     }
 
     .variables {
-        --relewise-font: Fantasy;
+        /* --relewise-font: Fantasy;
         --relewise-color: burlywood;
         --relewise-accent-color: brown;
 
@@ -38,15 +38,58 @@
         --relewise-product-search-result-overlay-product-sales-price-color: brown;
         --relewise-product-search-result-overlay-product-list-price-font-size: .5rem;
         --relewise-product-search-result-overlay-product-list-price-text-decoration: line-through;
-        --relewise-product-search-result-overlay-product-list-price-text-color: brown;
+        --relewise-product-search-result-overlay-product-list-price-text-color: brown; */
+
+        /* --relewise-product-search-overlay-border-color: green;
+        --relewise-search-bar-border-color: red;
+        --relewise-search-bar-border-color-focused: blue; */
+
+
+    }
+
+    /* 
+    relewise-product-search-overlay::part(searchbar-input) {
+        background-color: blue;
+    } */
+
+    relewise-product-search-overlay::part(searchbar) {
+        background-color: red;
+        width: 50%;
+    }
+
+    relewise-product-search-overlay::part(searchbar-input) {
+        background-color: red;
+        width: 50%;
+    }
+
+    relewise-product-search-overlay::part(searchbar-icon) {
+        fill: blue !important;
+    }
+
+    relewise-product-search-overlay::part(overlay) {
+        background-color: red;
+        width: 50%;
+    }
+
+    relewise-product-search-overlay::part(overlay-container) {
+        background-color: green !important;
+        border-color: yellow;
+        width: 50%;
+    }
+
+    relewise-search-bar::part(input) {
+        background-color: red;
+        width: 10px;
+        display: block;
     }
 </style>
 
 <body>
     <script type="module" src="index.ts"></script>
     <h1>Product Search Overlay</h1>
-    <relewise-product-search-overlay displayed-at-location="web component dev"></relewise-product-search-overlay>
-    <h3>Redirect to search page</h3>
+    <relewise-product-search-overlay displayed-at-location="web component dev"
+        class="variables"></relewise-product-search-overlay>
+    <!-- <h3>Redirect to search page</h3>
     <relewise-product-search-overlay displayed-at-location="web component dev"
         search-page-url="/development/search/product-search/facets/index.html"></relewise-product-search-overlay>
     <h3>Search bar placeholder</h3>
@@ -69,7 +112,7 @@
         class="custom"></relewise-product-search-overlay>
     <h3>CSS variables</h3>
     <relewise-product-search-overlay displayed-at-location="web component dev"
-        class="variables"></relewise-product-search-overlay>
+        class="variables"></relewise-product-search-overlay> -->
 </body>
 
 </html>

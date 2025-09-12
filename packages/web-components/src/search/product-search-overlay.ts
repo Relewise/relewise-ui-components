@@ -86,22 +86,22 @@ export class ProductSearchOverlay extends LitElement {
         }
 
         switch (event.key) {
-        case 'ArrowUp':
-            event.preventDefault();
-            this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
-            break;
-        case 'ArrowDown':
-            event.preventDefault();
-            this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
-            break;
-        case 'Tab':
-            event.preventDefault();
-            this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
-            break;
-        case 'Enter':
-            event.preventDefault();
-            this.handleActionOnResult(this.results[this.selectedIndex]);
-            break;
+            case 'ArrowUp':
+                event.preventDefault();
+                this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+                break;
+            case 'ArrowDown':
+                event.preventDefault();
+                this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
+                break;
+            case 'Tab':
+                event.preventDefault();
+                this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
+                break;
+            case 'Enter':
+                event.preventDefault();
+                this.handleActionOnResult(this.results[this.selectedIndex]);
+                break;
         }
     }
 
@@ -155,7 +155,7 @@ export class ProductSearchOverlay extends LitElement {
         const searcher = getSearcher(relewiseUIOptions);
         const requestBuilder = new SearchCollectionBuilder()
             .addRequest(createProductSearchBuilder(this.term, settings.displayedAtLocation)
-                .pagination(p => p.setPageSize(this.numberOfProducts))              
+                .pagination(p => p.setPageSize(this.numberOfProducts))
                 .build());
 
         if (this.numberOfSearchTermPredictions > 0) {
@@ -198,6 +198,8 @@ export class ProductSearchOverlay extends LitElement {
         const localization = getRelewiseUISearchOptions()?.localization;
         return html`
             <relewise-search-bar 
+                part="searchbar"
+                exportparts="input: searchbar-input, icon: searchbar-icon"
                 .term=${this.term}
                 .setSearchTerm=${(term: string) => this.setSearchTerm(term)}
                 .setSearchBarInFocus=${(inFocus: boolean) => this.searchBarInFocus = inFocus}
@@ -209,6 +211,8 @@ export class ProductSearchOverlay extends LitElement {
                 this.term) ||
                 this.resultBoxIsHovered ?
                 html`<relewise-product-search-overlay-results
+                    part="overlay"
+                    exportparts="overlay: overlay-container"
                     .selectedIndex=${this.selectedIndex}
                     .results=${this.results} 
                     .setSearchTerm=${(term: string) => this.setSearchTerm(term)}

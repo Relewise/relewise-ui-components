@@ -32,9 +32,10 @@ export class SearchBar extends LitElement {
 
     render() {
         return html`
-        <div class="rw-search-bar rw-border">
+        <div class="rw-search-bar rw-border" part="input">
             <input 
                 id="search-input"
+                autocomplete="off"
                 class="rw-search-bar-input"
                 type="text"
                 placeholder=${this.placeholder ?? 'Search'}
@@ -46,10 +47,10 @@ export class SearchBar extends LitElement {
             ${this.term ?
                 html`
                     <div class="rw-icon" @click=${() => this.setSearchTerm('')}>
-                        <relewise-x-icon></relewise-x-icon>
+                        <relewise-x-icon exportparts="icon"></relewise-x-icon>
                     </div>` : html`
                     <div class="rw-icon" @click=${() => this.focusSearchInput()}>
-                        <relewise-search-icon></relewise-search-icon>
+                        <relewise-search-icon exportparts="icon"></relewise-search-icon>
                     </div>
                 `}
         </div>
@@ -64,12 +65,12 @@ export class SearchBar extends LitElement {
                 align-items: center;
                 padding-left: 1rem;
                 padding-right: 1rem;
-                border-color: var(--color);
+                border-color: var(--relewise-search-bar-border-color, var(--color));
                 height: var(--relewise-product-search-bar-height, 3rem);
             }
 
             .rw-search-bar:focus-within {
-                border-color: var(--accent-color);
+                border-color: var(--relewise-search-bar-border-color-focused, var(--accent-color));
                 --relewise-icon-color: var(--accent-color);
                 --relewise-x-icon-color: var(--accent-color);
             }
