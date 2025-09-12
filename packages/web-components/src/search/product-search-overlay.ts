@@ -4,8 +4,7 @@ import { property, state } from 'lit/decorators.js';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { getSearcher } from './searcher';
 import { theme } from '../theme';
-import { createProductSearchBuilder } from '../builders';
-import { createProductCategorySearchBuilder } from '../builders';
+import { createProductSearchBuilder, createProductCategorySearchBuilder } from '../builders';
 
 export type SearchResult = {
     title?: string;
@@ -230,7 +229,7 @@ export class ProductSearchOverlay extends LitElement {
                     productCategories = [{ title: localization?.searchBar?.overlay.title.productCategories ?? 'Categories' }, ...productCategories];
             }
 
-            if (productCategories.length > 0)
+            if (productCategories.length > 0 || this.numberOfProductCategories > 0)
                 products.unshift({ title: localization?.searchBar?.overlay.title.products ?? 'Products' })
 
             this.results = redirects.concat(searchTermPredictions).concat(products).concat(productCategories);
