@@ -15,6 +15,7 @@
     }
 
     .variables {
+        width: 40%;
         /* --relewise-font: Fantasy;
         --relewise-color: burlywood;
         --relewise-accent-color: brown;
@@ -52,7 +53,7 @@
         background-color: blue;
     } */
 
-    relewise-product-search-overlay::part(searchbar) {
+    /* relewise-product-search-overlay::part(searchbar) {
         background-color: red;
         width: 50%;
     }
@@ -81,14 +82,14 @@
         background-color: red;
         width: 10px;
         display: block;
-    }
+    } */
 </style>
 
 <body>
     <script type="module" src="index.ts"></script>
     <h1>Product Search Overlay</h1>
-    <relewise-product-search-overlay displayed-at-location="web component dev"
-        class="variables"></relewise-product-search-overlay>
+    <relewise-product-search-overlay search-page-url="http://dr.dk" displayed-at-location="web component dev"
+        class="variables" style="width: 40%;"></relewise-product-search-overlay>
     <!-- <h3>Redirect to search page</h3>
     <relewise-product-search-overlay displayed-at-location="web component dev"
         search-page-url="/development/search/product-search/facets/index.html"></relewise-product-search-overlay>

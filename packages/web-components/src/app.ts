@@ -1,4 +1,4 @@
-import { FilterBuilder, ProductResult } from '@relewise/client';
+import { FilterBuilder, ProductCategoryResult, ProductResult } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { FilterIcon, ProductTile, SearchIcon, SortIcon, XIcon } from './components';
 import { Button } from './components/button';
@@ -27,6 +27,7 @@ import { ArrowUpIcon } from './components/icons/arrow-up-icon';
 import { TargetedSearchConfiguration } from './targetedSearchConfigurations';
 import { getRelewiseRecommendationTargetedConfigurations, getRelewiseSearchTargetedConfigurations } from './helpers';
 import { TargetedRecommendationConfiguration } from './targetedRecommendationConfigurations';
+import { ProductSearchOverlayProductCategory } from './search/components/product-search-overlay-product-category';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -49,6 +50,12 @@ export interface SearchLocalization {
 export interface SearchBarLocalization {
     search?: string;
     placeholder?: string;
+    overlay: {
+        title: {
+            products?: string;
+            productCategories?: string;
+        }
+    }
 }
 
 export interface SortingLocalization {
@@ -83,6 +90,7 @@ export interface SearchResultLocalization {
 
 export interface SearchFilters {
     product?: (builder: FilterBuilder) => void
+    productCategory?: (builder: FilterBuilder) => void
 }
 
 export interface SearchFacets {
@@ -90,7 +98,8 @@ export interface SearchFacets {
 }
 
 export interface SearchTemplates {
-    searchOverlayProductResult?: (product: ProductResult, extensions: TemplateExtensions) => Promise<TemplateResult<1> | typeof nothing>;
+    searchOverlayProductResult?: (product: ProductResult, extensions: TemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    searchOverlayProductCategoryResult?: (productCategory: ProductCategoryResult, extensions: TemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
 }
 
 export class App {
@@ -175,6 +184,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     tryRegisterElement('relewise-search-bar', SearchBar);
     tryRegisterElement('relewise-product-search-bar', ProductSearchBar);
     tryRegisterElement('relewise-product-search-overlay-product', ProductSearchOverlayProduct);
+    tryRegisterElement('relewise-product-search-overlay-product-category', ProductSearchOverlayProductCategory);
     tryRegisterElement('relewise-product-search-overlay-results', ProductSearchOverlayResults);
     tryRegisterElement('relewise-checklist-string-value-facet', ChecklistStringValueFacet);
     tryRegisterElement('relewise-checklist-boolean-value-facet', ChecklistBooleanValueFacet);

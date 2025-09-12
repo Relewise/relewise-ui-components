@@ -20,17 +20,21 @@ export class ProductSearchOverlayProduct extends LitElement {
             return;
         }
 
-        const settings = getRelewiseUISearchOptions(); 
+        const settings = getRelewiseUISearchOptions();
         if (settings?.templates?.searchOverlayProductResult) {
-            const markup = html`
-                ${until(settings.templates.searchOverlayProductResult(this.product, { html, helpers: { formatPrice, unsafeHTML, nothing } })
-                    .then(result => {
-                        if (result === nothing) {
-                            this.toggleAttribute('hidden', true);
-                        }
+            const result = settings.templates.searchOverlayProductResult(this.product, { html, helpers: { formatPrice, unsafeHTML, nothing } });
+            const markup = result instanceof Promise ? html`
+                ${until(result.then(result => {
+                if (result === nothing) {
+                    this.toggleAttribute('hidden', true);
+                }
 
-                        return result;
-                    }))}`;
+                return result;
+            }))}` : result;
+
+            if (result === nothing) {
+                this.toggleAttribute('hidden', true);
+            }
 
             return html`${markup}`;
         }
@@ -50,7 +54,7 @@ export class ProductSearchOverlayProduct extends LitElement {
 
     renderTileContent(product: ProductResult) {
         return html`
-            ${(product.data && 'ImageUrl' in product.data) ? 
+            ${(product.data && 'ImageUrl' in product.data) ?
                 html`
                 <img class="rw-product-image-container" src=${product.data['ImageUrl'].value} />
                 ` : nothing
@@ -58,11 +62,11 @@ export class ProductSearchOverlayProduct extends LitElement {
             <h4 class="rw-product-result-display-name">${product.displayName}</h4>
             <div class='rw-product-result-price'>
                 <span class="rw-product-result-sales-price">${formatPrice(product.salesPrice)}</span>
-                ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice) ? 
-                    html`
+                ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice) ?
+                html`
                     <span class='rw-product-result-list-price'>${formatPrice(product.listPrice)}</span>
                     ` : nothing
-                }
+            }
             </div>`;
     }
 
@@ -76,12 +80,13 @@ export class ProductSearchOverlayProduct extends LitElement {
         }
 
         .rw-product-image-container {
-            height: var(--relewise-product-search-result-overlay-product-image-height, 5rem);
-            width: var(--relewise-product-search-result-overlay-product-image-width, 5rem);
+            height: var(--relewise-product-search-result-overlay-product-image-height, 3rem);
+            width: var(--relewise-product-search-result-overlay-product-image-width, 3rem);
         }
 
         .rw-product-result-display-name {
-            margin: auto 1rem;
+            margin: auto 0.5rem;
+            font-weight: normal;
             overflow: var(--relewise-product-search-result-overlay-product-diplay-name-overflow, hidden);
             color: var(--relewise-product-search-result-overlay-product-diplay-name-color, #212427);
             text-overflow: var(--relewise-product-search-result-overlay-product-diplay-name-text-overflow, ellipsis);
@@ -89,12 +94,13 @@ export class ProductSearchOverlayProduct extends LitElement {
 
         .rw-product-result-price {
             margin: auto 0 auto auto;
-            position: relative
+            position: relative;
+            text-align: right;
         }
 
         .rw-product-result-sales-price {
-            font-weight: var(--relewise-product-search-result-overlay-product-sales-price-font-weight, 700);
-            font-size: var(--relewise-product-search-result-overlay-product-sales-price-font-size, 1.25rem);
+            font-weight: var(--relewise-product-search-result-overlay-product-sales-price-font-weight, 400);
+            font-size: var(--relewise-product-search-result-overlay-product-sales-price-font-size, 1rem);
             color: var(--relewise-product-search-result-overlay-product-sales-price-color, #212427);
         }
 
