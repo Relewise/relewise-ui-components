@@ -233,7 +233,7 @@ export class ProductSearchOverlay extends LitElement {
             if (productCategories.length > 0)
                 products.unshift({ title: localization?.searchBar?.overlay.title.products ?? 'Products' })
 
-            this.results = redirects.concat(searchTermPredictions).concat(productCategories).concat(products);
+            this.results = redirects.concat(searchTermPredictions).concat(products).concat(productCategories);
             if (this.searchPageUrl && productSearchResult.hits > 0) this.results.push({ showAllResults: true });
             console.log(this.results, searchTermPredictions)
             this.hasCompletedSearchRequest = true;

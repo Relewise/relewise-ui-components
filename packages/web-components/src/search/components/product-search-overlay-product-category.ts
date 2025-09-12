@@ -62,7 +62,7 @@ export class ProductSearchOverlayProductCategory extends LitElement {
             text-size-adjust: inherit;
             color: inherit;
             display: flex;
-            padding: 0.5rem 1rem;
+            padding: 0.3rem 1rem;
         }
 
         .rw-product-category-result-display-name {

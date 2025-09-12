@@ -76,7 +76,7 @@ export class ProductSearchOverlayProduct extends LitElement {
             text-size-adjust: inherit;
             color: inherit;
             display: flex;
-            padding: 1rem;
+            margin: 0.5rem 1rem;
         }
 
         .rw-product-image-container {
@@ -100,12 +100,12 @@ export class ProductSearchOverlayProduct extends LitElement {
 
         .rw-product-result-sales-price {
             font-weight: var(--relewise-product-search-result-overlay-product-sales-price-font-weight, 400);
-            font-size: var(--relewise-product-search-result-overlay-product-sales-price-font-size, 1rem);
+            font-size: var(--relewise-product-search-result-overlay-product-sales-price-font-size, 0.9rem);
             color: var(--relewise-product-search-result-overlay-product-sales-price-color, #212427);
         }
 
         .rw-product-result-list-price {
-            font-size: var(--relewise-product-search-result-overlay-product-list-price-font-size, 1rem);
+            font-size: var(--relewise-product-search-result-overlay-product-list-price-font-size, 0.9rem);
             text-decoration: var(--relewise-product-search-result-overlay-product-list-price-text-decoration, line-through);
             color: var(--relewise-product-search-result-overlay-product-list-price-text-color, darkgray);
         }
