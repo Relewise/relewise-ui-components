@@ -67,7 +67,6 @@ export class SearchBar extends LitElement {
                 padding-right: 1rem;
                 border-color: var(--relewise-search-bar-border-color, var(--color));
                 height: var(--relewise-product-search-bar-height, 3rem);
-                
             }
 
             .rw-search-bar:focus-within {
