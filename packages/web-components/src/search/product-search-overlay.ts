@@ -226,15 +226,14 @@ export class ProductSearchOverlay extends LitElement {
                     return { productCategory };
                 }) ?? [];
                 if (productCategories.length > 0)
-                    productCategories = [{ title: localization?.searchBar?.overlay.title.productCategories ?? 'Categories' }, ...productCategories];
+                    productCategories = [{ title: localization?.searchBar?.overlay?.title?.productCategories ?? 'Categories' }, ...productCategories];
             }
 
             if (productCategories.length > 0 || this.numberOfProductCategories > 0)
-                products.unshift({ title: localization?.searchBar?.overlay.title.products ?? 'Products' })
+                products.unshift({ title: localization?.searchBar?.overlay?.title?.products ?? 'Products' })
 
             this.results = redirects.concat(searchTermPredictions).concat(products).concat(productCategories);
             if (this.searchPageUrl && productSearchResult.hits > 0) this.results.push({ showAllResults: true });
-            console.log(this.results, searchTermPredictions)
             this.hasCompletedSearchRequest = true;
         }
     }

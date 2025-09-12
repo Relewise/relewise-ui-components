@@ -3,12 +3,12 @@ import { SelectedCategoryPropertiesSettings, SelectedProductPropertiesSettings }
 export const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = {
     displayName: true,
     pricing: true,
-    dataKeys: ['ImageUrl', 'Url', 'relewise-demo-store.myshopify.com_*'],
+    dataKeys: ['ImageUrl', 'Url'],
 };
 
 export const defaultProductCategoryProperties: Partial<SelectedCategoryPropertiesSettings> = {
     displayName: true,
-    dataKeys: ['Url', 'Handle'],
+    dataKeys: ['Url'],
 };
 
 export const defaultExplodedVariants = 1;

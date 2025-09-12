@@ -73,7 +73,6 @@ export class ProductSearchOverlayProductCategory extends LitElement {
             color: var(--relewise-product-search-result-overlay-product-category-diplay-name-color, #212427);
             text-overflow: var(--relewise-product-search-result-overlay-category-product-diplay-name-text-overflow, ellipsis);
         }
-
     `;
 }
 
