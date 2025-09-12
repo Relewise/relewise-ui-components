@@ -430,6 +430,37 @@ This component renders a search component that [searches for products](https://d
 
     The target for the additional specific configuration added. You can read more [here](#targeted-search).
 
+#### Styling the component
+
+Several parts of the search-overlay are exposed via parts, that allow you some easy hooks to customize how the component looks.
+
+```css
+relewise-product-search-overlay::part(searchbar) {
+    ...
+}
+
+relewise-product-search-overlay::part(searchbar-input) {
+    ...
+}
+
+relewise-product-search-overlay::part(searchbar-icon) {
+    ...
+}
+
+relewise-product-search-overlay::part(overlay) {
+    ...
+}
+
+relewise-product-search-overlay::part(overlay-container) {
+    ...
+}
+
+relewise-search-bar::part(input) {
+    ...
+}
+```
+
+
 #### Scroll position
 When the user navigates to another page or leaves the site, the component will by default not remember where the user last scrolled to.
 
@@ -604,7 +635,7 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-font: Arial, Helvetica, sans-serif;
             --relewise-color: lightgray;
             --relewise-accent-color: #3764e4;
-            --relewise-border: 2px solid;
+            --relewise-border: 1px solid;
             --relewise-border-radius: 1rem;
             
             --relewise-image-align: start;
@@ -648,6 +679,7 @@ If you want to overwrite the styling of the grid and the default product tile, y
 
             --relewise-product-search-bar-height: 3rem;
             --relewise-product-search-overlay-background-color: white;
+            --relewise-product-search-overlay-border-color: '#eee';
             --relewise-product-search-overlay-box-shadow: 0 10px 15px rgb(0 0 0 / 0.2);
             --relewise-product-search-overlay-no-results-message-font-weight: 600;
             --relewise-product-search-overlay-no-results-message-color: #212427;
@@ -681,6 +713,8 @@ If you want to overwrite the styling of the grid and the default product tile, y
             --relewise-product-search-bar-margin-bottom: 1rem;
             --relewise-product-search-bar-width: 100%;
             --relewise-product-search-margin-right: .5rem;
+            --relewise-search-bar-border-color: '#eee';
+            --relewise-search-bar-border-color-focused: '#eee';
 
             --relewise-sorting-options-postion: absolute;
             --relewise-sorting-options-z-index: 10;

@@ -35,7 +35,7 @@ export class ProductSearchOverlayResults extends LitElement {
         const localization = getRelewiseUISearchOptions()?.localization?.searchResults;
 
         return html`
-            <div class="rw-result-container rw-border"
+            <div class="rw-result-container rw-border" part="overlay"
                 @mouseover=${() => this.setResultOverlayHovered(true)}
                 @mouseleave=${() => this.setResultOverlayHovered(false)}>
                 ${(!this.results ||
@@ -96,7 +96,7 @@ export class ProductSearchOverlayResults extends LitElement {
             overflow: hidden;
             background-color: var(--relewise-product-search-overlay-background-color, white);
             box-shadow: var(--relewise-product-search-overlay-box-shadow, 0 10px 15px rgb(0 0 0 / 0.2));
-            border-color: var(--accent-color);
+            border-color: var(--relewise-product-search-overlay-border-color, var(--accent-color));
         }
         
         .rw-no-results {
