@@ -202,7 +202,7 @@ export class ProductSearchOverlay extends LitElement {
                 exportparts="input: searchbar-input, icon: searchbar-icon"
                 .term=${this.term}
                 .setSearchTerm=${(term: string) => this.setSearchTerm(term)}
-                .setSearchBarInFocus=${(inFocus: boolean) => this.searchBarInFocus = true}
+                .setSearchBarInFocus=${(inFocus: boolean) => this.searchBarInFocus = inFocus}
                 .placeholder=${localization?.searchBar?.placeholder ?? 'Search'}
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
                 ></relewise-search-bar>    
