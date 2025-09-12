@@ -229,7 +229,7 @@ export class ProductSearchOverlay extends LitElement {
                     productCategories = [{ title: localization?.searchBar?.overlay?.title?.productCategories ?? 'Categories' }, ...productCategories];
             }
 
-            if (productCategories.length > 0 || this.numberOfProductCategories > 0)
+            if (products.length > 0 && (productCategories.length > 0 || this.numberOfProductCategories > 0))
                 products.unshift({ title: localization?.searchBar?.overlay?.title?.products ?? 'Products' })
 
             this.results = redirects.concat(searchTermPredictions).concat(products).concat(productCategories);
@@ -246,7 +246,7 @@ export class ProductSearchOverlay extends LitElement {
                 exportparts="input: searchbar-input, icon: searchbar-icon"
                 .term=${this.term}
                 .setSearchTerm=${(term: string) => this.setSearchTerm(term)}
-                .setSearchBarInFocus=${(inFocus: boolean) => this.searchBarInFocus = true}
+                .setSearchBarInFocus=${(inFocus: boolean) => this.searchBarInFocus = inFocus}
                 .placeholder=${localization?.searchBar?.placeholder ?? 'Search'}
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
                 ></relewise-search-bar>    
