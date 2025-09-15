@@ -1,9 +1,12 @@
 import { LitElement, css, html } from 'lit';
-import { state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, clearUrlState, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../helpers';
 import { theme } from '../../theme';
 
 export class ProductSearchBar extends LitElement {
+    @property({ type: Boolean, reflect: true })
+    autofocus = false;
+
     @state()
     term: string | null = null;
 
@@ -16,13 +19,13 @@ export class ProductSearchBar extends LitElement {
 
     handleKeyDown(event: KeyboardEvent): void {
         switch (event.key) {
-        case 'Enter':
-            if (this.debounceTimeoutHandlerId) {
-                clearTimeout(this.debounceTimeoutHandlerId);
-            }
+            case 'Enter':
+                if (this.debounceTimeoutHandlerId) {
+                    clearTimeout(this.debounceTimeoutHandlerId);
+                }
 
-            this.setSearchTerm((event.target as HTMLInputElement).value);
-            break;
+                this.setSearchTerm((event.target as HTMLInputElement).value);
+                break;
         }
     }
 
@@ -56,6 +59,7 @@ export class ProductSearchBar extends LitElement {
             .setSearchTerm=${(term: string) => this.debouncedSetSearchTerm(term)}
             .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
             .placeholder=${localization?.placeholder ?? 'Search'}
+            .autofocus="${this.autofocus}"
             class="rw-search-bar">
         </relewise-search-bar>
         <relewise-button

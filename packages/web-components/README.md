@@ -403,6 +403,10 @@ useSearch({
 
     The amount of time, in milliseconds, that must pass between requests to Relewise with a new search call.
 
+- **autofocus** (Optional, true/false):
+
+    Toggle wether or not the input field should be focused on load.
+
 #### Product Search
 This component renders a search component that [searches for products](https://docs.relewise.com/docs/intro/search.html#product-search) in Relewise and shows results, faceting and sorting options.
 

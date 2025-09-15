@@ -32,6 +32,9 @@ export class ProductSearchOverlay extends LitElement {
     @property({ attribute: 'search-page-url' })
     searchPageUrl?: string = undefined;
 
+    @property({ type: Boolean, reflect: true })
+    autofocus = false;
+
     @state()
     results: SearchResult[] | null = null;
 
@@ -252,6 +255,7 @@ export class ProductSearchOverlay extends LitElement {
                 .setSearchBarInFocus=${(inFocus: boolean) => this.searchBarInFocus = inFocus}
                 .placeholder=${localization?.searchBar?.placeholder ?? 'Search'}
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
+                .autofocus="${this.autofocus}"
                 ></relewise-search-bar>    
             ${(this.searchBarInFocus &&
                 this.hasCompletedSearchRequest &&
