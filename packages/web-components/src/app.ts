@@ -50,12 +50,12 @@ export interface SearchLocalization {
 export interface SearchBarLocalization {
     search?: string;
     placeholder?: string;
-    overlay: {
-        title: {
+    overlay?: {
+        title?: {
             products?: string;
             productCategories?: string;
-        }
-    }
+        };
+    };
 }
 
 export interface SortingLocalization {
