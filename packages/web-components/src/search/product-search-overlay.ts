@@ -95,13 +95,13 @@ export class ProductSearchOverlay extends LitElement {
             case 'ArrowUp':
                 event.preventDefault();
                 newIndex = Math.max(this.selectedIndex - 1, 0);
-                if (this.results[newIndex].title) newIndex = Math.max(newIndex - 1, 0);
+                if (this.results[newIndex]?.title) newIndex = Math.max(newIndex - 1, 0);
                 this.selectedIndex = newIndex;
                 break;
             case 'ArrowDown':
                 event.preventDefault();
                 newIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
-                if (this.results[newIndex].title) newIndex = Math.min(newIndex + 1, this.results.length - 1);
+                if (this.results[newIndex]?.title) newIndex = Math.min(newIndex + 1, this.results.length - 1);
                 this.selectedIndex = newIndex;
                 break;
             case 'Tab':
