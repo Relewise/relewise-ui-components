@@ -19,8 +19,17 @@ export class SearchBar extends LitElement {
     @property()
     placeholder: string | null = null;
 
+    @property({ type: Boolean, reflect: true })
+    autofocus = false;
+
     connectedCallback(): void {
         super.connectedCallback();
+    }
+
+    firstUpdated() {
+        if (this.autofocus) {
+            this.focusSearchInput();
+        }
     }
 
     focusSearchInput() {

@@ -1,7 +1,7 @@
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
-import pkg from './package.json' assert { type: 'json' };
+import pkg from './package.json' with { type: 'json' };
 import terser from '@rollup/plugin-terser';
 
 export default [
@@ -26,7 +26,7 @@ export default [
         output: [
             { file: pkg.main, format: 'cjs', sourcemap: true },
             { file: pkg.module, format: 'es', sourcemap: true },
-            { 
+            {
                 file: 'dist/relewise-web-components.min.js',
                 format: 'umd',
                 name: 'RelewiseWebComponents',

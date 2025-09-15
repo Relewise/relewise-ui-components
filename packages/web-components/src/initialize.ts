@@ -1,4 +1,4 @@
-import { FilterBuilder, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
+import { FilterBuilder, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { App, RelewiseUISearchOptions } from './app';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
@@ -12,6 +12,7 @@ export interface RelewiseUIOptions {
     selectedPropertiesSettings?: {
         product?: Partial<SelectedProductPropertiesSettings>;
         variant?: Partial<SelectedVariantPropertiesSettings>;
+        productCategory?: Partial<SelectedProductCategoryPropertiesSettings>;
     };
     clientOptions: RelewiseClientOptions;
     templates?: Templates;
@@ -22,10 +23,12 @@ export interface RelewiseUIOptions {
 
 export interface Filters {
     product?: (builder: FilterBuilder) => void;
+    productCategory?: (builder: FilterBuilder) => void;
 }
 
 export interface RelevanceModifiers {
     product?: (builder: RelevanceModifierBuilder) => void;
+    productCategory?: (builder: RelevanceModifierBuilder) => void;
 }
 
 export interface ContextSettings {
@@ -44,7 +47,7 @@ export interface TemplateExtensions {
 }
 
 export interface Templates {
-    product?: (product: ProductResult, extensions: TemplateExtensions) => Promise<TemplateResult<1> | typeof nothing>;
+    product?: (product: ProductResult, extensions: TemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
 }
 
 export interface Targets {

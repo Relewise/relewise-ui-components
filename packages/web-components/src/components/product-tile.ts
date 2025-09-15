@@ -16,23 +16,27 @@ export class ProductTile extends LitElement {
         super.connectedCallback();
     }
 
-    render() { 
+    render() {
         if (!this.product) {
             return;
         }
 
-        const settings = getRelewiseUIOptions(); 
+        const settings = getRelewiseUIOptions();
         if (settings.templates?.product) {
-            const markup =
-                until(settings.templates.product(this.product, { html, helpers: { formatPrice, unsafeHTML, nothing } })
-                    .then(result => {
-                        if (result === nothing) {
-                            this.toggleAttribute('hidden', true);
-                        }
+            const result = settings.templates.product(this.product, { html, helpers: { formatPrice, unsafeHTML, nothing } });
+            const markup = result instanceof Promise ? html`
+                ${until(result.then(result => {
+                if (result === nothing) {
+                    this.toggleAttribute('hidden', true);
+                }
 
-                        return result;
-                    }));
-            
+                return result;
+            }))}` : result;
+
+            if (result === nothing) {
+                this.toggleAttribute('hidden', true);
+            }
+
             return html`${markup}`;
         }
 
@@ -61,9 +65,9 @@ export class ProductTile extends LitElement {
                     <span>${formatPrice(product.salesPrice)}</span>
 
                     ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
-                        ? html`<span class='rw-list-price'>${formatPrice(product.listPrice)}</span>`
-                        : nothing
-                    }
+                ? html`<span class='rw-list-price'>${formatPrice(product.listPrice)}</span>`
+                : nothing
+            }
                 </div>
             </div>`;
     }

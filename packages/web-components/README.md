@@ -403,6 +403,10 @@ useSearch({
 
     The amount of time, in milliseconds, that must pass between requests to Relewise with a new search call.
 
+- **autofocus** (Optional, true/false):
+
+    Toggle wether or not the input field should be focused on load.
+
 #### Product Search
 This component renders a search component that [searches for products](https://docs.relewise.com/docs/intro/search.html#product-search) in Relewise and shows results, faceting and sorting options.
 
@@ -452,6 +456,10 @@ relewise-product-search-overlay::part(overlay) {
 }
 
 relewise-product-search-overlay::part(overlay-container) {
+    ...
+}
+
+relewise-product-search-overlay::part(overlay-title) {
     ...
 }
 
@@ -679,23 +687,26 @@ If you want to overwrite the styling of the grid and the default product tile, y
 
             --relewise-product-search-bar-height: 3rem;
             --relewise-product-search-overlay-background-color: white;
-            --relewise-product-search-overlay-border-color: '#eee';
+            --relewise-product-search-overlay-border-color: '#ddd';
             --relewise-product-search-overlay-box-shadow: 0 10px 15px rgb(0 0 0 / 0.2);
             --relewise-product-search-overlay-no-results-message-font-weight: 600;
             --relewise-product-search-overlay-no-results-message-color: #212427;
-            --relewise-product-search-overlay-prediction-item-font-weight: 600;
+            --relewise-product-search-overlay-prediction-item-font-weight: 300;
             --relewise-product-search-result-overlay-prediction-item-color: #212427;
-            --relewise-product-search-result-overlay-product-image-height: 5rem;
-            --relewise-product-search-result-overlay-product-image-width: 5rem;
+            --relewise-product-search-result-overlay-product-image-height: 3rem;
+            --relewise-product-search-result-overlay-product-image-width: 3rem;
             --relewise-product-search-result-overlay-product-diplay-name-overflow: hidden;
             --relewise-product-search-result-overlay-product-diplay-name-text-overflow: ellipsis;
             --relewise-product-search-result-overlay-product-diplay-name-color: #212427;
-            --relewise-product-search-result-overlay-product-sales-price-font-weight: 700;
-            --relewise-product-search-result-overlay-product-sales-price-font-size: 1.25rem;
+            --relewise-product-search-result-overlay-product-sales-price-font-weight: 400;
+            --relewise-product-search-result-overlay-product-sales-price-font-size: 0.9rem;
             --relewise-product-search-result-overlay-product-sales-price-color: #212427;
-            --relewise-product-search-result-overlay-product-list-price-font-size: 1rem;
+            --relewise-product-search-result-overlay-product-list-price-font-size: 0.9rem;
             --relewise-product-search-result-overlay-product-list-price-text-decoration: line-through;
             --relewise-product-search-result-overlay-product-list-price-text-color: darkgray;
+            --relewise-product-search-overlay-title-padding: 1rem 1rem 0.2rem 1rem;
+            --relewise-product-search-overlay-title-font-size: 0.9rem;
+            --relewise-product-search-overlay-title-font-weight: 500;
 
             --relewise-product-search-sorting-font-size: 1rem;
             --relewise-product-search-sorting-font-weight: 400;
