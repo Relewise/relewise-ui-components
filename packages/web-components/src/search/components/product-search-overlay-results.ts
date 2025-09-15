@@ -47,7 +47,7 @@ export class ProductSearchOverlayResults extends LitElement {
                         <div ?selected=${index === this.selectedIndex} class="rw-selected-result">
                         ${result.title ?
                             html`
-                                <div class="rw-title">
+                                <div class="rw-title" part="title">
                                    ${result.title}
                                 </div>
                             ` : nothing}
@@ -114,7 +114,7 @@ export class ProductSearchOverlayResults extends LitElement {
         
         .rw-no-results {
             margin: 1rem;
-            font-weight: var(--relewise-product-search-overlay-no-results-message-font-weight, 600);
+            font-weight: var(--relewise-product-search-overlay-no-results-message-font-weight, 300);
             color: var(--relewise-product-search-overlay-no-results-message-color, #212427);
         }
 
@@ -137,7 +137,7 @@ export class ProductSearchOverlayResults extends LitElement {
         }
 
          .rw-title {
-            padding: var(--relewise-product-search-overlay-title-padding, 1rem 1rem 0.2rem 1rem);
+            margin: var(--relewise-product-search-overlay-title-padding, 1rem 1rem 0.2rem 1rem);
             font-size: var(--relewise-product-search-overlay-title-font-size, 0.9rem);
             font-weight: var(--relewise-product-search-overlay-title-font-weight, 500);
             flex-grow: 1;

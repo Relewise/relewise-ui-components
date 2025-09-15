@@ -259,7 +259,7 @@ export class ProductSearchOverlay extends LitElement {
                 this.resultBoxIsHovered ?
                 html`<relewise-product-search-overlay-results
                     part="overlay"
-                    exportparts="overlay: overlay-container"
+                    exportparts="overlay: overlay-container, title: overlay-title"
                     .selectedIndex=${this.selectedIndex}
                     .results=${this.results} 
                     .setSearchTerm=${(term: string) => this.setSearchTerm(term)}

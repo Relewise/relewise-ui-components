@@ -455,6 +455,10 @@ relewise-product-search-overlay::part(overlay-container) {
     ...
 }
 
+relewise-product-search-overlay::part(overlay-title) {
+    ...
+}
+
 relewise-search-bar::part(input) {
     ...
 }
