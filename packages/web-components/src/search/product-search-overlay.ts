@@ -229,11 +229,14 @@ export class ProductSearchOverlay extends LitElement {
                     productCategories = [{ title: localization?.searchBar?.overlay?.title?.productCategories ?? 'Categories' }, ...productCategories];
             }
 
-            if (products.length > 0 && (productCategories.length > 0 || this.numberOfProductCategories > 0))
+            if (products.length > 0 && this.numberOfProductCategories > 0)
                 products.unshift({ title: localization?.searchBar?.overlay?.title?.products ?? 'Products' })
 
             this.results = redirects.concat(searchTermPredictions).concat(products).concat(productCategories);
-            if (this.searchPageUrl && productSearchResult.hits > 0) this.results.push({ showAllResults: true });
+
+            if (this.searchPageUrl && productSearchResult.hits > 0)
+                this.results.push({ showAllResults: true });
+
             this.hasCompletedSearchRequest = true;
         }
     }
