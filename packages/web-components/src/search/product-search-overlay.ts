@@ -1,16 +1,18 @@
-import { ProductResult, ProductSearchResponse, RedirectResult, SearchCollectionBuilder, SearchTermPredictionBuilder, SearchTermPredictionResponse, SearchTermPredictionResult } from '@relewise/client';
+import { ProductCategoryResult, ProductCategorySearchResponse, ProductResult, ProductSearchResponse, RedirectResult, SearchCollectionBuilder, SearchTermPredictionBuilder, SearchTermPredictionResponse, SearchTermPredictionResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { getSearcher } from './searcher';
 import { theme } from '../theme';
-import { createProductSearchBuilder } from '../builders';
+import { createProductSearchBuilder, createProductCategorySearchBuilder } from '../builders';
 
-export class SearchResult {
+export type SearchResult = {
+    title?: string;
     product?: ProductResult;
     searchTermPrediction?: SearchTermPredictionResult;
+    productCategory?: ProductCategoryResult;
     redirect?: RedirectResult;
-    showAllResults?: boolean = false;
+    showAllResults?: boolean;
 }
 
 export class ProductSearchOverlay extends LitElement {
@@ -24,8 +26,14 @@ export class ProductSearchOverlay extends LitElement {
     @property({ type: Number, attribute: 'number-of-search-term-predictions' })
     numberOfSearchTermPredictions: number = 3;
 
+    @property({ type: Number, attribute: 'number-of-search-product-categories' })
+    numberOfProductCategories: number = 3;
+
     @property({ attribute: 'search-page-url' })
     searchPageUrl?: string = undefined;
+
+    @property({ type: Boolean, reflect: true })
+    autofocus = false;
 
     @state()
     results: SearchResult[] | null = null;
@@ -85,14 +93,19 @@ export class ProductSearchOverlay extends LitElement {
             return;
         }
 
+        let newIndex = 0;
         switch (event.key) {
             case 'ArrowUp':
                 event.preventDefault();
-                this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+                newIndex = Math.max(this.selectedIndex - 1, 0);
+                if (this.results[newIndex]?.title) newIndex = Math.max(newIndex - 1, 0);
+                this.selectedIndex = newIndex;
                 break;
             case 'ArrowDown':
                 event.preventDefault();
-                this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
+                newIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
+                if (this.results[newIndex]?.title) newIndex = Math.min(newIndex + 1, this.results.length - 1);
+                this.selectedIndex = newIndex;
                 break;
             case 'Tab':
                 event.preventDefault();
@@ -118,6 +131,23 @@ export class ProductSearchOverlay extends LitElement {
             this.redirectToSearchPage();
         } else if (result?.searchTermPrediction) {
             this.setSearchTerm(result.searchTermPrediction.term ?? '');
+        } else if (result?.productCategory) {
+            const selectedCategory = this.shadowRoot!
+                .querySelector('relewise-product-search-overlay-results')
+                ?.shadowRoot
+                ?.querySelector('.rw-selected-result[selected]');
+
+            if (selectedCategory) {
+                const categoryLink = selectedCategory
+                    .querySelector('relewise-product-search-overlay-product-category')
+                    ?.shadowRoot
+                    ?.querySelector('a')
+                    ?.getAttribute('href');
+
+                if (categoryLink) {
+                    window.location.href = categoryLink;
+                }
+            }
         } else if (result?.product) {
             const selectedProduct = this.shadowRoot!
                 .querySelector('relewise-product-search-overlay-results')
@@ -166,29 +196,49 @@ export class ProductSearchOverlay extends LitElement {
                 .build());
         }
 
+        if (this.numberOfProductCategories > 0) {
+            requestBuilder.addRequest(createProductCategorySearchBuilder(this.term, settings.displayedAtLocation)
+                .pagination(p => p.setPageSize(this.numberOfProductCategories))
+                .build());
+        }
+
         this.abortController = new AbortController();
         const response = await searcher.batch(requestBuilder.build(), { abortSignal: this.abortController.signal });
         if (response && response.responses) {
             const productSearchResult = response.responses[0] as ProductSearchResponse;
             this.productSearchResultHits = productSearchResult.hits;
-            const products = productSearchResult.results?.map(result => {
-                const searchResult = new SearchResult();
-                searchResult.product = result;
-                return searchResult;
+            const products: SearchResult[] = productSearchResult.results?.map(product => {
+                return { product };
             }) ?? [];
             this.redirects = productSearchResult.redirects;
             const redirects: SearchResult[] = productSearchResult.redirects?.filter(x => x.data?.Title && URL.canParse(x.destination ?? '')).map(x => ({ redirect: x })) ?? [];
 
-            const searchTermPredictionResult = response.responses[1] as SearchTermPredictionResponse;
-            const searchTermPredictions = searchTermPredictionResult.predictions?.map(result => {
-                const searchResult = new SearchResult();
-                searchResult.searchTermPrediction = result;
-                return searchResult;
-            }) ?? [];
+            let searchTermPredictions: SearchResult[] = [];
+            const searchTermPredictionResponse = findResponseOfType<SearchTermPredictionResponse>(response.responses, 'SearchTermPredictionResponse');
+            if (searchTermPredictionResponse) {
+                searchTermPredictions = searchTermPredictionResponse.predictions?.map(searchTermPrediction => {
+                    return { searchTermPrediction };
+                }) ?? [];
+            }
 
-            this.results = redirects.concat(searchTermPredictions).concat(products);
+            const localization = getRelewiseUISearchOptions()?.localization;
+            let productCategories: SearchResult[] = [];
+            const productCategoriesResponse = findResponseOfType<ProductCategorySearchResponse>(response.responses, 'ProductCategorySearchResponse');
+            if (productCategoriesResponse) {
+                productCategories = productCategoriesResponse.results?.map(productCategory => {
+                    return { productCategory };
+                }) ?? [];
+                if (productCategories.length > 0)
+                    productCategories = [{ title: localization?.searchBar?.overlay?.title?.productCategories ?? 'Categories' }, ...productCategories];
+            }
 
-            if (this.searchPageUrl && productSearchResult.hits > 0) this.results.push({ showAllResults: true });
+            if (products.length > 0 && this.numberOfProductCategories > 0)
+                products.unshift({ title: localization?.searchBar?.overlay?.title?.products ?? 'Products' })
+
+            this.results = redirects.concat(searchTermPredictions).concat(products).concat(productCategories);
+
+            if (this.searchPageUrl && productSearchResult.hits > 0)
+                this.results.push({ showAllResults: true });
 
             this.hasCompletedSearchRequest = true;
         }
@@ -205,6 +255,7 @@ export class ProductSearchOverlay extends LitElement {
                 .setSearchBarInFocus=${(inFocus: boolean) => this.searchBarInFocus = inFocus}
                 .placeholder=${localization?.searchBar?.placeholder ?? 'Search'}
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
+                .autofocus="${this.autofocus}"
                 ></relewise-search-bar>    
             ${(this.searchBarInFocus &&
                 this.hasCompletedSearchRequest &&
@@ -212,7 +263,7 @@ export class ProductSearchOverlay extends LitElement {
                 this.resultBoxIsHovered ?
                 html`<relewise-product-search-overlay-results
                     part="overlay"
-                    exportparts="overlay: overlay-container"
+                    exportparts="overlay: overlay-container, title: overlay-title"
                     .selectedIndex=${this.selectedIndex}
                     .results=${this.results} 
                     .setSearchTerm=${(term: string) => this.setSearchTerm(term)}
@@ -233,6 +284,21 @@ export class ProductSearchOverlay extends LitElement {
             font-family: var(--font);
         }
     `];
+}
+
+// Runtime-safe helpers for identifying response types coming from the server.
+// The generated client types sometimes don't include the runtime "$type" (or "@type")
+// property, but the server still sends it. These helpers centralize the checks and
+// make the search calls easier to read and safer.
+function isResponseWithType(response: any, typeName: string): boolean {
+    if (!response || typeof response !== 'object') return false;
+    const maybeType = response.$type ?? response['@type'] ?? response.type;
+    return typeof maybeType === 'string' && maybeType.includes(typeName);
+}
+
+function findResponseOfType<T>(responses: any[] | undefined, typeName: string): T | undefined {
+    if (!responses) return undefined;
+    return responses.find(r => isResponseWithType(r, typeName)) as T | undefined;
 }
 
 declare global {

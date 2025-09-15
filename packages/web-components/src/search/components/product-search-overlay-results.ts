@@ -39,12 +39,18 @@ export class ProductSearchOverlayResults extends LitElement {
                 @mouseover=${() => this.setResultOverlayHovered(true)}
                 @mouseleave=${() => this.setResultOverlayHovered(false)}>
                 ${(!this.results ||
-                this.results.length < 1) ? html`
+                this.results.length === 0) ? html`
                     <div class="rw-no-results">${this.noResultsMessage ?? 'No search results found'}</div>
                 ` : html`
                     ${this.results.map((result, index) => {
                     return html`
                         <div ?selected=${index === this.selectedIndex} class="rw-selected-result">
+                        ${result.title ?
+                            html`
+                                <div class="rw-title" part="title">
+                                   ${result.title}
+                                </div>
+                            ` : nothing}
                         ${result.redirect ? html`
                             <div class="rw-item-container" @click=${() => window.location.href = result.redirect?.destination ?? ''}>
                                 <span class="rw-item">
@@ -61,12 +67,19 @@ export class ProductSearchOverlayResults extends LitElement {
                                     <relewise-search-icon class="rw-icon"></relewise-search-icon>
                                 </div>
                             ` : nothing}
+                        ${result.productCategory ?
+                            html`
+                                <div class="rw-product-item-container">
+                                    <relewise-product-search-overlay-product-category .productCategory=${result.productCategory}></relewise-product-search-overlay-product-category>
+                                </div>
+                            ` : nothing}
                         ${result.product ?
                             html`
                                 <div class="rw-product-item-container">
                                     <relewise-product-search-overlay-product .product=${result.product}></relewise-product-search-overlay-product>
                                 </div>
                             ` : nothing}
+                       
                         ${result.showAllResults ?
                             html`
                                 <div class="rw-item-container" @click=${() => this.redirectToSearchPage()}>
@@ -96,12 +109,12 @@ export class ProductSearchOverlayResults extends LitElement {
             overflow: hidden;
             background-color: var(--relewise-product-search-overlay-background-color, white);
             box-shadow: var(--relewise-product-search-overlay-box-shadow, 0 10px 15px rgb(0 0 0 / 0.2));
-            border-color: var(--relewise-product-search-overlay-border-color, var(--accent-color));
+            border-color: var(--relewise-product-search-overlay-border-color, #ddd);
         }
         
         .rw-no-results {
             margin: 1rem;
-            font-weight: var(--relewise-product-search-overlay-no-results-message-font-weight, 600);
+            font-weight: var(--relewise-product-search-overlay-no-results-message-font-weight, 300);
             color: var(--relewise-product-search-overlay-no-results-message-color, #212427);
         }
 
@@ -119,7 +132,14 @@ export class ProductSearchOverlayResults extends LitElement {
         .rw-item {
             border-radius: 1rem;
             margin: .5rem 1rem .5rem 1rem;
-            font-weight: var(--relewise-product-search-overlay-prediction-item-font-weight, 600);
+            font-weight: var(--relewise-product-search-overlay-prediction-item-font-weight, 300);
+            flex-grow: 1;
+        }
+
+         .rw-title {
+            margin: var(--relewise-product-search-overlay-title-padding, 1rem 1rem 0.2rem 1rem);
+            font-size: var(--relewise-product-search-overlay-title-font-size, 0.9rem);
+            font-weight: var(--relewise-product-search-overlay-title-font-weight, 500);
             flex-grow: 1;
         }
 
