@@ -124,7 +124,7 @@ export class ProductSearch extends LitElement {
         const requestBuilder = createProductSearchBuilder(term, this.displayedAtLocation ?? 'Relewise Product Search')
             .pagination(p => p
                 .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)
-                .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))       
+                .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))
             .facets(builder => {
                 if (searchOptions && searchOptions.facets?.product) {
                     const facetBuilder = new RelewiseFacetBuilder(builder);
@@ -137,26 +137,26 @@ export class ProductSearch extends LitElement {
                 const sortingEnum = SortingEnum[sorting as keyof typeof SortingEnum];
 
                 switch (sortingEnum) {
-                case SortingEnum.SalesPriceAsc:
-                    builder.sortByProductAttribute('SalesPrice', 'Ascending', (n) => n.sortByProductRelevance());
-                    break;
-                case SortingEnum.SalesPriceDesc:
-                    builder.sortByProductAttribute('SalesPrice', 'Descending', (n) => n.sortByProductRelevance());
-                    break;
-                case SortingEnum.AlphabeticallyAsc:
-                    builder.sortByProductAttribute('DisplayName', 'Ascending', (n) => n.sortByProductRelevance());
-                    break;
-                case SortingEnum.AlphabeticallyDesc:
-                    builder.sortByProductAttribute('DisplayName', 'Descending', (n) => n.sortByProductRelevance());
-                    break;
-                default:
-                    builder.sortByProductRelevance('Descending', (n) => n.sortByProductRelevance());
-                    break;
+                    case SortingEnum.SalesPriceAsc:
+                        builder.sortByProductAttribute('SalesPrice', 'Ascending', (n) => n.sortByProductRelevance());
+                        break;
+                    case SortingEnum.SalesPriceDesc:
+                        builder.sortByProductAttribute('SalesPrice', 'Descending', (n) => n.sortByProductRelevance());
+                        break;
+                    case SortingEnum.AlphabeticallyAsc:
+                        builder.sortByProductAttribute('DisplayName', 'Ascending', (n) => n.sortByProductRelevance());
+                        break;
+                    case SortingEnum.AlphabeticallyDesc:
+                        builder.sortByProductAttribute('DisplayName', 'Descending', (n) => n.sortByProductRelevance());
+                        break;
+                    default:
+                        builder.sortByProductRelevance('Descending', (n) => n.sortByProductRelevance());
+                        break;
                 }
             });
 
-        if (this.target)  {
-            const overwrittenConfigSettings  = targetedConfiguration.handle(this.target, requestBuilder);
+        if (this.target) {
+            const overwrittenConfigSettings = targetedConfiguration.handle(this.target, requestBuilder);
             if (overwrittenConfigSettings.facetLabels) {
                 this.facetLabels = overwrittenConfigSettings.facetLabels;
             }
@@ -281,7 +281,7 @@ export class ProductSearch extends LitElement {
 
                 if (node.tagName.toLowerCase() === 'relewise-facets') {
                     node.setAttribute('facets-result', JSON.stringify(this.searchResult?.facets));
-                    node.setAttribute('labels',  JSON.stringify(this.facetLabels));
+                    node.setAttribute('labels', JSON.stringify(this.facetLabels));
                 }
 
                 if (node.children.length > 0) {
@@ -311,11 +311,12 @@ export class ProductSearch extends LitElement {
             <relewise-product-search-bar
                 class="rw-product-search-bar"></relewise-product-search-bar>
             <div class="rw-sorting-button-container">
-                <relewise-product-search-sorting class="rw-sorting-button"></relewise-product-search-sorting>
+                <relewise-product-search-sorting class="rw-sorting-button" exportparts="select: sorting-select"></relewise-product-search-sorting>
             </div>
             <div class="result-container">
                 ${this.searchResult?.facets ? html`
                     <relewise-facets
+                        exportparts="checklist: facet-container, title: facet-title, input: facet-input, label: facet-value, hits: facet-hits"
                         .labels=${this.facetLabels}
                         .facetResult=${this.searchResult?.facets}
                         class="rw-facets">

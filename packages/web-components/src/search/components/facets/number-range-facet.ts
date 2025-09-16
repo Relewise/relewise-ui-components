@@ -98,10 +98,10 @@ export class NumberRangeFacet extends LitElement {
 
     handleKeyEvent(event: KeyboardEvent): void {
         switch (event.key) {
-        case 'Enter':
-            event.preventDefault();
-            this.save();
-            break;
+            case 'Enter':
+                event.preventDefault();
+                this.save();
+                break;
         }
     }
 
@@ -146,22 +146,19 @@ export class NumberRangeFacet extends LitElement {
     static styles = [theme, css`
         :host {
             font-family: var(--font);
-            border-radius: var(--border-radius);
-            background-color: var(--color);
+            border-bottom: 1px solid;
+            border-color: var(--relewise-checklist-facet-border-color, #eee);
+            background-color: white;
             height: fit-content;
         }
 
         .rw-facet-content {
-            margin: 1rem;
+            margin-bottom: 1rem;
         }
 
         .rw-save {
             height: 2rem;
             margin-left: .5rem;
-            border: var(--border);
-            border-radius: var(--border-radius);
-            border-color: lightgray;
-            background-color: lightgray
         }
 
         .rw-save-text {
@@ -209,6 +206,7 @@ export class NumberRangeFacet extends LitElement {
         h3 {
             margin-top: 0;
             margin-bottom: 0.5rem;
+            font-family: var(--font);
         }
     `];
 }

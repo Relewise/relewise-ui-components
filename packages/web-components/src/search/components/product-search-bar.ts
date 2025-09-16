@@ -63,7 +63,6 @@ export class ProductSearchBar extends LitElement {
             class="rw-search-bar">
         </relewise-search-bar>
         <relewise-button
-            class="rw-button"
             button-text=${localization?.search ?? 'Search'}
             .handleClick=${() => window.dispatchEvent(new CustomEvent(Events.search))}>
             <relewise-search-icon></relewise-search-icon>
@@ -76,6 +75,12 @@ export class ProductSearchBar extends LitElement {
         css`
             :host {
                 display: flex;
+            }
+
+            relewise-button {
+                --button-color: var(--accent-color);
+                --relewise-button-text-color: var(--color);
+                height: 3rem;
             }
 
             .rw-search-bar {

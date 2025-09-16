@@ -25,7 +25,7 @@ export class Facets extends LitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
-        
+
         window.addEventListener('resize', this.handleResizeEventBound);
         window.addEventListener(Events.dimPreviousResult, this.handleDimPreviousResultEventBound);
         window.addEventListener(Events.searchingForProductsCompleted, this.handleSearchingForProductsCompletedEventBound);
@@ -42,7 +42,7 @@ export class Facets extends LitElement {
     handleResizeEvent() {
         if (window.innerWidth >= 1024) {
             this.showFacets = true;
-        } 
+        }
     }
 
     handleDimPreviousResultEvent() {
@@ -55,10 +55,12 @@ export class Facets extends LitElement {
     }
 
     renderFacet(label: string, facetResult: FacetResult, styling: string): TemplateResult<1> {
-        if (facetResult.$type.includes('PriceRangesFacetResult') || 
+        if (facetResult.$type.includes('PriceRangesFacetResult') ||
             facetResult.$type.includes('ProductDataDoubleRangesFacetResult')) {
             return html`
                 <relewise-checklist-ranges-object-value-facet
+                    part="checklist"
+                    exportparts="title, input, label, hits"
                     .label=${label}
                     .result=${facetResult}
                     class=${styling}>
@@ -71,6 +73,8 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-number-value-facet
                     .label=${label}    
+                    part="checklist"
+                    exportparts="title, input, label, hits"
                     .result=${facetResult}
                     class=${styling}>
                 </relewise-checklist-number-value-facet>
@@ -82,6 +86,8 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-object-value-facet 
                     .label=${label}
+                    part="checklist"
+                    exportparts="title, input, label, hits"
                     .result=${facetResult}
                     class=${styling}>
                 </relewise-checklist-object-value-facet>
@@ -92,6 +98,8 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-boolean-value-facet
                     .label=${label}
+                    part="checklist"
+                    exportparts="title, input, label, hits"
                     .result=${facetResult}
                     class=${styling}>
                 </relewise-checklist-boolean-value-facet>
@@ -102,6 +110,8 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-string-value-facet
                     .label=${label}
+                    part="checklist"
+                    exportparts="title, input, label, hits"
                     .result=${facetResult}
                     class=${styling}>
                 </relewise-checklist-string-value-facet>
@@ -121,7 +131,7 @@ export class Facets extends LitElement {
 
         return html``;
     }
-    
+
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.facets;
         return html`
@@ -130,15 +140,15 @@ export class Facets extends LitElement {
                 class="rw-button rw-facet-button"
                 @click=${() => this.showFacets = !this.showFacets}>
                     ${this.showFacets ?
-                        html`<relewise-x-icon class="rw-icon"></relewise-x-icon>` :
-                        html`<relewise-filter-icon class="rw-icon"></relewise-filter-icon>`}
+                html`<relewise-x-icon class="rw-icon"></relewise-x-icon>` :
+                html`<relewise-filter-icon class="rw-icon"></relewise-filter-icon>`}
             </relewise-button>
-            ${this.showFacets ? 
+            ${this.showFacets ?
                 html`
                 <div class="rw-facets-container">
                     ${this.facetResult?.items?.map((item, index) => {
-                        return this.renderFacet(this.labels[index], item, this.showDimmingOverlay ? 'rw-dimmed' : '');
-                    })}
+                    return this.renderFacet(this.labels[index], item, this.showDimmingOverlay ? 'rw-dimmed' : '');
+                })}
                 </div>
             ` : nothing}
         `;

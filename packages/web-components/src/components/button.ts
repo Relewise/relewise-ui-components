@@ -8,7 +8,7 @@ export class Button extends LitElement {
     buttonText: string | null = null;
 
     @property()
-    handleClick = () => {};
+    handleClick = () => { };
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -47,6 +47,14 @@ export class Button extends LitElement {
             display: flex;
             align-items: center;
             padding: inherit;
+
+            font-weight: var(--relewise-button-text-font-weight, 600);
+            border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
+            background-color: var(--button-color, white);
+            color: var(--relewise-button-text-color, #333);
+            border-radius: 0.5rem;
+            box-shadow: 0 1px rgb(0 0 0 / 0.05);
+            font-size: 0.8rem;   
         }
 
         .rw-button-text {
@@ -54,15 +62,14 @@ export class Button extends LitElement {
             justify-content: center;
             display: flex;
             line-height: 1em;
-            padding: .5rem;
+            padding: .25rem;
             width: 100%;
-            text-align: left;
-            color: var(--relewise-button-text-color, white);
-            font-weight: var(--relewise-button-text-font-weight, 400);
+            text-align: left;  
+            line-height: 1;    
         }
         
         .rw-button-icon {
-            padding: var(--relewise-button-icon-padding, .5rem);
+            padding: var(--relewise-button-icon-padding, 0.3rem .8rem);
             --relewise-icon-color: white;
         }
     `];

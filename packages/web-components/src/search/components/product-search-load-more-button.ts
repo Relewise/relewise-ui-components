@@ -7,7 +7,7 @@ export class LoadMoreProducts extends LitElement {
     @property({ type: Number })
     hits: number | null = null;
 
-    @property({ type: Number, attribute: 'products-loaded'})
+    @property({ type: Number, attribute: 'products-loaded' })
     productsLoaded: number | null = null;
 
     @state()
@@ -46,7 +46,7 @@ export class LoadMoreProducts extends LitElement {
         return html`
             <span class="rw-products-shown">${localization?.showing ?? 'Showing'} ${this.productsLoaded} ${localization?.outOf ?? 'out of'} ${this.hits} ${localization?.products ?? 'products'}</span>
             <div class="rw-button-container">
-                <relewise-button class="rw-button rw-border" @click=${() => window.dispatchEvent(new CustomEvent(Events.loadMoreProducts))}>
+                <relewise-button @click=${() => window.dispatchEvent(new CustomEvent(Events.loadMoreProducts))}>
                     <span class="rw-load-more-text">${localization?.loadMore ?? 'Load More'}</span>
                 </relewise-button>
             </div>
@@ -62,12 +62,6 @@ export class LoadMoreProducts extends LitElement {
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .rw-button {
-            height: 2.5rem;
-            border-color: var(--color);
-            background-color: var(--color);
         }
 
         .rw-load-more-text {

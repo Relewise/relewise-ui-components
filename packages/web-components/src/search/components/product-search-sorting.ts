@@ -55,7 +55,7 @@ export class ProductSearchSorting extends LitElement {
 
     render() {
         return html`
-            <select @change=${this.setSelectedValue} class="rw-select rw-border">
+            <select @change=${this.setSelectedValue} class="rw-select rw-border" part="select">
                 ${Object.keys(SortingEnum).map((item) => {
             return html`
                         <option value=${item} ?selected=${this.selectedOption === item}>
@@ -70,11 +70,16 @@ export class ProductSearchSorting extends LitElement {
     static styles = [theme, css`
         .rw-select {
             font-family: var(--font);
-            font-size: var(--relewise-product-search-sorting-font-size, 1rem);
-            font-weight: var(--relewise-product-search-sorting-font-weight, 400);
-            border-color: var(--relewise-product-search-sorting-border-color, #eee);
-            background-color: var(--relewise-product-search-sorting-background-color, #eee);
+           
             padding: var(--relewise-product-search-sorting-padding, .5rem);
+
+            font-weight: var(--relewise-button-text-font-weight, 600);
+            border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
+            background-color: white;
+            color: var(--relewise-button-text-color, #333);
+            border-radius: 0.5rem;
+            box-shadow: 0 1px rgb(0 0 0 / 0.05);
+            font-size: 0.8rem;   
         }
         
         select:focus {
