@@ -56,7 +56,9 @@ export class ProductSearchSorting extends LitElement {
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.sortingButton;
         return html`
-           <span class="rw-label" part="label">${localization?.sortBy ?? 'Sort by:'}</span> <select @change=${this.setSelectedValue} class="rw-select rw-border" part="select">
+            <label class="rw-label-wrapper">
+                <span class="rw-label" part="label">${localization?.sortBy ?? 'Sort by:'}</span>
+                <select @change=${this.setSelectedValue} class="rw-select rw-border" part="select">
                 ${Object.keys(SortingEnum).map((item) => {
             return html`
                         <option value=${item} ?selected=${this.selectedOption === item}>
@@ -64,14 +66,20 @@ export class ProductSearchSorting extends LitElement {
                         </option>
                     `;
         })}
-            </select>
+                </select>
+            </label>
         `;
     }
 
     static styles = [theme, css`
+        .rw-label-wrapper {
+            display: inline-flex;
+            align-items: center;
+        }
+
         .rw-select {
             font-family: var(--font);
-           
+
             padding: var(--relewise-product-search-sorting-padding, .5em);
 
             font-weight: var(--relewise-button-text-font-weight, 600);
@@ -88,7 +96,7 @@ export class ProductSearchSorting extends LitElement {
             color: var(--relewise-button-text-color, #333);
             margin-right: 0.2em;
         }
-        
+
         select:focus {
             outline: none;
         }
