@@ -145,7 +145,7 @@ export class Facets extends LitElement {
         return html`
             <relewise-button
                 button-text=${localization?.filter ?? 'Filters'} 
-                class="rw-button rw-facet-button"
+                class="rw-facet-button"
                 @click=${() => this.showFacets = !this.showFacets}>
                     ${this.showFacets ?
                 html`<relewise-x-icon class="rw-icon"></relewise-x-icon>` :
@@ -173,14 +173,6 @@ export class Facets extends LitElement {
             border-radius: 0.5em;
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
             padding: 1em;
-        }
-
-        .rw-facet-button {
-            margin-bottom: .5em;
-            height: 2.5em;
-            border-color: var(--color);
-            background-color: var(--color);
-            --relewise-button-text-color: black;
         }
 
         .rw-icon {

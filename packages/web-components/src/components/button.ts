@@ -20,7 +20,7 @@ export class Button extends LitElement {
                     ${this.buttonText ? html`
                         <span class="rw-button-text">${this.buttonText}</span>
                     ` : nothing}
-                    <span class="rw-button-icon"><slot name="icon"></slot></span>
+                    <span class="rw-button-icon"><slot slot="icon"></slot></span>
             </button>
         `;
     }
@@ -68,10 +68,11 @@ export class Button extends LitElement {
             text-align: left;  
             line-height: 1;    
         }
-        
+
         .rw-button-icon {
             padding: var(--relewise-button-icon-padding, 0.3em .8em);
             --relewise-icon-color: white;
+            line-height: 1;
         }
     `];
 }
