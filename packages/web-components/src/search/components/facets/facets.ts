@@ -60,7 +60,7 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-ranges-object-value-facet
                     part="container"
-                    exportparts="title, input, label, hits"
+                    exportparts="title, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .label=${label}
                     .result=${facetResult}
@@ -75,7 +75,7 @@ export class Facets extends LitElement {
                 <relewise-checklist-number-value-facet
                     .label=${label}    
                     part="container"
-                    exportparts="title, input, label, hits"
+                    exportparts="title, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     class=${styling}>
@@ -89,7 +89,7 @@ export class Facets extends LitElement {
                 <relewise-checklist-object-value-facet 
                     .label=${label}
                     part="container"
-                    exportparts="title, input, label, hits"
+                    exportparts="title, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     class=${styling}>
@@ -102,7 +102,7 @@ export class Facets extends LitElement {
                 <relewise-checklist-boolean-value-facet
                     .label=${label}
                     part="container"
-                    exportparts="title, input, label, hits"
+                    exportparts="title, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     class=${styling}>
@@ -115,7 +115,7 @@ export class Facets extends LitElement {
                 <relewise-checklist-string-value-facet
                     .label=${label}
                     part="container"
-                    exportparts="title, input, label, hits"
+                    exportparts="title, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     class=${styling}>
