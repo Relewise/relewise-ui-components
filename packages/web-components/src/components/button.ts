@@ -20,7 +20,7 @@ export class Button extends LitElement {
                     ${this.buttonText ? html`
                         <span class="rw-button-text">${this.buttonText}</span>
                     ` : nothing}
-                    <span class="rw-button-icon"><slot slot="icon"></slot></span>
+                    <span class="rw-button-icon"><slot name="icon"></slot></span>
             </button>
         `;
     }
