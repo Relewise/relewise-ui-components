@@ -1,3 +1,5 @@
+import type { RelewiseIntrinsicElements } from './jsx';
+
 export * from './components';
 export * from './recommendations';
 export * from './helpers';
@@ -12,3 +14,16 @@ export * from './search';
 export * from './theme';
 export * from './targetedSearchConfigurations';
 export * from './targetedRecommendationConfigurations';
+export type {
+    RelewiseElementName,
+    StyleLike,
+    RelewiseElementProps,
+    RelewiseIntrinsicElements,
+    RelewiseJSXIntrinsicElements,
+} from './jsx';
+
+declare global {
+    namespace JSX {
+        interface IntrinsicElements extends RelewiseIntrinsicElements {}
+    }
+}
