@@ -61,6 +61,7 @@ export class Facets extends LitElement {
                 <relewise-checklist-ranges-object-value-facet
                     part="container"
                     exportparts="title, input, label, hits"
+                    style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .label=${label}
                     .result=${facetResult}
                     class=${styling}>
@@ -75,6 +76,7 @@ export class Facets extends LitElement {
                     .label=${label}    
                     part="container"
                     exportparts="title, input, label, hits"
+                    style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     class=${styling}>
                 </relewise-checklist-number-value-facet>
@@ -88,6 +90,7 @@ export class Facets extends LitElement {
                     .label=${label}
                     part="container"
                     exportparts="title, input, label, hits"
+                    style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     class=${styling}>
                 </relewise-checklist-object-value-facet>
@@ -100,6 +103,7 @@ export class Facets extends LitElement {
                     .label=${label}
                     part="container"
                     exportparts="title, input, label, hits"
+                    style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     class=${styling}>
                 </relewise-checklist-boolean-value-facet>
@@ -112,6 +116,7 @@ export class Facets extends LitElement {
                     .label=${label}
                     part="container"
                     exportparts="title, input, label, hits"
+                    style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     class=${styling}>
                 </relewise-checklist-string-value-facet>
