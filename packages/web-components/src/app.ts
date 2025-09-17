@@ -87,6 +87,8 @@ export interface FacetLocalization {
 export interface SearchResultLocalization {
     noResults?: string;
     showAllResults?: string;
+    result?: string;
+    results?: string;
 }
 
 export interface SearchFilters {

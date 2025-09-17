@@ -306,6 +306,7 @@ export class ProductSearch extends LitElement {
     }
 
     render() {
+        const localization = getRelewiseUISearchOptions()?.localization?.searchResults;
         return html`
         <slot>
             <relewise-product-search-bar
@@ -323,9 +324,8 @@ export class ProductSearch extends LitElement {
                 `: nothing}
                 <div class="rw-full-width">
                 ${this.products.length > 0 ? html`
-                    <div style="display: flex; justify-content: space-between; font-weight: 500; color: #333;
-align-items: center;">
-                    <span>${this.searchResult?.hits ?? 0} Results</span>
+                    <div class="rw-sorting-container">
+                     <span class="rw-results-text">${this.searchResult?.hits ?? 0} ${this.searchResult?.hits === 1 ? localization?.result ?? "Result" : localization?.results ?? "Results"}</span>
                      <div class="rw-sorting-button-container">
                         <relewise-product-search-sorting class="rw-sorting-button" exportparts="select: sorting-select, label: sorting-label"></relewise-product-search-sorting>
                         </div>
@@ -363,6 +363,15 @@ align-items: center;">
             display: flex;
             flex-direction: column;
             width: 100%;
+        }
+        .rw-sorting-container {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        .rw-results-text {
+            font-weight: 500; 
+            color: #333;
         }
 
         .rw-sorting-button {

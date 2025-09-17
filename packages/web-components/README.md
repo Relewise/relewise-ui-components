@@ -343,9 +343,12 @@ useSearch({
         searchResults: {
             noResults: 'No products found',
             showAllResults: 'Show all results',
+            result: "Result";
+            results: "Results";
         },
         sortingButton: {
             sorting: 'sorting',
+            sortBy: "Sort by:"
             alphabeticalAscending: 'a - z',
             alphabeticalDescending: 'z - a',
             relevance: 'Relevance',
@@ -536,6 +539,40 @@ Every tag inside the `relewise-product-search` html tag, will be rendered as reg
 ```
 
 ***Note: once including your own layout nothing from the default layout will be rendered!***
+
+#### Styling the component
+
+We also expose parts, that allow you some easy hooks to customize how the components looks.
+
+```css
+relewise-product-search::part(sorting-select) {
+    ...
+}
+
+relewise-product-search::part(sorting-label) {
+    ...
+}
+
+relewise-product-search::part(facet-container) {
+    ...
+}
+
+relewise-product-search::part(facet-title) {
+    ...
+}
+
+relewise-product-search::part(facet-hits) {
+    ...
+}
+
+relewise-product-search::part(facet-value) {
+    ...
+}
+
+relewise-product-search::part(facet-input) {
+    ...
+}
+```
 
 ##### Components
 These components are all included in the default layout and can also be used in custom layouts.
