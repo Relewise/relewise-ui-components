@@ -42,16 +42,17 @@ export class SearchBar extends LitElement {
     render() {
         return html`
         <div class="rw-search-bar rw-border" part="input">
-            <input 
+            <input
                 id="search-input"
                 autocomplete="off"
                 class="rw-search-bar-input"
                 type="text"
                 placeholder=${this.placeholder ?? 'Search'}
+                aria-label=${this.placeholder ?? 'Search'}
                 .value=${this.term}
                 @keydown=${this.handleKeyEvent}
                 @input=${(e: InputEvent) => this.setSearchTerm((e.target as HTMLInputElement).value)}
-                @focus=${() => this.setSearchBarInFocus(true)} 
+                @focus=${() => this.setSearchBarInFocus(true)}
                 @blur=${() => this.setSearchBarInFocus(false)}>
             ${this.term ?
                 html`
