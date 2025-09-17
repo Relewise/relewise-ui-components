@@ -56,7 +56,7 @@ export class ProductTile extends LitElement {
     renderTileContent(product: ProductResult) {
         return html`
             ${(product.data)
-                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${product.data[`relewise-demo-store.myshopify.com_ImageUrls`].value.$values[0]} /></div>`
+                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${product.data[`relewise-demo-store.myshopify.com_ImageUrls`].value.$values[0]} alt=${this.getProductImageAlt(product)} /></div>`
                 : nothing
             }
             <div class='rw-information-container'>
@@ -70,6 +70,12 @@ export class ProductTile extends LitElement {
             }
                 </div>
             </div>`;
+    }
+
+    private getProductImageAlt(product: ProductResult): string {
+        const altText = product.displayName ?? product.variant?.displayName ?? '';
+
+        return altText ?? '';
     }
 
     static styles = [
