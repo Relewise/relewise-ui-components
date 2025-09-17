@@ -309,12 +309,11 @@ export class ProductSearch extends LitElement {
         return html`
         <slot>
             <relewise-product-search-bar
-                class="rw-product-search-bar"></relewise-product-search-bar>
-            <div class="rw-sorting-button-container">
-                <relewise-product-search-sorting class="rw-sorting-button" exportparts="select: sorting-select, label: sorting-label"></relewise-product-search-sorting>
-            </div>
+                class="rw-product-search-bar">
+            </relewise-product-search-bar>
+          
             <div class="result-container">
-                ${this.searchResult?.facets ? html`
+                ${this.products.length > 0 && this.searchResult?.facets ? html`
                     <relewise-facets
                         exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-value, hits: facet-hits"
                         .labels=${this.facetLabels}
@@ -323,6 +322,15 @@ export class ProductSearch extends LitElement {
                     </relewise-facets>
                 `: nothing}
                 <div class="rw-full-width">
+                ${this.products.length > 0 ? html`
+                    <div style="display: flex; justify-content: space-between; font-weight: 500; color: #333;
+align-items: center;">
+                    <span>${this.searchResult?.hits ?? 0} Results</span>
+                     <div class="rw-sorting-button-container">
+                        <relewise-product-search-sorting class="rw-sorting-button" exportparts="select: sorting-select, label: sorting-label"></relewise-product-search-sorting>
+                        </div>
+                    </div>` : nothing}
+                 
                     <relewise-product-search-results
                         .products=${this.products}>
                     </relewise-product-search-results>

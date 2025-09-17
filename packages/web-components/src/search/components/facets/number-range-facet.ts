@@ -147,25 +147,18 @@ export class NumberRangeFacet extends LitElement {
         :host {
             font-family: var(--font);
             border-bottom: 1px solid;
+            padding-bottom: 1.5rem;
             border-color: var(--relewise-checklist-facet-border-color, #eee);
-            background-color: white;
             height: fit-content;
-        }
-
-        .rw-facet-content {
-            margin-bottom: 1rem;
         }
 
         .rw-save {
             width: 100%;
             align: center;
-            --button-color: var(--accent-color);
         }
 
         .rw-save-text {
             font-size: 1rem;
-            font-family: var(--font);
-            color: var(--relewise-number-range-save-text-color, white);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -203,6 +196,7 @@ export class NumberRangeFacet extends LitElement {
             margin-top: 0;
             margin-bottom: 0.5rem;
             font-weight: 500;
+            font-size: 1rem;
         }
     `];
 }

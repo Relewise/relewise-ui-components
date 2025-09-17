@@ -22,8 +22,8 @@ initializeRelewiseUI(
     facets: {
         product(builder) {
             builder
-                .addFacet((f) => f.addBrandFacet(), { heading: 'Brand' })
-                .addFacet((f) => f.addCategoryFacet('ImmediateParent'), { heading: 'Category' })
+                // .addFacet((f) => f.addBrandFacet(), { heading: 'Brand' })
+                .addFacet((f) => f.addCategoryFacet('ImmediateParent'), { heading: 'Categories' })
                 .addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Sales price' });
         },
     },

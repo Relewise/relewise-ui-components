@@ -136,8 +136,11 @@ export abstract class ChecklistFacetBase extends LitElement {
     static styles = [theme, css`
         :host {
             font-family: var(--font);
-            background-color: white;
             height: fit-content;
+
+            border-bottom: 1px solid;
+            border-color: var(--relewise-checklist-facet-border-color, #eee);
+            padding-bottom: 1.5rem;
         }
 
         .rw-label {
@@ -158,12 +161,6 @@ export abstract class ChecklistFacetBase extends LitElement {
             accent-color: var(--accent-color);
         }
 
-        .rw-facet-content {
-            border-bottom: 1px solid;
-            border-color: var(--relewise-checklist-facet-border-color, #eee);
-            padding-bottom: 1rem;
-        }
-
         .rw-show-more {
             margin: 0px;
         }
@@ -177,6 +174,7 @@ export abstract class ChecklistFacetBase extends LitElement {
             margin-top: 0;
             margin-bottom: 0.5rem;
             font-weight: 500;
+            font-size: 1rem;
         }
     `];
 }

@@ -54,7 +54,7 @@ export class Facets extends LitElement {
         this.showDimmingOverlay = false;
     }
 
-    renderFacet(label: string, facetResult: FacetResult, styling: string): TemplateResult<1> {
+    renderFacet(label: string, facetResult: FacetResult, styling: string, isLast: boolean): TemplateResult<1> {
         if (facetResult.$type.includes('PriceRangesFacetResult') ||
             facetResult.$type.includes('ProductDataDoubleRangesFacetResult')) {
             return html`
@@ -126,6 +126,7 @@ export class Facets extends LitElement {
                     part="container"
                     exportparts="title, input"
                     .result=${facetResult}
+                    style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     class=${styling}>
                 </relewise-number-range-facet>
             `;
@@ -149,7 +150,7 @@ export class Facets extends LitElement {
                 html`
                 <div class="rw-facets-container">
                     ${this.facetResult?.items?.map((item, index) => {
-                    return this.renderFacet(this.labels[index], item, this.showDimmingOverlay ? 'rw-dimmed' : '');
+                    return this.renderFacet(this.labels[index], item, this.showDimmingOverlay ? 'rw-dimmed' : '', index === (this.facetResult?.items?.length ?? 0) - 1);
                 })}
                 </div>
             ` : nothing}
@@ -160,7 +161,13 @@ export class Facets extends LitElement {
         .rw-facets-container {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.5rem;
+
+            border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
+            background-color: var(--button-color, #f9f9f9);
+            border-radius: 0.5rem;
+            box-shadow: 0 1px rgb(0 0 0 / 0.05);
+            padding: 1rem;
         }
 
         .rw-facet-button {
