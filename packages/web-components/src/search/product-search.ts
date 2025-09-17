@@ -315,7 +315,7 @@ export class ProductSearch extends LitElement {
             <div class="result-container">
                 ${this.products.length > 0 && this.searchResult?.facets ? html`
                     <relewise-facets
-                        exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-value, hits: facet-hits"
+                        exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
                         .labels=${this.facetLabels}
                         .facetResult=${this.searchResult?.facets}
                         class="rw-facets">
