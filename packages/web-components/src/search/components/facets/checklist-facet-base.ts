@@ -85,8 +85,11 @@ export abstract class ChecklistFacetBase extends LitElement {
             }).slice(0, 10);
 
         // if there are not facets options, then return nothing
-        if (facetResultsToShow.length === 0)
+        if (facetResultsToShow.length === 0) {
+            this.toggleAttribute('hidden', true);
             return nothing;
+        }
+
 
         return html`
         <div class="rw-facet-content">
@@ -139,8 +142,9 @@ export abstract class ChecklistFacetBase extends LitElement {
 
         .rw-label {
             cursor: pointer;
-            display: block;
-            
+            display: flex;
+            gap: 0.3rem;
+            align-items: center;
             word-break: break-all;
             margin-top: .25rem;
             margin-bottom: .25rem;
@@ -149,6 +153,9 @@ export abstract class ChecklistFacetBase extends LitElement {
         .rw-label input {
             cursor: pointer;
             margin-left: 0;
+            width: 1rem;
+            height: 1rem;
+            accent-color: var(--accent-color);
         }
 
         .rw-facet-content {
@@ -169,6 +176,7 @@ export abstract class ChecklistFacetBase extends LitElement {
         h3 {
             margin-top: 0;
             margin-bottom: 0.5rem;
+            font-weight: 500;
         }
     `];
 }

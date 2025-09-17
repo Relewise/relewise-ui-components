@@ -311,12 +311,12 @@ export class ProductSearch extends LitElement {
             <relewise-product-search-bar
                 class="rw-product-search-bar"></relewise-product-search-bar>
             <div class="rw-sorting-button-container">
-                <relewise-product-search-sorting class="rw-sorting-button" exportparts="select: sorting-select"></relewise-product-search-sorting>
+                <relewise-product-search-sorting class="rw-sorting-button" exportparts="select: sorting-select, label: sorting-label"></relewise-product-search-sorting>
             </div>
             <div class="result-container">
                 ${this.searchResult?.facets ? html`
                     <relewise-facets
-                        exportparts="checklist: facet-container, title: facet-title, input: facet-input, label: facet-value, hits: facet-hits"
+                        exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-value, hits: facet-hits"
                         .labels=${this.facetLabels}
                         .facetResult=${this.searchResult?.facets}
                         class="rw-facets">

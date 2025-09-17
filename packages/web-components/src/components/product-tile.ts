@@ -55,8 +55,8 @@ export class ProductTile extends LitElement {
 
     renderTileContent(product: ProductResult) {
         return html`
-            ${(product.data && 'ImageUrl' in product.data)
-                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${product.data['ImageUrl'].value} /></div>`
+            ${(product.data)
+                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${product.data[`relewise-demo-store.myshopify.com_ImageUrls`].value.$values[0]} /></div>`
                 : nothing
             }
             <div class='rw-information-container'>
@@ -77,6 +77,11 @@ export class ProductTile extends LitElement {
         css`
         :host {
             font-family: var(--font);
+            border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
+            background-color: var(--button-color, white);
+            border-radius: 0.5rem;
+            box-shadow: 0 1px rgb(0 0 0 / 0.05);
+            overflow: hidden;
         }
         
         .rw-tile {
@@ -95,7 +100,7 @@ export class ProductTile extends LitElement {
         }
 
         .rw-information-container {
-            margin: var(--relewise-information-container-margin, 0.5rem 0);
+            margin: var(--relewise-information-container-margin, 0.5rem 0.5rem);
         }
 
         .rw-object-cover {
@@ -107,30 +112,37 @@ export class ProductTile extends LitElement {
         .rw-price {
             line-height: 1;
             display: flex;
-            font-weight: var(--relewise-sales-price-font-weight, 600);
-            font-size: var(--relewise-sales-price-font-size, 1.25rem);
+            font-weight: var(--relewise-sales-price-font-weight, 300);
+            font-size: var(--relewise-sales-price-font-size, 1rem);
             color: var(--relewise-sales-price-color, #212427);
             justify-content: var(--relewise-sales-price-alignment, start);
-            margin: var(--relewise-sales-price-margin, 0.5rem 0rem 0rem 0rem);
+            align-items:center;
+            margin: var(--relewise-sales-price-margin, 1rem 0rem 0rem 0rem);
         }
 
         .rw-display-name {
-            display: flex;
+            display: -webkit-box;
             letter-spacing: var(--relewise-display-name-letter-spacing, -0.025rem);
             justify-content: var(--relewise-display-name-alignment, start);
             color: var(--relewise-display-name-color, #212427);
-            line-height: var(--relewise-display-name-line-height, 1.25rem);
-            font-weight: var(--relewise-display-name-font-weight, 600);
+            line-height: var(--relewise-display-name-line-height, 1.2rem);
+            font-weight: var(--relewise-display-name-font-weight, 500);
             font-size: var(--relewise-display-name-font-size, 1rem);
             margin: var(--relewise-display-name-margin, 0rem 0rem 0rem 0rem);
+            overflow: hidden;
+            height: calc(var(--relewise-display-name-line-height, 1.25rem)* 2);
+            
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
 
         }
 
         .rw-list-price {
-            font-size: var(--relewise-list-price-font-size, .8rem);
+            font-size: var(--relewise-list-price-font-size, 1rem);
             text-decoration: var(--relewise-list-price-text-decoration, line-through);
-            color: var(--relewise-list-price-color, darkgray);
-            margin: var(--relewise-list-price-margin, .25rem);
+            font-weight: 400;
+            color: var(--relewise-list-price-color, #bbb);
+            margin: var(--relewise-list-price-margin, 0rem 0rem 0rem 0.5rem );
         }
     `];
 }

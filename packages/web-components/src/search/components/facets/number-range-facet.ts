@@ -116,29 +116,29 @@ export class NumberRangeFacet extends LitElement {
         const localization = getRelewiseUISearchOptions()?.localization?.facets;
         return html`
         <div class="rw-facet-content">
-            <h3>${this.label}</h3>
+            <h3 part="title">${this.label}</h3>
             <div class="rw-flex">
-                <div class="rw-input-container rw-border">
-                    <input
+                 <input
                     type="number"
+                        part="input"
                         .value=${this.lowerBound?.toString() ?? this.result.available.value.lowerBoundInclusive.toString()}
                         @input=${this.handleLowerBoundChange}
-                        class="rw-input"
+                        class="rw-input-container rw-border"
                         @keydown=${this.handleKeyEvent}>
-                </div>
-                        <span class="rw-range-delimiter">-</span>
-                <div class="rw-input-container rw-border">
+                    
+                    <span class="rw-range-delimiter">-</span>
+                    
                     <input
                         type="number"
+                        part="input"
                         .value=${this.upperBound?.toString() ?? this.result.available.value.upperBoundInclusive.toString()}
                         @input=${this.handleUpperBoundChange}
-                        class="rw-input"
+                        class="rw-input-container rw-border"
                         @keydown=${this.handleKeyEvent}>
-                </div>
-                <relewise-button class="rw-save" @click=${this.save}>
-                    <span class="rw-save-text">${localization?.save ?? 'Save'}</span>
-                </relewise-button>
             </div>
+            <relewise-button class="rw-save" @click=${this.save}>
+                <span class="rw-save-text">${localization?.save ?? 'Apply'}</span>
+            </relewise-button>
         </div>
       `;
     }
@@ -157,22 +157,18 @@ export class NumberRangeFacet extends LitElement {
         }
 
         .rw-save {
-            height: 2rem;
-            margin-left: .5rem;
+            width: 100%;
+            align: center;
+            --button-color: var(--accent-color);
         }
 
         .rw-save-text {
             font-size: 1rem;
             font-family: var(--font);
-            color: var(--relewise-number-range-save-text-color, black);
+            color: var(--relewise-number-range-save-text-color, white);
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-
-        .rw-input {
-            all: unset;
-            width: inherit;
         }
 
         .rw-input-container {
@@ -195,18 +191,18 @@ export class NumberRangeFacet extends LitElement {
         }
 
         .rw-input-container:focus-within {
-            border-color: var(--accent-color);
+            outline: var(--accent-color);
         }
 
         .rw-flex {
             display: flex;
-            height: 2rem;
+            margin-bottom: 0.3rem;
         }
 
         h3 {
             margin-top: 0;
             margin-bottom: 0.5rem;
-            font-family: var(--font);
+            font-weight: 500;
         }
     `];
 }

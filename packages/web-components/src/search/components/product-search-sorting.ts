@@ -54,8 +54,9 @@ export class ProductSearchSorting extends LitElement {
     }
 
     render() {
+        const localization = getRelewiseUISearchOptions()?.localization?.sortingButton;
         return html`
-            <select @change=${this.setSelectedValue} class="rw-select rw-border" part="select">
+           <span class="rw-label" part="label">${localization?.sortBy ?? 'Sort by:'}</span> <select @change=${this.setSelectedValue} class="rw-select rw-border" part="select">
                 ${Object.keys(SortingEnum).map((item) => {
             return html`
                         <option value=${item} ?selected=${this.selectedOption === item}>
@@ -80,6 +81,12 @@ export class ProductSearchSorting extends LitElement {
             border-radius: 0.5rem;
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
             font-size: 0.8rem;   
+        }
+
+        .rw-label {
+            font-size: 0.9rem;
+            color: var(--relewise-button-text-color, #333);
+            margin-right: 0.2rem;
         }
         
         select:focus {

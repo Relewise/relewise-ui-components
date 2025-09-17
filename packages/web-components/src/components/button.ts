@@ -16,11 +16,11 @@ export class Button extends LitElement {
 
     render() {
         return html`
-            <button class="rw-button" @click=${() => this.handleClick()}>
-                ${this.buttonText ? html`
-                    <span class="rw-button-text">${this.buttonText}</span>
-                ` : nothing}
-                <span class="rw-button-icon"><slot slot="icon"></slot></span>
+            <button class="rw-button" @click=${() => this.handleClick()}>  
+                    ${this.buttonText ? html`
+                        <span class="rw-button-text">${this.buttonText}</span>
+                    ` : nothing}
+                    <span class="rw-button-icon"><slot slot="icon"></slot></span>
             </button>
         `;
     }
@@ -54,7 +54,8 @@ export class Button extends LitElement {
             color: var(--relewise-button-text-color, #333);
             border-radius: 0.5rem;
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
-            font-size: 0.8rem;   
+            font-size: 0.8rem;
+            justify-content: center;
         }
 
         .rw-button-text {

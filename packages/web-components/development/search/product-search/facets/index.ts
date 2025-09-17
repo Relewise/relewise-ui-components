@@ -22,9 +22,9 @@ initializeRelewiseUI(
     facets: {
         product(builder) {
             builder
-                .addFacet((f) => f.addBrandFacet(), { heading: 'Mærke' })
-                .addFacet((f) => f.addCategoryFacet('ImmediateParent'), { heading: 'Kategori' })
-                .addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Salgs pris' });
+                .addFacet((f) => f.addBrandFacet(), { heading: 'Brand' })
+                .addFacet((f) => f.addCategoryFacet('ImmediateParent'), { heading: 'Category' })
+                .addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Sales price' });
         },
     },
 });

@@ -59,7 +59,7 @@ export class Facets extends LitElement {
             facetResult.$type.includes('ProductDataDoubleRangesFacetResult')) {
             return html`
                 <relewise-checklist-ranges-object-value-facet
-                    part="checklist"
+                    part="container"
                     exportparts="title, input, label, hits"
                     .label=${label}
                     .result=${facetResult}
@@ -73,7 +73,7 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-number-value-facet
                     .label=${label}    
-                    part="checklist"
+                    part="container"
                     exportparts="title, input, label, hits"
                     .result=${facetResult}
                     class=${styling}>
@@ -86,7 +86,7 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-object-value-facet 
                     .label=${label}
-                    part="checklist"
+                    part="container"
                     exportparts="title, input, label, hits"
                     .result=${facetResult}
                     class=${styling}>
@@ -98,7 +98,7 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-boolean-value-facet
                     .label=${label}
-                    part="checklist"
+                    part="container"
                     exportparts="title, input, label, hits"
                     .result=${facetResult}
                     class=${styling}>
@@ -110,7 +110,7 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-string-value-facet
                     .label=${label}
-                    part="checklist"
+                    part="container"
                     exportparts="title, input, label, hits"
                     .result=${facetResult}
                     class=${styling}>
@@ -123,6 +123,8 @@ export class Facets extends LitElement {
             return html`
                 <relewise-number-range-facet
                     .label=${label}
+                    part="container"
+                    exportparts="title, input"
                     .result=${facetResult}
                     class=${styling}>
                 </relewise-number-range-facet>
