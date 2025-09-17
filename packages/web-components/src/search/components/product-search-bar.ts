@@ -75,7 +75,7 @@ export class ProductSearchBar extends LitElement {
             relewise-button {
                 --button-color: var(--accent-color);
                 --relewise-button-text-color: var(--color);
-                height: 3rem;
+                height: 3em;
             }
 
             .rw-search-bar {

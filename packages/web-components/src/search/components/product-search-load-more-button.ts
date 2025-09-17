@@ -66,7 +66,7 @@ export class LoadMoreProducts extends LitElement {
 
         .rw-load-more-text {
             font-family: var(--font);
-            font-size: var(--relewise-load-more-text-size, .85rem);
+            font-size: var(--relewise-load-more-text-size, .85em);
             color: var(--relewise-load-more-text-color, black);
             display: flex;
             justify-content: center;
@@ -77,9 +77,9 @@ export class LoadMoreProducts extends LitElement {
             display: flex;
             justify-content: center;
             color: var(--relewise-products-shown-color, black);
-            font-size: var(--relewise-products-shown-font-size, .75rem);
-            margin-top: .5rem;
-            margin-bottom: .5rem;
+            font-size: var(--relewise-products-shown-font-size, .85em);
+            margin-top: .5em;
+            margin-bottom: .5em;
         }
     `];
 }

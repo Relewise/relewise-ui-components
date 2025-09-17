@@ -72,10 +72,10 @@ export class SearchBar extends LitElement {
             .rw-search-bar {
                 display: flex;
                 align-items: center;
-                padding-left: 1rem;
-                padding-right: 1rem;
+                padding-left: 1em;
+                padding-right: 1em;
                 border-color: var(--relewise-search-bar-border-color, var(--color));
-                height: var(--relewise-product-search-bar-height, 3rem);
+                height: var(--relewise-product-search-bar-height, 3em);
             }
 
             .rw-search-bar:focus-within {
@@ -86,8 +86,8 @@ export class SearchBar extends LitElement {
 
             .rw-search-bar-input {
                 all: unset;
-                max-width: calc(100% - 2rem); 
-                min-width: calc(100% - 2rem);
+                max-width: calc(100% - 2em); 
+                min-width: calc(100% - 2em);
                 height: 100%;
             }
 

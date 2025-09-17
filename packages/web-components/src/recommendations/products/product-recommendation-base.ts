@@ -30,7 +30,7 @@ export abstract class ProductRecommendationBase extends LitElement {
 
     constructor() {
         super();
-        setTimeout(async() => {
+        setTimeout(async () => {
             const request = await this.buildRequest();
             if (request) {
                 this.dispatchEvent(new CustomEvent(Events.registerProductRecommendation, { bubbles: true, composed: true, detail: request }));
@@ -76,7 +76,7 @@ export abstract class ProductRecommendationBase extends LitElement {
             display: grid;
             width: 100%;
             grid-template-columns: repeat(4,1fr);
-            gap: 1rem;
+            gap: 1em;
             grid-auto-rows: 1fr;
         }
 

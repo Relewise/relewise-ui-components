@@ -72,21 +72,21 @@ export class ProductSearchSorting extends LitElement {
         .rw-select {
             font-family: var(--font);
            
-            padding: var(--relewise-product-search-sorting-padding, .5rem);
+            padding: var(--relewise-product-search-sorting-padding, .5em);
 
             font-weight: var(--relewise-button-text-font-weight, 600);
             border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
             background-color: white;
             color: var(--relewise-button-text-color, #333);
-            border-radius: 0.5rem;
+            border-radius: 0.5em;
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
-            font-size: 0.8rem;   
+            font-size: 0.8em;   
         }
 
         .rw-label {
-            font-size: 0.9rem;
+            font-size: 0.9em;
             color: var(--relewise-button-text-color, #333);
-            margin-right: 0.2rem;
+            margin-right: 0.2em;
         }
         
         select:focus {

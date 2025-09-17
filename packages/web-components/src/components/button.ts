@@ -52,9 +52,9 @@ export class Button extends LitElement {
             border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
             background-color: var(--button-color, white);
             color: var(--relewise-button-text-color, #333);
-            border-radius: 0.5rem;
+            border-radius: 0.5em;
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
-            font-size: 0.8rem;
+            font-size: 0.9em;
             justify-content: center;
         }
 
@@ -63,14 +63,14 @@ export class Button extends LitElement {
             justify-content: center;
             display: flex;
             line-height: 1em;
-            padding: .25rem;
+            padding: .25em;
             width: 100%;
             text-align: left;  
             line-height: 1;    
         }
         
         .rw-button-icon {
-            padding: var(--relewise-button-icon-padding, 0.3rem .8rem);
+            padding: var(--relewise-button-icon-padding, 0.3em .8em);
             --relewise-icon-color: white;
         }
     `];

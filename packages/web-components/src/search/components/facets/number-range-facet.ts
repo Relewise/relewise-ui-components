@@ -147,7 +147,7 @@ export class NumberRangeFacet extends LitElement {
         :host {
             font-family: var(--font);
             border-bottom: 1px solid;
-            padding-bottom: 1.5rem;
+            padding-bottom: 1.5em;
             border-color: var(--relewise-checklist-facet-border-color, #eee);
             height: fit-content;
         }
@@ -158,7 +158,7 @@ export class NumberRangeFacet extends LitElement {
         }
 
         .rw-save-text {
-            font-size: 1rem;
+            font-size: 1em;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -167,17 +167,17 @@ export class NumberRangeFacet extends LitElement {
         .rw-input-container {
             display: flex;
             align-items: center;
-            padding-left: 1rem;
-            padding-right: 1rem;
+            padding-left: 1em;
+            padding-right: 1em;
             background: white;
             border-color: var(--color);
-            height: var(--relewise-number-range-input-height, 2rem);  
+            height: var(--relewise-number-range-input-height, 2em);  
             width: var(--relewise-number-range-input-width, 100%);  
         }
 
         .rw-range-delimiter {
-            margin-left: .25rem;
-            margin-right: .25rem;
+            margin-left: .25em;
+            margin-right: .25em;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -189,14 +189,14 @@ export class NumberRangeFacet extends LitElement {
 
         .rw-flex {
             display: flex;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.3em;
         }
 
         h3 {
             margin-top: 0;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.5em;
             font-weight: 500;
-            font-size: 1rem;
+            font-size: 1em;
         }
     `];
 }

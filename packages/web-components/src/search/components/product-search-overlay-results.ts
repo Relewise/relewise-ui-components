@@ -102,7 +102,7 @@ export class ProductSearchOverlayResults extends LitElement {
             z-index: 999;
             left: 0;
             right: 0;
-            margin-top: .25rem;
+            margin-top: .25em;
         }
         
         .rw-result-container {
@@ -113,7 +113,7 @@ export class ProductSearchOverlayResults extends LitElement {
         }
         
         .rw-no-results {
-            margin: 1rem;
+            margin: 1em;
             font-weight: var(--relewise-product-search-overlay-no-results-message-font-weight, 300);
             color: var(--relewise-product-search-overlay-no-results-message-color, #212427);
         }
@@ -130,15 +130,15 @@ export class ProductSearchOverlayResults extends LitElement {
         }
 
         .rw-item {
-            border-radius: 1rem;
-            margin: .5rem 1rem .5rem 1rem;
+            border-radius: 1em;
+            margin: .5em 1em .5em 1em;
             font-weight: var(--relewise-product-search-overlay-prediction-item-font-weight, 300);
             flex-grow: 1;
         }
 
          .rw-title {
-            margin: var(--relewise-product-search-overlay-title-padding, 1rem 1rem 0.2rem 1rem);
-            font-size: var(--relewise-product-search-overlay-title-font-size, 0.9rem);
+            margin: var(--relewise-product-search-overlay-title-padding, 1em 1em 0.2em 1em);
+            font-size: var(--relewise-product-search-overlay-title-font-size, 0.9em);
             font-weight: var(--relewise-product-search-overlay-title-font-weight, 500);
             flex-grow: 1;
         }
@@ -157,7 +157,7 @@ export class ProductSearchOverlayResults extends LitElement {
 
         .rw-icon {
             margin: auto;
-            padding-right: 1rem;
+            padding-right: 1em;
             --relewise-icon-color: var(--accent-color);
         }
     `];

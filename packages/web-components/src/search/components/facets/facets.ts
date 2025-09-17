@@ -161,18 +161,18 @@ export class Facets extends LitElement {
         .rw-facets-container {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.5em;
 
             border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
             background-color: var(--button-color, #f9f9f9);
-            border-radius: 0.5rem;
+            border-radius: 0.5em;
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
-            padding: 1rem;
+            padding: 1em;
         }
 
         .rw-facet-button {
-            margin-bottom: .5rem;
-            height: 2.5rem;
+            margin-bottom: .5em;
+            height: 2.5em;
             border-color: var(--color);
             background-color: var(--color);
             --relewise-button-text-color: black;

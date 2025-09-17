@@ -2,13 +2,14 @@ import { css } from 'lit';
 
 export const theme = css`
   :host {
+    font-size: var(--relewise-base-font-size, 16px);
     --font: var(--relewise-font, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
     --color: var(--relewise-color, #eee);
     --accent-color:var(--relewise-accent-color, #3764e4);
 
     --relewise-icon-color: var(--color);
     --relewise-x-icon-color: var(--color);
-    --border-radius: var(--relewise-border-radius, 1rem);
+    --border-radius: var(--relewise-border-radius, 1em);
     --border: var(--relewise-border, 1px solid)
   }
 
@@ -16,12 +17,12 @@ export const theme = css`
     margin: 0;
     padding: 0;
     font-family: var(--font);
-    height: var(--relewise-button-height, 3rem);
+    height: var(--relewise-button-height, 3em);
     border: var(--border);
     border-radius: var(--border-radius);
     border-color: var(--accent-color);
     background-color: var(--accent-color);
-    font-size:  var(--relewise-button-font-size, 1rem);
+    font-size: var(--relewise-button-font-size, 1em);
   }
 
   .rw-border {

@@ -140,24 +140,25 @@ export abstract class ChecklistFacetBase extends LitElement {
 
             border-bottom: 1px solid;
             border-color: var(--relewise-checklist-facet-border-color, #eee);
-            padding-bottom: 1.5rem;
+            padding-bottom: 1.5em;
         }
 
         .rw-label {
             cursor: pointer;
             display: flex;
-            gap: 0.3rem;
+            gap: 0.3em;
+            line-height: 1.1;
             align-items: center;
             word-break: break-all;
-            margin-top: .25rem;
-            margin-bottom: .25rem;
+            margin-top: .25em;
+            margin-bottom: .25em;
         }
 
         .rw-label input {
             cursor: pointer;
             margin-left: 0;
-            width: 1rem;
-            height: 1rem;
+            width: 1em;
+            height: 1em;
             accent-color: var(--accent-color);
         }
 
@@ -167,14 +168,14 @@ export abstract class ChecklistFacetBase extends LitElement {
 
         .rw-hits {
             color: var(--relewise-checklist-facet-hits-color, gray);
-            font-size: var(--relewise-checklist-facet-hits-font-size, .85rem);
+            font-size: var(--relewise-checklist-facet-hits-font-size, .85em);
         }
 
         h3 {
             margin-top: 0;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.5em;
             font-weight: 500;
-            font-size: 1rem;
+            font-size: 1em;
         }
     `];
 }

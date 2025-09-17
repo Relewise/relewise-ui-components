@@ -82,7 +82,7 @@ export class ProductSearchResults extends LitElement {
             position: relative;
             display: grid;
             grid-template-columns: repeat(2,1fr);
-            gap: 1rem;
+            gap: 1em;
         }
 
         .rw-dimmed {
@@ -108,7 +108,7 @@ export class ProductSearchResults extends LitElement {
                 position: relative;
                 display: grid;
                 grid-template-columns: repeat(4,1fr);
-                gap: 1rem;
+                gap: 1em;
             }
 
             .rw-fill-grid {
