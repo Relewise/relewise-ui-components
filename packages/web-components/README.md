@@ -674,9 +674,12 @@ To specify which search component the configuration should be applied to, simply
 ## Overwriting styling
 If you want to overwrite the styling of the grid and the default product tile, you can do so by using css variables.
 
+We define a CSS custom property --relewise-base-font-size on the component host. All typography and spacing inside the component use em units relative to this base. This ensures that the component scales consistently, while still allowing the base font size to be overridden from the outside if needed.
+
 ```html
     <style>
         :root {
+            --relewise-base-font-size: 16px;
             --relewise-font: Arial, Helvetica, sans-serif;
             --relewise-color: lightgray;
             --relewise-accent-color: #3764e4;
