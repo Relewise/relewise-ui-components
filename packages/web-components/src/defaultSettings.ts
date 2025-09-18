@@ -3,7 +3,7 @@ import { SelectedCategoryPropertiesSettings, SelectedProductPropertiesSettings }
 export const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = {
     displayName: true,
     pricing: true,
-    dataKeys: ['ImageUrl', 'Url', 'relewise*'],
+    dataKeys: ['ImageUrl', 'Url'],
 };
 
 export const defaultProductCategoryProperties: Partial<SelectedCategoryPropertiesSettings> = {

@@ -89,8 +89,6 @@ export abstract class ChecklistFacetBase extends LitElement {
             this.toggleAttribute('hidden', true);
             return nothing;
         }
-
-
         return html`
         <div class="rw-facet-content">
             <h3 part="title">${this.label}</h3>

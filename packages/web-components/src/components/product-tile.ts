@@ -55,8 +55,8 @@ export class ProductTile extends LitElement {
 
     renderTileContent(product: ProductResult) {
         return html`
-            ${(product.data)
-                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${product.data[`relewise-demo-store.myshopify.com_ImageUrls`].value.$values[0]} alt=${this.getProductImageAlt(product)} /></div>`
+            ${(product.data && 'ImageUrl' in product.data)
+                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${product.data['ImageUrl'].value} alt=${this.getProductImageAlt(product)} /></div>`
                 : nothing
             }
             <div class='rw-information-container'>

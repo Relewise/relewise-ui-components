@@ -4,7 +4,7 @@ import { registerSearchTarget } from '../../../../src/index';
 
 registerSearchTarget('plp', {
     facet(builder) {
-        builder.addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Salgspris' });
+        builder.addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Sales Price' });
     },
     filter(builder) {
         builder.addProductCategoryIdFilter('ImmediateParent', ['123']);
