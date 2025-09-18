@@ -124,7 +124,7 @@ export class ProductSearch extends LitElement {
         const requestBuilder = createProductSearchBuilder(term, this.displayedAtLocation ?? 'Relewise Product Search')
             .pagination(p => p
                 .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)
-                .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))       
+                .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))
             .facets(builder => {
                 if (searchOptions && searchOptions.facets?.product) {
                     const facetBuilder = new RelewiseFacetBuilder(builder);
@@ -137,26 +137,26 @@ export class ProductSearch extends LitElement {
                 const sortingEnum = SortingEnum[sorting as keyof typeof SortingEnum];
 
                 switch (sortingEnum) {
-                case SortingEnum.SalesPriceAsc:
-                    builder.sortByProductAttribute('SalesPrice', 'Ascending', (n) => n.sortByProductRelevance());
-                    break;
-                case SortingEnum.SalesPriceDesc:
-                    builder.sortByProductAttribute('SalesPrice', 'Descending', (n) => n.sortByProductRelevance());
-                    break;
-                case SortingEnum.AlphabeticallyAsc:
-                    builder.sortByProductAttribute('DisplayName', 'Ascending', (n) => n.sortByProductRelevance());
-                    break;
-                case SortingEnum.AlphabeticallyDesc:
-                    builder.sortByProductAttribute('DisplayName', 'Descending', (n) => n.sortByProductRelevance());
-                    break;
-                default:
-                    builder.sortByProductRelevance('Descending', (n) => n.sortByProductRelevance());
-                    break;
+                    case SortingEnum.SalesPriceAsc:
+                        builder.sortByProductAttribute('SalesPrice', 'Ascending', (n) => n.sortByProductRelevance());
+                        break;
+                    case SortingEnum.SalesPriceDesc:
+                        builder.sortByProductAttribute('SalesPrice', 'Descending', (n) => n.sortByProductRelevance());
+                        break;
+                    case SortingEnum.AlphabeticallyAsc:
+                        builder.sortByProductAttribute('DisplayName', 'Ascending', (n) => n.sortByProductRelevance());
+                        break;
+                    case SortingEnum.AlphabeticallyDesc:
+                        builder.sortByProductAttribute('DisplayName', 'Descending', (n) => n.sortByProductRelevance());
+                        break;
+                    default:
+                        builder.sortByProductRelevance('Descending', (n) => n.sortByProductRelevance());
+                        break;
                 }
             });
 
-        if (this.target)  {
-            const overwrittenConfigSettings  = targetedConfiguration.handle(this.target, requestBuilder);
+        if (this.target) {
+            const overwrittenConfigSettings = targetedConfiguration.handle(this.target, requestBuilder);
             if (overwrittenConfigSettings.facetLabels) {
                 this.facetLabels = overwrittenConfigSettings.facetLabels;
             }
@@ -281,7 +281,7 @@ export class ProductSearch extends LitElement {
 
                 if (node.tagName.toLowerCase() === 'relewise-facets') {
                     node.setAttribute('facets-result', JSON.stringify(this.searchResult?.facets));
-                    node.setAttribute('labels',  JSON.stringify(this.facetLabels));
+                    node.setAttribute('labels', JSON.stringify(this.facetLabels));
                 }
 
                 if (node.children.length > 0) {
@@ -306,22 +306,31 @@ export class ProductSearch extends LitElement {
     }
 
     render() {
+        const localization = getRelewiseUISearchOptions()?.localization?.searchResults;
         return html`
         <slot>
             <relewise-product-search-bar
-                class="rw-product-search-bar"></relewise-product-search-bar>
-            <div class="rw-sorting-button-container">
-                <relewise-product-search-sorting class="rw-sorting-button"></relewise-product-search-sorting>
-            </div>
+                class="rw-product-search-bar">
+            </relewise-product-search-bar>
+          
             <div class="result-container">
-                ${this.searchResult?.facets ? html`
+                ${this.products.length > 0 && this.searchResult?.facets ? html`
                     <relewise-facets
+                        exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
                         .labels=${this.facetLabels}
                         .facetResult=${this.searchResult?.facets}
                         class="rw-facets">
                     </relewise-facets>
                 `: nothing}
                 <div class="rw-full-width">
+                ${this.products.length > 0 ? html`
+                    <div class="rw-sorting-container">
+                     <span class="rw-results-text">${this.searchResult?.hits ?? 0} ${this.searchResult?.hits === 1 ? localization?.result ?? "Result" : localization?.results ?? "Results"}</span>
+                     <div class="rw-sorting-button-container">
+                        <relewise-product-search-sorting class="rw-sorting-button" exportparts="select: sorting-select, label: sorting-label"></relewise-product-search-sorting>
+                        </div>
+                    </div>` : nothing}
+                 
                     <relewise-product-search-results
                         .products=${this.products}>
                     </relewise-product-search-results>
@@ -342,8 +351,8 @@ export class ProductSearch extends LitElement {
         }
 
         .rw-product-search-bar {
-            margin-top: var(--relewise-product-search-bar-margin-top, .5rem);
-            margin-bottom: var(--relewise-product-search-bar-margin-bottom, .5rem);
+            margin-top: var(--relewise-product-search-bar-margin-top, .5em);
+            margin-bottom: var(--relewise-product-search-bar-margin-bottom, .5em);
         }
 
         .rw-sorting-button-container {
@@ -355,26 +364,35 @@ export class ProductSearch extends LitElement {
             flex-direction: column;
             width: 100%;
         }
+        .rw-sorting-container {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        .rw-results-text {
+            font-weight: 500; 
+            color: #333;
+        }
 
         .rw-sorting-button {
-            margin-bottom: .5rem;
+            margin-bottom: .5em;
         }
 
         .rw-load-more {
-            margin: .5rem;
+            margin: .5em;
         }
 
         .rw-facets {
             display: flex;
             flex-direction: column;
-            margin-bottom: .5rem;
+            margin-bottom: .5em;
         }
 
         @media (min-width: 1024px) {
             .result-container {
                 display: grid;
                 grid-template-columns: minmax(0, 1fr);
-                gap: 1rem;
+                gap: 1em;
                 width: 100%;
             }
 

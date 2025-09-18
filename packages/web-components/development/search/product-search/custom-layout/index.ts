@@ -23,9 +23,9 @@ initializeRelewiseUI(
         facets: {
             product(builder) {
                 builder
-                    .addFacet((f) => f.addBrandFacet(), { heading: 'Mærke' })
-                    .addFacet((f) => f.addCategoryFacet('ImmediateParent'), { heading: 'Kategori' })
-                    .addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Salgs pris' });
+                    .addFacet((f) => f.addBrandFacet(), { heading: 'Brands' })
+                    .addFacet((f) => f.addCategoryFacet('ImmediateParent'), { heading: 'Categories' })
+                    .addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Sales Price' });
             },
         },
     });

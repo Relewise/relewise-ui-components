@@ -98,10 +98,10 @@ export class NumberRangeFacet extends LitElement {
 
     handleKeyEvent(event: KeyboardEvent): void {
         switch (event.key) {
-        case 'Enter':
-            event.preventDefault();
-            this.save();
-            break;
+            case 'Enter':
+                event.preventDefault();
+                this.save();
+                break;
         }
     }
 
@@ -116,29 +116,29 @@ export class NumberRangeFacet extends LitElement {
         const localization = getRelewiseUISearchOptions()?.localization?.facets;
         return html`
         <div class="rw-facet-content">
-            <h3>${this.label}</h3>
+            <h3 part="title">${this.label}</h3>
             <div class="rw-flex">
-                <div class="rw-input-container rw-border">
-                    <input
+                 <input
                     type="number"
+                        part="input"
                         .value=${this.lowerBound?.toString() ?? this.result.available.value.lowerBoundInclusive.toString()}
                         @input=${this.handleLowerBoundChange}
-                        class="rw-input"
+                        class="rw-input-container rw-border"
                         @keydown=${this.handleKeyEvent}>
-                </div>
-                        <span class="rw-range-delimiter">-</span>
-                <div class="rw-input-container rw-border">
+                    
+                    <span class="rw-range-delimiter">-</span>
+                    
                     <input
                         type="number"
+                        part="input"
                         .value=${this.upperBound?.toString() ?? this.result.available.value.upperBoundInclusive.toString()}
                         @input=${this.handleUpperBoundChange}
-                        class="rw-input"
+                        class="rw-input-container rw-border"
                         @keydown=${this.handleKeyEvent}>
-                </div>
-                <relewise-button class="rw-save" @click=${this.save}>
-                    <span class="rw-save-text">${localization?.save ?? 'Save'}</span>
-                </relewise-button>
             </div>
+            <relewise-button class="rw-save" @click=${this.save}>
+                <span class="rw-save-text">${localization?.save ?? 'Apply'}</span>
+            </relewise-button>
         </div>
       `;
     }
@@ -146,69 +146,57 @@ export class NumberRangeFacet extends LitElement {
     static styles = [theme, css`
         :host {
             font-family: var(--font);
-            border-radius: var(--border-radius);
-            background-color: var(--color);
+            border-bottom: 1px solid;
+            padding-bottom: 1.5em;
+            border-color: var(--relewise-checklist-facet-border-color, #eee);
             height: fit-content;
         }
 
-        .rw-facet-content {
-            margin: 1rem;
-        }
-
         .rw-save {
-            height: 2rem;
-            margin-left: .5rem;
-            border: var(--border);
-            border-radius: var(--border-radius);
-            border-color: lightgray;
-            background-color: lightgray
+            width: 100%;
+            align: center;
         }
 
         .rw-save-text {
-            font-size: 1rem;
-            font-family: var(--font);
-            color: var(--relewise-number-range-save-text-color, black);
+            font-size: 1em;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .rw-input {
-            all: unset;
-            width: inherit;
-        }
-
         .rw-input-container {
             display: flex;
             align-items: center;
-            padding-left: 1rem;
-            padding-right: 1rem;
+            padding-left: 1em;
+            padding-right: 1em;
             background: white;
             border-color: var(--color);
-            height: var(--relewise-number-range-input-height, 2rem);  
+            height: var(--relewise-number-range-input-height, 2em);  
             width: var(--relewise-number-range-input-width, 100%);  
         }
 
         .rw-range-delimiter {
-            margin-left: .25rem;
-            margin-right: .25rem;
+            margin-left: .25em;
+            margin-right: .25em;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .rw-input-container:focus-within {
-            border-color: var(--accent-color);
+            outline: var(--accent-color);
         }
 
         .rw-flex {
             display: flex;
-            height: 2rem;
+            margin-bottom: 0.3em;
         }
 
         h3 {
             margin-top: 0;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.5em;
+            font-weight: 500;
+            font-size: 1em;
         }
     `];
 }

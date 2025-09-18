@@ -59,6 +59,7 @@ export interface SearchBarLocalization {
 }
 
 export interface SortingLocalization {
+    sortBy?: string;
     sorting?: string;
     relevance?: string;
     salesPriceAscending?: string;
@@ -86,6 +87,8 @@ export interface FacetLocalization {
 export interface SearchResultLocalization {
     noResults?: string;
     showAllResults?: string;
+    result?: string;
+    results?: string;
 }
 
 export interface SearchFilters {

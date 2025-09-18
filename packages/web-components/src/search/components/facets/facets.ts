@@ -25,7 +25,7 @@ export class Facets extends LitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
-        
+
         window.addEventListener('resize', this.handleResizeEventBound);
         window.addEventListener(Events.dimPreviousResult, this.handleDimPreviousResultEventBound);
         window.addEventListener(Events.searchingForProductsCompleted, this.handleSearchingForProductsCompletedEventBound);
@@ -42,7 +42,7 @@ export class Facets extends LitElement {
     handleResizeEvent() {
         if (window.innerWidth >= 1024) {
             this.showFacets = true;
-        } 
+        }
     }
 
     handleDimPreviousResultEvent() {
@@ -54,11 +54,14 @@ export class Facets extends LitElement {
         this.showDimmingOverlay = false;
     }
 
-    renderFacet(label: string, facetResult: FacetResult, styling: string): TemplateResult<1> {
-        if (facetResult.$type.includes('PriceRangesFacetResult') || 
+    renderFacet(label: string, facetResult: FacetResult, styling: string, isLast: boolean): TemplateResult<1> {
+        if (facetResult.$type.includes('PriceRangesFacetResult') ||
             facetResult.$type.includes('ProductDataDoubleRangesFacetResult')) {
             return html`
                 <relewise-checklist-ranges-object-value-facet
+                    part="container"
+                    exportparts="title, input, label, value, hits"
+                    style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .label=${label}
                     .result=${facetResult}
                     class=${styling}>
@@ -71,6 +74,9 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-number-value-facet
                     .label=${label}    
+                    part="container"
+                    exportparts="title, input, label, value, hits"
+                    style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     class=${styling}>
                 </relewise-checklist-number-value-facet>
@@ -82,6 +88,9 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-object-value-facet 
                     .label=${label}
+                    part="container"
+                    exportparts="title, input, label, value, hits"
+                    style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     class=${styling}>
                 </relewise-checklist-object-value-facet>
@@ -92,6 +101,9 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-boolean-value-facet
                     .label=${label}
+                    part="container"
+                    exportparts="title, input, label, value, hits"
+                    style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     class=${styling}>
                 </relewise-checklist-boolean-value-facet>
@@ -102,6 +114,9 @@ export class Facets extends LitElement {
             return html`
                 <relewise-checklist-string-value-facet
                     .label=${label}
+                    part="container"
+                    exportparts="title, input, label, value, hits"
+                    style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     class=${styling}>
                 </relewise-checklist-string-value-facet>
@@ -113,7 +128,10 @@ export class Facets extends LitElement {
             return html`
                 <relewise-number-range-facet
                     .label=${label}
+                    part="container"
+                    exportparts="title, input"
                     .result=${facetResult}
+                    style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     class=${styling}>
                 </relewise-number-range-facet>
             `;
@@ -121,24 +139,24 @@ export class Facets extends LitElement {
 
         return html``;
     }
-    
+
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.facets;
         return html`
             <relewise-button
                 button-text=${localization?.filter ?? 'Filters'} 
-                class="rw-button rw-facet-button"
+                class="rw-facet-button"
                 @click=${() => this.showFacets = !this.showFacets}>
                     ${this.showFacets ?
-                        html`<relewise-x-icon class="rw-icon"></relewise-x-icon>` :
-                        html`<relewise-filter-icon class="rw-icon"></relewise-filter-icon>`}
+                html`<relewise-x-icon class="rw-icon"></relewise-x-icon>` :
+                html`<relewise-filter-icon class="rw-icon"></relewise-filter-icon>`}
             </relewise-button>
-            ${this.showFacets ? 
+            ${this.showFacets ?
                 html`
                 <div class="rw-facets-container">
                     ${this.facetResult?.items?.map((item, index) => {
-                        return this.renderFacet(this.labels[index], item, this.showDimmingOverlay ? 'rw-dimmed' : '');
-                    })}
+                    return this.renderFacet(this.labels[index], item, this.showDimmingOverlay ? 'rw-dimmed' : '', index === (this.facetResult?.items?.length ?? 0) - 1);
+                })}
                 </div>
             ` : nothing}
         `;
@@ -148,15 +166,13 @@ export class Facets extends LitElement {
         .rw-facets-container {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
-        }
+            gap: 1.5em;
 
-        .rw-facet-button {
-            margin-bottom: .5rem;
-            height: 2.5rem;
-            border-color: var(--color);
-            background-color: var(--color);
-            --relewise-button-text-color: black;
+            border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
+            background-color: var(--button-color, #f9f9f9);
+            border-radius: 0.5em;
+            box-shadow: 0 1px rgb(0 0 0 / 0.05);
+            padding: 1em;
         }
 
         .rw-icon {

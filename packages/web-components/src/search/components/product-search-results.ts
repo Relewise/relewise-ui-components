@@ -1,11 +1,10 @@
 import { ProductResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { Events, getRelewiseUISearchOptions } from '../../helpers';
+import { Events, getRelewiseUISearchOptions, QueryKeys, readCurrentUrlState } from '../../helpers';
 import { theme } from '../../theme';
 
 export class ProductSearchResults extends LitElement {
-
     @property({ type: Array })
     products: ProductResult[] = [];
 
@@ -53,12 +52,12 @@ export class ProductSearchResults extends LitElement {
         if (this.products.length > 0) {
             return html`
                 ${this.products.map(product => {
-                    return html`
+                return html`
                         <relewise-product-tile
                             class="rw-product-tile ${this.showDimmingOverlay ? 'rw-dimmed' : ''}"
                             .product=${product}>
                         </relewise-product-tile>`;
-                })}
+            })}
                 ${this.showLoadingSpinner ? html`
                     <div class="rw-fill-grid"><relewise-loading-spinner></relewise-loading-spinner></div>
                 `: nothing}
@@ -70,10 +69,10 @@ export class ProductSearchResults extends LitElement {
                 <div class="rw-fill-grid"><relewise-loading-spinner></relewise-loading-spinner></div>
             `;
         }
-        
+
 
         if (!this.showLoadingSpinner && !this.showDimmingOverlay) {
-            return html`<span class="rw-fill-grid">${localization?.noResults ?? 'No results found'}</span>`;
+            return html`<span class="rw-fill-grid">${localization?.noResults ?? html`<strong>No results for "${readCurrentUrlState(QueryKeys.term) ?? null}".</strong>Try different keywords or fewer filters.`}</span>`;
         }
     }
 
@@ -83,7 +82,7 @@ export class ProductSearchResults extends LitElement {
             position: relative;
             display: grid;
             grid-template-columns: repeat(2,1fr);
-            gap: 1rem;
+            gap: 1em;
         }
 
         .rw-dimmed {
@@ -97,6 +96,7 @@ export class ProductSearchResults extends LitElement {
 
         .rw-fill-grid {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             grid-column: 1/-1;
@@ -108,7 +108,7 @@ export class ProductSearchResults extends LitElement {
                 position: relative;
                 display: grid;
                 grid-template-columns: repeat(4,1fr);
-                gap: 1rem;
+                gap: 1em;
             }
 
             .rw-fill-grid {

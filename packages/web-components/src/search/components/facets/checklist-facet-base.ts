@@ -84,16 +84,22 @@ export abstract class ChecklistFacetBase extends LitElement {
                 }
             }).slice(0, 10);
 
+        // if there are not facets options, then return nothing
+        if (facetResultsToShow.length === 0) {
+            this.toggleAttribute('hidden', true);
+            return nothing;
+        }
         return html`
         <div class="rw-facet-content">
-            <h3>${this.label}</h3>
+            <h3 part="title">${this.label}</h3>
             ${facetResultsToShow.map((item, index) => {
             return html`
                     ${item.value !== undefined ? html`
                         <div>
-                            <label class="rw-label" for=${`${this.result?.field}-${this.result?.$type}-${index}`}>
+                            <label class="rw-label" part="label" for=${`${this.result?.field}-${this.result?.$type}-${index}`}>
                                 <input
                                     type="checkbox"
+                                    part="input"
                                     id=${`${this.result?.field}-${this.result?.$type}-${index}`}
                                     name=${`${this.result?.field}-${this.result?.$type}-${index}`}
                                     .checked=${this.shouldOptionBeChecked(item)}
@@ -101,67 +107,73 @@ export abstract class ChecklistFacetBase extends LitElement {
                         e.preventDefault();
                         this.handleChange(e, item);
                     }} />
-                                ${this.getOptionDisplayValue(item)}
-                                <span class="rw-hits">(${item.hits})</span>
+                                <span part="value">${this.getOptionDisplayValue(item)}</span>
+                                <span class="rw-hits" part="hits">(${item.hits})</span>
                             </label>
                         </div>
                     ` : nothing}
-                    `;
+                        `;
         })}
             ${this.result.available.length > 10 ? html`
                 ${this.showAll ? html`
                     <relewise-button
-                        button-text=${localization?.showLess ?? 'Show Less'}
                         class="rw-show-more"
                         @click=${() => this.showAll = false}>
+                        <span>${localization?.showLess ?? 'Show Less'}</span>
                     </relewise-button>` : html`
                     <relewise-button
-                        button-text=${localization?.showMore ?? 'Show More'}
                         class="rw-show-more"
                         @click=${() => this.showAll = true}>
+                        <span>${localization?.showMore ?? 'Show More'}</span>
                     </relewise-button>`}    
                 ` : nothing}
-        </div>
+    </div>
         `;
     }
 
     static styles = [theme, css`
         :host {
-            border-radius: var(--border-radius);
-            border-color: var(--relewise-checklist-facet-border-color, #eee);
-            background-color: var(--color);
+            font-family: var(--font);
             height: fit-content;
+
+            border-bottom: 1px solid;
+            border-color: var(--relewise-checklist-facet-border-color, #eee);
+            padding-bottom: 1.5em;
         }
 
         .rw-label {
             cursor: pointer;
-            display: block;
+            display: flex;
+            gap: 0.3em;
+            line-height: 1.1;
+            align-items: center;
             word-break: break-all;
-            margin-top: .25rem;
-            margin-bottom: .25rem;
+            margin-top: .25em;
+            margin-bottom: .25em;
         }
 
         .rw-label input {
             cursor: pointer;
             margin-left: 0;
-        }
-
-        .rw-facet-content {
-            margin: 1rem;
+            width: 1em;
+            height: 1em;
+            accent-color: var(--accent-color);
         }
 
         .rw-show-more {
-            --relewise-button-text-color: var(--relewise-checklist-facet-show-more-text-color, black);
+            margin: 0px;
         }
 
         .rw-hits {
             color: var(--relewise-checklist-facet-hits-color, gray);
-            font-size: var(--relewise-checklist-facet-hits-font-size, .75rem);
+            font-size: var(--relewise-checklist-facet-hits-font-size, .85em);
         }
 
         h3 {
             margin-top: 0;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.5em;
+            font-weight: 500;
+            font-size: 1em;
         }
     `];
 }

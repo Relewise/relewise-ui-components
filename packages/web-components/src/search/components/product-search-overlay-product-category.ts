@@ -5,6 +5,7 @@ import { getRelewiseUISearchOptions } from '../../helpers';
 import formatPrice from '../../helpers/formatPrice';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
+import { theme } from '../../theme';
 
 export class ProductSearchOverlayProductCategory extends LitElement {
 
@@ -56,24 +57,24 @@ export class ProductSearchOverlayProductCategory extends LitElement {
         return html`<h4 class="rw-product-category-result-display-name">${productCategory.displayName}</h4>`;
     }
 
-    static styles = css`
+    static styles = [theme, css`
         .rw-tile {
             text-decoration: inherit;
             text-size-adjust: inherit;
             color: inherit;
             display: flex;
-            padding: 0.3rem 1rem;
+            padding: 0.3em 1em;
         }
 
         .rw-product-category-result-display-name {
             margin: 0;
-            font-size: var(--relewise-product-search-result-overlay-product-category-diplay-name-font-size, 0.9rem);
+            font-size: var(--relewise-product-search-result-overlay-product-category-diplay-name-font-size, 0.9em);
             font-weight: var(--relewise-product-search-result-overlay-product-category-diplay-name-font-weight, normal);
             overflow: var(--relewise-product-search-result-overlay-product-category-diplay-name-overflow, hidden);
             color: var(--relewise-product-search-result-overlay-product-category-diplay-name-color, #212427);
             text-overflow: var(--relewise-product-search-result-overlay-category-product-category-diplay-name-text-overflow, ellipsis);
         }
-    `;
+    `];
 }
 
 declare global {

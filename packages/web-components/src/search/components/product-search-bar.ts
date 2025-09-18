@@ -62,12 +62,6 @@ export class ProductSearchBar extends LitElement {
             .autofocus="${this.autofocus}"
             class="rw-search-bar">
         </relewise-search-bar>
-        <relewise-button
-            class="rw-button"
-            button-text=${localization?.search ?? 'Search'}
-            .handleClick=${() => window.dispatchEvent(new CustomEvent(Events.search))}>
-            <relewise-search-icon></relewise-search-icon>
-        </relewise-button>
         `;
     }
 
@@ -78,9 +72,14 @@ export class ProductSearchBar extends LitElement {
                 display: flex;
             }
 
+            relewise-button {
+                --button-color: var(--accent-color);
+                --relewise-button-text-color: var(--color);
+                height: 3em;
+            }
+
             .rw-search-bar {
                 width: var(--relewise-product-search-bar-width, 100%);
-                margin-right: var(--relewise-product-search-margin-right, .5rem);
                 --color: var(--accent-color);
             }
         `];
