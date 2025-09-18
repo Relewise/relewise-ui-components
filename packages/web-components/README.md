@@ -684,15 +684,10 @@ All CSS variables recognised by the web components are listed below together wit
 | --- | --- | --- |
 | `--relewise-base-font-size` | `16px` | Base font size applied to every component host. |
 | `--relewise-font` | `ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"` | Primary font stack for all typography. |
-| `--font` | Same as `--relewise-font` | Internal alias used by components for text rendering. |
 | `--relewise-color` | `#eee` | Neutral colour used for backgrounds, borders and subtle text. |
-| `--color` | Same as `--relewise-color` | Internal alias for the neutral colour token. |
 | `--relewise-accent-color` | `#3764e4` | Accent colour for buttons, focus rings and highlights. |
-| `--accent-color` | Same as `--relewise-accent-color` | Internal alias used wherever the accent colour is needed. |
 | `--relewise-border` | `1px solid` | Default border style used across the components. |
-| `--border` | Same as `--relewise-border` | Internal alias that components apply to bordered elements. |
 | `--relewise-border-radius` | `1em` | Standard border radius for rounded UI elements. |
-| `--border-radius` | Same as `--relewise-border-radius` | Internal alias for the standard radius. |
 | `--relewise-hover-color` | `whitesmoke` | Background colour for hover and selection states. |
 
 #### Icons
