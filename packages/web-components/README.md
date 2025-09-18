@@ -672,120 +672,148 @@ To specify which search component the configuration should be applied to, simply
 ***Note: The target must match the target specified when calling `registerSearchTarget`!***
 
 ## Overwriting styling
-If you want to overwrite the styling of the grid and the default product tile, you can do so by using css variables.
+If you want to overwrite the styling of the grid and the default product tile, you can do so by using CSS variables.
 
-We define a CSS custom property --relewise-base-font-size on the component host. All typography and spacing inside the component use em units relative to this base. This ensures that the component scales consistently, while still allowing the base font size to be overridden from the outside if needed.
+We define a CSS custom property `--relewise-base-font-size` on the component host. All typography and spacing inside the component use `em` units relative to this base. This ensures that the component scales consistently, while still allowing the base font size to be overridden from the outside if needed.
+
+### CSS custom properties
+All CSS variables recognised by the web components are listed below together with their default values and purpose. Override the tokens that make sense for your design system and the rest of the styles will follow.
+
+#### Global tokens
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-base-font-size` | `16px` | Base font size applied to every component host. |
+| `--relewise-font` | `ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"` | Primary font stack for all typography. |
+| `--font` | Same as `--relewise-font` | Internal alias used by components for text rendering. |
+| `--relewise-color` | `#eee` | Neutral colour used for backgrounds, borders and subtle text. |
+| `--color` | Same as `--relewise-color` | Internal alias for the neutral colour token. |
+| `--relewise-accent-color` | `#3764e4` | Accent colour for buttons, focus rings and highlights. |
+| `--accent-color` | Same as `--relewise-accent-color` | Internal alias used wherever the accent colour is needed. |
+| `--relewise-border` | `1px solid` | Default border style used across the components. |
+| `--border` | Same as `--relewise-border` | Internal alias that components apply to bordered elements. |
+| `--relewise-border-radius` | `1em` | Standard border radius for rounded UI elements. |
+| `--border-radius` | Same as `--relewise-border-radius` | Internal alias for the standard radius. |
+| `--relewise-hover-color` | `whitesmoke` | Background colour for hover and selection states. |
+
+#### Icons
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-icon-color` | Matches `--color` | Fill and stroke colour for all icon components. |
+| `--relewise-x-icon-color` | Matches `--color` | Specific icon colour used by the clear (`x`) icon. |
+| `--relewise-icon-width` | `1rem` | Width of all SVG icons. |
+| `--relewise-icon-height` | `1rem` | Height of all SVG icons. |
+
+#### Buttons and interactive controls
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-button-height` | `3em` | Height of the shared button style. |
+| `--relewise-button-font-size` | `1em` | Font size used for button labels. |
+| `--relewise-button-text-color` | `#333` | Text colour for buttons and other interactive text. |
+| `--relewise-button-text-font-weight` | `600` | Font weight of button labels. |
+| `--relewise-button-border-color` | `#eee` | Border colour for outlined buttons. |
+| `--relewise-button-icon-padding` | `0.3em .8em` | Horizontal padding applied when buttons render icons. |
+| `--button-color` | `white` (buttons) / `#f9f9f9` (facet cards) | Background colour for elements that inherit the shared button style. |
+| `--relewise-sorting-button-container-display` | `flex` | Layout mode of the product sorting control container. |
+| `--relewise-sorting-button-margin-left` | `auto` | Left margin applied to push the sorting control to the edge. |
+| `--relewise-product-search-sorting-padding` | `.5em` | Padding for the sorting `<select>` element. |
+
+#### Product tiles and pricing
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-image-padding` | `0` | Padding around product images. |
+| `--relewise-image-background-color` | `#fff` | Background colour for the image placeholder. |
+| `--relewise-image-align` | `center` | Alignment of the image container content. |
+| `--relewise-information-container-margin` | `0.5em 0.5em` | Margin around the information section of the tile. |
+| `--relewise-image-width` | `100%` | Maximum width of product images. |
+| `--relewise-image-height` | `auto` | Height of product images. |
+| `--relewise-display-name-letter-spacing` | `-0.025em` | Letter spacing used for product names. |
+| `--relewise-display-name-alignment` | `start` | Horizontal alignment of the product name. |
+| `--relewise-display-name-color` | `#212427` | Text colour of the product name. |
+| `--relewise-display-name-line-height` | `1` (line height) / `1.1em` (tile height calculation) | Line height controlling how many lines of the name are shown. |
+| `--relewise-display-name-font-weight` | `500` | Font weight of the product name. |
+| `--relewise-display-name-font-size` | `1em` | Font size of the product name. |
+| `--relewise-display-name-margin` | `0em 0em 0em 0em` | Margin around the product name element. |
+| `--relewise-sales-price-font-weight` | `300` | Font weight of the sales price. |
+| `--relewise-sales-price-font-size` | `1em` | Font size of the sales price. |
+| `--relewise-sales-price-color` | `#212427` | Text colour of the sales price. |
+| `--relewise-sales-price-alignment` | `start` | Alignment of the sales price container. |
+| `--relewise-sales-price-margin` | `1em 0em 0em 0em` | Margin surrounding the sales price area. |
+| `--relewise-list-price-font-size` | `1em` | Font size of the list price. |
+| `--relewise-list-price-text-decoration` | `line-through` | Decoration applied to the list price. |
+| `--relewise-list-price-color` | `#bbb` | Text colour of the list price. |
+| `--relewise-list-price-margin` | `0em 0em 0em 0.5em` | Margin around the list price element. |
+
+#### Search bars and layout
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-product-search-bar-margin-top` | `.5em` | Top margin applied to the product search bar. |
+| `--relewise-product-search-bar-margin-bottom` | `.5em` | Bottom margin applied to the product search bar. |
+| `--relewise-product-search-bar-width` | `100%` | Width of the product search bar container. |
+| `--relewise-product-search-bar-height` | `3em` | Height of the product search bar input. |
+| `--relewise-search-bar-border-color` | `var(--color)` | Border colour of the search input in its default state. |
+| `--relewise-search-bar-border-color-focused` | `var(--accent-color)` | Border colour of the search input when focused. |
+
+#### Search overlay container and messaging
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-product-search-overlay-background-color` | `white` | Background colour of the overlay container. |
+| `--relewise-product-search-overlay-border-color` | `#ddd` | Border colour of the overlay container. |
+| `--relewise-product-search-overlay-box-shadow` | `0 10px 15px rgb(0 0 0 / 0.2)` | Shadow applied to the overlay container. |
+| `--relewise-product-search-overlay-no-results-message-font-weight` | `300` | Font weight for the “no results” message. |
+| `--relewise-product-search-overlay-no-results-message-color` | `#212427` | Text colour of the “no results” message. |
+| `--relewise-product-search-result-overlay-prediction-item-color` | `#212427` | Text colour used by suggested search queries. |
+| `--relewise-product-search-overlay-prediction-item-font-weight` | `300` | Font weight for suggested search queries. |
+| `--relewise-product-search-overlay-title-padding` | `1em 1em 0.2em 1em` | Padding for titles within the overlay. |
+| `--relewise-product-search-overlay-title-font-size` | `0.9em` | Font size for overlay titles. |
+| `--relewise-product-search-overlay-title-font-weight` | `500` | Font weight for overlay titles. |
+
+#### Search overlay product and category entries
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-product-search-result-overlay-product-image-height` | `3em` | Height of product images inside the overlay. |
+| `--relewise-product-search-result-overlay-product-image-width` | `3em` | Width of product images inside the overlay. |
+| `--relewise-product-search-result-overlay-product-diplay-name-overflow` | `hidden` | Overflow behaviour for product names inside the overlay. |
+| `--relewise-product-search-result-overlay-product-diplay-name-text-overflow` | `ellipsis` | Text overflow setting for product names inside the overlay. |
+| `--relewise-product-search-result-overlay-product-diplay-name-color` | `#212427` | Text colour for product names inside the overlay. |
+| `--relewise-product-search-result-overlay-product-sales-price-font-weight` | `400` | Font weight for sales prices in the overlay. |
+| `--relewise-product-search-result-overlay-product-sales-price-font-size` | `0.9em` | Font size for sales prices in the overlay. |
+| `--relewise-product-search-result-overlay-product-sales-price-color` | `#212427` | Text colour for sales prices in the overlay. |
+| `--relewise-product-search-result-overlay-product-list-price-font-size` | `0.9em` | Font size for list prices in the overlay. |
+| `--relewise-product-search-result-overlay-product-list-price-text-decoration` | `line-through` | Decoration applied to list prices in the overlay. |
+| `--relewise-product-search-result-overlay-product-list-price-text-color` | `darkgray` | Text colour for list prices in the overlay. |
+| `--relewise-product-search-result-overlay-product-category-diplay-name-font-size` | `0.9em` | Font size for category names in the overlay. |
+| `--relewise-product-search-result-overlay-product-category-diplay-name-font-weight` | `normal` | Font weight for category names in the overlay. |
+| `--relewise-product-search-result-overlay-product-category-diplay-name-overflow` | `hidden` | Overflow behaviour for category names in the overlay. |
+| `--relewise-product-search-result-overlay-product-category-diplay-name-color` | `#212427` | Text colour for category names in the overlay. |
+| `--relewise-product-search-result-overlay-category-product-category-diplay-name-text-overflow` | `ellipsis` | Text overflow for category names in the overlay. |
+
+#### Facets and filters
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-checklist-facet-border-color` | `#eee` | Border colour for facet cards. |
+| `--relewise-checklist-facet-hits-color` | `gray` | Text colour for facet hit counts. |
+| `--relewise-checklist-facet-hits-font-size` | `.85em` | Font size for facet hit counts. |
+| `--relewise-number-range-input-height` | `2em` | Height of inputs in the number range facet. |
+| `--relewise-number-range-input-width` | `100%` | Width of inputs in the number range facet. |
+
+#### Load more and meta information
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-load-more-text-size` | `.85em` | Font size of the “load more” button text. |
+| `--relewise-load-more-text-color` | `black` | Text colour of the “load more” button. |
+| `--relewise-products-shown-color` | `black` | Text colour for the “products shown” label. |
+| `--relewise-products-shown-font-size` | `.85em` | Font size for the “products shown” label. |
+
+To override one or more of these variables, apply them in your own stylesheet. For example:
 
 ```html
-    <style>
-        :root {
-            --relewise-base-font-size: 16px;
-            --relewise-font: Arial, Helvetica, sans-serif;
-            --relewise-color: lightgray;
-            --relewise-accent-color: #3764e4;
-            --relewise-border: 1px solid;
-            --relewise-border-radius: 1rem;
-            
-            --relewise-image-align: start;
-
-            --relewise-information-container-margin: 0.5rem 0.5rem 0.5rem 0.5rem;
-
-            --relewise-image-width: 100%;
-            --relewise-image-height: auto;
-            --relewise-image-padding: 0;
-            --relewise-image-background-color: #fff;
-            
-            --relewise-hover-color: whitesmoke;
-
-            --relewise-button-height: 3.25rem;
-            --relewise-button-text-color: white;
-            --relewise-button-text-font-weight: 100;
-            --relewise-button-icon-padding: .5rem;
-            --relewise-button-font-size: 1rem;
-
-            --relewise-icon-width: 1rem;
-            --relewise-icon-height: 1rem;
-
-            --relewise-sales-price-font-weight: 600;
-            --relewise-sales-price-font-size: 1rem;
-            --relewise-sales-price-color: #212427;
-            --relewise-sales-price-alignment: start;
-            --relewise-sales-price-margin: 0.5rem 0rem 0rem 0rem;
-
-            --relewise-list-price-font-size: .5rem;
-            --relewise-list-price-text-decoration: line-through;
-            --relewise-list-price-color: darkgray;
-            --relewise-list-price-margin: .25rem;
-
-            --relewise-display-name-letter-spacing: -0.025rem;
-            --relewise-display-name-alignment: start;
-            --relewise-display-name-color: #212427;
-            --relewise-display-name-line-height: 1.25rem;
-            --relewise-display-name-font-weight: 600;
-            --relewise-display-name-font-size: 0.75rem;
-            --relewise-display-name-margin: 0rem 0rem 0rem 0rem;
-
-            --relewise-product-search-bar-height: 3rem;
-            --relewise-product-search-overlay-background-color: white;
-            --relewise-product-search-overlay-border-color: '#ddd';
-            --relewise-product-search-overlay-box-shadow: 0 10px 15px rgb(0 0 0 / 0.2);
-            --relewise-product-search-overlay-no-results-message-font-weight: 600;
-            --relewise-product-search-overlay-no-results-message-color: #212427;
-            --relewise-product-search-overlay-prediction-item-font-weight: 300;
-            --relewise-product-search-result-overlay-prediction-item-color: #212427;
-            --relewise-product-search-result-overlay-product-image-height: 3rem;
-            --relewise-product-search-result-overlay-product-image-width: 3rem;
-            --relewise-product-search-result-overlay-product-diplay-name-overflow: hidden;
-            --relewise-product-search-result-overlay-product-diplay-name-text-overflow: ellipsis;
-            --relewise-product-search-result-overlay-product-diplay-name-color: #212427;
-            --relewise-product-search-result-overlay-product-sales-price-font-weight: 400;
-            --relewise-product-search-result-overlay-product-sales-price-font-size: 0.9rem;
-            --relewise-product-search-result-overlay-product-sales-price-color: #212427;
-            --relewise-product-search-result-overlay-product-list-price-font-size: 0.9rem;
-            --relewise-product-search-result-overlay-product-list-price-text-decoration: line-through;
-            --relewise-product-search-result-overlay-product-list-price-text-color: darkgray;
-            --relewise-product-search-overlay-title-padding: 1rem 1rem 0.2rem 1rem;
-            --relewise-product-search-overlay-title-font-size: 0.9rem;
-            --relewise-product-search-overlay-title-font-weight: 500;
-
-            --relewise-product-search-sorting-font-size: 1rem;
-            --relewise-product-search-sorting-font-weight: 400;
-            --relewise-product-search-sorting-border-color: #eee;
-            --relewise-product-search-sorting-background-color: #eee;
-            --relewise-product-search-sorting-padding: .5rem;
-
-            --relewise-load-more-text-size: 1rem;
-            --relewise-load-more-text-color: black;
-
-            --relewise-products-shown-color: gray;
-            --relewise-products-shown-font-size: .75rem;
-
-            --relewise-product-search-bar-margin-top: 1rem;
-            --relewise-product-search-bar-margin-bottom: 1rem;
-            --relewise-product-search-bar-width: 100%;
-            --relewise-product-search-margin-right: .5rem;
-            --relewise-search-bar-border-color: '#eee';
-            --relewise-search-bar-border-color-focused: '#eee';
-
-            --relewise-sorting-options-postion: absolute;
-            --relewise-sorting-options-z-index: 10;
-            --relewise-sorting-options-background-color: white;
-            --relewise-sorting-options-margin-top: .25rem;
-
-            --relewise-checklist-facet-border-radius: 1rem;
-            --relewise-checklist-facet-border-color: lightgray;
-            --relewise-checklist-facet-background-color: lightgray;
-            --relewise-checklist-facet-show-more-text-color: black;
-            --relewise-checklist-facet-hits-color: gray;
-            --relewise-checklist-facet-hits-font-size: .75rem;
-
-            --relewise-number-range-input-border: 2px solid;
-            --relewise-number-range-input-border-radius: 1rem;
-            --relewise-number-range-input-height: 2rem;  
-            --relewise-number-range-input-width: 4rem;
-            --relewise-number-range-save-text-color: black;
-        }
-    </style>
+<style>
+    :root {
+        --relewise-accent-color: #ff4f4f;
+        --relewise-button-text-color: #ffffff;
+        --relewise-product-search-overlay-background-color: #fdfdfd;
+    }
+</style>
 ```
 
 ## Properties to render
