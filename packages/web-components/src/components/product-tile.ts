@@ -73,7 +73,7 @@ export class ProductTile extends LitElement {
     }
 
     private getProductImageAlt(product: ProductResult): string {
-        const altText = product.displayName ?? product.variant?.displayName ?? '';
+        const altText = product.variant?.displayName ?? product.displayName ?? '';
 
         return altText ?? '';
     }
