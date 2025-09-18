@@ -68,6 +68,7 @@ export class LoadMoreProducts extends LitElement {
             font-family: var(--font);
             font-size: var(--relewise-load-more-text-size, .85em);
             color: var(--relewise-load-more-text-color, black);
+            padding: .5em .25rem;
             display: flex;
             justify-content: center;
             align-items: center;

@@ -16,7 +16,7 @@ export class Button extends LitElement {
 
     render() {
         return html`
-            <button class="rw-button" @click=${() => this.handleClick()}>  
+            <button class="rw-button rw-border" @click=${() => this.handleClick()}>  
                     ${this.buttonText ? html`
                         <span class="rw-button-text">${this.buttonText}</span>
                     ` : nothing}
@@ -37,10 +37,6 @@ export class Button extends LitElement {
         
         .rw-button {
             cursor: pointer;
-            background-color: inherit;
-            border: inherit;
-            border-radius: inherit;
-            border-color: inherit;
             height: inherit;
             width: inherit;
             color: white;
@@ -49,7 +45,7 @@ export class Button extends LitElement {
             padding: inherit;
 
             font-weight: var(--relewise-button-text-font-weight, 600);
-            border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
+            border-color: var(--relewise-button-border-color, #eee);
             background-color: var(--button-color, white);
             color: var(--relewise-button-text-color, #333);
             border-radius: 0.5em;
@@ -63,7 +59,7 @@ export class Button extends LitElement {
             justify-content: center;
             display: flex;
             line-height: 1em;
-            padding: .25em;
+            padding: .5em .25rem;
             width: 100%;
             text-align: left;  
             line-height: 1;    
