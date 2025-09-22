@@ -136,7 +136,7 @@ export class ProductTile extends LitElement {
             font-size: var(--relewise-display-name-font-size, 1em);
             margin: var(--relewise-display-name-margin, 0em 0em 0em 0em);
             overflow: hidden;
-            height: calc(var(--relewise-display-name-line-height, 1.1em)* 2);
+            height: calc(var(--relewise-display-name-line-height, 1.05em)* 2);
             
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 2;
