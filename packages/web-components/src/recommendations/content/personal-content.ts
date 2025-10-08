@@ -1,4 +1,4 @@
-import { PersonalContentRecommendationBuilder, ContentRecommendationResponse } from '@relewise/client';
+import { PersonalContentRecommendationBuilder, ContentRecommendationResponse, Settings } from '@relewise/client';
 import { getRecommender } from '../recommender';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
 import { ContentRecommendationBase } from './content-recommendation-base';
@@ -13,7 +13,7 @@ export class PersonalContent extends ContentRecommendationBase {
 
     async buildRequest() {
         return (await getContentRecommendationBuilderWithDefaults<PersonalContentRecommendationBuilder>(
-            settings => new PersonalContentRecommendationBuilder(settings),
+            (settings: Settings) => new PersonalContentRecommendationBuilder(settings),
             this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Personal Content',
             this.target,
         ))
