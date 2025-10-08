@@ -11,4 +11,9 @@ export const defaultProductCategoryProperties: Partial<SelectedCategoryPropertie
     dataKeys: ['Url'],
 };
 
+export const defaultContentProperties: Partial<SelectedCategoryPropertiesSettings> = {
+    displayName: true,
+    dataKeys: ['Url', 'Image'],
+};
+
 export const defaultExplodedVariants = 1;

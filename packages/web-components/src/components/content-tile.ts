@@ -27,10 +27,10 @@ export class ContentTile extends LitElement {
         // }
 
         const url = this.getDataValue('Url');
-        const Image = this.getDataValue('Image');
+        const image = this.getDataValue('Image');
 
         const body = html`
-            ${Image ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${Image} alt=${this.getAlt()} /></div>` : nothing}
+            ${image ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${image} alt=${this.getAlt()} /></div>` : nothing}
             <div class='rw-information-container'>
                 <h5 class='rw-display-name'>${this.content.displayName}</h5>
             </div>`;

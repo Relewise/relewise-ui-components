@@ -1,5 +1,6 @@
-import { ContentSettingsRecommendationBuilder, SelectedContentPropertiesSettings, Settings } from '@relewise/client';
+import { ContentSettingsRecommendationBuilder, Settings } from '@relewise/client';
 import { getRelewiseContextSettings, getRelewiseRecommendationTargetedConfigurations, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
+import { defaultContentProperties } from '../defaultSettings';
 
 export async function getContentRecommendationBuilderWithDefaults<T extends ContentSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T, displayedAtLocation: string, target?: string | null): Promise<T> {
     const settings = getRelewiseContextSettings(displayedAtLocation);
@@ -11,18 +12,11 @@ export async function getContentRecommendationBuilderWithDefaults<T extends Cont
     }
 
     const builder = createBuilder(settings)
-        .setSelectedContentProperties(relewiseUIOptions.selectedPropertiesSettings?.content ?? getDefaultContentProperties());
+        .setSelectedContentProperties(relewiseUIOptions.selectedPropertiesSettings?.content ?? defaultContentProperties);
 
     // if (target) {
     //     targetedConfiguration.handle(target, builder);
     // }
 
     return builder;
-}
-
-function getDefaultContentProperties(): Partial<SelectedContentPropertiesSettings> {
-    return {
-        displayName: true,
-        dataKeys: ['Image', 'Url', 'Description'],
-    };
 }
