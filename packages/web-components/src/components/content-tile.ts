@@ -1,30 +1,43 @@
 import { ContentResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
-// import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
+import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
-// import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
-// import { until } from 'lit-html/directives/until.js';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
+import { until } from 'lit-html/directives/until.js';
 
 export class ContentTile extends LitElement {
 
     @property({ type: Object })
     content: ContentResult | null = null;
 
+    connectedCallback(): void {
+        super.connectedCallback();
+    }
+
     render() {
         if (!this.content) {
             return;
         }
 
-        // const settings = getRelewiseUIOptions();
-        // if (settings.templates?.content) {
-        //     const result = settings.templates.content(this.content, { html, helpers: { unsafeHTML, nothing } as any });
-        //     const markup = result instanceof Promise ? html`${until(result.then(r => { if (r === nothing) { this.toggleAttribute('hidden', true); } return r; }))}` : result;
-        //     if (result === nothing) {
-        //         this.toggleAttribute('hidden', true);
-        //     }
-        //     return html`${markup}`;
-        // }
+        const settings = getRelewiseUIOptions();
+        if (settings.templates?.content) {
+            const result = settings.templates.content(this.content, { html, helpers: { unsafeHTML, nothing } });
+            const markup = result instanceof Promise ? html`
+                ${until(result.then(result => {
+                if (result === nothing) {
+                    this.toggleAttribute('hidden', true);
+                }
+
+                return result;
+            }))}` : result;
+
+            if (result === nothing) {
+                this.toggleAttribute('hidden', true);
+            }
+
+            return html`${markup}`;
+        }
 
         const url = this.getDataValue('Url');
         const image = this.getDataValue('Image');

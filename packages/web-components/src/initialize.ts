@@ -1,4 +1,4 @@
-import { FilterBuilder, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedContentPropertiesSettings, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
+import { ContentResult, FilterBuilder, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedContentPropertiesSettings, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { App, RelewiseUISearchOptions } from './app';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
@@ -43,7 +43,7 @@ export interface ContextSettings {
 export interface TemplateExtensions {
     html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>;
     helpers: {
-        formatPrice: (price: string | number | null | undefined) => string | number | null | undefined;
+        formatPrice?: (price: string | number | null | undefined) => string | number | null | undefined;
         unsafeHTML: typeof unsafeHTML;
         nothing: typeof nothing;
     };
@@ -51,6 +51,7 @@ export interface TemplateExtensions {
 
 export interface Templates {
     product?: (product: ProductResult, extensions: TemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    content?: (content: ContentResult, extensions: TemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
 }
 
 export interface Targets {
