@@ -2,7 +2,7 @@ import { PersonalContentRecommendationBuilder, ContentRecommendationResponse } f
 import { getRecommender } from '../recommender';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
 import { ContentRecommendationBase } from './content-recommendation-base';
-import { getContentRecommendationBuilderWithDefaults } from '../../builders/ContentRecommendationBuilder';
+import { getContentRecommendationBuilderWithDefaults } from '../../builders/contentRecommendationBuilder';
 
 export class PersonalContent extends ContentRecommendationBase {
 
