@@ -7,6 +7,7 @@ export async function getContentRecommendationBuilderWithDefaults<T extends Cont
     const relewiseUIOptions = getRelewiseUIOptions();
     const targetedConfiguration = getRelewiseRecommendationTargetedConfigurations();
 
+    // We wait here if the configuration is injected via the global register-method
     if (target && !targetedConfiguration.has(target)) {
         await new Promise(r => setTimeout(r, 0));
     }
@@ -14,9 +15,9 @@ export async function getContentRecommendationBuilderWithDefaults<T extends Cont
     const builder = createBuilder(settings)
         .setSelectedContentProperties(relewiseUIOptions.selectedPropertiesSettings?.content ?? defaultContentProperties);
 
-    // if (target) {
-    //     targetedConfiguration.handle(target, builder);
-    // }
+    if (target) {
+        targetedConfiguration.handle(target, builder);
+    } 
 
     return builder;
 }

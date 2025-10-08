@@ -1,4 +1,4 @@
-import { FilterBuilder, ProductSettingsRecommendationBuilder, RelevanceModifierBuilder } from '@relewise/client';
+import { FilterBuilder, RecommendationRequestBuilder, RelevanceModifierBuilder } from '@relewise/client';
 
 export type TargetedRecommendationConfiguration = {
   filters?: (builder: FilterBuilder) => void;
@@ -27,7 +27,7 @@ export class TargetedRecommendationConfigurations {
         return this.templates.has(target);
     }
 
-    handle(target: string, builder: ProductSettingsRecommendationBuilder) {
+    handle(target: string, builder: RecommendationRequestBuilder) {
         const configuration = this.templates.get(target);
     
         if (!configuration) {
