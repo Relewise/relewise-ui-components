@@ -25,11 +25,13 @@ export interface RelewiseUIOptions {
 export interface Filters {
     product?: (builder: FilterBuilder) => void;
     productCategory?: (builder: FilterBuilder) => void;
+    content?: (builder: FilterBuilder) => void;
 }
 
 export interface RelevanceModifiers {
     product?: (builder: RelevanceModifierBuilder) => void;
     productCategory?: (builder: RelevanceModifierBuilder) => void;
+    content?: (builder: RelevanceModifierBuilder) => void;
 }
 
 export interface ContextSettings {

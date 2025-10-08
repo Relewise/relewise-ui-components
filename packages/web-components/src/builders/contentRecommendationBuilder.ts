@@ -13,7 +13,17 @@ export async function getContentRecommendationBuilderWithDefaults<T extends Cont
     }
 
     const builder = createBuilder(settings)
-        .setSelectedContentProperties(relewiseUIOptions.selectedPropertiesSettings?.content ?? defaultContentProperties);
+        .setSelectedContentProperties(relewiseUIOptions.selectedPropertiesSettings?.content ?? defaultContentProperties)
+        .relevanceModifiers(builder => {
+            if (relewiseUIOptions.relevanceModifiers?.product) {
+                relewiseUIOptions.relevanceModifiers.product(builder);
+            }
+        })
+        .filters(builder => {
+            if (relewiseUIOptions.filters?.product) {
+                relewiseUIOptions.filters.product(builder);
+            }
+        });
 
     if (target) {
         targetedConfiguration.handle(target, builder);
