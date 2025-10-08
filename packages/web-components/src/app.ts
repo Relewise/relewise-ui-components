@@ -145,6 +145,7 @@ export function useRecommendations() {
     tryRegisterElement('relewise-purchased-with-multiple-products', PurchasedWithMultipleProducts);
     tryRegisterElement('relewise-personal-products', PersonalProducts);
     tryRegisterElement('relewise-recently-viewed-products', RecentlyViewedProducts);
+    tryRegisterElement('relewise-personal-content', PersonalContent);
 
     registerGenericComponents();
 }
@@ -204,6 +205,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
 }
 
 function registerGenericComponents() {
+    tryRegisterElement('relewise-content-tile', ContentTile);
     tryRegisterElement('relewise-product-tile', ProductTile);
     tryRegisterElement('relewise-search-icon', SearchIcon);
     tryRegisterElement('relewise-arrow-up-icon', ArrowUpIcon);

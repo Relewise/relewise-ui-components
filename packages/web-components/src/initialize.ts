@@ -1,4 +1,4 @@
-import { FilterBuilder, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
+import { FilterBuilder, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedContentPropertiesSettings, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { App, RelewiseUISearchOptions } from './app';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
@@ -13,6 +13,7 @@ export interface RelewiseUIOptions {
         product?: Partial<SelectedProductPropertiesSettings>;
         variant?: Partial<SelectedVariantPropertiesSettings>;
         productCategory?: Partial<SelectedProductCategoryPropertiesSettings>;
+        content?: Partial<SelectedContentPropertiesSettings>;
     };
     clientOptions: RelewiseClientOptions;
     templates?: Templates;
