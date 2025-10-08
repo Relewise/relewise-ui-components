@@ -55,7 +55,7 @@ export abstract class ContentRecommendationBase extends LitElement {
 
     render() {
         if (this.content && this.content.length > 0) {
-            return html`${this.content.map(c => html`<relewise-content-tile .content=${c}></relewise-content-tile>`)}`;
+            return html`${this.content.map(content => html`<relewise-content-tile .content=${content}></relewise-content-tile>`)}`;
         }
     }
 
