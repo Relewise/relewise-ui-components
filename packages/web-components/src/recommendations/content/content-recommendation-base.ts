@@ -22,16 +22,6 @@ export abstract class ContentRecommendationBase extends LitElement {
 
     fetchAndUpdateContentBound = this.fetchAndUpdateContent.bind(this);
 
-    constructor() {
-        super();
-        setTimeout(async() => {
-            const request = await this.buildRequest();
-            if (request) {
-                this.dispatchEvent(new CustomEvent(Events.registerProductRecommendation, { bubbles: true, composed: true, detail: request }));
-            }
-        }, 0);
-    }
-
     async connectedCallback() {
         super.connectedCallback();
         if (!this.displayedAtLocation) {
