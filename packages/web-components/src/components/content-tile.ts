@@ -130,8 +130,9 @@ export class ContentTile extends LitElement {
             color: var(--relewise-summary-color, #666);
             display: -webkit-box;
             -webkit-box-orient: vertical;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 2;
             overflow: hidden;
+            height: calc(var(--relewise-display-name-line-height, 1.25em) * 2)
         }
     `];
 }
