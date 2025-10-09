@@ -57,9 +57,11 @@ export class ContentTile extends LitElement {
         const summary = content.data && 'Summary' in content.data ? content.data['Summary'].value : null;
 
         return html`
-            ${image 
-                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${image} alt=${this.getContentImageAlt(content)} /></div>` 
+            <div class="rw-image-container">
+                ${image
+                ? html`<img class="rw-object-cover" src=${image} alt=${this.getContentImageAlt(content)} />`
                 : nothing}
+            </div>
             <div class='rw-information-container'>
                 <h5 class='rw-display-name'>${content.displayName}</h5>
                 ${summary ? html`<p class="rw-summary">${summary}</p>` : nothing}
@@ -89,6 +91,9 @@ export class ContentTile extends LitElement {
             position: relative;
             text-decoration: inherit;
             text-size-adjust: none;
+            height: -webkit-fill-available;
+            height: -moz-available;    
+            justify-content: flex-end;
         }
         .rw-image-container {
             display: flex;
@@ -136,4 +141,3 @@ declare global {
         'relewise-content-tile': ContentTile;
     }
 }
-
