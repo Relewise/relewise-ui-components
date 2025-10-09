@@ -39,29 +39,34 @@ export class ContentTile extends LitElement {
             return html`${markup}`;
         }
 
-        const url = this.getDataValue('Url');
-        const image = this.getDataValue('Image');
-
-        const body = html`
-            ${image ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${image} alt=${this.getAlt()} /></div>` : nothing}
-            <div class='rw-information-container'>
-                <h5 class='rw-display-name'>${this.content.displayName}</h5>
-            </div>`;
-
-        if (url) {
-            return html`<a class='rw-tile' href=${url}>${body}</a>`;
+        if (this.content.data && 'Url' in this.content.data) {
+            return html`
+                <a class='rw-tile' href=${this.content.data['Url'].value ?? ''}>
+                    ${this.renderTileContent(this.content)}
+                </a>`;
         }
 
-        return html`<div class='rw-tile'>${body}</div>`;
+        return html`
+            <div class='rw-tile'>
+                ${this.renderTileContent(this.content)}
+            </div>`;
     }
 
-    private getAlt(): string {
-        return this.content?.displayName ?? '';
+    renderTileContent(content: ContentResult) {
+        return html`
+            ${(content.data && 'Image' in content.data) 
+                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${content.data['Image'].value} alt=${this.getContentImageAlt(content)} /></div>` 
+                : nothing}
+            <div class='rw-information-container'>
+                <h5 class='rw-display-name'>${content.displayName}</h5>
+            </div>`;
+
     }
 
-    private getDataValue(key: string): string | undefined {
-        const data = this.content?.data as Record<string, { value?: string }> | undefined;
-        return data && key in data ? data[key]?.value : undefined;
+    private getContentImageAlt(content: ContentResult): string {
+        const altText = content.displayName ?? '';
+
+        return altText ?? '';
     }
 
     static styles = [
