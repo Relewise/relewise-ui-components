@@ -43,7 +43,15 @@ export interface ContextSettings {
 export interface TemplateExtensions {
     html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>;
     helpers: {
-        formatPrice?: (price: string | number | null | undefined) => string | number | null | undefined;
+        formatPrice: (price: string | number | null | undefined) => string | number | null | undefined;
+        unsafeHTML: typeof unsafeHTML;
+        nothing: typeof nothing;
+    };
+}
+
+export interface ContentTemplateExtensions {
+    html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>;
+    helpers: {
         unsafeHTML: typeof unsafeHTML;
         nothing: typeof nothing;
     };
@@ -51,7 +59,7 @@ export interface TemplateExtensions {
 
 export interface Templates {
     product?: (product: ProductResult, extensions: TemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
-    content?: (content: ContentResult, extensions: TemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    content?: (content: ContentResult, extensions: ContentTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
 }
 
 export interface Targets {
