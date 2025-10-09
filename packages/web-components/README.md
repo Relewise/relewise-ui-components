@@ -811,6 +811,14 @@ To override one or more of these variables, apply them in your own stylesheet. F
 </style>
 ```
 
+### Content tiles
+The default `relewise-content-tile` exposes summary-specific tokens you can override to match your typography palette.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-summary-line-height` | `1.2` | Line height for the summary text block. |
+| `--relewise-summary-color` | `#666` | Text colour for the summary text block. |
+
 ## Properties to render
 By default our web components will render some basic information about the product.
 

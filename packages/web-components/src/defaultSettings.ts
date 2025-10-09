@@ -13,7 +13,7 @@ export const defaultProductCategoryProperties: Partial<SelectedCategoryPropertie
 
 export const defaultContentProperties: Partial<SelectedCategoryPropertiesSettings> = {
     displayName: true,
-    dataKeys: ['Url', 'Image'],
+    dataKeys: ['Url', 'ImageUrl','Summary'],
 };
 
 export const defaultExplodedVariants = 1;

@@ -41,24 +41,28 @@ export class ContentTile extends LitElement {
 
         if (this.content.data && 'Url' in this.content.data) {
             return html`
-                <a class='rw-tile' href=${this.content.data['Url'].value ?? ''}>
-                    ${this.renderTileContent(this.content)}
+                <a class='rw-content-tile' href=${this.content.data['Url'].value ?? ''}>
+                        ${this.renderTileContent(this.content)}
                 </a>`;
         }
 
         return html`
-            <div class='rw-tile'>
+            <div class='rw-content-tile'>
                 ${this.renderTileContent(this.content)}
             </div>`;
     }
 
     renderTileContent(content: ContentResult) {
+        const image = content.data && 'ImageUrl' in content.data ? content.data['ImageUrl'].value : null;
+        const summary = content.data && 'Summary' in content.data ? content.data['Summary'].value : null;
+
         return html`
-            ${(content.data && 'Image' in content.data) 
-                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${content.data['Image'].value} alt=${this.getContentImageAlt(content)} /></div>` 
+            ${image 
+                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${image} alt=${this.getContentImageAlt(content)} /></div>` 
                 : nothing}
             <div class='rw-information-container'>
                 <h5 class='rw-display-name'>${content.displayName}</h5>
+                ${summary ? html`<p class="rw-summary">${summary}</p>` : nothing}
             </div>`;
     }
 
@@ -79,7 +83,7 @@ export class ContentTile extends LitElement {
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
             overflow: hidden;
         }
-        .rw-tile {
+        .rw-content-tile {
             display: flex;
             flex-direction: column;
             position: relative;
@@ -113,6 +117,16 @@ export class ContentTile extends LitElement {
             height: calc(var(--relewise-display-name-line-height, 1.05em)* 2);
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 2;
+        }
+        .rw-summary {
+            margin: 0;
+            font-size: calc(var(--relewise-base-font-size, 16px) * 0.9);;
+            line-height: var(--relewise-summary-line-height, 1.2); ;
+            color: var(--relewise-summary-color, #666);
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
         }
     `];
 }
