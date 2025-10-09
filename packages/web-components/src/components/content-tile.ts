@@ -60,7 +60,6 @@ export class ContentTile extends LitElement {
             <div class='rw-information-container'>
                 <h5 class='rw-display-name'>${content.displayName}</h5>
             </div>`;
-
     }
 
     private getContentImageAlt(content: ContentResult): string {
