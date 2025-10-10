@@ -1,4 +1,4 @@
-import { FilterBuilder, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
+import { ContentResult, FilterBuilder, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedContentPropertiesSettings, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { App, RelewiseUISearchOptions } from './app';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
@@ -13,6 +13,7 @@ export interface RelewiseUIOptions {
         product?: Partial<SelectedProductPropertiesSettings>;
         variant?: Partial<SelectedVariantPropertiesSettings>;
         productCategory?: Partial<SelectedProductCategoryPropertiesSettings>;
+        content?: Partial<SelectedContentPropertiesSettings>;
     };
     clientOptions: RelewiseClientOptions;
     templates?: Templates;
@@ -24,11 +25,13 @@ export interface RelewiseUIOptions {
 export interface Filters {
     product?: (builder: FilterBuilder) => void;
     productCategory?: (builder: FilterBuilder) => void;
+    content?: (builder: FilterBuilder) => void;
 }
 
 export interface RelevanceModifiers {
     product?: (builder: RelevanceModifierBuilder) => void;
     productCategory?: (builder: RelevanceModifierBuilder) => void;
+    content?: (builder: RelevanceModifierBuilder) => void;
 }
 
 export interface ContextSettings {
@@ -37,7 +40,7 @@ export interface ContextSettings {
     currency: string;
 }
 
-export interface TemplateExtensions {
+export interface ProductTemplateExtensions {
     html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>;
     helpers: {
         formatPrice: (price: string | number | null | undefined) => string | number | null | undefined;
@@ -46,8 +49,17 @@ export interface TemplateExtensions {
     };
 }
 
+export interface ContentTemplateExtensions {
+    html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>;
+    helpers: {
+        unsafeHTML: typeof unsafeHTML;
+        nothing: typeof nothing;
+    };
+}
+
 export interface Templates {
-    product?: (product: ProductResult, extensions: TemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    product?: (product: ProductResult, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    content?: (content: ContentResult, extensions: ContentTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
 }
 
 export interface Targets {

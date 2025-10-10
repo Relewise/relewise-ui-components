@@ -251,6 +251,27 @@ This inceases performance, and ensures that there are no duplicate products in t
 </relewise-product-recommendation-batcher>
 ```
 
+#### Personal Content
+This component renders [personal content](https://docs.relewise.com/docs/recommendations/recommendation-types.html#personal-content).
+
+```html
+<relewise-personal-content displayed-at-location="LOCATION"></relewise-personal-content>
+```
+##### Attributes
+- **displayed-at-location** : 
+    
+    Where the recommendations are being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
+    
+- **number-of-recommendations** (Optional, *Default 4*): 
+    
+    The number of content recommendations to render.
+
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
 #### Targeted Recommendations
 You can target specific recommendations to ensure certain filters and/or relevance modifiers are only applied to the target. This can be done by calling `registerRecommendationTarget` either during initialization or afterwards by calling the function independently.
 
@@ -810,6 +831,14 @@ To override one or more of these variables, apply them in your own stylesheet. F
     }
 </style>
 ```
+
+### Content tiles
+The default `relewise-content-tile` exposes summary-specific tokens you can override to match your typography palette.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-summary-line-height` | `1.2` | Line height for the summary text block. |
+| `--relewise-summary-color` | `#666` | Text colour for the summary text block. |
 
 ## Properties to render
 By default our web components will render some basic information about the product.
