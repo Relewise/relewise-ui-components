@@ -125,14 +125,14 @@ export class ContentTile extends LitElement {
         }
         .rw-summary {
             margin: 0;
-            font-size: calc(var(--relewise-base-font-size, 16px) * 0.9);;
+            font-size: calc(var(--relewise-base-font-size, 16px) * 0.9);
             line-height: var(--relewise-summary-line-height, 1.2); ;
             color: var(--relewise-summary-color, #666);
             display: -webkit-box;
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 2;
             overflow: hidden;
-            height: calc(var(--relewise-display-name-line-height, 1.25em) * 2)
+            height: calc(var(--relewise-summary-line-height, 1.25em) * 2)
         }
     `];
 }
