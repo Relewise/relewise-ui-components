@@ -85,6 +85,7 @@ export class ContentTile extends LitElement {
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
             overflow: hidden;
         }
+            
         .rw-content-tile {
             display: flex;
             flex-direction: column;
@@ -95,20 +96,24 @@ export class ContentTile extends LitElement {
             height: -moz-available;    
             justify-content: flex-end;
         }
+
         .rw-image-container {
             display: flex;
             padding: var(--relewise-image-padding, 0);
             background-color: var(--relewise-image-background-color, #fff);
             justify-content: var(--relewise-image-align, center);
         }
+
         .rw-information-container {
             margin: var(--relewise-information-container-margin, 0.5em 0.5em);
         }
+
         .rw-object-cover {
             object-fit: contain;
             max-width: var(--relewise-image-width, 100%);
             height: var(--relewise-image-height, auto);
         }
+
         .rw-display-name {
             display: -webkit-box;
             letter-spacing: var(--relewise-display-name-letter-spacing, -0.025em);
@@ -123,6 +128,7 @@ export class ContentTile extends LitElement {
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 2;
         }
+
         .rw-summary {
             margin: 0;
             font-size: calc(var(--relewise-base-font-size, 16px) * 0.9);
