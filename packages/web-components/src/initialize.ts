@@ -40,7 +40,7 @@ export interface ContextSettings {
     currency: string;
 }
 
-export interface TemplateExtensions {
+export interface ProductTemplateExtensions {
     html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>;
     helpers: {
         formatPrice: (price: string | number | null | undefined) => string | number | null | undefined;
@@ -58,7 +58,7 @@ export interface ContentTemplateExtensions {
 }
 
 export interface Templates {
-    product?: (product: ProductResult, extensions: TemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    product?: (product: ProductResult, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
     content?: (content: ContentResult, extensions: ContentTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
 }
 

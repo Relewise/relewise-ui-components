@@ -3,7 +3,7 @@ import { nothing, TemplateResult } from 'lit';
 import { FilterIcon, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon } from './components';
 import { Button } from './components/button';
 import { LoadingSpinner } from './components/loading-spinner';
-import { ContextSettings, TemplateExtensions } from './initialize';
+import { ContextSettings, ProductTemplateExtensions } from './initialize';
 import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PersonalContent } from './recommendations';
 import { ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar } from './search';
 import { ChecklistBooleanValueFacet } from './search/components/facets/checklist-boolean-value-facet';
@@ -101,8 +101,8 @@ export interface SearchFacets {
 }
 
 export interface SearchTemplates {
-    searchOverlayProductResult?: (product: ProductResult, extensions: TemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
-    searchOverlayProductCategoryResult?: (productCategory: ProductCategoryResult, extensions: TemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    searchOverlayProductResult?: (product: ProductResult, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    searchOverlayProductCategoryResult?: (productCategory: ProductCategoryResult, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
 }
 
 export class App {
