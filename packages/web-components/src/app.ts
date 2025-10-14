@@ -1,4 +1,4 @@
-import { FilterBuilder, ProductCategoryResult, ProductResult } from '@relewise/client';
+import { FilterBuilder, PopularContentsBuilder, ProductCategoryResult, ProductResult } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { FilterIcon, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon } from './components';
 import { Button } from './components/button';
@@ -146,6 +146,7 @@ export function useRecommendations() {
     tryRegisterElement('relewise-personal-products', PersonalProducts);
     tryRegisterElement('relewise-recently-viewed-products', RecentlyViewedProducts);
     tryRegisterElement('relewise-personal-content', PersonalContent);
+    tryRegisterElement('relewise-popular-content', PopularContent);
 
     registerGenericComponents();
 }
