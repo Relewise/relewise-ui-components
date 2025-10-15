@@ -272,6 +272,31 @@ This component renders [personal content](https://docs.relewise.com/docs/recomme
 
     The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
 
+#### Content Viewed After Viewing Content
+This component renders [content typically viewed after viewing a given content page](https://docs.relewise.com/docs/recommendations/recommendation-types.html#content-viewed-after-viewing-content).
+
+```html
+<relewise-content-viewed-after-viewing-content content-id="CONTENT_ID" displayed-at-location="LOCATION"></relewise-content-viewed-after-viewing-content>
+```
+##### Attributes
+- **displayed-at-location** : 
+    
+    Where the recommendations are being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
+
+- **content-id**:
+    
+    The id of the content item the recommendations should be based on.
+
+- **number-of-recommendations** (Optional, *Default 4*): 
+
+    The number of content recommendations to render.
+
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
 #### Targeted Recommendations
 You can target specific recommendations to ensure certain filters and/or relevance modifiers are only applied to the target. This can be done by calling `registerRecommendationTarget` either during initialization or afterwards by calling the function independently.
 
