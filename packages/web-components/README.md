@@ -301,6 +301,35 @@ This component renders [content typically viewed after viewing a given product](
 
     The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
 
+#### Content Viewed After Viewing Multiple Products
+This component renders [content typically viewed after viewing multiple products](https://docs.relewise.com/docs/recommendations/recommendation-types.html#content-viewed-after-viewing-multiple-products).
+
+```html
+<relewise-content-viewed-after-viewing-multiple-products displayed-at-location="LOCATION">
+    <product-and-variant-id product-id="PRODUCT_ID"></product-and-variant-id>
+    <product-and-variant-id product-id="SECOND_PRODUCT_ID" variant-id="VARIANT_ID"></product-and-variant-id>
+</relewise-content-viewed-after-viewing-multiple-products>
+```
+##### Attributes
+- **displayed-at-location** : 
+    
+    Where the recommendations are being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
+
+- **number-of-recommendations** (Optional, *Default 4*): 
+
+    The number of content recommendations to render.
+
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
+##### Child elements
+- `<product-and-variant-id product-id="PRODUCT_ID" variant-id="VARIANT_ID">`:
+
+    Provide one child per product the recommendation should be based on. The `product-id` attribute is required, while `variant-id` is optional.
+
 #### Targeted Recommendations
 You can target specific recommendations to ensure certain filters and/or relevance modifiers are only applied to the target. This can be done by calling `registerRecommendationTarget` either during initialization or afterwards by calling the function independently.
 
