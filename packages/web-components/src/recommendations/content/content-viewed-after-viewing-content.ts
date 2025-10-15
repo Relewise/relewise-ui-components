@@ -13,8 +13,8 @@ export class ContentViewedAfterViewingContent extends ContentRecommendationBase 
     async fetchContent(): Promise<ContentRecommendationResponse | undefined> {
         const recommender = getRecommender(getRelewiseUIOptions());
         const request = await this.buildRequest();
-        if (!request) { 
-            return; 
+        if (!request) {
+            return;
         }
 
         return recommender.recommendContentsViewedAfterViewingContent(request);
@@ -22,7 +22,7 @@ export class ContentViewedAfterViewingContent extends ContentRecommendationBase 
 
     async buildRequest(): Promise<ContentsViewedAfterViewingContentRequest | undefined> {
         if (!this.contentId) {
-            console.error('No content-id attribute was provided for content-viewed-after-viewing-content.');
+            console.error('No content-id attribute was provided for relewise-content-viewed-after-viewing-content.');
             return;
         }
 
@@ -39,6 +39,6 @@ export class ContentViewedAfterViewingContent extends ContentRecommendationBase 
 
 declare global {
     interface HTMLElementTagNameMap {
-        'content-viewed-after-viewing-content': ContentViewedAfterViewingContent;
+        'relewise-content-viewed-after-viewing-content': ContentViewedAfterViewingContent;
     }
 }
