@@ -251,6 +251,31 @@ This inceases performance, and ensures that there are no duplicate products in t
 </relewise-product-recommendation-batcher>
 ```
 
+#### Popular Content
+This component renders [popular content](https://docs.relewise.com/docs/recommendations/recommendation-types.html#popular-content).
+
+```html
+<relewise-popular-content displayed-at-location="LOCATION"></relewise-popular-content>
+```
+##### Attributes
+- **displayed-at-location** : 
+    
+    Where the recommendations are being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
+    
+- **number-of-recommendations** (Optional, *Default 4*): 
+    
+    The number of content recommendations to render.
+
+- **since-minutes-ago** (Optional, *Default 20160 - 14 days*):
+    
+    The time interval, in minutes, that the popularity calculation should be based on.
+
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
 #### Personal Content
 This component renders [personal content](https://docs.relewise.com/docs/recommendations/recommendation-types.html#personal-content).
 
