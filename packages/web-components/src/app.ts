@@ -1,10 +1,10 @@
-import { FilterBuilder, PopularContentsBuilder, ProductCategoryResult, ProductResult } from '@relewise/client';
+import { FilterBuilder, ProductCategoryResult, ProductResult } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { FilterIcon, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon } from './components';
 import { Button } from './components/button';
 import { LoadingSpinner } from './components/loading-spinner';
 import { ContextSettings, ProductTemplateExtensions } from './initialize';
-import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PersonalContent } from './recommendations';
+import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PersonalContent, PopularContent } from './recommendations';
 import { ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar } from './search';
 import { ChecklistBooleanValueFacet } from './search/components/facets/checklist-boolean-value-facet';
 import { ChecklistNumberValueFacet } from './search/components/facets/checklist-number-value-facet';

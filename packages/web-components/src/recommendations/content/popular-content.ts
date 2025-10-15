@@ -1,5 +1,5 @@
 import { ContentRecommendationResponse, Settings, PopularContentsBuilder } from '@relewise/client';
-import { property } from 'lit/decorators';
+import { property } from 'lit/decorators.js';
 import { getRecommender } from '../recommender';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
 import { ContentRecommendationBase } from './content-recommendation-base';
@@ -20,7 +20,7 @@ export class PopularContent extends ContentRecommendationBase {
             (settings: Settings) => new PopularContentsBuilder(settings),
             this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Popular Content',
             this.target,
-        ))
+        )) 
             .sinceMinutesAgo(this.sinceMinutesAgo)
             .setNumberOfRecommendations(this.numberOfRecommendations)
             .build();
