@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <title>Web components</title>
+</head>
+
+<style>
+    .custom {
+        padding: 1em;
+        background: beige;
+    }
+
+    .variables {
+        --relewise-font: Fantasy;
+
+        --relewise-image-align: center;
+
+        --relewise-information-container-margin: 0.5rem 0.5rem 0.5rem 0.5rem;
+
+        --relewise-image-width: 10rem;
+        --relewise-image-height: 10rem;
+
+        --relewise-display-name-letter-spacing: 0rem;
+        --relewise-display-name-alignment: center;
+        --relewise-display-name-color: blue;
+        --relewise-display-name-line-height: 2rem;
+        --relewise-display-name-font-weight: 100;
+        --relewise-display-name-font-size: 1rem;
+        --relewise-display-name-margin: 0rem 0rem 0rem 0rem;
+    }
+</style>
+
+<body>
+    <script type="module" src="index.ts"></script>
+    <h1>Popular Content</h1>
+    <relewise-popular-content displayed-at-location="web component dev"></relewise-popular-content>
+    <h3>Custom styling on html tag</h3>
+    <relewise-popular-content displayed-at-location="web component dev" class="custom"></relewise-popular-content>
+    <h3>CSS variables</h3>
+    <relewise-popular-content displayed-at-location="web component dev" class="variables"></relewise-popular-content>
+    <h3>Show 10 results</h3>
+    <relewise-popular-content displayed-at-location="web component dev" number-of-recommendations="10"></relewise-popular-content>
+    <h3>Since 10080 minutes ago (1 week)</h3>
+    <relewise-popular-content displayed-at-location="web component dev" since-minutes-ago="10080"></relewise-popular-content>
+</body>
+
+</html>
+
