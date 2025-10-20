@@ -251,6 +251,31 @@ This inceases performance, and ensures that there are no duplicate products in t
 </relewise-product-recommendation-batcher>
 ```
 
+#### Popular Content
+This component renders [popular content](https://docs.relewise.com/docs/recommendations/recommendation-types.html#popular-content).
+
+```html
+<relewise-popular-content displayed-at-location="LOCATION"></relewise-popular-content>
+```
+##### Attributes
+- **displayed-at-location** : 
+    
+    Where the recommendations are being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
+    
+- **number-of-recommendations** (Optional, *Default 4*): 
+    
+    The number of content recommendations to render.
+
+- **since-minutes-ago** (Optional, *Default 20160 - 14 days*):
+    
+    The time interval, in minutes, that the popularity calculation should be based on.
+
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
 #### Personal Content
 This component renders [personal content](https://docs.relewise.com/docs/recommendations/recommendation-types.html#personal-content).
 
@@ -271,6 +296,60 @@ This component renders [personal content](https://docs.relewise.com/docs/recomme
 - **target** (Optional):
 
     The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
+#### Content Viewed After Viewing Content
+This component renders [content typically viewed after viewing a given content page](https://docs.relewise.com/docs/recommendations/recommendation-types.html#content-viewed-after-viewing-content).
+
+```html
+<relewise-content-viewed-after-viewing-content content-id="CONTENT_ID" displayed-at-location="LOCATION"></relewise-content-viewed-after-viewing-content>
+```
+##### Attributes
+- **displayed-at-location** : 
+    
+    Where the recommendations are being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
+
+- **content-id**:
+    
+    The id of the content item the recommendations should be based on.
+
+- **number-of-recommendations** (Optional, *Default 4*): 
+
+    The number of content recommendations to render.
+
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
+#### Content Viewed After Viewing Multiple Content
+This component renders [content typically viewed after viewing multiple content pages](https://docs.relewise.com/docs/recommendations/recommendation-types.html#content-viewed-after-viewing-multiple-content).
+
+```html
+<relewise-content-viewed-after-viewing-multiple-content displayed-at-location="LOCATION">
+    <content-id content-id="CONTENT_ID"></content-id>
+    <content-id content-id="ANOTHER_CONTENT_ID"></content-id>
+</relewise-content-viewed-after-viewing-multiple-content>
+```
+##### Attributes
+- **displayed-at-location** : 
+    
+    Where the recommendations are being shown. 
+    
+    For more information see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
+
+- **number-of-recommendations** (Optional, *Default 4*): 
+
+    The number of content recommendations to render.
+
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
+##### Child elements
+- `<content-id content-id="CONTENT_ID">`:
+
+    Provide one child per content item that the recommendation should be based on. The `content-id` attribute holds the id of the content.
 
 #### Content Viewed After Viewing Product
 This component renders [content typically viewed after viewing a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#content-viewed-after-viewing-product).
