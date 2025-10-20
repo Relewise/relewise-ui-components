@@ -166,7 +166,7 @@ export class ProductSearchOverlay extends LitElement {
                 }
             }
         } else if (result?.redirect) {
-            // We have valided previous the the destination is a valid URL.
+            // We have validated previous the destination is a valid URL.
             window.location.href = result?.redirect.destination ?? '';
         } else if (this.redirects && this.redirects.length > 0 && URL.canParse(this.redirects[0].destination ?? '')) {
             if (this.redirects[0].destination) {

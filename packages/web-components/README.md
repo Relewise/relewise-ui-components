@@ -2,7 +2,7 @@
 
 ## Installation 
 
-Install via NPM or you preferred package manager: 
+Install via NPM or your preferred package manager: 
 
 ```W
 npm install @relewise/web-components
@@ -264,7 +264,7 @@ The component will only render results for users who can be identified through t
 
 #### Product Recommendation Batcher
 This component batches multiple product recommendations into a single request against Relewise.
-This inceases performance, and ensures that there are no duplicate products in the recommendation sliders
+This increases performance, and ensures that there are no duplicate products in the recommendation sliders
 
 ```html
 <relewise-product-recommendation-batcher>
@@ -533,7 +533,7 @@ useSearch({
 
 - **autofocus** (Optional, true/false):
 
-    Toggle wether or not the input field should be focused on load.
+    Toggle whether or not the input field should be focused on load.
 
 #### Product Search
 This component renders a search component that [searches for products](https://docs.relewise.com/docs/intro/search.html#product-search) in Relewise and shows results, faceting and sorting options.
@@ -723,7 +723,7 @@ Renders a sorting button with options in an overlay.
 ###### Facets
 This component renders facets configured in the `useSearch` function.
 
-On smaller screens, this component will also include a button to toggle the visability of the facet cards.
+On smaller screens, this component will also include a button to toggle the visibility of the facet cards.
 
 ```html
 <relewise-facets></relewise-facets>
@@ -746,7 +746,7 @@ Renders button that will load more results once pressed.
 ```
 
 #### Targeted Search
-You can target specific search components to ensure certain filters and/or relevance modfiers are only applied to the target and overwrite the facets used. This can be done by calling `registerSearchTarget` either during initialization or afterwards by calling the function independently.
+You can target specific search components to ensure certain filters and/or relevance modifiers are only applied to the target and overwrite the facets used. This can be done by calling `registerSearchTarget` either during initialization or afterwards by calling the function independently.
 
 ```ts
 initializeRelewiseUI(
@@ -986,7 +986,7 @@ The builder is a type exposed from the [relewise-sdk-javascript](https://github.
 For more examples and information about filters visit the official [docs](https://docs.relewise.com/).
 
 ## Relevance Modifiers
-With Relevance Modifiers you can influence the order of enteties shown in search and recommendations.
+With Relevance Modifiers you can influence the order of entities shown in search and recommendations.
 
 Here is an example of setting up Relevance Modifiers.
 ```ts
@@ -1117,7 +1117,7 @@ This component sends a [track content category view](https://docs.relewise.com/d
     
     The id path of the category id.
 
-    The path should be formatted as ids sepparated by a forward slash ("/").
+    The path should be formatted as ids separated by a forward slash ("/").
 
     E.g.: "parent-category-1/child-category-2/child-category-4"
 
