@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <title>Web components</title>
+</head>
+<style>
+    .custom {
+        padding: 1em;
+        background: beige;
+    }
+
+    .variables {
+        --relewise-font: Fantasy;
+
+        --relewise-image-align: center;
+
+        --relewise-information-container-margin: 0.5rem 0.5rem 0.5rem 0.5rem;
+
+        --relewise-image-width: 10rem;
+        --relewise-image-height: 10rem;
+
+        --relewise-display-name-letter-spacing: 0rem;
+        --relewise-display-name-alignment: center;
+        --relewise-display-name-color: blue;
+        --relewise-display-name-line-height: 2rem;
+        --relewise-display-name-font-weight: 100;
+        --relewise-display-name-font-size: 1rem;
+        --relewise-display-name-margin: 0rem 0rem 0rem 0rem;
+    }
+</style>
+
+<body>
+    <script type="module" src="index.ts"></script>
+    <h1>Content Viewed After Viewing Multiple Content</h1>
+    <relewise-content-viewed-after-viewing-multiple-content displayed-at-location="web component dev">
+        <content-id content-id="blogPost-227f90a4-4d9d-4ab0-bbe6-3ec714e49893"></content-id>
+        <content-id content-id="blogPost-392f0bd7-ca0d-41d5-8194-8f2523f310da"></content-id>
+    </relewise-content-viewed-after-viewing-multiple-content>
+
+    <h3>Without content ids</h3>
+    <relewise-content-viewed-after-viewing-multiple-content displayed-at-location="web component dev">
+    </relewise-content-viewed-after-viewing-multiple-content>
+
+    <h3>Custom styling on html tag</h3>
+    <relewise-content-viewed-after-viewing-multiple-content displayed-at-location="web component dev" class="custom">
+        <content-id content-id="blogPost-227f90a4-4d9d-4ab0-bbe6-3ec714e49893"></content-id>
+        <content-id content-id="blogPost-392f0bd7-ca0d-41d5-8194-8f2523f310da"></content-id>
+    </relewise-content-viewed-after-viewing-multiple-content>
+
+    <h3>CSS variables</h3>
+    <relewise-content-viewed-after-viewing-multiple-content displayed-at-location="web component dev" class="variables">
+        <content-id content-id="blogPost-227f90a4-4d9d-4ab0-bbe6-3ec714e49893"></content-id>
+        <content-id content-id="blogPost-392f0bd7-ca0d-41d5-8194-8f2523f310da"></content-id>
+    </relewise-content-viewed-after-viewing-multiple-content>
+
+    <h3>Show 10 results</h3>
+    <relewise-content-viewed-after-viewing-multiple-content displayed-at-location="web component dev" number-of-recommendations="10">
+        <content-id content-id="blogPost-227f90a4-4d9d-4ab0-bbe6-3ec714e49893"></content-id>
+        <content-id content-id="blogPost-392f0bd7-ca0d-41d5-8194-8f2523f310da"></content-id>
+    </relewise-content-viewed-after-viewing-multiple-content>
+</body>
+
+</html>
