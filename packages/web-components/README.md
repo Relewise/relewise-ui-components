@@ -138,6 +138,31 @@ This component renders [products typically viewed after viewing a given product]
 
     The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
 
+#### Products viewed after viewing Content
+This component renders [products typically viewed after viewing a given piece of content](https://docs.relewise.com/docs/recommendations/recommendation-types.html#products-viewed-after-viewing-content).
+
+```html
+<relewise-products-viewed-after-viewing-content content-id="CONTENT_ID" displayed-at-location="LOCATION"></relewise-products-viewed-after-viewing-content>
+```
+##### Attributes
+- **displayed-at-location** : 
+    
+    Where the recommendations are being shown. 
+    
+    For more information, see our [docs](https://docs.relewise.com/docs/developer/bestpractice.html#_4-recommendation-requests).
+
+- **content-id**:
+    
+    The id of the content the recommendations should be based on.
+
+- **number-of-recommendations** (Optional, *Default 4*): 
+
+    The number of product recommendations to render.
+
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
 #### Products purchased with Product
 This component renders [products typically purchased with a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#purchased-with-product).
 

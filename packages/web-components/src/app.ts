@@ -4,7 +4,7 @@ import { FilterIcon, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon } fro
 import { Button } from './components/button';
 import { LoadingSpinner } from './components/loading-spinner';
 import { ContextSettings, ProductTemplateExtensions } from './initialize';
-import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PopularContent, PersonalContent, ContentViewedAfterViewingContent, ContentViewedAfterViewingMultipleContent, ContentViewedAfterViewingProduct, ContentViewedAfterViewingMultipleProducts } from './recommendations';
+import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PopularContent, PersonalContent, ContentViewedAfterViewingContent, ContentViewedAfterViewingMultipleContent, ProductsViewedAfterViewingContent, ContentViewedAfterViewingProduct, ContentViewedAfterViewingMultipleProducts } from './recommendations';
 import { ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar } from './search';
 import { ChecklistBooleanValueFacet } from './search/components/facets/checklist-boolean-value-facet';
 import { ChecklistNumberValueFacet } from './search/components/facets/checklist-number-value-facet';
@@ -146,6 +146,7 @@ export function useRecommendations() {
     tryRegisterElement('relewise-personal-products', PersonalProducts);
     tryRegisterElement('relewise-recently-viewed-products', RecentlyViewedProducts);
     tryRegisterElement('relewise-personal-content', PersonalContent);
+    tryRegisterElement('relewise-products-viewed-after-viewing-content', ProductsViewedAfterViewingContent);    
     tryRegisterElement('relewise-content-viewed-after-viewing-content', ContentViewedAfterViewingContent);
     tryRegisterElement('relewise-content-viewed-after-viewing-multiple-content', ContentViewedAfterViewingMultipleContent);
     tryRegisterElement('relewise-popular-content', PopularContent);
