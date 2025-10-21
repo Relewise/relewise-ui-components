@@ -3,7 +3,7 @@ import { getRecommender } from '../recommender';
 import { ProductRecommendationBase } from './product-recommendation-base';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
 import { getProductRecommendationBuilderWithDefaults } from '../../builders/productRecommendationBuilder';
-import { extractProductAndVariantIds, ProductAndVariantId } from 'src/helpers/extractProductAndVariantIds';
+import { extractProductAndVariantIds, ProductAndVariantId } from '../../helpers/extractProductAndVariantIds';
 
 export class PurchasedWithMultipleProducts extends ProductRecommendationBase {
 
