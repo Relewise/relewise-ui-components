@@ -3,7 +3,7 @@ import { ContentRecommendationBase } from './content-recommendation-base';
 import { getRecommender } from '../recommender';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
 import { getContentRecommendationBuilderWithDefaults } from '../../builders/contentRecommendationBuilder';
-import { extractProductAndVariantIds, ProductAndVariantId } from 'src/helpers/productAndVariantIds';
+import { extractProductAndVariantIds, ProductAndVariantId } from 'src/helpers/extractProductAndVariantIds';
 
 export class ContentViewedAfterViewingMultipleProducts extends ContentRecommendationBase {
 
