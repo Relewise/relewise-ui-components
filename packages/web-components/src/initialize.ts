@@ -2,6 +2,7 @@ import { ContentResult, FilterBuilder, ProductResult, RelevanceModifierBuilder, 
 import { nothing, TemplateResult } from 'lit';
 import { App, RelewiseUISearchOptions } from './app';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
+import { stripHtml } from './helpers/templateHelpers';
 import { TargetedSearchConfigurations } from './targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from './targetedRecommendationConfigurations';
 
@@ -46,6 +47,7 @@ export interface ProductTemplateExtensions {
         formatPrice: (price: string | number | null | undefined) => string | number | null | undefined;
         unsafeHTML: typeof unsafeHTML;
         nothing: typeof nothing;
+        stripHtml: typeof stripHtml;
     };
 }
 
@@ -54,6 +56,7 @@ export interface ContentTemplateExtensions {
     helpers: {
         unsafeHTML: typeof unsafeHTML;
         nothing: typeof nothing;
+        stripHtml: typeof stripHtml;
     };
 }
 
