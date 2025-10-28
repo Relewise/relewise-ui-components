@@ -1102,18 +1102,15 @@ initializeRelewiseUI(
             content: (content, { html, helpers }) => {
                 const summary = content.data?.Summary?.value ?? '';
                 return html`
-                    <article>
-                        <h2>${helpers.stripHtml(content.displayName)}</h2>
+                    <div>
                         <p>${helpers.stripHtml(summary)}</p>
-                        <p>${helpers.toUpperCase(summary)}</p>
-                        <p>${helpers.toLowerCase(summary)}</p>
-                    </article>`;
+                    </div>`;
             }
         }
     });
 ```
 
-Use the helpers bundled in the `helpers` parameter to format your data before rendering it. `helpers.stripHtml` removes any markup from the supplied string, while `helpers.toUpperCase` and `helpers.toLowerCase` let you adjust casing without adding additional utilities yourself.
+Use `helpers.stripHtml` to remove any markup from the supplied string before rendering it.
 
 Styling the provided template can be done inline, or by including a style tag containing the preferred styles.
 ```ts
