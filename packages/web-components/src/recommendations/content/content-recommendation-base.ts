@@ -14,6 +14,9 @@ export abstract class ContentRecommendationBase extends LitElement {
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;
 
+    @property({ type: Boolean, reflect: true })
+    unstyled = false;
+
     @state()
     content: ContentResult[] | null = null;
 
@@ -45,12 +48,12 @@ export abstract class ContentRecommendationBase extends LitElement {
 
     render() {
         if (this.content && this.content.length > 0) {
-            return html`${this.content.map(content => html`<relewise-content-tile .content=${content}></relewise-content-tile>`)}`;
+            return html`${this.content.map(content => html`<relewise-content-tile .content=${content} ?unstyled=${this.unstyled}></relewise-content-tile>`)}`;
         }
     }
 
     static styles = css`
-        :host {
+        :host(:not([unstyled])) {
             display: grid;
             width: 100%;
             grid-template-columns: repeat(4,1fr);
@@ -59,10 +62,15 @@ export abstract class ContentRecommendationBase extends LitElement {
         }
 
         @media (max-width: 768px) {
-            :host {
+            :host(:not([unstyled])) {
                 grid-template-columns: repeat(2,1fr);
             }
         }    
+
+        :host([unstyled]) {
+            all: unset;
+            display: contents;
+        }
     `;
 
 }
