@@ -12,6 +12,9 @@ export class ContentTile extends LitElement {
     @property({ type: Object })
     content: ContentResult | null = null;
 
+    @property({ type: Boolean, reflect: true })
+    unstyled = false;
+
     connectedCallback(): void {
         super.connectedCallback();
     }
@@ -78,7 +81,7 @@ export class ContentTile extends LitElement {
     static styles = [
         theme,
         css`
-        :host {
+        :host(:not([unstyled])) {
             font-family: var(--font);
             border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
             background-color: var(--button-color, white);
@@ -86,8 +89,12 @@ export class ContentTile extends LitElement {
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
             overflow: hidden;
         }
+        :host([unstyled]) {
+            all: unset;
+            display: contents;
+        }
             
-        .rw-content-tile {
+        :host(:not([unstyled])) .rw-content-tile {
             display: flex;
             flex-direction: column;
             position: relative;
@@ -98,24 +105,24 @@ export class ContentTile extends LitElement {
             justify-content: flex-end;
         }
 
-        .rw-image-container {
+        :host(:not([unstyled])) .rw-image-container {
             display: flex;
             padding: var(--relewise-image-padding, 0);
             background-color: var(--relewise-image-background-color, #fff);
             justify-content: var(--relewise-image-align, center);
         }
 
-        .rw-information-container {
+        :host(:not([unstyled])) .rw-information-container {
             margin: var(--relewise-information-container-margin, 0.5em 0.5em);
         }
 
-        .rw-object-cover {
+        :host(:not([unstyled])) .rw-object-cover {
             object-fit: contain;
             max-width: var(--relewise-image-width, 100%);
             height: var(--relewise-image-height, auto);
         }
 
-        .rw-display-name {
+        :host(:not([unstyled])) .rw-display-name {
             display: -webkit-box;
             letter-spacing: var(--relewise-display-name-letter-spacing, -0.025em);
             justify-content: var(--relewise-display-name-alignment, start);
@@ -130,10 +137,10 @@ export class ContentTile extends LitElement {
             -webkit-line-clamp: 2;
         }
 
-        .rw-summary {
+        :host(:not([unstyled])) .rw-summary {
             margin: 0;
             font-size: calc(var(--relewise-base-font-size, 16px) * 0.9);
-            line-height: var(--relewise-summary-line-height, 1.2); ;
+            line-height: var(--relewise-summary-line-height, 1.2);
             color: var(--relewise-summary-color, #666);
             display: -webkit-box;
             -webkit-box-orient: vertical;
