@@ -1110,7 +1110,7 @@ initializeRelewiseUI(
     });
 ```
 
-Use `helpers.stripHtmlClientSide` to remove any markup from the supplied string before rendering it.
+Use `helpers.stripHtmlClientSide` to remove any markup from the supplied string before rendering it. This helper only runs when the component executes in a browser; server-side rendering keeps the original string.
 
 Styling the provided template can be done inline, or by including a style tag containing the preferred styles.
 ```ts
