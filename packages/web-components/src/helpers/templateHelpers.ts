@@ -1,4 +1,4 @@
-type StringTransformationResult<T> = T extends string ? string : T;
+export type StringTransformationResult<T> = T extends string ? string : T;
 
 export function stripHtmlClientSide<T>(value: T): StringTransformationResult<T> {
     if (typeof value !== 'string') {

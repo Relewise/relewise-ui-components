@@ -41,7 +41,7 @@ export interface ContextSettings {
     currency: string;
 }
 
-type CommonTemplateHelpers = TemplateHelpers & {
+export type CommonTemplateHelpers = TemplateHelpers & {
     unsafeHTML: typeof unsafeHTML;
     nothing: typeof nothing;
 };
