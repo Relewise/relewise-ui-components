@@ -12,6 +12,9 @@ export class ProductTile extends LitElement {
     @property({ type: Object })
     product: ProductResult | null = null;
 
+    @property({ type: Boolean, reflect: true })
+    unstyled = false;
+
     connectedCallback(): void {
         super.connectedCallback();
     }
@@ -81,7 +84,7 @@ export class ProductTile extends LitElement {
     static styles = [
         theme,
         css`
-        :host {
+        :host(:not([unstyled])) {
             font-family: var(--font);
             border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
             background-color: var(--button-color, white);
@@ -90,7 +93,12 @@ export class ProductTile extends LitElement {
             overflow: hidden;
         }
         
-        .rw-tile {
+        :host([unstyled]) {
+            all: unset;
+            display: contents;
+        }
+
+        :host(:not([unstyled])) .rw-tile {
             display: flex;
             flex-direction: column;
             position: relative;
@@ -98,24 +106,24 @@ export class ProductTile extends LitElement {
             text-size-adjust: none;
         }
 
-        .rw-image-container {
+        :host(:not([unstyled])) .rw-image-container {
             display: flex;
             padding: var(--relewise-image-padding, 0);
             background-color: var(--relewise-image-background-color, #fff);
             justify-content: var(--relewise-image-align, center);
         }
 
-        .rw-information-container {
+        :host(:not([unstyled])) .rw-information-container {
             margin: var(--relewise-information-container-margin, 0.5em 0.5em);
         }
 
-        .rw-object-cover {
+        :host(:not([unstyled])) .rw-object-cover {
             object-fit: contain;
             max-width: var(--relewise-image-width, 100%);
             height: var(--relewise-image-height, auto);
         }
 
-        .rw-price {
+        :host(:not([unstyled])) .rw-price {
             line-height: 1;
             display: flex;
             font-weight: var(--relewise-sales-price-font-weight, 300);
@@ -126,7 +134,7 @@ export class ProductTile extends LitElement {
             margin: var(--relewise-sales-price-margin, 1em 0em 0em 0em);
         }
 
-        .rw-display-name {
+        :host(:not([unstyled])) .rw-display-name {
             display: -webkit-box;
             letter-spacing: var(--relewise-display-name-letter-spacing, -0.025em);
             justify-content: var(--relewise-display-name-alignment, start);
@@ -143,7 +151,7 @@ export class ProductTile extends LitElement {
 
         }
 
-        .rw-list-price {
+        :host(:not([unstyled])) .rw-list-price {
             font-size: var(--relewise-list-price-font-size, 1em);
             text-decoration: var(--relewise-list-price-text-decoration, line-through);
             font-weight: 400;

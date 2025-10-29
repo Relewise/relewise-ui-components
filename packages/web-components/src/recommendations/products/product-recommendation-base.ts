@@ -16,6 +16,9 @@ export abstract class ProductRecommendationBase extends LitElement {
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;
 
+    @property({ type: Boolean, reflect: true })
+    unstyled = false;
+
     @consume({ context, subscribe: true })
     @state()
     providedData?: BatchingContextValue;
@@ -66,13 +69,13 @@ export abstract class ProductRecommendationBase extends LitElement {
 
         if (this.products || products?.result?.recommendations) {
             return html`${(products?.result?.recommendations ?? this.products ?? []).map(product =>
-                html`<relewise-product-tile .product=${product}></relewise-product-tile>`)
+                html`<relewise-product-tile .product=${product} ?unstyled=${this.unstyled}></relewise-product-tile>`)
                 }`;
         }
     }
 
     static styles = css`
-        :host {
+        :host(:not([unstyled])) {
             display: grid;
             width: 100%;
             grid-template-columns: repeat(4,1fr);
@@ -80,8 +83,13 @@ export abstract class ProductRecommendationBase extends LitElement {
             grid-auto-rows: 1fr;
         }
 
+        :host([unstyled]) {
+            all: unset;
+            display: contents;
+        }
+
         @media (max-width: 768px) {
-            :host {
+            :host(:not([unstyled])) {
                 grid-template-columns: repeat(2,1fr);
             }
         }    
