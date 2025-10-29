@@ -4,12 +4,12 @@ import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 import { integrationTestRelewiseOptions } from './util/testRelewiseUIOptions';
 
 suite('relewise-popular-products', () => {
-    test('is not intance of when relewise not instantiated', async() => {
+    test('is not instance of when relewise not instantiated', async() => {
         const el = await fixture(html`<relewise-popular-products></relewise-popular-products>`);
         assert.notInstanceOf(el, PopularProducts);
     });
     
-    test('is intance of when relewise is instantiated', async() => {
+    test('is instance of when relewise is instantiated', async() => {
         initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
         const el = await fixture(html`<relewise-popular-products></relewise-popular-products>`);
         assert.instanceOf(el, PopularProducts);
