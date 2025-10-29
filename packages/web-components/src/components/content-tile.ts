@@ -2,6 +2,7 @@ import { ContentResult } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
+import { templateHelpers } from '../helpers/templateHelpers';
 import { theme } from '../theme';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
@@ -22,7 +23,7 @@ export class ContentTile extends LitElement {
 
         const settings = getRelewiseUIOptions();
         if (settings.templates?.content) {
-            const result = settings.templates.content(this.content, { html, helpers: { unsafeHTML, nothing } });
+            const result = settings.templates.content(this.content, { html, helpers: { ...templateHelpers, unsafeHTML, nothing } });
             const markup = result instanceof Promise ? html`
                 ${until(result.then(result => {
                 if (result === nothing) {

@@ -1087,11 +1087,31 @@ initializeRelewiseUI(
         ...
         templates: {
             product: (product, { html, helpers }) => {
-                return html`<p>${product.displayName}</p>`;
+                return html`<p>${helpers.stripHtmlClientSide(product.displayName)}</p>`;
             }
         }
     });
 ```
+If your data might contain HTML markup that you do not want to render, you can use the provided helper methods to sanitize the output before rendering it.
+
+```ts
+initializeRelewiseUI(
+    {
+        ...
+        templates: {
+            content: (content, { html, helpers }) => {
+                const summary = content.data?.Summary?.value ?? '';
+                return html`
+                    <div>
+                        <p>${helpers.stripHtmlClientSide(summary)}</p>
+                    </div>`;
+            }
+        }
+    });
+```
+
+Use `helpers.stripHtmlClientSide` to remove any markup from the supplied string before rendering it. This helper only runs when the component executes in a browser; server-side rendering keeps the original string.
+
 Styling the provided template can be done inline, or by including a style tag containing the preferred styles.
 ```ts
 initializeRelewiseUI(

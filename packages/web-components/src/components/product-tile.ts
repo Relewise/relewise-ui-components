@@ -3,6 +3,7 @@ import { LitElement, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
+import { templateHelpers } from '../helpers/templateHelpers';
 import { theme } from '../theme';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
@@ -23,7 +24,7 @@ export class ProductTile extends LitElement {
 
         const settings = getRelewiseUIOptions();
         if (settings.templates?.product) {
-            const result = settings.templates.product(this.product, { html, helpers: { formatPrice, unsafeHTML, nothing } });
+            const result = settings.templates.product(this.product, { html, helpers: { ...templateHelpers, formatPrice, unsafeHTML, nothing } });
             const markup = result instanceof Promise ? html`
                 ${until(result.then(result => {
                 if (result === nothing) {
