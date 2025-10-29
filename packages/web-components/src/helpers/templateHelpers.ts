@@ -1,6 +1,6 @@
 type StringTransformationResult<T> = T extends string ? string : T;
 
-export function stripHtml<T>(value: T): StringTransformationResult<T> {
+export function stripHtmlClientSide<T>(value: T): StringTransformationResult<T> {
     if (typeof value !== 'string') {
         return value as StringTransformationResult<T>;
     }
@@ -11,11 +11,12 @@ export function stripHtml<T>(value: T): StringTransformationResult<T> {
         return (container.textContent ?? container.innerText ?? '') as StringTransformationResult<T>;
     }
 
-    return value.replace(/<[^>]+>/g, '') as StringTransformationResult<T>;
+    console.error('Relewise web component: stripHtmlClientSide can only be executed in a browser environment. Returning the raw string.');
+    return value as StringTransformationResult<T>;
 }
 
 export const templateHelpers = {
-    stripHtml,
+    stripHtmlClientSide,
 };
 
 export type TemplateHelpers = typeof templateHelpers;

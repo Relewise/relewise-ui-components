@@ -1087,7 +1087,7 @@ initializeRelewiseUI(
         ...
         templates: {
             product: (product, { html, helpers }) => {
-                return html`<p>${helpers.stripHtml(product.displayName)}</p>`;
+                return html`<p>${helpers.stripHtmlClientSide(product.displayName)}</p>`;
             }
         }
     });
@@ -1103,14 +1103,14 @@ initializeRelewiseUI(
                 const summary = content.data?.Summary?.value ?? '';
                 return html`
                     <div>
-                        <p>${helpers.stripHtml(summary)}</p>
+                        <p>${helpers.stripHtmlClientSide(summary)}</p>
                     </div>`;
             }
         }
     });
 ```
 
-Use `helpers.stripHtml` to remove any markup from the supplied string before rendering it.
+Use `helpers.stripHtmlClientSide` to remove any markup from the supplied string before rendering it.
 
 Styling the provided template can be done inline, or by including a style tag containing the preferred styles.
 ```ts
