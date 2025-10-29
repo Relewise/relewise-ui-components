@@ -12,9 +12,6 @@ export class ContentTile extends LitElement {
     content: ContentResult | null = null;
 
     @property({ type: Boolean, reflect: true })
-    noBorder = false;
-
-    @property({ type: Boolean, reflect: true })
     unstyled = false;
 
     connectedCallback(): void {
@@ -91,12 +88,6 @@ export class ContentTile extends LitElement {
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
             overflow: hidden;
         }
-
-        :host([no-border]) {
-            border: none;
-            box-shadow: none;
-        }
-
         :host([unstyled]) {
             all: unset;
             display: contents;

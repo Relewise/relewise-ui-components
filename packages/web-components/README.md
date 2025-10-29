@@ -61,6 +61,16 @@ Some components can be set with attributes that specify the behavior of the spec
 
 To render a specific component you simply use the corresponding html tag.
 
+### Removing default styling
+
+Recommendation components that extend the `ContentRecommendationBase` apply a grid layout for the wrapper and card styling for each `relewise-content-tile`. If you want to supply your own layout and tile styling, add the `unstyled` attribute to the recommendation component:
+
+```html
+<relewise-popular-content displayed-at-location="LOCATION" unstyled></relewise-popular-content>
+```
+
+The `unstyled` attribute removes the wrapper layout (`display: contents`) and forwards the styling toggle to each rendered `<relewise-content-tile>`. You can also apply `unstyled` directly to `<relewise-content-tile>` when you use the tile on its own.
+
 E.g. the `relewise-purchased-with-product` takes in an attribute `product-id` specifying which product the recommendations should be based on. 
 ```html
 <relewise-purchased-with-product product-id="PRODUCT_ID"></relewise-purchased-with-product>
