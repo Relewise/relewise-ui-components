@@ -1,5 +1,5 @@
 import { ProductResult } from '@relewise/client';
-import { LitElement, css, html, nothing } from 'lit';
+import { LitElement, adoptStyles, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
@@ -12,6 +12,23 @@ export class ProductTile extends LitElement {
 
     @property({ type: Object })
     product: ProductResult | null = null;
+
+    // override Lit's shadow root creation and only attach default styles when no template override exists.
+    protected createRenderRoot(): HTMLElement | DocumentFragment {
+        const root = super.createRenderRoot();
+
+        if (root instanceof ShadowRoot) {
+            const settings = getRelewiseUIOptions();
+            const hasCustomTemplate = Boolean(settings.templates?.product);
+
+            if (!hasCustomTemplate) {
+                adoptStyles(root, ProductTile.defaultStyles);
+            }
+        }
+
+        return root;
+    }
+
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -79,7 +96,7 @@ export class ProductTile extends LitElement {
         return altText ?? '';
     }
 
-    static styles = [
+    static defaultStyles = [
         theme,
         css`
         :host {
