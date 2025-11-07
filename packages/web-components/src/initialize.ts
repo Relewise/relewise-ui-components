@@ -5,6 +5,7 @@ import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { TemplateHelpers } from './helpers/templateHelpers';
 import { TargetedSearchConfigurations } from './targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from './targetedRecommendationConfigurations';
+import { initializeFiltersConfigurationGate } from './helpers/filtersGate';
 
 export interface RelewiseUIOptions {
     datasetId: string;
@@ -72,6 +73,7 @@ export function initializeRelewiseUI(options: RelewiseUIOptions): App {
     window.relewiseUIOptions = options;
     window.relewiseUISearchTargetedConfigurations = new TargetedSearchConfigurations(options.targets?.searchTargets);
     window.relewiseUIRecommendationTargetedConfigurations = new TargetedRecommendationConfigurations(options.targets?.recommendationTargets);
+    initializeFiltersConfigurationGate();
     return new App();
 }
 

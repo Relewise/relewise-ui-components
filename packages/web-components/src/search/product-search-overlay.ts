@@ -5,6 +5,7 @@ import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOp
 import { getSearcher } from './searcher';
 import { theme } from '../theme';
 import { createProductSearchBuilder, createProductCategorySearchBuilder } from '../builders';
+import { waitForFiltersConfiguration } from '../configureFilters';
 
 export type SearchResult = {
     title?: string;
@@ -183,6 +184,8 @@ export class ProductSearchOverlay extends LitElement {
         const relewiseUIOptions = getRelewiseUIOptions();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
         const searcher = getSearcher(relewiseUIOptions);
+        await waitForFiltersConfiguration();
+
         const requestBuilder = new SearchCollectionBuilder()
             .addRequest(createProductSearchBuilder(this.term, settings.displayedAtLocation)
                 .pagination(p => p.setPageSize(this.numberOfProducts))

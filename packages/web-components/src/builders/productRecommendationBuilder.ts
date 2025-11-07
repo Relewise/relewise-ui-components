@@ -1,8 +1,11 @@
 import { ProductSettingsRecommendationBuilder, Settings } from '@relewise/client';
 import { getRelewiseContextSettings, getRelewiseRecommendationTargetedConfigurations, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { defaultProductProperties } from '../defaultSettings';
+import { waitForFiltersConfiguration } from '../configureFilters';
 
 export async function getProductRecommendationBuilderWithDefaults<T extends ProductSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T, displayedAtLocation: string, target?: string | null): Promise<T> {
+    await waitForFiltersConfiguration();
+
     const settings = getRelewiseContextSettings(displayedAtLocation);
     const relewiseUIOptions = getRelewiseUIOptions();
     const targetedConfiguration = getRelewiseRecommendationTargetedConfigurations();
