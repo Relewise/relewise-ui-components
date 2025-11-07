@@ -3,6 +3,7 @@ import { LitElement, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { getRelewiseUISearchOptions } from '../../helpers';
 import formatPrice from '../../helpers/formatPrice';
+import { templateHelpers } from '../../helpers/templateHelpers';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
 import { theme } from '../../theme';
@@ -23,7 +24,7 @@ export class ProductSearchOverlayProduct extends LitElement {
 
         const settings = getRelewiseUISearchOptions();
         if (settings?.templates?.searchOverlayProductResult) {
-            const result = settings.templates.searchOverlayProductResult(this.product, { html, helpers: { formatPrice, unsafeHTML, nothing } });
+            const result = settings.templates.searchOverlayProductResult(this.product, { html, helpers: { ...templateHelpers, formatPrice, unsafeHTML, nothing } });
             const markup = result instanceof Promise ? html`
                 ${until(result.then(result => {
                 if (result === nothing) {

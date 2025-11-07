@@ -3,10 +3,11 @@ import { getRecommender } from '../recommender';
 import { ProductRecommendationBase } from './product-recommendation-base';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
 import { getProductRecommendationBuilderWithDefaults } from '../../builders/productRecommendationBuilder';
+import { extractProductAndVariantIds, ProductAndVariantId } from '../../helpers/extractProductAndVariantIds';
 
 export class PurchasedWithMultipleProducts extends ProductRecommendationBase {
 
-    private productAndVariantIds: { productId: string, variantId?: string }[] = [];
+    private productAndVariantIds: ProductAndVariantId[] = [];
 
     connectedCallback(): Promise<void> {
         this.parseProductAndVariantIds();
@@ -14,18 +15,7 @@ export class PurchasedWithMultipleProducts extends ProductRecommendationBase {
     }
 
     private parseProductAndVariantIds(): void {
-        const productAndVariantElements = this.querySelectorAll('product-and-variant-id');
-        const productAndVariantIds: { productId: string, variantId?: string }[] = [];
-
-        productAndVariantElements.forEach(element => {
-            const productId = element.getAttribute('product-id');
-            if (productId) {
-                const variantId = element.getAttribute('variant-id');
-                productAndVariantIds.push({ productId, variantId: variantId || undefined });
-            }
-        });
-
-        this.productAndVariantIds = productAndVariantIds;
+        this.productAndVariantIds = extractProductAndVariantIds(this);
     }
 
     async fetchProducts(): Promise<ProductRecommendationResponse | undefined> {

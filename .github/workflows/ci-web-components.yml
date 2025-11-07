@@ -21,6 +21,10 @@ jobs:
         working-directory: ./packages/web-components
         run: npm run build
 
+      - name: Build Type Definitions
+        working-directory: ./packages/web-components
+        run: npm run build:types
+
       - name: Install Playwright Browsers
         working-directory: ./packages/web-components
         run: npx playwright install --with-deps

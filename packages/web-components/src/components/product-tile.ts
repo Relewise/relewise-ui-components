@@ -1,8 +1,9 @@
 import { ProductResult } from '@relewise/client';
-import { LitElement, css, html, nothing } from 'lit';
+import { LitElement, adoptStyles, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
+import { templateHelpers } from '../helpers/templateHelpers';
 import { theme } from '../theme';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
@@ -11,6 +12,28 @@ export class ProductTile extends LitElement {
 
     @property({ type: Object })
     product: ProductResult | null = null;
+
+    // Override Lit's shadow root creation and only attach default styles when no template override exists.
+    protected createRenderRoot(): HTMLElement | DocumentFragment {
+        const root = super.createRenderRoot();
+
+        if (root instanceof ShadowRoot) {
+            let hasCustomTemplate = false;
+            try {
+                const settings = getRelewiseUIOptions();
+                hasCustomTemplate = Boolean(settings.templates?.product);
+            } catch (error) {
+                console.error('Relewise: Error initializing initializeRelewiseUI. Keeping default styles, ', error);
+            }
+
+            if (!hasCustomTemplate) {
+                adoptStyles(root, ProductTile.defaultStyles);
+            }
+        }
+
+        return root;
+    }
+
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -23,7 +46,7 @@ export class ProductTile extends LitElement {
 
         const settings = getRelewiseUIOptions();
         if (settings.templates?.product) {
-            const result = settings.templates.product(this.product, { html, helpers: { formatPrice, unsafeHTML, nothing } });
+            const result = settings.templates.product(this.product, { html, helpers: { ...templateHelpers, formatPrice, unsafeHTML, nothing } });
             const markup = result instanceof Promise ? html`
                 ${until(result.then(result => {
                 if (result === nothing) {
@@ -78,16 +101,15 @@ export class ProductTile extends LitElement {
         return altText ?? '';
     }
 
-    static styles = [
+    static defaultStyles = [
         theme,
         css`
         :host {
             font-family: var(--font);
             border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
             background-color: var(--button-color, white);
-            border-radius: 0.5em;
+            clip-path: inset(0 round 12px);
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
-            overflow: hidden;
         }
         
         .rw-tile {

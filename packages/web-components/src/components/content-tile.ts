@@ -1,7 +1,8 @@
 import { ContentResult } from '@relewise/client';
-import { LitElement, css, html, nothing } from 'lit';
+import { LitElement, adoptStyles, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
+import { templateHelpers } from '../helpers/templateHelpers';
 import { theme } from '../theme';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
@@ -10,6 +11,27 @@ export class ContentTile extends LitElement {
 
     @property({ type: Object })
     content: ContentResult | null = null;
+
+    // Override Lit's shadow root creation and only attach default styles when no template override exists.
+    protected createRenderRoot(): HTMLElement | DocumentFragment {
+        const root = super.createRenderRoot();
+
+        if (root instanceof ShadowRoot) {
+            let hasCustomTemplate = false;
+            try {
+                const settings = getRelewiseUIOptions();
+                hasCustomTemplate = Boolean(settings.templates?.content);
+            } catch (error) {
+                console.error('Relewise: Error initializing initializeRelewiseUI. Keeping default styles, ', error);
+            }
+
+            if (!hasCustomTemplate) {
+                adoptStyles(root, ContentTile.defaultStyles);
+            }
+        }
+
+        return root;
+    }
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -22,7 +44,7 @@ export class ContentTile extends LitElement {
 
         const settings = getRelewiseUIOptions();
         if (settings.templates?.content) {
-            const result = settings.templates.content(this.content, { html, helpers: { unsafeHTML, nothing } });
+            const result = settings.templates.content(this.content, { html, helpers: { ...templateHelpers, unsafeHTML, nothing } });
             const markup = result instanceof Promise ? html`
                 ${until(result.then(result => {
                 if (result === nothing) {
@@ -74,18 +96,17 @@ export class ContentTile extends LitElement {
         return altText ?? '';
     }
 
-    static styles = [
+    static defaultStyles = [
         theme,
         css`
         :host {
             font-family: var(--font);
             border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
             background-color: var(--button-color, white);
-            border-radius: 0.5em;
+            clip-path: inset(0 round 12px);
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
-            overflow: hidden;
         }
-            
+
         .rw-content-tile {
             display: flex;
             flex-direction: column;
@@ -124,7 +145,7 @@ export class ContentTile extends LitElement {
             font-size: var(--relewise-display-name-font-size, 1em);
             margin: var(--relewise-display-name-margin, 0em 0em 0em 0em);
             overflow: hidden;
-            height: calc(var(--relewise-display-name-line-height, 1.05em)* 2);
+            height: calc(var(--relewise-display-name-line-height, 1.05em) * 2);
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 2;
         }
@@ -132,13 +153,13 @@ export class ContentTile extends LitElement {
         .rw-summary {
             margin: 0;
             font-size: calc(var(--relewise-base-font-size, 16px) * 0.9);
-            line-height: var(--relewise-summary-line-height, 1.2); ;
+            line-height: var(--relewise-summary-line-height, 1.2);
             color: var(--relewise-summary-color, #666);
             display: -webkit-box;
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 2;
             overflow: hidden;
-            height: calc(var(--relewise-summary-line-height, 1.25em) * 2)
+            height: calc(var(--relewise-summary-line-height, 1.25em) * 2);
         }
     `];
 }
