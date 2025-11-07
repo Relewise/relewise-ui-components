@@ -1067,6 +1067,7 @@ For more examples and information about relevance modifiers visit the official [
 ## Template overwriting
 It is possible to overwrite the template used for rendering products and/or content. This is done using [lit templating](https://lit.dev/docs/templates/overview/).
 When the template is overwritten, the corresponding tile skips attaching default CSS styles on the tile, so your template has full control over layout and presentation.
+If no custom template is provided, it will render using the default template.
 
 ### Product template
 You can override the product template, which will expose and contain all the data configured, when initialising RelewiseUI.
