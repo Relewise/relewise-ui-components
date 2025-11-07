@@ -1091,7 +1091,7 @@ You can override the content template the same way as product templates.
 initializeRelewiseUI({
     ...
     templates: {
-        content: (content, { html }) => html`<!-- Write your template here -->`
+        content: (content, { html, helpers }) => html`<!-- Write your template here -->`
     }
 });
 ```
@@ -1117,8 +1117,8 @@ Within custom templates you have access to a `helpers` object:
 
 - `stripHtmlClientSide(text)` – Removes any HTML markup client-side before rendering.
 - `formatPrice(value)` – Formats Relewise price values using the current context (product templates only).
-- `unsafeHTML` – Re-exports Lit’s `unsafeHTML` directive for cases where you intentionally inject markup.
-- `nothing` – Re-exports Lit’s `nothing` sentinel for conditional rendering.
+- `unsafeHTML` – Exports Lit’s `unsafeHTML` directive for cases where you intentionally inject markup.
+- `nothing` – Exports Lit’s `nothing` sentinel for conditional rendering.
 
 These mirror the surface exposed by `templateHelpers` inside the package.
 
