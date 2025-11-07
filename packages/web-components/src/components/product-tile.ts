@@ -13,7 +13,7 @@ export class ProductTile extends LitElement {
     @property({ type: Object })
     product: ProductResult | null = null;
 
-    // override Lit's shadow root creation and only attach default styles when no template override exists.
+    // Override Lit's shadow root creation and only attach default styles when no template override exists.
     protected createRenderRoot(): HTMLElement | DocumentFragment {
         const root = super.createRenderRoot();
 
