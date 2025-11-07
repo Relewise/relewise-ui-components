@@ -12,13 +12,18 @@ export class ContentTile extends LitElement {
     @property({ type: Object })
     content: ContentResult | null = null;
 
-    // override Lit's shadow root creation and only attach default styles when no template override exists.
+    // Override Lit's shadow root creation and only attach default styles when no template override exists.
     protected createRenderRoot(): HTMLElement | DocumentFragment {
         const root = super.createRenderRoot();
 
         if (root instanceof ShadowRoot) {
-            const settings = getRelewiseUIOptions();
-            const hasCustomTemplate = Boolean(settings.templates?.content);
+            let hasCustomTemplate = false;
+            try {
+                const settings = getRelewiseUIOptions();
+                hasCustomTemplate = Boolean(settings.templates?.content);
+            } catch (error) {
+                console.error('Relewise: Error initializing initializeRelewiseUI. Keeping default styles, ', error);
+            }
 
             if (!hasCustomTemplate) {
                 adoptStyles(root, ContentTile.defaultStyles);

@@ -18,8 +18,13 @@ export class ProductTile extends LitElement {
         const root = super.createRenderRoot();
 
         if (root instanceof ShadowRoot) {
-            const settings = getRelewiseUIOptions();
-            const hasCustomTemplate = Boolean(settings.templates?.product);
+            let hasCustomTemplate = false;
+            try {
+                const settings = getRelewiseUIOptions();
+                hasCustomTemplate = Boolean(settings.templates?.product);
+            } catch (error) {
+                console.error('Relewise: Error initializing initializeRelewiseUI. Keeping default styles, ', error);
+            }
 
             if (!hasCustomTemplate) {
                 adoptStyles(root, ProductTile.defaultStyles);
