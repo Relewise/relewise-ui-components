@@ -103,7 +103,8 @@ export class ContentTile extends LitElement {
             font-family: var(--font);
             border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
             background-color: var(--button-color, white);
-            clip-path: inset(0 round 12px);
+            clip-path: inset(0 round 0.5em);
+            border-radius: 0.5em;
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
         }
 
