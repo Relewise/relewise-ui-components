@@ -1065,9 +1065,11 @@ The builder is a type exposed from the [relewise-sdk-javascript](https://github.
 For more examples and information about relevance modifiers visit the official [docs](https://docs.relewise.com/).
 
 ## Template overwriting
-It is possible to overwrite the template used for rendering products. This is done using [lit templating](https://lit.dev/docs/templates/overview/).
+It is possible to overwrite the template used for rendering products and/or content. This is done using [lit templating](https://lit.dev/docs/templates/overview/).
+When the template is overwritten, the corresponding tile skips attaching default CSS styles on the tile, so your template has full control over layout and presentation.
 
-If no custom template is provided, we will render using the default template.
+### Product template
+You can override the product template, which will expose and contain all the data configured, when initialising RelewiseUI.
 ```ts
 initializeRelewiseUI(
     {
@@ -1079,39 +1081,21 @@ initializeRelewiseUI(
         },
     });
 ```
-The product to render is exposed and contains all the data configured when initialising RelewiseUI.
+
+
+### Content template
+You can override the content template the same way as product templates.
 
 ```ts
-initializeRelewiseUI(
-    {
-        ...
-        templates: {
-            product: (product, { html, helpers }) => {
-                return html`<p>${helpers.stripHtmlClientSide(product.displayName)}</p>`;
-            }
-        }
-    });
-```
-If your data might contain HTML markup that you do not want to render, you can use the provided helper methods to sanitize the output before rendering it.
-
-```ts
-initializeRelewiseUI(
-    {
-        ...
-        templates: {
-            content: (content, { html, helpers }) => {
-                const summary = content.data?.Summary?.value ?? '';
-                return html`
-                    <div>
-                        <p>${helpers.stripHtmlClientSide(summary)}</p>
-                    </div>`;
-            }
-        }
-    });
+initializeRelewiseUI({
+    ...
+    templates: {
+        content: (content, { html }) => html`<!-- Write your template here -->`
+    }
+});
 ```
 
-Use `helpers.stripHtmlClientSide` to remove any markup from the supplied string before rendering it. This helper only runs when the component executes in a browser; server-side rendering keeps the original string.
-
+### Styling
 Styling the provided template can be done inline, or by including a style tag containing the preferred styles.
 ```ts
 initializeRelewiseUI(
@@ -1120,11 +1104,38 @@ initializeRelewiseUI(
         templates: {
             product: (product, { html, helpers }) => {
                 return html`
-                    <styles><!-- Write your styled here --></styles>
+                    <style><!-- Write your styled here --></style>
                     <!-- Write your template here -->`;
             }
         }
     });
+```
+
+### Helpers
+Within custom templates you have access to a `helpers` object:
+
+- `stripHtmlClientSide(text)` – Removes any HTML markup client-side before rendering.
+- `formatPrice(value)` – Formats Relewise price values using the current context (product templates only).
+- `unsafeHTML` – Re-exports Lit’s `unsafeHTML` directive for cases where you intentionally inject markup.
+- `nothing` – Re-exports Lit’s `nothing` sentinel for conditional rendering.
+
+These mirror the surface exposed by `templateHelpers` inside the package.
+
+For example, use `helpers.stripHtmlClientSide` to remove any markup from the supplied string before rendering it. This helper only runs when the component executes in a browser; server-side rendering keeps the original string.
+
+```ts
+initializeRelewiseUI({
+    ...
+    templates: {
+        content: (content, { html, helpers }) => {
+            const summary = content.data?.Summary?.value ?? '';
+            return html`
+                <div>
+                    <p>${helpers.stripHtmlClientSide(summary)}</p>
+                </div>`;
+        }
+    }
+});
 ```
 
 ## Tracking
