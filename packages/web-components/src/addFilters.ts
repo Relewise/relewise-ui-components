@@ -20,7 +20,7 @@ function composeFilterCallbacks(
     };
 }
 
-export function configureFilters(filters: Partial<Filters>): void {
+export function addFilters(filters: Partial<Filters>): void {
     const options = getRelewiseUIOptions();
     options.filters = options.filters ?? {};
 

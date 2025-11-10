@@ -3,6 +3,7 @@ import { getRelewiseContextSettings, getRelewiseRecommendationTargetedConfigurat
 import { defaultProductProperties } from '../defaultSettings';
 
 export async function getProductRecommendationBuilderWithDefaults<T extends ProductSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T, displayedAtLocation: string, target?: string | null): Promise<T> {
+    // Allow integrators a single tick to inject additional filters before the first request runs.
     await new Promise(r => setTimeout(r, 0));
 
     const settings = getRelewiseContextSettings(displayedAtLocation);

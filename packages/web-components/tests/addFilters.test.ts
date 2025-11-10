@@ -1,9 +1,9 @@
 import { assert } from '@esm-bundle/chai';
-import { configureFilters, initializeRelewiseUI, Filters } from '../src';
+import { addFilters, initializeRelewiseUI, Filters } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
-suite('configureFilters', () => {
-    test('configureFilters composes callbacks', async () => {
+suite('addFilters', () => {
+    test('addFilters composes callbacks', async () => {
         const mockedOptions = mockRelewiseOptions();
         const invocationOrder: string[] = [];
         mockedOptions.filters = {
@@ -12,7 +12,7 @@ suite('configureFilters', () => {
 
         initializeRelewiseUI(mockedOptions);
 
-        configureFilters({
+        addFilters({
             product: () => invocationOrder.push('additional'),
         });
 
