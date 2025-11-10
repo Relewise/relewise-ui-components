@@ -17,13 +17,13 @@ suite('relewise-personal-content', () => {
         window.relewiseUIOptions = undefined!;
     });
 
-    test('is not instance of when relewise not instantiated', async() => {
+    test('is not instance of when relewise not instantiated', async () => {
         const el = await fixture(html`<relewise-personal-content displayed-at-location="test"></relewise-personal-content>`);
         assert.notInstanceOf(el, PersonalContent);
     });
 
-    test('is instance of when relewise is instantiated', async() => {
-        Recommender.prototype.recommendPersonalContents = async(request: ContentRecommendationRequest) => {
+    test('is instance of when relewise is instantiated', async () => {
+        Recommender.prototype.recommendPersonalContents = async (request: ContentRecommendationRequest) => {
             recommendPersonalContentsCalls.push(request);
             return undefined;
         };
@@ -32,12 +32,12 @@ suite('relewise-personal-content', () => {
 
         const el = await fixture(html`<relewise-personal-content displayed-at-location="test"></relewise-personal-content>`);
         assert.instanceOf(el, PersonalContent);
-
+        await new Promise(r => setTimeout(r, 0)); // Wait for component to finish rendering
         assert.equal(recommendPersonalContentsCalls.length, 1);
     });
 
-    test('renders nothing when recommendations return empty result', async() => {
-        Recommender.prototype.recommendPersonalContents = async(request: ContentRecommendationRequest) => {
+    test('renders nothing when recommendations return empty result', async () => {
+        Recommender.prototype.recommendPersonalContents = async (request: ContentRecommendationRequest) => {
             recommendPersonalContentsCalls.push(request);
             return {
                 recommendations: [],
@@ -50,10 +50,11 @@ suite('relewise-personal-content', () => {
         await el.updateComplete;
 
         assert.shadowDom.equal(el, '');
+        await new Promise(r => setTimeout(r, 0)); // Wait for component to finish rendering
         assert.equal(recommendPersonalContentsCalls.length, 1);
     });
 
-    test('requests and renders numberOfRecommendations', async() => {
+    test('requests and renders numberOfRecommendations', async () => {
         const numberOfRecommendations = 2;
         const recommendations: ContentResult[] = [
             {
@@ -66,7 +67,7 @@ suite('relewise-personal-content', () => {
             } as ContentResult,
         ];
 
-        Recommender.prototype.recommendPersonalContents = async(request: ContentRecommendationRequest) => {
+        Recommender.prototype.recommendPersonalContents = async (request: ContentRecommendationRequest) => {
             recommendPersonalContentsCalls.push(request);
             return {
                 recommendations: recommendations.slice(0, request.settings.numberOfRecommendations),
