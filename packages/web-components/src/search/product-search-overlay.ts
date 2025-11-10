@@ -183,7 +183,6 @@ export class ProductSearchOverlay extends LitElement {
         const relewiseUIOptions = getRelewiseUIOptions();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
         const searcher = getSearcher(relewiseUIOptions);
-        await new Promise(r => setTimeout(r, 0));
 
         const requestBuilder = new SearchCollectionBuilder()
             .addRequest(createProductSearchBuilder(this.term, settings.displayedAtLocation)
