@@ -183,6 +183,7 @@ export class ProductSearchOverlay extends LitElement {
         const relewiseUIOptions = getRelewiseUIOptions();
         const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
         const searcher = getSearcher(relewiseUIOptions);
+
         const requestBuilder = new SearchCollectionBuilder()
             .addRequest(createProductSearchBuilder(this.term, settings.displayedAtLocation)
                 .pagination(p => p.setPageSize(this.numberOfProducts))

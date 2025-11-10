@@ -12,3 +12,4 @@ export * from './search';
 export * from './theme';
 export * from './targetedSearchConfigurations';
 export * from './targetedRecommendationConfigurations';
+export * from './addFilters';

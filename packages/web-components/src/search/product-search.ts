@@ -116,10 +116,8 @@ export class ProductSearch extends LitElement {
         const searchOptions = getRelewiseUISearchOptions();
         const searcher = getSearcher(relewiseUIOptions);
 
-        // We wait here if the configuration is injected via the global register-method
-        if (this.target && !targetedConfiguration.has(this.target)) {
-            await new Promise(r => setTimeout(r, 0));
-        }
+        // Wait a tick so runtime filter extensions can run before the first automatic search executes.
+        await new Promise(r => setTimeout(r, 0));
 
         const requestBuilder = createProductSearchBuilder(term, this.displayedAtLocation ?? 'Relewise Product Search')
             .pagination(p => p
