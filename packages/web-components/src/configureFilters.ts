@@ -1,7 +1,6 @@
 import { FilterBuilder } from '@relewise/client';
 import { Filters } from './initialize';
 import { getRelewiseUIOptions } from './helpers/relewiseUIOptions';
-import { deferFiltersConfiguration, resolveFiltersConfiguration, waitForFiltersConfiguration } from './helpers/filtersGate';
 
 function composeFilterCallbacks(
     existing: ((builder: FilterBuilder) => void) | undefined,
@@ -36,8 +35,4 @@ export function configureFilters(filters: Partial<Filters>): void {
     if (filters.content) {
         options.filters.content = composeFilterCallbacks(options.filters.content, filters.content);
     }
-
-    resolveFiltersConfiguration();
 }
-
-export { deferFiltersConfiguration, waitForFiltersConfiguration, resolveFiltersConfiguration } from './helpers/filtersGate';
