@@ -499,6 +499,22 @@ useSearch({
 });
 ```
 
+### Adding filters after initialization
+
+If you need to extend the configured filters after calling `initializeRelewiseUI`, use `addFilters` to register new filter callbacks without overwriting the existing ones.
+
+```ts
+import { addFilters } from '@relewise/web-components';
+
+addFilters({
+    product(builder) {
+        builder.addProductCategoryIdFilter('ImmediateParent', ['4774']);
+    },
+});
+```
+
+The provided callbacks are composed with the filters defined during initialization as well as any previous `addFilters` calls, ensuring all filters run for subsequent requests.
+
 #### Localization
 To overwrite words and sentences used by the search components, call the `useSearch` function with the desired localization configuration.
 
