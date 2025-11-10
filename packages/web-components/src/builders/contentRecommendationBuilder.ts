@@ -1,6 +1,6 @@
 import { ContentSettingsRecommendationBuilder, Settings } from '@relewise/client';
 import { getRelewiseContextSettings, getRelewiseRecommendationTargetedConfigurations, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
-import { defaultContentProperties } from '../defaultSettings';
+import { resolveContentProperties } from '../defaultSettings';
 
 export async function getContentRecommendationBuilderWithDefaults<T extends ContentSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T, displayedAtLocation: string, target?: string | null): Promise<T> {
     // Allow integrators a single tick to inject additional filters before the first request runs.
@@ -11,7 +11,7 @@ export async function getContentRecommendationBuilderWithDefaults<T extends Cont
     const targetedConfiguration = getRelewiseRecommendationTargetedConfigurations();
 
     const builder = createBuilder(settings)
-        .setSelectedContentProperties(relewiseUIOptions.selectedPropertiesSettings?.content ?? defaultContentProperties)
+        .setSelectedContentProperties(resolveContentProperties(relewiseUIOptions))
         .relevanceModifiers(builder => {
             if (relewiseUIOptions.relevanceModifiers?.product) {
                 relewiseUIOptions.relevanceModifiers.product(builder);

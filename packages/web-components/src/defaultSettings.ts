@@ -1,4 +1,5 @@
-import { SelectedCategoryPropertiesSettings, SelectedProductPropertiesSettings } from '@relewise/client';
+import { SelectedCategoryPropertiesSettings, SelectedContentPropertiesSettings, SelectedProductPropertiesSettings } from '@relewise/client';
+import { RelewiseUIOptions } from './initialize';
 
 export const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = {
     displayName: true,
@@ -11,9 +12,37 @@ export const defaultProductCategoryProperties: Partial<SelectedCategoryPropertie
     dataKeys: ['Url'],
 };
 
-export const defaultContentProperties: Partial<SelectedCategoryPropertiesSettings> = {
+export const defaultContentProperties: Partial<SelectedContentPropertiesSettings> = {
     displayName: true,
     dataKeys: ['Url', 'ImageUrl', 'Summary'],
 };
 
 export const defaultExplodedVariants = 1;
+
+export function resolveProductProperties(options: RelewiseUIOptions): Partial<SelectedProductPropertiesSettings> {
+    const base = options.selectedPropertiesSettings?.product ?? defaultProductProperties;
+    const includeEngagement = Boolean(options.userEngagement?.likeDislike || options.userEngagement?.favorite);
+
+    if (!includeEngagement) {
+        return base ?? {};
+    }
+
+    return {
+        ...(base ?? {}),
+        userEngagement: true,
+    };
+}
+
+export function resolveContentProperties(options: RelewiseUIOptions): Partial<SelectedContentPropertiesSettings> {
+    const base = options.selectedPropertiesSettings?.content ?? defaultContentProperties;
+    const includeEngagement = Boolean(options.userEngagement?.likeDislike || options.userEngagement?.favorite);
+
+    if (!includeEngagement) {
+        return base ?? {};
+    }
+
+    return {
+        ...(base ?? {}),
+        userEngagement: true,
+    };
+}
