@@ -1085,8 +1085,10 @@ It is possible to overwrite the template used for rendering products and/or cont
 When the template is overwritten, the corresponding tile skips attaching default CSS styles on the tile, so your template has full control over layout and presentation.
 If no custom template is provided, it will render using the default template.
 
+The below examples show how the default templates are written. Style the templates however you like—or swap it out for your design system equivalents.
+
 ### Product template
-You can override the product template, which will expose and contain all the data configured, when initialising RelewiseUI. The below example shows how the default template is written. Style the templates however you like—or swap it out for your design system equivalents.
+You can override the product template, which will expose and contain all the data configured, when initialising RelewiseUI. 
 ```ts
 initializeRelewiseUI(
     {
