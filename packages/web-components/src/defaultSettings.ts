@@ -21,7 +21,8 @@ export const defaultExplodedVariants = 1;
 
 export function resolveProductProperties(options: RelewiseUIOptions): Partial<SelectedProductPropertiesSettings> {
     const base = options.selectedPropertiesSettings?.product ?? defaultProductProperties;
-    const includeEngagement = Boolean(options.userEngagement?.sentiment || options.userEngagement?.favorite);
+    const engagementOptions = options.userEngagement?.product;
+    const includeEngagement = Boolean(engagementOptions?.sentiment || engagementOptions?.favorite);
 
     if (!includeEngagement) {
         return base;
@@ -35,7 +36,8 @@ export function resolveProductProperties(options: RelewiseUIOptions): Partial<Se
 
 export function resolveContentProperties(options: RelewiseUIOptions): Partial<SelectedContentPropertiesSettings> {
     const base = options.selectedPropertiesSettings?.content ?? defaultContentProperties;
-    const includeEngagement = Boolean(options.userEngagement?.sentiment || options.userEngagement?.favorite);
+    const engagementOptions = options.userEngagement?.content;
+    const includeEngagement = Boolean(engagementOptions?.sentiment || engagementOptions?.favorite);
 
     if (!includeEngagement) {
         return base;

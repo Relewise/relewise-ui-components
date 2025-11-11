@@ -6,9 +6,14 @@ import { TemplateHelpers } from './helpers/templateHelpers';
 import { TargetedSearchConfigurations } from './targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from './targetedRecommendationConfigurations';
 
-export interface UserEngagementOptions {
+export interface UserEngagementEntityOptions {
     sentiment?: boolean;
     favorite?: boolean;
+}
+
+export interface UserEngagementOptions {
+    product: UserEngagementEntityOptions;
+    content: UserEngagementEntityOptions;
 }
 
 export interface RelewiseUIOptions {
