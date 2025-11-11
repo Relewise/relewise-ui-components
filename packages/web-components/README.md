@@ -1155,6 +1155,57 @@ initializeRelewiseUI({
 });
 ```
 
+### Starter templates
+Need something copy/paste-ready? The snippets below mirror the default Lit markup that the Relewise web components use. Style these however you like—or swap them out for your design system equivalents.
+
+```ts
+initializeRelewiseUI({
+    ...
+    templates: {
+        product: (product, { html, helpers }) => {
+            const image = product.data?.ImageUrl?.value;
+            const url = product.data?.Url?.value ?? '#';
+            const showListPrice = Boolean(product.listPrice && product.listPrice !== product.salesPrice);
+
+            return html`
+                <a class="rw-starter-product" href=${url} aria-label=${product.displayName}>
+                    ${image
+                        ? html`<img class="rw-starter-product__image" src=${image} alt=${product.variant?.displayName ?? product.displayName ?? ''} />`
+                        : helpers.nothing}
+                    <div>
+                        <h5>${product.displayName}</h5>
+                        <div class="rw-starter-product__price">
+                            ${helpers.formatPrice(product.salesPrice ?? product.listPrice)}
+                            ${showListPrice
+                                ? html`<span class="rw-starter-product__list-price">${helpers.formatPrice(product.listPrice)}</span>`
+                                : helpers.nothing}
+                        </div>
+                    </div>
+                </a>`;
+        },
+        content: (content, { html, helpers }) => {
+            const image = content.data?.ImageUrl?.value;
+            const url = content.data?.Url?.value ?? '#';
+            const summary = content.data?.Summary?.value ?? '';
+
+            return html`
+                <article class="rw-starter-content">
+                    ${image
+                        ? html`<img class="rw-starter-content__image" src=${image} alt=${content.displayName ?? ''} />`
+                        : helpers.nothing}
+                    <div>
+                        <h5>${content.displayName}</h5>
+                        ${summary
+                            ? html`<p class="rw-starter-content__summary">${helpers.stripHtmlClientSide(summary)}</p>`
+                            : helpers.nothing}
+                        <a href=${url}>Read more</a>
+                    </div>
+                </article>`;
+        }
+    }
+});
+```
+
 ## Tracking
 Call the useBehavioralTracking function to start tracking user behavior.
  ```ts
