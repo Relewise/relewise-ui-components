@@ -58,7 +58,7 @@ export class ProductTile extends LitElement {
             if (this.sentiment !== normalizedSentiment) {
                 this.sentiment = normalizedSentiment;
             }
-
+            console.log(this.isFavorite !== favorite, this.isFavorite, favorite)
             if (this.isFavorite !== favorite) {
                 this.isFavorite = favorite;
             }
@@ -93,17 +93,17 @@ export class ProductTile extends LitElement {
 
         return html`
             <div class='rw-tile'>
-                ${this.renderEngagementActions(settings.userEngagement)}
                 ${url
-                    ? html`<a class='rw-tile-link' href=${url}>${this.renderTileContent(this.product)}</a>`
-                    : html`<div class='rw-tile-link'>${this.renderTileContent(this.product)}</div>`}
+                ? html`<a class='rw-tile-link' href=${url}>${this.renderTileContent(this.product)}</a>`
+                : html`<div class='rw-tile-link'>${this.renderTileContent(this.product)}</div>`}
+                ${this.renderEngagementActions(settings.userEngagement)}
             </div>`;
     }
 
     renderTileContent(product: ProductResult) {
         return html`
-            ${(product.data && 'ImageUrl' in product.data)
-                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${product.data['ImageUrl'].value} alt=${this.getProductImageAlt(product)} /></div>`
+            ${(product.data && 'Image' in product.data)
+                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${product.data['Image'].value} alt=${this.getProductImageAlt(product)} /></div>`
                 : nothing
             }
             <div class='rw-information-container'>
@@ -190,7 +190,7 @@ export class ProductTile extends LitElement {
 
         this.sentiment = sentiment ?? null;
         this.isFavorite = Boolean(isFavorite);
-
+        console.log(this.isFavorite)
         try {
             const tracker = getTracker(options);
             await tracker.trackProductEngagement({
@@ -306,7 +306,7 @@ export class ProductTile extends LitElement {
         .rw-engagement-actions {
             display: flex;
             gap: var(--relewise-engagement-button-gap, 0.5em);
-            padding: var(--relewise-engagement-padding, 0.5em 0.75em 0 0.75em);
+            padding: var(--relewise-engagement-padding, 0.5em 0.75em 0.5em 0.75em);
         }
 
         .rw-engagement-button {

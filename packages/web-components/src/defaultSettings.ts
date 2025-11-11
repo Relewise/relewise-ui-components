@@ -4,7 +4,7 @@ import { RelewiseUIOptions } from './initialize';
 export const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = {
     displayName: true,
     pricing: true,
-    dataKeys: ['ImageUrl', 'Url'],
+    dataKeys: ['Image', 'Url'],
 };
 
 export const defaultProductCategoryProperties: Partial<SelectedCategoryPropertiesSettings> = {
