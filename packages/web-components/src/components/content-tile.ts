@@ -93,8 +93,8 @@ export class ContentTile extends LitElement {
             <div class='rw-content-tile'>
                 ${this.renderEngagementActions(settings.userEngagement)}
                 ${url
-                    ? html`<a class='rw-content-link' href=${url}>${this.renderTileContent(this.content)}</a>`
-                    : html`<div class='rw-content-link'>${this.renderTileContent(this.content)}</div>`}
+                ? html`<a class='rw-content-link' href=${url}>${this.renderTileContent(this.content)}</a>`
+                : html`<div class='rw-content-link'>${this.renderTileContent(this.content)}</div>`}
             </div>`;
     }
 
@@ -115,7 +115,7 @@ export class ContentTile extends LitElement {
     }
 
     private renderEngagementActions(settings: UserEngagementOptions | undefined) {
-        const showSentiment = Boolean(settings?.likeDislike);
+        const showSentiment = Boolean(settings?.sentiment);
         const showFavorite = Boolean(settings?.favorite);
 
         if (!showSentiment && !showFavorite) {

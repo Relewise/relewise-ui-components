@@ -120,7 +120,7 @@ export class ProductTile extends LitElement {
     }
 
     private renderEngagementActions(settings: UserEngagementOptions | undefined) {
-        const showSentiment = Boolean(settings?.likeDislike);
+        const showSentiment = Boolean(settings?.sentiment);
         const showFavorite = Boolean(settings?.favorite);
 
         if (!showSentiment && !showFavorite) {

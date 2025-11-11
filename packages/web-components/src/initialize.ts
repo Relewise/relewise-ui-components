@@ -7,7 +7,7 @@ import { TargetedSearchConfigurations } from './targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from './targetedRecommendationConfigurations';
 
 export interface UserEngagementOptions {
-    likeDislike?: boolean;
+    sentiment?: boolean;
     favorite?: boolean;
 }
 
