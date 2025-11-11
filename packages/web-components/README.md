@@ -1156,51 +1156,53 @@ initializeRelewiseUI({
 ```
 
 ### Starter templates
-Need something copy/paste-ready? The snippets below mirror the default Lit markup that the Relewise web components use. Style these however you like—or swap them out for your design system equivalents.
+Need something copy/paste-ready? The snippets below mirror the default Lit markup and class names that the Relewise web components use.
+Style these templates however you like—or swap them out for your design system equivalents.
 
 ```ts
 initializeRelewiseUI({
     ...
     templates: {
         product: (product, { html, helpers }) => {
-            const image = product.data?.ImageUrl?.value;
-            const url = product.data?.Url?.value ?? '#';
             const showListPrice = Boolean(product.listPrice && product.listPrice !== product.salesPrice);
 
             return html`
-                <a class="rw-starter-product" href=${url} aria-label=${product.displayName}>
-                    ${image
-                        ? html`<img class="rw-starter-product__image" src=${image} alt=${product.variant?.displayName ?? product.displayName ?? ''} />`
+                <a class="rw-tile" href=${product.data?.Url?.value ?? ''} aria-label=${product.displayName}>
+                    ${(product.data && 'ImageUrl' in product.data)
+                        ? html`
+                            <div class="rw-image-container">
+                                <img class="rw-object-cover" src=${product.data['ImageUrl'].value} alt=${product.variant?.displayName ?? product.displayName ?? ''} />
+                            </div>`
                         : helpers.nothing}
-                    <div>
-                        <h5>${product.displayName}</h5>
-                        <div class="rw-starter-product__price">
-                            ${helpers.formatPrice(product.salesPrice ?? product.listPrice)}
-                            ${showListPrice
-                                ? html`<span class="rw-starter-product__list-price">${helpers.formatPrice(product.listPrice)}</span>`
-                                : helpers.nothing}
+                    <div class="rw-information-container">
+                        <h5 class="rw-display-name">${product.displayName}</h5>
+                        <div class="rw-price">
+                            <span>${helpers.formatPrice(product.salesPrice ?? product.listPrice)}</span>
+                            ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
+                                ? html`<span class='rw-list-price'>${helpers.formatPrice(product.listPrice)}</span>`
+                                : helpers.nothing
+                            }
                         </div>
                     </div>
                 </a>`;
         },
         content: (content, { html, helpers }) => {
-            const image = content.data?.ImageUrl?.value;
-            const url = content.data?.Url?.value ?? '#';
-            const summary = content.data?.Summary?.value ?? '';
 
             return html`
-                <article class="rw-starter-content">
-                    ${image
-                        ? html`<img class="rw-starter-content__image" src=${image} alt=${content.displayName ?? ''} />`
+                <div class="rw-content-tile">
+                    ${content.data?.ImageUrl?.value
+                        ? html`
+                            <div class="rw-image-container">
+                                <img class="rw-object-cover" src=${content.data?.ImageUrl?.value} alt=${content.displayName ?? ''} />
+                            </div>`
                         : helpers.nothing}
-                    <div>
-                        <h5>${content.displayName}</h5>
-                        ${summary
-                            ? html`<p class="rw-starter-content__summary">${helpers.stripHtmlClientSide(summary)}</p>`
+                    <div class="rw-information-container">
+                        <h5 class="rw-display-name">${content.displayName}</h5>
+                        ${content.data?.Summary?.value
+                            ? html`<p class="rw-summary">${helpers.stripHtmlClientSide(content.data?.Summary?.value)}</p>`
                             : helpers.nothing}
-                        <a href=${url}>Read more</a>
                     </div>
-                </article>`;
+                </div>`;
         }
     }
 });
