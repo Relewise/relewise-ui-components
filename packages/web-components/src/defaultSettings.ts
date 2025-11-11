@@ -24,11 +24,11 @@ export function resolveProductProperties(options: RelewiseUIOptions): Partial<Se
     const includeEngagement = Boolean(options.userEngagement?.sentiment || options.userEngagement?.favorite);
 
     if (!includeEngagement) {
-        return base ?? {};
+        return base;
     }
 
     return {
-        ...(base ?? {}),
+        ...base,
         userEngagement: true,
     };
 }
@@ -38,11 +38,11 @@ export function resolveContentProperties(options: RelewiseUIOptions): Partial<Se
     const includeEngagement = Boolean(options.userEngagement?.sentiment || options.userEngagement?.favorite);
 
     if (!includeEngagement) {
-        return base ?? {};
+        return base;
     }
 
     return {
-        ...(base ?? {}),
+        ...base,
         userEngagement: true,
     };
 }
