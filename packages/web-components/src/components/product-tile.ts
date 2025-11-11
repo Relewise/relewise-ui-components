@@ -4,7 +4,7 @@ import { property, state } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { templateHelpers } from '../helpers/templateHelpers';
-import { UserEngagementOptions } from '../initialize';
+import { UserEngagementEntityOptions } from '../initialize';
 import { theme } from '../theme';
 import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
@@ -91,12 +91,14 @@ export class ProductTile extends LitElement {
 
         const url = this.product.data && 'Url' in this.product.data ? this.product.data['Url'].value ?? '' : null;
 
+        const engagementSettings = settings.userEngagement?.product;
+
         return html`
             <div class='rw-tile'>
                 ${url
                 ? html`<a class='rw-tile-link' href=${url}>${this.renderTileContent(this.product)}</a>`
                 : html`<div class='rw-tile-link'>${this.renderTileContent(this.product)}</div>`}
-                ${this.renderEngagementActions(settings.userEngagement)}
+                ${this.renderEngagementActions(engagementSettings)}
             </div>`;
     }
 
@@ -119,7 +121,7 @@ export class ProductTile extends LitElement {
             </div>`;
     }
 
-    private renderEngagementActions(settings: UserEngagementOptions | undefined) {
+    private renderEngagementActions(settings: UserEngagementEntityOptions | undefined) {
         const showSentiment = Boolean(settings?.sentiment);
         const showFavorite = Boolean(settings?.favorite);
 

@@ -3,7 +3,7 @@ import { LitElement, PropertyValues, adoptStyles, css, html, nothing } from 'lit
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { templateHelpers } from '../helpers/templateHelpers';
-import { UserEngagementOptions } from '../initialize';
+import { UserEngagementEntityOptions } from '../initialize';
 import { theme } from '../theme';
 import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
@@ -89,9 +89,11 @@ export class ContentTile extends LitElement {
 
         const url = this.content.data && 'Url' in this.content.data ? this.content.data['Url'].value ?? '' : null;
 
+        const engagementSettings = settings.userEngagement?.content;
+
         return html`
             <div class='rw-content-tile'>
-                ${this.renderEngagementActions(settings.userEngagement)}
+                ${this.renderEngagementActions(engagementSettings)}
                 ${url
                 ? html`<a class='rw-content-link' href=${url}>${this.renderTileContent(this.content)}</a>`
                 : html`<div class='rw-content-link'>${this.renderTileContent(this.content)}</div>`}
@@ -114,7 +116,7 @@ export class ContentTile extends LitElement {
             </div>`;
     }
 
-    private renderEngagementActions(settings: UserEngagementOptions | undefined) {
+    private renderEngagementActions(settings: UserEngagementEntityOptions | undefined) {
         const showSentiment = Boolean(settings?.sentiment);
         const showFavorite = Boolean(settings?.favorite);
 

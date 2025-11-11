@@ -18,8 +18,12 @@ initializeRelewiseUI(
             serverUrl: import.meta.env.VITE_SERVER_URL,
         },
         userEngagement: {
-            sentiment: true,
-            favorite: true,
+            product: {
+                favorite: true,
+            },
+            content: {
+                sentiment: true,
+            },
         },
         targets: {
             searchTargets(builder) {
