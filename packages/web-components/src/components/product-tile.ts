@@ -135,14 +135,14 @@ export class ProductTile extends LitElement {
                         type='button'
                         aria-pressed=${this.sentiment === 'Like' ? 'true' : 'false'}
                         @click=${this.onLikeClick}>
-                        Like
+                         ${this.sentiment === 'Like' ? html`<relewise-like-filled-icon></relewise-like-filled-icon>` : html`<relewise-like-icon></relewise-like-icon>`}
                     </button>
                     <button
                         class='rw-engagement-button'
                         type='button'
                         aria-pressed=${this.sentiment === 'Dislike' ? 'true' : 'false'}
                         @click=${this.onDislikeClick}>
-                        Dislike
+                        ${this.sentiment === 'Dislike' ? html`<relewise-dislike-filled-icon></relewise-dislike-filled-icon>` : html`<relewise-dislike-icon></relewise-dislike-icon>`}
                     </button>` : nothing}
                 ${showFavorite ? html`
                     <button
@@ -150,7 +150,7 @@ export class ProductTile extends LitElement {
                         type='button'
                         aria-pressed=${this.isFavorite ? 'true' : 'false'}
                         @click=${this.onFavoriteClick}>
-                        Favorite
+                        ${this.isFavorite ? html`<relewise-heart-filled-icon></relewise-heart-filled-icon>` : html`<relewise-heart-icon></relewise-heart-icon>`}
                     </button>` : nothing}
             </div>`;
     }
@@ -310,21 +310,11 @@ export class ProductTile extends LitElement {
         }
 
         .rw-engagement-button {
-            border: 1px solid var(--relewise-engagement-border-color, #d1d5db);
-            border-radius: var(--relewise-engagement-border-radius, 9999px);
+            border: 0;
             background-color: var(--relewise-engagement-background, transparent);
             color: inherit;
             cursor: pointer;
-            font: inherit;
-            padding: var(--relewise-engagement-button-padding, 0.35em 0.9em);
-            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-        }
-
-        .rw-engagement-button[aria-pressed="true"],
-        .rw-engagement-button:hover {
-            background-color: var(--relewise-engagement-active-background, #212427);
-            color: var(--relewise-engagement-active-color, #fff);
-            border-color: var(--relewise-engagement-active-border-color, #212427);
+            padding: var(--relewise-engagement-button-padding, 0.25em);
         }
 
         .rw-engagement-button:focus-visible {
