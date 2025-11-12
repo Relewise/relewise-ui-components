@@ -1085,15 +1085,35 @@ It is possible to overwrite the template used for rendering products and/or cont
 When the template is overwritten, the corresponding tile skips attaching default CSS styles on the tile, so your template has full control over layout and presentation.
 If no custom template is provided, it will render using the default template.
 
+The below examples show how the default templates are written. Style the templates however you like—or swap it out for your design system equivalents.
+
 ### Product template
-You can override the product template, which will expose and contain all the data configured, when initialising RelewiseUI.
+You can override the product template, which will expose and contain all the data configured, when initialising RelewiseUI. 
 ```ts
 initializeRelewiseUI(
     {
         ...
         templates: {
             product: (product, { html, helpers }) => {
-                return html`<!-- Write your template here -->`;
+                return html`
+                    <a class="rw-tile" href=${product.data?.Url?.value ?? ''} aria-label=${product.displayName}>
+                        ${(product.data && 'ImageUrl' in product.data)
+                            ? html`
+                                <div class="rw-image-container">
+                                    <img class="rw-object-cover" src=${product.data['ImageUrl'].value} alt=${product.variant?.displayName ?? product.displayName ?? ''} />
+                                </div>`
+                            : helpers.nothing}
+                        <div class="rw-information-container">
+                            <h5 class="rw-display-name">${product.displayName}</h5>
+                            <div class="rw-price">
+                                <span>${helpers.formatPrice(product.salesPrice ?? product.listPrice)}</span>
+                                ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
+                                    ? html`<span class='rw-list-price'>${helpers.formatPrice(product.listPrice)}</span>`
+                                    : helpers.nothing
+                                }
+                            </div>
+                        </div>
+                    </a>`;
             },
         },
     });
@@ -1107,8 +1127,24 @@ You can override the content template the same way as product templates.
 initializeRelewiseUI({
     ...
     templates: {
-        content: (content, { html, helpers }) => html`<!-- Write your template here -->`
-    }
+        content: (content, { html, helpers }) => {
+            return html`
+                <div class="rw-content-tile">
+                    ${content.data?.ImageUrl?.value
+                        ? html`
+                            <div class="rw-image-container">
+                                <img class="rw-object-cover" src=${content.data?.ImageUrl?.value} alt=${content.displayName ?? ''} />
+                            </div>`
+                        : helpers.nothing}
+                    <div class="rw-information-container">
+                        <h5 class="rw-display-name">${content.displayName}</h5>
+                        ${content.data?.Summary?.value
+                            ? html`<p class="rw-summary">${helpers.stripHtmlClientSide(content.data?.Summary?.value)}</p>`
+                            : helpers.nothing}
+                    </div>
+                </div>`;
+        },
+    },
 });
 ```
 
