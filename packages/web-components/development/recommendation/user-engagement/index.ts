@@ -23,6 +23,7 @@ initializeRelewiseUI(
                 sentiment: true
             },
             content: {
+                favorite: true,
                 sentiment: true,
             },
         },

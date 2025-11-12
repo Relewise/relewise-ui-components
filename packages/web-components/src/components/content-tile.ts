@@ -309,7 +309,7 @@ export class ContentTile extends LitElement {
         .rw-engagement-actions {
             display: flex;
             gap: var(--relewise-engagement-button-gap, 0.5em);
-            padding: var(--relewise-engagement-padding, 0 0.75em 0.75em 0.75em);
+            padding: var(--relewise-engagement-padding, 0 0.5em 0.5em 0.5em);
             justify-content: flex-end;
         }
 
