@@ -58,7 +58,6 @@ export class ProductTile extends LitElement {
             if (this.sentiment !== normalizedSentiment) {
                 this.sentiment = normalizedSentiment;
             }
-            console.log(this.isFavorite !== favorite, this.isFavorite, favorite)
             if (this.isFavorite !== favorite) {
                 this.isFavorite = favorite;
             }
@@ -95,10 +94,11 @@ export class ProductTile extends LitElement {
 
         return html`
             <div class='rw-tile'>
+                ${this.renderFavoriteAction(engagementSettings)}
                 ${url
                 ? html`<a class='rw-tile-link' href=${url}>${this.renderTileContent(this.product)}</a>`
                 : html`<div class='rw-tile-link'>${this.renderTileContent(this.product)}</div>`}
-                ${this.renderEngagementActions(engagementSettings)}
+                ${this.renderSentimentActions(engagementSettings)}
             </div>`;
     }
 
@@ -121,39 +121,55 @@ export class ProductTile extends LitElement {
             </div>`;
     }
 
-    private renderEngagementActions(settings: UserEngagementEntityOptions | undefined) {
+    private renderSentimentActions(settings: UserEngagementEntityOptions | undefined) {
         const showSentiment = Boolean(settings?.sentiment);
+
+        if (!showSentiment) {
+            return nothing;
+        }
+
+        const likeLabel = this.sentiment === 'Like' ? 'Remove like' : 'Like';
+        const dislikeLabel = this.sentiment === 'Dislike' ? 'Remove dislike' : 'Dislike';
+
+        return html`
+            <div class='rw-engagement-actions' role='group' aria-label='Product sentiment actions'>
+                <button
+                    class='rw-engagement-button'
+                    type='button'
+                    aria-label=${likeLabel}
+                    title=${likeLabel}
+                    aria-pressed=${this.sentiment === 'Like' ? 'true' : 'false'}
+                    @click=${this.onLikeClick}>
+                    ${this.sentiment === 'Like' ? html`<relewise-like-filled-icon></relewise-like-filled-icon>` : html`<relewise-like-icon></relewise-like-icon>`}
+                </button>
+                <button
+                    class='rw-engagement-button'
+                    type='button'
+                    aria-label=${dislikeLabel}
+                    title=${dislikeLabel}
+                    aria-pressed=${this.sentiment === 'Dislike' ? 'true' : 'false'}
+                    @click=${this.onDislikeClick}>
+                    ${this.sentiment === 'Dislike' ? html`<relewise-dislike-filled-icon></relewise-dislike-filled-icon>` : html`<relewise-dislike-icon></relewise-dislike-icon>`}
+                </button>
+            </div>`;
+    }
+
+    private renderFavoriteAction(settings: UserEngagementEntityOptions | undefined) {
         const showFavorite = Boolean(settings?.favorite);
 
-        if (!showSentiment && !showFavorite) {
+        if (!showFavorite) {
             return nothing;
         }
 
         return html`
-            <div class='rw-engagement-actions' role='group' aria-label='Product engagement actions'>
-                ${showSentiment ? html`
-                    <button
-                        class='rw-engagement-button'
-                        type='button'
-                        aria-pressed=${this.sentiment === 'Like' ? 'true' : 'false'}
-                        @click=${this.onLikeClick}>
-                         ${this.sentiment === 'Like' ? html`<relewise-like-filled-icon></relewise-like-filled-icon>` : html`<relewise-like-icon></relewise-like-icon>`}
-                    </button>
-                    <button
-                        class='rw-engagement-button'
-                        type='button'
-                        aria-pressed=${this.sentiment === 'Dislike' ? 'true' : 'false'}
-                        @click=${this.onDislikeClick}>
-                        ${this.sentiment === 'Dislike' ? html`<relewise-dislike-filled-icon></relewise-dislike-filled-icon>` : html`<relewise-dislike-icon></relewise-dislike-icon>`}
-                    </button>` : nothing}
-                ${showFavorite ? html`
-                    <button
-                        class='rw-engagement-button'
-                        type='button'
-                        aria-pressed=${this.isFavorite ? 'true' : 'false'}
-                        @click=${this.onFavoriteClick}>
-                        ${this.isFavorite ? html`<relewise-heart-filled-icon></relewise-heart-filled-icon>` : html`<relewise-heart-icon></relewise-heart-icon>`}
-                    </button>` : nothing}
+            <div class='rw-favorite-action'>
+                <button
+                    class='rw-favorite-button'
+                    type='button'
+                    aria-pressed=${this.isFavorite ? 'true' : 'false'}
+                    @click=${this.onFavoriteClick}>
+                    ${this.isFavorite ? html`<relewise-heart-filled-icon></relewise-heart-filled-icon>` : html`<relewise-heart-icon></relewise-heart-icon>`}
+                </button>
             </div>`;
     }
 
@@ -192,7 +208,6 @@ export class ProductTile extends LitElement {
 
         this.sentiment = sentiment ?? null;
         this.isFavorite = Boolean(isFavorite);
-        console.log(this.isFavorite)
         try {
             const tracker = getTracker(options);
             await tracker.trackProductEngagement({
@@ -308,18 +323,51 @@ export class ProductTile extends LitElement {
         .rw-engagement-actions {
             display: flex;
             gap: var(--relewise-engagement-button-gap, 0.5em);
-            padding: var(--relewise-engagement-padding, 0.5em 0.75em 0.5em 0.75em);
+            padding: var(--relewise-engagement-padding, 0 0.75em 0.75em 0.75em);
+            justify-content: flex-end;
         }
 
         .rw-engagement-button {
             border: 0;
+            border-radius: var(--relewise-engagement-border-radius, 9999px);
             background-color: var(--relewise-engagement-background, transparent);
             color: inherit;
             cursor: pointer;
-            padding: var(--relewise-engagement-button-padding, 0.25em);
+            padding: var(--relewise-engagement-button-padding, 0.35em);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
-        .rw-engagement-button:focus-visible {
+        .rw-engagement-button[aria-pressed="true"],
+        .rw-engagement-button:hover {
+            background-color: var(--relewise-engagement-active-background, rgba(0, 0, 0, 0.05));
+            color: var(--relewise-engagement-active-color, inherit);
+        }
+
+        .rw-favorite-action {
+            position: absolute;
+            top: var(--relewise-favorite-top, 0.5em);
+            right: var(--relewise-favorite-right, 0.5em);
+            display: flex;
+        }
+
+        .rw-favorite-button {
+            border: 0;
+            background-color: var(--relewise-favorite-background, rgba(255, 255, 255, 0.9));
+            padding: var(--relewise-favorite-padding, 0.35em);
+            color: inherit;
+            cursor: pointer;
+            border-radius: var(--relewise-favorite-border-radius, 9999px);
+            box-shadow: var(--relewise-favorite-shadow, 0 1px 4px rgba(0, 0, 0, 0.12));
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rw-engagement-button:focus-visible,
+        .rw-favorite-button:focus-visible {
             outline: 2px solid var(--relewise-focus-outline-color, #000);
             outline-offset: 2px;
         }
