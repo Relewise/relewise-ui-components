@@ -9,6 +9,7 @@ import { theme } from '../theme';
 import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
+import { userIsAnonymous } from '../helpers/user-is-anonymous';
 
 export class ProductTile extends LitElement {
 
@@ -124,7 +125,8 @@ export class ProductTile extends LitElement {
     private renderSentimentActions(settings: UserEngagementEntityOptions | undefined) {
         const showSentiment = Boolean(settings?.sentiment);
 
-        if (!showSentiment) {
+        const uiSettings = getRelewiseUIOptions();
+        if (!showSentiment || userIsAnonymous(uiSettings.contextSettings.getUser())) {
             return nothing;
         }
 
@@ -157,7 +159,8 @@ export class ProductTile extends LitElement {
     private renderFavoriteAction(settings: UserEngagementEntityOptions | undefined) {
         const showFavorite = Boolean(settings?.favorite);
 
-        if (!showFavorite) {
+        const uiSettings = getRelewiseUIOptions();
+        if (!showFavorite || userIsAnonymous(uiSettings.contextSettings.getUser())) {
             return nothing;
         }
 
