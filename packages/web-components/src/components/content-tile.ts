@@ -157,15 +157,11 @@ export class ContentTile extends LitElement {
             return nothing;
         }
 
-        const label = this.isFavorite ? 'Remove from favorites' : 'Add to favorites';
-
         return html`
             <div class='rw-favorite-action'>
                 <button
                     class='rw-favorite-button'
                     type='button'
-                    aria-label=${label}
-                    title=${label}
                     aria-pressed=${this.isFavorite ? 'true' : 'false'}
                     @click=${this.onFavoriteClick}>
                     ${this.isFavorite ? html`<relewise-heart-filled-icon></relewise-heart-filled-icon>` : html`<relewise-heart-icon></relewise-heart-icon>`}

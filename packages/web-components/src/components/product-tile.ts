@@ -161,15 +161,11 @@ export class ProductTile extends LitElement {
             return nothing;
         }
 
-        const label = this.isFavorite ? 'Remove from favorites' : 'Add to favorites';
-
         return html`
             <div class='rw-favorite-action'>
                 <button
                     class='rw-favorite-button'
                     type='button'
-                    aria-label=${label}
-                    title=${label}
                     aria-pressed=${this.isFavorite ? 'true' : 'false'}
                     @click=${this.onFavoriteClick}>
                     ${this.isFavorite ? html`<relewise-heart-filled-icon></relewise-heart-filled-icon>` : html`<relewise-heart-icon></relewise-heart-icon>`}
@@ -360,9 +356,9 @@ export class ProductTile extends LitElement {
         .rw-favorite-button {
             border: 0;
             background-color: var(--relewise-favorite-background, rgba(255, 255, 255, 0.9));
+            padding: var(--relewise-favorite-padding, 0.35em);
             color: inherit;
             cursor: pointer;
-            padding: var(--relewise-favorite-padding, 0.35em);
             border-radius: var(--relewise-favorite-border-radius, 9999px);
             box-shadow: var(--relewise-favorite-shadow, 0 1px 4px rgba(0, 0, 0, 0.12));
             display: inline-flex;

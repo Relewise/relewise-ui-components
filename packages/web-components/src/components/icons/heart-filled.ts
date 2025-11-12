@@ -14,6 +14,10 @@ export class HeartFilledIcon extends LitElement {
     }
 
     static styles = css`
+        :host {
+            width: var(--relewise-icon-width, 1rem);
+            height: var(--relewise-icon-height, 1rem);
+        }
         #svg-icon {
             width: var(--relewise-icon-width, 1rem);
             height: var(--relewise-icon-height, 1rem);

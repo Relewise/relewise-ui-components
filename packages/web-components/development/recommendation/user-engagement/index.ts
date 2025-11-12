@@ -20,6 +20,7 @@ initializeRelewiseUI(
         userEngagement: {
             product: {
                 favorite: true,
+                sentiment: true
             },
             content: {
                 sentiment: true,
