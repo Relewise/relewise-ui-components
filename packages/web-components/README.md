@@ -870,6 +870,24 @@ To specify which search component the configuration should be applied to, simply
 
 ***Note: The target must match the target specified when calling `registerSearchTarget`!***
 
+## User engagement
+Enable optional like/dislike and favorite interactions by providing the `userEngagement` option when initialising Relewise UI.
+
+```ts
+initializeRelewiseUI({
+    ...,
+    userEngagement: {
+        product: { sentiment: true, favorite: true },
+        content: { sentiment: true, favorite: true },
+    },
+});
+```
+
+When at least one toggle is enabled for an entity type, the default tiles render the matching controls: `sentiment` displays like
+and dislike buttons, while `favorite` adds the floating heart toggle. The current state is read from the response payload and the
+controls automatically call `trackProductEngagement` or `trackContentEngagement` so interactions are persisted with Relewise.
+You can tailor the appearance and layout of these buttons via the [user engagement and favorites CSS variables](#user-engagement-and-favorites).
+
 ## Overwriting styling
 If you want to overwrite the styling of the grid and the default product tile, you can do so by using CSS variables.
 
@@ -910,6 +928,7 @@ All CSS variables recognised by the web components are listed below together wit
 | `--relewise-sorting-button-container-display` | `flex` | Layout mode of the product sorting control container. |
 | `--relewise-sorting-button-margin-left` | `auto` | Left margin applied to push the sorting control to the edge. |
 | `--relewise-product-search-sorting-padding` | `.5em` | Padding for the sorting `<select>` element. |
+| `--relewise-focus-outline-color` | `#000` | Colour applied to focus outlines for interactive elements within the components. |
 
 #### Product tiles and pricing
 | Variable | Default | Description |
@@ -936,6 +955,25 @@ All CSS variables recognised by the web components are listed below together wit
 | `--relewise-list-price-text-decoration` | `line-through` | Decoration applied to the list price. |
 | `--relewise-list-price-color` | `#bbb` | Text colour of the list price. |
 | `--relewise-list-price-margin` | `0em 0em 0em 0.5em` | Margin around the list price element. |
+
+#### User engagement and favorites
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-engagement-gap` | `0.5em` | Vertical spacing between the main tile content and the engagement controls. |
+| `--relewise-engagement-button-gap` | `0.5em` | Gap applied between individual engagement buttons. |
+| `--relewise-engagement-padding` | `0 0.5em 0.5em 0.5em` | Padding surrounding the sentiment action bar. |
+| `--relewise-engagement-border-radius` | `9999px` | Border radius used for the sentiment buttons. |
+| `--relewise-engagement-background` | `transparent` | Resting background colour of sentiment buttons. |
+| `--relewise-engagement-button-padding` | `0.35em` | Internal padding for each sentiment button. |
+| `--relewise-engagement-active-background` | `rgba(0, 0, 0, 0.05)` | Background colour applied when a sentiment button is hovered or pressed. |
+| `--relewise-engagement-active-color` | `inherit` | Text and icon colour applied when a sentiment button is hovered or pressed. |
+| `--relewise-favorite-top` | `0.5em` | Offset from the top edge for the favorite toggle. |
+| `--relewise-favorite-right` | `0.5em` | Offset from the right edge for the favorite toggle. |
+| `--relewise-favorite-background` | `rgba(255, 255, 255, 0.9)` | Background colour of the favorite button. |
+| `--relewise-favorite-padding` | `0.35em` | Internal padding for the favorite button. |
+| `--relewise-favorite-border-radius` | `9999px` | Border radius applied to the favorite button. |
+| `--relewise-favorite-shadow` | `0 1px 4px rgba(0, 0, 0, 0.12)` | Shadow applied to the floating favorite control. |
+| `--relewise-favorite-space` | `2.1em` | Extra margin reserved for headings when the favorite toggle is visible. |
 
 #### Search bars and layout
 | Variable | Default | Description |
