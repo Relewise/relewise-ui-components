@@ -55,6 +55,10 @@ export class Facets extends LitElement {
     }
 
     renderFacet(label: string, facetResult: FacetResult, styling: string, isLast: boolean): TemplateResult<1> {
+        if ('available' in facetResult && (!Array.isArray(facetResult.available) || facetResult.available.length === 0)) {
+            return html``;
+        }
+
         if (facetResult.$type.includes('PriceRangesFacetResult') ||
             facetResult.$type.includes('ProductDataDoubleRangesFacetResult')) {
             return html`
