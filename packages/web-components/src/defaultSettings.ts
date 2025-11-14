@@ -1,10 +1,10 @@
 import { SelectedCategoryPropertiesSettings, SelectedContentPropertiesSettings, SelectedProductPropertiesSettings } from '@relewise/client';
 import { RelewiseUIOptions } from './initialize';
 
-export const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = {
+const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = {
     displayName: true,
     pricing: true,
-    dataKeys: ['Image', 'Url'],
+    dataKeys: ['ImageUrl', 'Url'],
 };
 
 export const defaultProductCategoryProperties: Partial<SelectedCategoryPropertiesSettings> = {
@@ -12,14 +12,14 @@ export const defaultProductCategoryProperties: Partial<SelectedCategoryPropertie
     dataKeys: ['Url'],
 };
 
-export const defaultContentProperties: Partial<SelectedContentPropertiesSettings> = {
+const defaultContentProperties: Partial<SelectedContentPropertiesSettings> = {
     displayName: true,
     dataKeys: ['Url', 'ImageUrl', 'Summary'],
 };
 
 export const defaultExplodedVariants = 1;
 
-export function resolveProductProperties(options: RelewiseUIOptions): Partial<SelectedProductPropertiesSettings> {
+export function getSelectedProductProperties(options: RelewiseUIOptions): Partial<SelectedProductPropertiesSettings> {
     const base = options.selectedPropertiesSettings?.product ?? defaultProductProperties;
     const engagementOptions = options.userEngagement?.product;
     const includeEngagement = Boolean(engagementOptions?.sentiment || engagementOptions?.favorite);
@@ -34,7 +34,7 @@ export function resolveProductProperties(options: RelewiseUIOptions): Partial<Se
     };
 }
 
-export function resolveContentProperties(options: RelewiseUIOptions): Partial<SelectedContentPropertiesSettings> {
+export function getSelectedContentProperties(options: RelewiseUIOptions): Partial<SelectedContentPropertiesSettings> {
     const base = options.selectedPropertiesSettings?.content ?? defaultContentProperties;
     const engagementOptions = options.userEngagement?.content;
     const includeEngagement = Boolean(engagementOptions?.sentiment || engagementOptions?.favorite);

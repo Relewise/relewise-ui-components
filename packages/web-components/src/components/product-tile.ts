@@ -104,8 +104,8 @@ export class ProductTile extends LitElement {
 
     renderTileContent(product: ProductResult) {
         return html`
-            ${(product.data && 'Image' in product.data)
-                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${product.data['Image'].value} alt=${this.getProductImageAlt(product)} /></div>`
+            ${(product.data && 'ImageUrl' in product.data)
+                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${product.data['ImageUrl'].value} alt=${this.getProductImageAlt(product)} /></div>`
                 : nothing
             }
             <div class='rw-information-container'>

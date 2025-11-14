@@ -1,5 +1,5 @@
 import { ProductSearchBuilder } from '@relewise/client';
-import { defaultExplodedVariants, resolveProductProperties } from '../defaultSettings';
+import { defaultExplodedVariants, getSelectedProductProperties } from '../defaultSettings';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers';
 
 export function createProductSearchBuilder(searchTerm: string | null | undefined, displayedAtLocation: string): ProductSearchBuilder {
@@ -8,7 +8,7 @@ export function createProductSearchBuilder(searchTerm: string | null | undefined
     const settings = getRelewiseContextSettings(displayedAtLocation);
 
     return new ProductSearchBuilder(settings)
-        .setSelectedProductProperties(resolveProductProperties(relewiseUIOptions))
+        .setSelectedProductProperties(getSelectedProductProperties(relewiseUIOptions))
         .setSelectedVariantProperties(relewiseUIOptions.selectedPropertiesSettings?.variant ?? null)
         .setExplodedVariants(searchOptions?.explodedVariants ?? defaultExplodedVariants)
         .setTerm(searchTerm ? searchTerm : null)
