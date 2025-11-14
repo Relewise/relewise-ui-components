@@ -6,6 +6,16 @@ import { TemplateHelpers } from './helpers/templateHelpers';
 import { TargetedSearchConfigurations } from './targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from './targetedRecommendationConfigurations';
 
+export interface UserEngagementEntityOptions {
+    sentiment?: boolean;
+    favorite?: boolean;
+}
+
+export interface UserEngagementOptions {
+    product: UserEngagementEntityOptions;
+    content: UserEngagementEntityOptions;
+}
+
 export interface RelewiseUIOptions {
     datasetId: string;
     apiKey: string;
@@ -21,6 +31,7 @@ export interface RelewiseUIOptions {
     filters?: Filters;
     relevanceModifiers?: RelevanceModifiers;
     targets?: Targets;
+    userEngagement?: UserEngagementOptions;
 }
 
 export interface Filters {

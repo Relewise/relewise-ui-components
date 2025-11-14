@@ -1,9 +1,11 @@
-import { ContentResult } from '@relewise/client';
-import { LitElement, adoptStyles, css, html, nothing } from 'lit';
-import { property } from 'lit/decorators.js';
+import { ContentResult, userIsAnonymous } from '@relewise/client';
+import { LitElement, PropertyValues, adoptStyles, css, html, nothing } from 'lit';
+import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { templateHelpers } from '../helpers/templateHelpers';
+import { UserEngagementEntityOptions } from '../initialize';
 import { theme } from '../theme';
+import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
 
@@ -11,6 +13,12 @@ export class ContentTile extends LitElement {
 
     @property({ type: Object })
     content: ContentResult | null = null;
+
+    @state()
+    private sentiment: 'Like' | 'Dislike' | null = null;
+
+    @state()
+    private isFavorite = false;
 
     // Override Lit's shadow root creation and only attach default styles when no template override exists.
     protected createRenderRoot(): HTMLElement | DocumentFragment {
@@ -37,6 +45,24 @@ export class ContentTile extends LitElement {
         super.connectedCallback();
     }
 
+    protected willUpdate(changed: PropertyValues<this>): void {
+        super.willUpdate(changed);
+
+        if (changed.has('content')) {
+            const sentiment = this.content?.userEngagement?.sentiment;
+            const normalizedSentiment: 'Like' | 'Dislike' | null = sentiment === 'Like' || sentiment === 'Dislike' ? sentiment : null;
+            const favorite = Boolean(this.content?.userEngagement?.isFavorite);
+
+            if (this.sentiment !== normalizedSentiment) {
+                this.sentiment = normalizedSentiment;
+            }
+
+            if (this.isFavorite !== favorite) {
+                this.isFavorite = favorite;
+            }
+        }
+    }
+
     render() {
         if (!this.content) {
             return;
@@ -61,16 +87,17 @@ export class ContentTile extends LitElement {
             return html`${markup}`;
         }
 
-        if (this.content.data && 'Url' in this.content.data) {
-            return html`
-                <a class='rw-content-tile' href=${this.content.data['Url'].value ?? ''}>
-                        ${this.renderTileContent(this.content)}
-                </a>`;
-        }
+        const url = this.content.data && 'Url' in this.content.data ? this.content.data['Url'].value ?? '' : null;
+
+        const engagementSettings = settings.userEngagement?.content;
 
         return html`
-            <div class='rw-content-tile'>
-                ${this.renderTileContent(this.content)}
+            <div class="rw-content-tile${engagementSettings?.favorite ? ' --rw-has-favorite' : ''}">
+                ${this.renderFavoriteAction(engagementSettings)}
+                ${url
+                ? html`<a class='rw-content-link' href=${url}>${this.renderTileContent(this.content)}</a>`
+                : html`<div class='rw-content-link'>${this.renderTileContent(this.content)}</div>`}
+                ${this.renderSentimentActions(engagementSettings)}
             </div>`;
     }
 
@@ -88,6 +115,111 @@ export class ContentTile extends LitElement {
                 <h5 class='rw-display-name'>${content.displayName}</h5>
                 ${summary ? html`<p class="rw-summary">${summary}</p>` : nothing}
             </div>`;
+    }
+
+    private renderSentimentActions(settings: UserEngagementEntityOptions | undefined) {
+        const showSentiment = Boolean(settings?.sentiment);
+
+        const uiSettings = getRelewiseUIOptions();
+        if (!showSentiment || userIsAnonymous(uiSettings.contextSettings.getUser())) {
+            return nothing;
+        }
+
+        const likeLabel = this.sentiment === 'Like' ? 'Remove like' : 'Like';
+        const dislikeLabel = this.sentiment === 'Dislike' ? 'Remove dislike' : 'Dislike';
+
+        return html`
+            <div class='rw-engagement-actions' role='group' aria-label='Content sentiment actions'>
+                <button
+                    class='rw-engagement-button'
+                    type='button'
+                    aria-label=${likeLabel}
+                    title=${likeLabel}
+                    aria-pressed=${this.sentiment === 'Like' ? 'true' : 'false'}
+                    @click=${this.onLikeClick}>
+                    ${this.sentiment === 'Like' ? html`<relewise-like-filled-icon></relewise-like-filled-icon>` : html`<relewise-like-icon></relewise-like-icon>`}
+                </button>
+                <button
+                    class='rw-engagement-button'
+                    type='button'
+                    aria-label=${dislikeLabel}
+                    title=${dislikeLabel}
+                    aria-pressed=${this.sentiment === 'Dislike' ? 'true' : 'false'}
+                    @click=${this.onDislikeClick}>
+                    ${this.sentiment === 'Dislike' ? html`<relewise-dislike-filled-icon></relewise-dislike-filled-icon>` : html`<relewise-dislike-icon></relewise-dislike-icon>`}
+                </button>
+            </div>`;
+    }
+
+    private renderFavoriteAction(settings: UserEngagementEntityOptions | undefined) {
+        const showFavorite = Boolean(settings?.favorite);
+
+        const uiSettings = getRelewiseUIOptions();
+        if (!showFavorite || userIsAnonymous(uiSettings.contextSettings.getUser())) {
+            return nothing;
+        }
+
+        return html`
+            <div class='rw-favorite-action'>
+                <button
+                    class='rw-favorite-button'
+                    type='button'
+                    aria-pressed=${this.isFavorite ? 'true' : 'false'}
+                    @click=${this.onFavoriteClick}>
+                    ${this.isFavorite ? html`<relewise-heart-filled-icon></relewise-heart-filled-icon>` : html`<relewise-heart-icon></relewise-heart-icon>`}
+                </button>
+            </div>`;
+    }
+
+    private async onLikeClick(event: Event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const newSentiment: 'Like' | 'Dislike' | null = this.sentiment === 'Like' ? null : 'Like';
+        await this.submitEngagement({ sentiment: newSentiment });
+    }
+
+    private async onDislikeClick(event: Event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const newSentiment: 'Like' | 'Dislike' | null = this.sentiment === 'Dislike' ? null : 'Dislike';
+        await this.submitEngagement({ sentiment: newSentiment });
+    }
+
+    private async onFavoriteClick(event: Event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        await this.submitEngagement({ isFavorite: !this.isFavorite });
+    }
+
+    private async submitEngagement(update: { sentiment?: 'Like' | 'Dislike' | null; isFavorite?: boolean; }) {
+        if (!this.content?.contentId) {
+            console.warn('Relewise: Unable to track engagement for content without an id.');
+            return;
+        }
+
+        const options = getRelewiseUIOptions();
+        const sentiment = update.sentiment !== undefined ? update.sentiment : this.sentiment;
+        const isFavorite = update.isFavorite !== undefined ? update.isFavorite : this.isFavorite;
+
+        this.sentiment = sentiment ?? null;
+        this.isFavorite = Boolean(isFavorite);
+
+        try {
+            const tracker = getTracker(options);
+            await tracker.trackContentEngagement({
+                user: options.contextSettings.getUser(),
+                contentId: this.content.contentId!,
+                engagement: {
+                    sentiment: this.sentiment ? this.sentiment : 'Neutral',
+                    isFavorite: this.isFavorite,
+                },
+            });
+        } catch (error) {
+            console.error('Relewise: Failed to track content engagement.', error);
+        }
     }
 
     private getContentImageAlt(content: ContentResult): string {
@@ -114,9 +246,22 @@ export class ContentTile extends LitElement {
             position: relative;
             text-decoration: inherit;
             text-size-adjust: none;
-            height: -webkit-fill-available;
-            height: -moz-available;    
+            height: 100%;
+            gap: var(--relewise-engagement-gap, 0.5em);
+        }
+
+        .rw-content-link {
+            display: flex;
+            flex-direction: column;
+            text-decoration: inherit;
+            color: inherit;
+            flex: 1;
             justify-content: flex-end;
+        }
+
+        .rw-content-link:focus-visible {
+            outline: 2px solid var(--relewise-focus-outline-color, #000);
+            outline-offset: 2px;
         }
 
         .rw-image-container {
@@ -128,6 +273,10 @@ export class ContentTile extends LitElement {
 
         .rw-information-container {
             margin: var(--relewise-information-container-margin, 0.5em 0.5em);
+        }
+
+        .--rw-has-favorite .rw-display-name {
+            margin-right: var(--relewise-favorite-space, 2.1em);
         }
 
         .rw-object-cover {
@@ -161,6 +310,58 @@ export class ContentTile extends LitElement {
             -webkit-line-clamp: 2;
             overflow: hidden;
             height: calc(var(--relewise-summary-line-height, 1.25em) * 2);
+        }
+
+        .rw-engagement-actions {
+            display: flex;
+            gap: var(--relewise-engagement-button-gap, 0.5em);
+            padding: var(--relewise-engagement-padding, 0 0.5em 0.5em 0.5em);
+            justify-content: flex-end;
+        }
+
+        .rw-engagement-button {
+            border: 0;
+            border-radius: var(--relewise-engagement-border-radius, 9999px);
+            background-color: var(--relewise-engagement-background, transparent);
+            color: inherit;
+            cursor: pointer;
+            padding: var(--relewise-engagement-button-padding, 0.35em);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .rw-engagement-button[aria-pressed="true"],
+        .rw-engagement-button:hover {
+            background-color: var(--relewise-engagement-active-background, rgba(0, 0, 0, 0.05));
+            color: var(--relewise-engagement-active-color, inherit);
+        }
+
+        .rw-favorite-action {
+            position: absolute;
+            top: var(--relewise-favorite-top, 0.5em);
+            right: var(--relewise-favorite-right, 0.5em);
+            display: flex;
+        }
+
+        .rw-favorite-button {
+            border: 0;
+            background-color: var(--relewise-favorite-background, rgba(255, 255, 255, 0.9));
+            color: inherit;
+            cursor: pointer;
+            padding: var(--relewise-favorite-padding, 0.35em);
+            border-radius: var(--relewise-favorite-border-radius, 9999px);
+            box-shadow: var(--relewise-favorite-shadow, 0 1px 4px rgba(0, 0, 0, 0.12));
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rw-engagement-button:focus-visible,
+        .rw-favorite-button:focus-visible {
+            outline: 2px solid var(--relewise-focus-outline-color, #000);
+            outline-offset: 2px;
         }
     `];
 }

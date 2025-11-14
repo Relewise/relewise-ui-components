@@ -28,6 +28,12 @@ import { TargetedSearchConfiguration } from './targetedSearchConfigurations';
 import { getRelewiseRecommendationTargetedConfigurations, getRelewiseSearchTargetedConfigurations } from './helpers';
 import { TargetedRecommendationConfiguration } from './targetedRecommendationConfigurations';
 import { ProductSearchOverlayProductCategory } from './search/components/product-search-overlay-product-category';
+import { HeartIcon } from './components/icons/heart';
+import { HeartFilledIcon } from './components/icons/heart-filled';
+import { LikeIcon } from './components/icons/like';
+import { LikeFilledIcon } from './components/icons/like-filled';
+import { DislikeIcon } from './components/icons/dislike';
+import { DislikeFilledIcon } from './components/icons/dislike-filled';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -146,7 +152,7 @@ export function useRecommendations() {
     tryRegisterElement('relewise-personal-products', PersonalProducts);
     tryRegisterElement('relewise-recently-viewed-products', RecentlyViewedProducts);
     tryRegisterElement('relewise-personal-content', PersonalContent);
-    tryRegisterElement('relewise-products-viewed-after-viewing-content', ProductsViewedAfterViewingContent);    
+    tryRegisterElement('relewise-products-viewed-after-viewing-content', ProductsViewedAfterViewingContent);
     tryRegisterElement('relewise-content-viewed-after-viewing-content', ContentViewedAfterViewingContent);
     tryRegisterElement('relewise-content-viewed-after-viewing-multiple-content', ContentViewedAfterViewingMultipleContent);
     tryRegisterElement('relewise-popular-content', PopularContent);
@@ -218,6 +224,12 @@ function registerGenericComponents() {
     tryRegisterElement('relewise-filter-icon', FilterIcon);
     tryRegisterElement('relewise-x-icon', XIcon);
     tryRegisterElement('relewise-sort-icon', SortIcon);
+    tryRegisterElement('relewise-heart-icon', HeartIcon);
+    tryRegisterElement('relewise-heart-filled-icon', HeartFilledIcon);
+    tryRegisterElement('relewise-like-icon', LikeIcon);
+    tryRegisterElement('relewise-like-filled-icon', LikeFilledIcon);
+    tryRegisterElement('relewise-dislike-icon', DislikeIcon);
+    tryRegisterElement('relewise-dislike-filled-icon', DislikeFilledIcon);
     tryRegisterElement('relewise-button', Button);
     tryRegisterElement('relewise-loading-spinner', LoadingSpinner);
 }
