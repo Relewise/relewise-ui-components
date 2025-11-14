@@ -1,20 +1,19 @@
 import { assert } from '@esm-bundle/chai';
 import { PersonalContentRecommendationBuilder } from '@relewise/client';
-import { getRelewiseContextSettings, initializeRelewiseUI } from '../src';
+import { getRelewiseContextSettings, getSelectedContentProperties, initializeRelewiseUI } from '../src';
 import { getContentRecommendationBuilderWithDefaults } from '../src/builders/contentRecommendationBuilder';
-import { defaultContentProperties } from '../src/defaultSettings';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('contentRecommendationBuilder', () => {
     const displayedAtLocation = 'web-components-tests';
 
-    test('getContentRecommendationBuilderWithDefaults returns builder with defaults if no selectedPropertiesSettings provided', async() => {
+    test('getContentRecommendationBuilderWithDefaults returns builder with defaults if no selectedPropertiesSettings provided', async () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         mockedRelewiseOptions.selectedPropertiesSettings = undefined!;
         initializeRelewiseUI(mockedRelewiseOptions);
 
         const expected = new PersonalContentRecommendationBuilder(getRelewiseContextSettings(displayedAtLocation))
-            .setSelectedContentProperties(defaultContentProperties)
+            .setSelectedContentProperties(getSelectedContentProperties(mockedRelewiseOptions))
             .build();
 
         const result = (await getContentRecommendationBuilderWithDefaults<PersonalContentRecommendationBuilder>(
@@ -25,7 +24,7 @@ suite('contentRecommendationBuilder', () => {
         assert.deepEqual(expected.settings.selectedContentProperties, result.settings.selectedContentProperties);
     });
 
-    test('getContentRecommendationBuilderWithDefaults returns builder with options from initializeRelewiseUI', async() => {
+    test('getContentRecommendationBuilderWithDefaults returns builder with options from initializeRelewiseUI', async () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         mockedRelewiseOptions.selectedPropertiesSettings = {
             ...mockedRelewiseOptions.selectedPropertiesSettings,
@@ -37,7 +36,7 @@ suite('contentRecommendationBuilder', () => {
         initializeRelewiseUI(mockedRelewiseOptions);
 
         const expected = new PersonalContentRecommendationBuilder(getRelewiseContextSettings(displayedAtLocation))
-            .setSelectedContentProperties(mockedRelewiseOptions.selectedPropertiesSettings!.content!)
+            .setSelectedContentProperties(getSelectedContentProperties(mockedRelewiseOptions))
             .build();
 
         const result = (await getContentRecommendationBuilderWithDefaults<PersonalContentRecommendationBuilder>(
