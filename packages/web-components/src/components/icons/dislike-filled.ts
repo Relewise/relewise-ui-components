@@ -1,5 +1,8 @@
 import { LitElement, css, html } from 'lit';
 
+/**
+ * Icon is sourced from: https://iconmonstr.com/thumb-5-svg/
+ */
 export class DislikeFilledIcon extends LitElement {
 
     connectedCallback(): void {

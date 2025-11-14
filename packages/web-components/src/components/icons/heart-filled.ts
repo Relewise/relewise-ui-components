@@ -1,5 +1,8 @@
 import { LitElement, css, html } from 'lit';
 
+/**
+ * Icon is sourced from: https://iconmonstr.com/heart-filled-svg/
+ */
 export class HeartFilledIcon extends LitElement {
 
     connectedCallback(): void {

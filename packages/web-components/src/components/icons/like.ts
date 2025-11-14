@@ -1,5 +1,8 @@
 import { LitElement, css, html } from 'lit';
 
+/**
+ * Icon is sourced from: https://iconmonstr.com/thumb-1-svg/
+ */
 export class LikeIcon extends LitElement {
 
     connectedCallback(): void {
