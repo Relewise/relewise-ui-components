@@ -92,7 +92,7 @@ export class ContentTile extends LitElement {
         const engagementSettings = settings.userEngagement?.content;
 
         return html`
-            <div class='rw-content-tile'>
+            <div class="rw-content-tile${engagementSettings?.favorite ? ' --rw-has-favorite' : ''}">
                 ${this.renderFavoriteAction(engagementSettings)}
                 ${url
                 ? html`<a class='rw-content-link' href=${url}>${this.renderTileContent(this.content)}</a>`
@@ -275,10 +275,7 @@ export class ContentTile extends LitElement {
             margin: var(--relewise-information-container-margin, 0.5em 0.5em);
         }
 
-        /* If there's no image, make room at the top so the favorite button (absolutely positioned)
-           doesn't overlap the title. We target the information container that follows an empty
-           image container and add top padding. The CSS variable allows tuning if needed. */
-        .rw-display-name ~ .rw-favorite-action {
+        .--rw-has-favorite .rw-display-name {
             margin-right: var(--relewise-favorite-space, 2.1em);
         }
 
