@@ -1,4 +1,4 @@
-import { ContentResult } from '@relewise/client';
+import { ContentResult, userIsAnonymous } from '@relewise/client';
 import { LitElement, PropertyValues, adoptStyles, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
@@ -8,7 +8,6 @@ import { theme } from '../theme';
 import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
-import { userIsAnonymous } from '../helpers';
 
 export class ContentTile extends LitElement {
 
@@ -274,6 +273,13 @@ export class ContentTile extends LitElement {
 
         .rw-information-container {
             margin: var(--relewise-information-container-margin, 0.5em 0.5em);
+        }
+
+        /* If there's no image, make room at the top so the favorite button (absolutely positioned)
+           doesn't overlap the title. We target the information container that follows an empty
+           image container and add top padding. The CSS variable allows tuning if needed. */
+        .rw-display-name ~ .rw-favorite-action {
+            margin-right: var(--relewise-favorite-space, 2.1em);
         }
 
         .rw-object-cover {

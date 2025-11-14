@@ -5,4 +5,3 @@ export * from './events';
 export * from './urlState';
 export * from './sessionVariables';
 export * from './templateHelpers';
-export * from './user-is-anonymous';

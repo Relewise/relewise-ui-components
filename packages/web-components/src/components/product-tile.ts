@@ -1,4 +1,4 @@
-import { ProductResult } from '@relewise/client';
+import { ProductResult, userIsAnonymous } from '@relewise/client';
 import { LitElement, PropertyValues, adoptStyles, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
@@ -9,7 +9,6 @@ import { theme } from '../theme';
 import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
-import { userIsAnonymous } from '../helpers/user-is-anonymous';
 
 export class ProductTile extends LitElement {
 

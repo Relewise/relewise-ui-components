@@ -1,9 +1,8 @@
-import { RecentlyViewedProductsBuilder, ProductRecommendationResponse } from '@relewise/client';
+import { RecentlyViewedProductsBuilder, ProductRecommendationResponse, userIsAnonymous } from '@relewise/client';
 import { getRecommender } from '../recommender';
 import { ProductRecommendationBase } from './product-recommendation-base';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
 import { getProductRecommendationBuilderWithDefaults } from '../../builders/productRecommendationBuilder';
-import { userIsAnonymous } from '../../helpers/user-is-anonymous';
 
 export class RecentlyViewedProducts extends ProductRecommendationBase {
 
