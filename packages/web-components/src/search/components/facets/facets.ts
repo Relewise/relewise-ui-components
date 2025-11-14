@@ -54,9 +54,9 @@ export class Facets extends LitElement {
         this.showDimmingOverlay = false;
     }
 
-    renderFacet(label: string, facetResult: FacetResult, styling: string, isLast: boolean): TemplateResult<1> {
-        if ('available' in facetResult && (!Array.isArray(facetResult.available) || facetResult.available.length === 0)) {
-            return html``;
+    renderFacet(label: string, facetResult: FacetResult, styling: string, isLast: boolean): TemplateResult<1> | typeof nothing {
+        if ('available' in facetResult && ((!Array.isArray(facetResult.available) || facetResult.available.length === 0) && (facetResult.available && !('value' in facetResult.available) ))) {
+            return nothing;
         }
 
         if (facetResult.$type.includes('PriceRangesFacetResult') ||
