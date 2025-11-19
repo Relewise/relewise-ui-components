@@ -170,13 +170,11 @@ export class ProductTile extends LitElement {
         }
 
         return html`
-            <div class='rw-favorite-action'>
-                <relewise-favorite-button
-                    product-id=${productId}
-                    .favorite=${this.isFavorite}
-                    @relewise-favorite-change=${this.onFavoriteChange}>
-                </relewise-favorite-button>
-            </div>`;
+            <relewise-favorite-button
+                product-id=${productId}
+                .favorite=${this.isFavorite}
+                @relewise-favorite-change=${this.onFavoriteChange}>
+            </relewise-favorite-button>`;
     }
 
     private async onLikeClick(event: Event) {
@@ -349,28 +347,7 @@ export class ProductTile extends LitElement {
             color: var(--relewise-engagement-active-color, inherit);
         }
 
-        .rw-favorite-action {
-            position: absolute;
-            top: var(--relewise-favorite-top, 0.5em);
-            right: var(--relewise-favorite-right, 0.5em);
-            display: flex;
-        }
-
-        .rw-favorite-button {
-            border: 0;
-            background-color: var(--relewise-favorite-background, rgba(255, 255, 255, 0.9));
-            padding: var(--relewise-favorite-padding, 0.35em);
-            color: inherit;
-            cursor: pointer;
-            border-radius: var(--relewise-favorite-border-radius, 9999px);
-            box-shadow: var(--relewise-favorite-shadow, 0 1px 4px rgba(0, 0, 0, 0.12));
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .rw-engagement-button:focus-visible,
-        .rw-favorite-button:focus-visible {
+        .rw-engagement-button:focus-visible {
             outline: 2px solid var(--relewise-focus-outline-color, #000);
             outline-offset: 2px;
         }

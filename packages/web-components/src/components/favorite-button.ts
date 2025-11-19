@@ -1,5 +1,5 @@
 import { userIsAnonymous } from '@relewise/client';
-import { LitElement, html, nothing } from 'lit';
+import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
@@ -9,12 +9,6 @@ export type FavoriteChangeDetail = {
 };
 
 export class FavoriteButton extends LitElement {
-    /**
-     * Do not use a shadow root so host styles (e.g. button positioning) can style the internal markup.
-     */
-    protected createRenderRoot(): HTMLElement | DocumentFragment {
-        return this;
-    }
 
     @property({ type: String, attribute: 'product-id' })
     productId: string | null = null;
@@ -53,7 +47,6 @@ export class FavoriteButton extends LitElement {
         const label = this.favorite ? 'Remove favorite' : 'Add to favorites';
 
         return html`
-            ${FavoriteButton.defaultStyles}
             <button
                 class='rw-favorite-button'
                 type='button'
@@ -146,36 +139,37 @@ export class FavoriteButton extends LitElement {
         }));
     }
 
-    static defaultStyles = html`
-        <style>
-            :host {
-                display: inline-flex;
-            }
+    static styles = css`
+        :host {
+            position: absolute;
+            top: var(--relewise-favorite-top, 0.5em);
+            right: var(--relewise-favorite-right, 0.5em);
+            display: flex;
+        }
 
-            .rw-favorite-button {
-                border: 0;
-                background-color: var(--relewise-favorite-background, rgba(255, 255, 255, 0.9));
-                padding: var(--relewise-favorite-padding, 0.35em);
-                color: inherit;
-                cursor: pointer;
-                border-radius: var(--relewise-favorite-border-radius, 9999px);
-                box-shadow: var(--relewise-favorite-shadow, 0 1px 4px rgba(0, 0, 0, 0.12));
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                transition: transform 0.2s ease;
-            }
+        .rw-favorite-button {
+            border: 0;
+            background-color: var(--relewise-favorite-background, rgba(255, 255, 255, 0.9));
+            padding: var(--relewise-favorite-padding, 0.35em);
+            color: inherit;
+            cursor: pointer;
+            border-radius: var(--relewise-favorite-border-radius, 9999px);
+            box-shadow: var(--relewise-favorite-shadow, 0 1px 4px rgba(0, 0, 0, 0.12));
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
 
-            .rw-favorite-button:focus-visible {
-                outline: 2px solid var(--relewise-focus-outline-color, #000);
-                outline-offset: 2px;
-            }
+        .rw-favorite-button:focus-visible {
+            outline: 2px solid var(--relewise-focus-outline-color, #000);
+            outline-offset: 2px;
+        }
 
-            .rw-favorite-button[disabled] {
-                cursor: not-allowed;
-                opacity: 0.6;
-            }
-        </style>
+        .rw-favorite-button[disabled] {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
     `;
 }
 
