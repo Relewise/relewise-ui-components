@@ -3,3 +3,4 @@ export * from './content-tile';
 export * from './icons';
 export * from './button';
 export * from './loading-spinner';
+export * from './favorite-button';

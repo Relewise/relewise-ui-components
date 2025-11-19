@@ -1,6 +1,7 @@
 import { ProductResult, userIsAnonymous } from '@relewise/client';
 import { LitElement, PropertyValues, adoptStyles, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { templateHelpers } from '../helpers/templateHelpers';
@@ -9,6 +10,7 @@ import { theme } from '../theme';
 import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
+import { FavoriteChangeDetail } from './favorite-button';
 
 export class ProductTile extends LitElement {
 
@@ -163,15 +165,19 @@ export class ProductTile extends LitElement {
             return nothing;
         }
 
+        const productId = this.product?.productId ?? null;
+        if (!productId) {
+            return nothing;
+        }
+
         return html`
             <div class='rw-favorite-action'>
-                <button
-                    class='rw-favorite-button'
-                    type='button'
-                    aria-pressed=${this.isFavorite ? 'true' : 'false'}
-                    @click=${this.onFavoriteClick}>
-                    ${this.isFavorite ? html`<relewise-heart-filled-icon></relewise-heart-filled-icon>` : html`<relewise-heart-icon></relewise-heart-icon>`}
-                </button>
+                <relewise-favorite-button
+                    product-id=${productId}
+                    variant-id=${ifDefined(this.product?.variant?.variantId ?? undefined)}
+                    .favorite=${this.isFavorite}
+                    @relewise-favorite-change=${this.onFavoriteChange}>
+                </relewise-favorite-button>
             </div>`;
     }
 
@@ -189,13 +195,6 @@ export class ProductTile extends LitElement {
 
         const newSentiment: 'Like' | 'Dislike' | null = this.sentiment === 'Dislike' ? null : 'Dislike';
         await this.submitEngagement({ sentiment: newSentiment });
-    }
-
-    private async onFavoriteClick(event: Event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        await this.submitEngagement({ isFavorite: !this.isFavorite });
     }
 
     private async submitEngagement(update: { sentiment?: 'Like' | 'Dislike' | null; isFavorite?: boolean; }) {
@@ -226,6 +225,10 @@ export class ProductTile extends LitElement {
         } catch (error) {
             console.error('Relewise: Failed to track product engagement.', error);
         }
+    }
+
+    private onFavoriteChange(event: CustomEvent<FavoriteChangeDetail>) {
+        this.isFavorite = event.detail.isFavorite;
     }
 
     private getProductImageAlt(product: ProductResult): string {
