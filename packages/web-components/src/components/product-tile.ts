@@ -1,7 +1,6 @@
 import { ProductResult, userIsAnonymous } from '@relewise/client';
 import { LitElement, PropertyValues, adoptStyles, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { ifDefined } from 'lit/directives/if-defined.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { templateHelpers } from '../helpers/templateHelpers';
@@ -174,7 +173,6 @@ export class ProductTile extends LitElement {
             <div class='rw-favorite-action'>
                 <relewise-favorite-button
                     product-id=${productId}
-                    variant-id=${ifDefined(this.product?.variant?.variantId ?? undefined)}
                     .favorite=${this.isFavorite}
                     @relewise-favorite-change=${this.onFavoriteChange}>
                 </relewise-favorite-button>
