@@ -7,7 +7,7 @@ initializeRelewiseUI(
     {
         contextSettings: {
             getUser: () => {
-                return UserFactory.byTemporaryId("mza")
+                return UserFactory.byTemporaryId('temp-id');
             },
             language: import.meta.env.VITE_LANGUAGE,
             currency: import.meta.env.VITE_CURRENCY,
@@ -34,6 +34,6 @@ initializeRelewiseUI(
                     },
                 });
             },
-        }
+        },
     },
 ).useRecommendations().useSearch();
