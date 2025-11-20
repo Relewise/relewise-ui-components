@@ -1,4 +1,4 @@
-import { ProductResult, userIsAnonymous } from '@relewise/client';
+import { ProductResult, User, UserFactory, userIsAnonymous } from '@relewise/client';
 import { LitElement, PropertyValues, adoptStyles, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
@@ -20,6 +20,9 @@ export class ProductTile extends LitElement {
 
     @state()
     private isFavorite = false;
+
+    @state()
+    private user: User | null = null;
 
     // Override Lit's shadow root creation and only attach default styles when no template override exists.
     protected createRenderRoot(): HTMLElement | DocumentFragment {
@@ -43,8 +46,9 @@ export class ProductTile extends LitElement {
     }
 
 
-    connectedCallback(): void {
+    async connectedCallback() {
         super.connectedCallback();
+        this.user = await getRelewiseUIOptions().contextSettings.getUser();
     }
 
     protected willUpdate(changed: PropertyValues<this>): void {
@@ -125,7 +129,7 @@ export class ProductTile extends LitElement {
         const showSentiment = Boolean(settings?.sentiment);
 
         const uiSettings = getRelewiseUIOptions();
-        if (!showSentiment || userIsAnonymous(uiSettings.contextSettings.getUser())) {
+        if (!showSentiment || !this.user || userIsAnonymous(this.user)) {
             return nothing;
         }
 
@@ -158,8 +162,7 @@ export class ProductTile extends LitElement {
     private renderFavoriteAction(settings: UserEngagementEntityOptions | undefined) {
         const showFavorite = Boolean(settings?.favorite);
 
-        const uiSettings = getRelewiseUIOptions();
-        if (!showFavorite || userIsAnonymous(uiSettings.contextSettings.getUser())) {
+        if (!showFavorite || !this.user || userIsAnonymous(this.user)) {
             return nothing;
         }
 
@@ -213,7 +216,7 @@ export class ProductTile extends LitElement {
         try {
             const tracker = getTracker(options);
             await tracker.trackProductEngagement({
-                user: options.contextSettings.getUser(),
+                user: this.user ?? UserFactory.anonymous(),
                 product: {
                     productId: this.product.productId,
                     variantId: this.product.variant?.variantId ?? undefined,

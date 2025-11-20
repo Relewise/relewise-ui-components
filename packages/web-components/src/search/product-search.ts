@@ -2,7 +2,7 @@ import { DoubleNullableRange, ProductResult, ProductSearchResponse } from '@rele
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
-import { getRelewiseSearchTargetedConfigurations, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
+import { getRelewiseContextSettings, getRelewiseSearchTargetedConfigurations, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { SortingEnum } from './enums';
 import { getSearcher } from './searcher';
@@ -118,8 +118,9 @@ export class ProductSearch extends LitElement {
 
         // Wait a tick so runtime filter extensions can run before the first automatic search executes.
         await new Promise(r => setTimeout(r, 0));
+        const settings = await getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search');
 
-        const requestBuilder = createProductSearchBuilder(term, this.displayedAtLocation ?? 'Relewise Product Search')
+        const requestBuilder = createProductSearchBuilder(term, settings)
             .pagination(p => p
                 .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)
                 .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))

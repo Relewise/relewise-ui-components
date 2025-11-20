@@ -1,11 +1,10 @@
-import { ProductSearchBuilder } from '@relewise/client';
+import { ProductSearchBuilder, Settings } from '@relewise/client';
 import { defaultExplodedVariants, getSelectedProductProperties } from '../defaultSettings';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers';
 
-export function createProductSearchBuilder(searchTerm: string | null | undefined, displayedAtLocation: string): ProductSearchBuilder {
+export function createProductSearchBuilder(searchTerm: string | null | undefined, settings: Settings): ProductSearchBuilder {
     const relewiseUIOptions = getRelewiseUIOptions();
     const searchOptions = getRelewiseUISearchOptions();
-    const settings = getRelewiseContextSettings(displayedAtLocation);
 
     return new ProductSearchBuilder(settings)
         .setSelectedProductProperties(getSelectedProductProperties(relewiseUIOptions))

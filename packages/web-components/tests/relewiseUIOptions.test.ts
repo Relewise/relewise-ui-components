@@ -6,59 +6,60 @@ suite('relewiseUIOptions', () => {
     test('getRelewiseUIOptions throws error when ui not initialized', () => {
         window.relewiseUIOptions = undefined!;
 
-        assert.Throw(() =>  getRelewiseUIOptions());
+        assert.Throw(() => getRelewiseUIOptions());
     });
-    
+
     test('getRelewiseUIOptions when no dataset id found', () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
-    
+
         window.relewiseUIOptions.datasetId = undefined!;
-    
-        assert.Throw(() =>  getRelewiseUIOptions());
+
+        assert.Throw(() => getRelewiseUIOptions());
     });
-    
+
     test('getRelewiseUIOptions when no api key found', () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
-    
+
         window.relewiseUIOptions.apiKey = undefined!;
-        
-        assert.Throw(() =>  getRelewiseUIOptions());
+
+        assert.Throw(() => getRelewiseUIOptions());
     });
-    
+
     test('getRelewiseUIOptions when no api context settings found', () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
-    
+
         window.relewiseUIOptions.contextSettings = undefined!;
-        
-        assert.Throw(() =>  getRelewiseUIOptions());
+
+        assert.Throw(() => getRelewiseUIOptions());
     });
-    
+
     test('getRelewiseUIOptions finds correct Options', () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
         const result = getRelewiseUIOptions();
-    
+
         assert.isDefined(result);
         assert.deepEqual(result, mockedRelewiseOptions);
     });
-    
-    test('getRelewiseContextOptions finds correct context settings', () => {
+
+    test('getRelewiseContextOptions finds correct context settings', async () => {
         const mockedRelewiseOptions = mockRelewiseOptions();
         initializeRelewiseUI(mockedRelewiseOptions);
         const displayedAtLocation = 'displayedAtLocation';
-    
+
+        const user = await mockedRelewiseOptions.contextSettings.getUser();
         const expected = {
             currency: mockedRelewiseOptions.contextSettings.currency,
             displayedAtLocation: displayedAtLocation,
             language: mockedRelewiseOptions.contextSettings.language,
-            user: mockedRelewiseOptions.contextSettings.getUser(),
+            user: user,
         };
-    
-        const result = getRelewiseContextSettings(displayedAtLocation);
-    
+
+        const result = await getRelewiseContextSettings(displayedAtLocation);
+
         assert.isDefined(result);
         assert.deepEqual(result, expected);
     });

@@ -17,10 +17,11 @@ export class BrandView extends LitElement {
 
         const options = getRelewiseUIOptions();
         const tracker = getTracker(options);
+        const user = await options.contextSettings.getUser();
 
         tracker.trackBrandView({
             brandId: this.brandId,
-            user: options.contextSettings.getUser(),
+            user: user,
         });
     }
 }
