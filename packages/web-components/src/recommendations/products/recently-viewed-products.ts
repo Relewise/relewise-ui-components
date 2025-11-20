@@ -9,7 +9,7 @@ export class RecentlyViewedProducts extends ProductRecommendationBase {
     async fetchProducts(): Promise<ProductRecommendationResponse | undefined> {
         const options = getRelewiseUIOptions();
 
-        const user = options.contextSettings.getUser();
+        const user = await options.contextSettings.getUser();
 
         // The API will never return a result for a user that can't be identified
         if (userIsAnonymous(user)) {

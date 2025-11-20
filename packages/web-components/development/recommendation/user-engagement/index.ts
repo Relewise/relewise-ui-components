@@ -7,6 +7,7 @@ initializeRelewiseUI(
     {
         contextSettings: {
             getUser: () => {
+                //return UserFactory.anonymous();
                 return UserFactory.byTemporaryId("mza")
             },
             language: import.meta.env.VITE_LANGUAGE,

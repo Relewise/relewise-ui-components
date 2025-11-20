@@ -29,13 +29,14 @@ export function getRelewiseRecommendationTargetedConfigurations(): TargetedRecom
     return window.relewiseUIRecommendationTargetedConfigurations;
 }
 
-export function getRelewiseContextSettings(displayedAtLocation: string): Settings {
+export async function getRelewiseContextSettings(displayedAtLocation: string): Promise<Settings> {
     const contextSettings = getRelewiseUIOptions().contextSettings;
+    const user = await contextSettings.getUser();
 
     return {
         currency: contextSettings.currency,
         displayedAtLocation: displayedAtLocation,
         language: contextSettings.language,
-        user: contextSettings.getUser(),
+        user: user,
     };
 }

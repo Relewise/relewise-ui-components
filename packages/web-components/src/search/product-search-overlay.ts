@@ -181,11 +181,11 @@ export class ProductSearchOverlay extends LitElement {
         this.abortController.abort();
 
         const relewiseUIOptions = getRelewiseUIOptions();
-        const settings = getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
+        const settings = await getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
         const searcher = getSearcher(relewiseUIOptions);
 
         const requestBuilder = new SearchCollectionBuilder()
-            .addRequest(createProductSearchBuilder(this.term, settings.displayedAtLocation)
+            .addRequest(createProductSearchBuilder(this.term, settings)
                 .pagination(p => p.setPageSize(this.numberOfProducts))
                 .build());
 
@@ -198,7 +198,7 @@ export class ProductSearchOverlay extends LitElement {
         }
 
         if (this.numberOfProductCategories > 0) {
-            requestBuilder.addRequest(createProductCategorySearchBuilder(this.term, settings.displayedAtLocation)
+            requestBuilder.addRequest(createProductCategorySearchBuilder(this.term, settings)
                 .pagination(p => p.setPageSize(this.numberOfProductCategories))
                 .build());
         }
