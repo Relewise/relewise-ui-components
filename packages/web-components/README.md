@@ -973,6 +973,7 @@ All CSS variables recognised by the web components are listed below together wit
 | `--relewise-favorite-padding` | `0.35em` | Internal padding for the favorite button. |
 | `--relewise-favorite-border-radius` | `9999px` | Border radius applied to the favorite button. |
 | `--relewise-favorite-shadow` | `0 1px 4px rgba(0, 0, 0, 0.12)` | Shadow applied to the floating favorite control. |
+| `--relewise-favorite-zindex` | `10` | Stack order that ensures the favorite toggle floats above the rest of the tile. |
 | `--relewise-favorite-space` | `2.1em` | Extra margin reserved for headings when the favorite toggle is visible. |
 
 #### Search bars and layout

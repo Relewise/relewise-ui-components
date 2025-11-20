@@ -145,6 +145,7 @@ export class FavoriteButton extends LitElement {
             top: var(--relewise-favorite-top, 0.5em);
             right: var(--relewise-favorite-right, 0.5em);
             display: flex;
+            z-index: var(--relewise-favorite-zindex, 10);
         }
 
         .rw-favorite-button {
