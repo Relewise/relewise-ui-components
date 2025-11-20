@@ -166,11 +166,6 @@ export class FavoriteButton extends LitElement {
             outline: 2px solid var(--relewise-focus-outline-color, #000);
             outline-offset: 2px;
         }
-
-        .rw-favorite-button[disabled] {
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
     `;
 }
 

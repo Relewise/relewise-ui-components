@@ -4,7 +4,7 @@ import { property, state } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { templateHelpers } from '../helpers/templateHelpers';
-import { UserEngagementEntityOptions } from '../initialize';
+import { RelewiseUIOptions, UserEngagementEntityOptions } from '../initialize';
 import { theme } from '../theme';
 import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
@@ -41,11 +41,6 @@ export class ProductTile extends LitElement {
         }
 
         return root;
-    }
-
-
-    connectedCallback(): void {
-        super.connectedCallback();
     }
 
     protected willUpdate(changed: PropertyValues<this>): void {
@@ -95,11 +90,11 @@ export class ProductTile extends LitElement {
 
         return html`
             <div class='rw-tile'>
-                ${this.renderFavoriteAction(engagementSettings)}
+                ${this.renderFavoriteAction(engagementSettings, settings)}
                 ${url
                 ? html`<a class='rw-tile-link' href=${url}>${this.renderTileContent(this.product)}</a>`
                 : html`<div class='rw-tile-link'>${this.renderTileContent(this.product)}</div>`}
-                ${this.renderSentimentActions(engagementSettings)}
+                ${this.renderSentimentActions(engagementSettings, settings)}
             </div>`;
     }
 
@@ -122,11 +117,10 @@ export class ProductTile extends LitElement {
             </div>`;
     }
 
-    private renderSentimentActions(settings: UserEngagementEntityOptions | undefined) {
+    private renderSentimentActions(settings: UserEngagementEntityOptions | undefined, options: RelewiseUIOptions) {
         const showSentiment = Boolean(settings?.sentiment);
 
-        const uiSettings = getRelewiseUIOptions();
-        if (!showSentiment || userIsAnonymous(uiSettings.contextSettings.getUser())) {
+        if (!showSentiment || userIsAnonymous(options.contextSettings.getUser())) {
             return nothing;
         }
 
@@ -156,15 +150,14 @@ export class ProductTile extends LitElement {
             </div>`;
     }
 
-    private renderFavoriteAction(settings: UserEngagementEntityOptions | undefined) {
+    private renderFavoriteAction(settings: UserEngagementEntityOptions | undefined, options: RelewiseUIOptions) {
         const showFavorite = Boolean(settings?.favorite);
 
-        const uiSettings = getRelewiseUIOptions();
-        if (!showFavorite || userIsAnonymous(uiSettings.contextSettings.getUser())) {
+        if (!showFavorite || userIsAnonymous(options.contextSettings.getUser())) {
             return nothing;
         }
 
-        const productId = this.product?.productId ?? null;
+        const productId = this.product?.productId;
         if (!productId) {
             return nothing;
         }
