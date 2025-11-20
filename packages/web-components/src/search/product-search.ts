@@ -1,4 +1,4 @@
-import { DoubleNullableRange, ProductResult, ProductSearchResponse } from '@relewise/client';
+import { DoubleNullableRange, ProductResult, ProductSearchResponse, User } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
@@ -38,6 +38,9 @@ export class ProductSearch extends LitElement {
 
     @state()
     facetLabels: string[] = [];
+
+    @state()
+    private user: User | null = null;
 
     handleSearchEventBound = this.handleSearchEvent.bind(this);
     handleLoadMoreEventBound = this.handleLoadMoreEvent.bind(this);
@@ -119,7 +122,7 @@ export class ProductSearch extends LitElement {
         // Wait a tick so runtime filter extensions can run before the first automatic search executes.
         await new Promise(r => setTimeout(r, 0));
         const settings = await getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search');
-
+        this.user = settings.user;
         const requestBuilder = createProductSearchBuilder(term, settings)
             .pagination(p => p
                 .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)
@@ -331,7 +334,7 @@ export class ProductSearch extends LitElement {
                     </div>` : nothing}
                  
                     <relewise-product-search-results
-                        .products=${this.products}>
+                        .products=${this.products} .user=${this.user}>
                     </relewise-product-search-results>
                     <relewise-product-search-load-more-button
                         class="rw-load-more"

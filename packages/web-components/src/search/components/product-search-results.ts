@@ -1,4 +1,4 @@
-import { ProductResult } from '@relewise/client';
+import { ProductResult, User } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, getRelewiseUISearchOptions, QueryKeys, readCurrentUrlState } from '../../helpers';
@@ -7,6 +7,9 @@ import { theme } from '../../theme';
 export class ProductSearchResults extends LitElement {
     @property({ type: Array })
     products: ProductResult[] = [];
+
+    @property({ type: Object })
+    private user: User | null = null;
 
     @state()
     showLoadingSpinner: boolean = true;
@@ -55,7 +58,8 @@ export class ProductSearchResults extends LitElement {
                 return html`
                         <relewise-product-tile
                             class="rw-product-tile ${this.showDimmingOverlay ? 'rw-dimmed' : ''}"
-                            .product=${product}>
+                            .product=${product}
+                            .user=${this.user}>
                         </relewise-product-tile>`;
             })}
                 ${this.showLoadingSpinner ? html`

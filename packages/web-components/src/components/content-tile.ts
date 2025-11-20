@@ -14,14 +14,14 @@ export class ContentTile extends LitElement {
     @property({ type: Object })
     content: ContentResult | null = null;
 
+    @property({ type: Object })
+    private user: User | null = null
+
     @state()
     private sentiment: 'Like' | 'Dislike' | null = null;
 
     @state()
     private isFavorite = false;
-
-    @state()
-    private user: User | null = null
 
     // Override Lit's shadow root creation and only attach default styles when no template override exists.
     protected createRenderRoot(): HTMLElement | DocumentFragment {
@@ -44,10 +44,8 @@ export class ContentTile extends LitElement {
         return root;
     }
 
-    async connectedCallback() {
+    connectedCallback() {
         super.connectedCallback();
-
-        this.user = await getRelewiseUIOptions().contextSettings.getUser();
     }
 
     protected willUpdate(changed: PropertyValues<this>): void {
