@@ -12,7 +12,7 @@ suite('contentRecommendationBuilder', () => {
         mockedRelewiseOptions.selectedPropertiesSettings = undefined!;
         initializeRelewiseUI(mockedRelewiseOptions);
 
-        const expected = new PersonalContentRecommendationBuilder(getRelewiseContextSettings(displayedAtLocation))
+        const expected = new PersonalContentRecommendationBuilder(await getRelewiseContextSettings(displayedAtLocation))
             .setSelectedContentProperties(getSelectedContentProperties(mockedRelewiseOptions))
             .build();
 
@@ -35,7 +35,7 @@ suite('contentRecommendationBuilder', () => {
         };
         initializeRelewiseUI(mockedRelewiseOptions);
 
-        const expected = new PersonalContentRecommendationBuilder(getRelewiseContextSettings(displayedAtLocation))
+        const expected = new PersonalContentRecommendationBuilder(await getRelewiseContextSettings(displayedAtLocation))
             .setSelectedContentProperties(getSelectedContentProperties(mockedRelewiseOptions))
             .build();
 
