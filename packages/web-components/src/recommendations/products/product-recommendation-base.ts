@@ -48,7 +48,6 @@ export abstract class ProductRecommendationBase extends LitElement {
             console.error('Missing displayed-at-location attribute on recommendation component.');
         }
 
-        this.user = await getRelewiseUIOptions().contextSettings.getUser();
         await this.fetchAndUpdateProducts();
         window.addEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateProductsBound);
     }
@@ -61,6 +60,8 @@ export abstract class ProductRecommendationBase extends LitElement {
 
     async fetchAndUpdateProducts() {
         if (this.providedData?.requests) return;
+
+        this.user = await getRelewiseUIOptions().contextSettings.getUser();
 
         const result = await this.fetchProducts();
         this.products = result?.recommendations ?? null;
