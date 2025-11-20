@@ -202,7 +202,6 @@ export class ContentTile extends LitElement {
         }
 
         const options = getRelewiseUIOptions();
-        const user = await options.contextSettings.getUser();
         const sentiment = update.sentiment !== undefined ? update.sentiment : this.sentiment;
         const isFavorite = update.isFavorite !== undefined ? update.isFavorite : this.isFavorite;
 
