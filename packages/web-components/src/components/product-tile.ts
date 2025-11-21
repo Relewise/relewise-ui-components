@@ -9,7 +9,7 @@ import { theme } from '../theme';
 import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
-import { FavoriteChangeDetail } from './favorite-button';
+import { FavoriteChangeDetail } from './favorite-button-products';
 
 export class ProductTile extends LitElement {
 
@@ -163,11 +163,11 @@ export class ProductTile extends LitElement {
         }
 
         return html`
-            <relewise-favorite-button
+            <relewise-favorite-button-products
                 product-id=${productId}
                 .favorite=${this.isFavorite}
                 @relewise-favorite-change=${this.onFavoriteChange}>
-            </relewise-favorite-button>`;
+            </relewise-favorite-button-products>`;
     }
 
     private async onLikeClick(event: Event) {
