@@ -8,6 +8,7 @@ import { theme } from '../theme';
 import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
+import { FavoriteChangeDetail } from './favorite-button-products';
 
 export class ContentTile extends LitElement {
 
@@ -159,16 +160,17 @@ export class ContentTile extends LitElement {
             return nothing;
         }
 
+        const contentId = this.content?.contentId;
+        if (!contentId) {
+            return nothing;
+        }
+
         return html`
-            <div class='rw-favorite-action'>
-                <button
-                    class='rw-favorite-button'
-                    type='button'
-                    aria-pressed=${this.isFavorite ? 'true' : 'false'}
-                    @click=${this.onFavoriteClick}>
-                    ${this.isFavorite ? html`<relewise-heart-filled-icon></relewise-heart-filled-icon>` : html`<relewise-heart-icon></relewise-heart-icon>`}
-                </button>
-            </div>`;
+            <relewise-favorite-button-content
+                content-id=${contentId}
+                .favorite=${this.isFavorite}
+                @relewise-favorite-change=${this.onFavoriteChange}>
+            </relewise-favorite-button-content>`;
     }
 
     private async onLikeClick(event: Event) {
@@ -185,13 +187,6 @@ export class ContentTile extends LitElement {
 
         const newSentiment: 'Like' | 'Dislike' | null = this.sentiment === 'Dislike' ? null : 'Dislike';
         await this.submitEngagement({ sentiment: newSentiment });
-    }
-
-    private async onFavoriteClick(event: Event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        await this.submitEngagement({ isFavorite: !this.isFavorite });
     }
 
     private async submitEngagement(update: { sentiment?: 'Like' | 'Dislike' | null; isFavorite?: boolean; }) {
@@ -220,6 +215,10 @@ export class ContentTile extends LitElement {
         } catch (error) {
             console.error('Relewise: Failed to track content engagement.', error);
         }
+    }
+
+    private onFavoriteChange(event: CustomEvent<FavoriteChangeDetail>) {
+        this.isFavorite = event.detail.isFavorite;
     }
 
     private getContentImageAlt(content: ContentResult): string {
@@ -338,28 +337,7 @@ export class ContentTile extends LitElement {
             color: var(--relewise-engagement-active-color, inherit);
         }
 
-        .rw-favorite-action {
-            position: absolute;
-            top: var(--relewise-favorite-top, 0.5em);
-            right: var(--relewise-favorite-right, 0.5em);
-            display: flex;
-        }
-
-        .rw-favorite-button {
-            border: 0;
-            background-color: var(--relewise-favorite-background, rgba(255, 255, 255, 0.9));
-            color: inherit;
-            cursor: pointer;
-            padding: var(--relewise-favorite-padding, 0.35em);
-            border-radius: var(--relewise-favorite-border-radius, 9999px);
-            box-shadow: var(--relewise-favorite-shadow, 0 1px 4px rgba(0, 0, 0, 0.12));
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .rw-engagement-button:focus-visible,
-        .rw-favorite-button:focus-visible {
+        .rw-engagement-button:focus-visible {
             outline: 2px solid var(--relewise-focus-outline-color, #000);
             outline-offset: 2px;
         }

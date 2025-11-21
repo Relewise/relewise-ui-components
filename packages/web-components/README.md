@@ -888,6 +888,13 @@ and dislike buttons, while `favorite` adds the floating heart toggle. The curren
 controls automatically call `trackProductEngagement` or `trackContentEngagement` so interactions are persisted with Relewise.
 You can tailor the appearance and layout of these buttons via the [user engagement and favorites CSS variables](#user-engagement-and-favorites).
 
+Two dedicated favorite button elements are available if you want to embed them outside the default tiles:
+
+- `<relewise-favorite-button-products>` requires a `product-id` and accepts an optional `variant-id`.
+- `<relewise-favorite-button-content>` requires a `content-id`.
+
+Both components support the `favorite` boolean attribute (or property binding) to control their state, emit a `relewise-favorite-change` event with `{ isFavorite }` in `detail`, and reuse the same CSS variables listed below for positioning and appearance.
+
 ## Overwriting styling
 If you want to overwrite the styling of the grid and the default product tile, you can do so by using CSS variables.
 
