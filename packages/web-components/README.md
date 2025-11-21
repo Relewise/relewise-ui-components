@@ -895,8 +895,6 @@ Two dedicated favorite button elements are available if you want to embed them o
 
 Both components support the `favorite` boolean attribute (or property binding) to control their state, emit a `relewise-favorite-change` event with `{ isFavorite }` in `detail`, and reuse the same CSS variables listed below for positioning and appearance.
 
-> Migration note: the previous `<relewise-favorite-button>` tag has been renamed to `<relewise-favorite-button-products>`; update any existing markup to use the new product- or content-specific element.
-
 ## Overwriting styling
 If you want to overwrite the styling of the grid and the default product tile, you can do so by using CSS variables.
 
