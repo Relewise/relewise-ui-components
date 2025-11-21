@@ -107,6 +107,7 @@ export class FavoriteButtonContent extends LitElement {
             });
 
             this.dispatchChangeEvent({
+                isFavorite: this.isFavorite,
                 entityType: 'content',
                 contentId,
             });
@@ -118,12 +119,7 @@ export class FavoriteButtonContent extends LitElement {
         }
     }
 
-    private dispatchChangeEvent(extraDetail: Partial<FavoriteChangeDetail> = {}) {
-        const detail: FavoriteChangeDetail = {
-            isFavorite: this.isFavorite,
-            ...extraDetail,
-        };
-
+    private dispatchChangeEvent(detail: FavoriteChangeDetail) {
         this.dispatchEvent(new CustomEvent<FavoriteChangeDetail>('relewise-favorite-change', {
             bubbles: true,
             composed: true,
