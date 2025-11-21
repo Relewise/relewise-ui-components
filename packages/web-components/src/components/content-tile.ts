@@ -8,7 +8,7 @@ import { theme } from '../theme';
 import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
-import { FavoriteChangeDetail } from './favorite-button-products';
+import { FavoriteChangeDetail } from '../types/userEngagement';
 
 export class ContentTile extends LitElement {
 
@@ -160,14 +160,13 @@ export class ContentTile extends LitElement {
             return nothing;
         }
 
-        const contentId = this.content?.contentId;
-        if (!contentId) {
+        if (!this.content?.contentId) {
             return nothing;
         }
 
         return html`
             <relewise-content-favorite-button
-                content-id=${contentId}
+                .content=${this.content}
                 .favorite=${this.isFavorite}
                 @relewise-favorite-change=${this.onFavoriteChange}>
             </relewise-content-favorite-button>`;

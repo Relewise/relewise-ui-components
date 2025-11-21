@@ -1,14 +1,14 @@
-import { userIsAnonymous } from '@relewise/client';
+import { ProductResult, userIsAnonymous } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
-
-export type FavoriteChangeDetail = {
-    isFavorite: boolean;
-};
+import { FavoriteChangeDetail, FavoriteErrorDetail } from '../types/userEngagement';
 
 export class FavoriteButtonProducts extends LitElement {
+
+    @property({ attribute: false })
+    product: ProductResult | null = null;
 
     @property({ type: String, attribute: 'product-id' })
     productId: string | null = null;
@@ -66,7 +66,7 @@ export class FavoriteButtonProducts extends LitElement {
             return false;
         }
 
-        if (!this.productId) {
+        if (!this.resolvedProductId) {
             console.warn('Relewise: Unable to render favorite button without a product id.');
             this.toggleAttribute('hidden', true);
             return false;
@@ -100,7 +100,8 @@ export class FavoriteButtonProducts extends LitElement {
 
         const next = !this.favorite;
         const options = this.getOptions();
-        if (!options || !this.productId) {
+        const productId = this.resolvedProductId;
+        if (!options || !productId) {
             return;
         }
 
@@ -112,31 +113,71 @@ export class FavoriteButtonProducts extends LitElement {
             await tracker.trackProductEngagement({
                 user: options.contextSettings.getUser(),
                 product: {
-                    productId: this.productId,
-                    variantId: this.variantId ?? undefined,
+                    productId,
+                    variantId: this.resolvedVariantId ?? undefined,
                 },
                 engagement: {
                     isFavorite: this.favorite,
                 },
             });
 
-            this.dispatchChangeEvent();
+            this.dispatchChangeEvent({
+                entityType: 'product',
+                productId,
+                variantId: this.resolvedVariantId,
+            });
         } catch (error) {
             console.error('Relewise: Failed to track favorite action.', error);
             this.favorite = !next;
+            this.dispatchErrorEvent({
+                entityType: 'product',
+                productId,
+                variantId: this.resolvedVariantId,
+                error,
+            });
         } finally {
             this.isWorking = false;
         }
     }
 
-    private dispatchChangeEvent() {
+    private dispatchChangeEvent(extraDetail: Partial<FavoriteChangeDetail> = {}) {
+        const detail: FavoriteChangeDetail = {
+            isFavorite: this.favorite,
+            ...extraDetail,
+        };
+
+        this.dispatchEvent(new CustomEvent<FavoriteChangeDetail>('relewise-favorite-toggle', {
+            bubbles: true,
+            composed: true,
+            detail,
+        }));
+
         this.dispatchEvent(new CustomEvent<FavoriteChangeDetail>('relewise-favorite-change', {
             bubbles: true,
             composed: true,
-            detail: {
-                isFavorite: this.favorite,
-            },
+            detail,
         }));
+    }
+
+    private dispatchErrorEvent(extraDetail: Omit<FavoriteErrorDetail, 'isFavorite'>) {
+        const detail: FavoriteErrorDetail = {
+            isFavorite: this.favorite,
+            ...extraDetail,
+        };
+
+        this.dispatchEvent(new CustomEvent<FavoriteErrorDetail>('relewise-favorite-error', {
+            bubbles: true,
+            composed: true,
+            detail,
+        }));
+    }
+
+    private get resolvedProductId(): string | null {
+        return this.product?.productId ?? this.productId;
+    }
+
+    private get resolvedVariantId(): string | null {
+        return this.product?.variant?.variantId ?? this.variantId;
     }
 
     static styles = css`

@@ -1,14 +1,17 @@
-import { userIsAnonymous } from '@relewise/client';
+import { ContentResult, userIsAnonymous } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
-import { FavoriteChangeDetail } from './favorite-button-products';
+import { FavoriteChangeDetail, FavoriteErrorDetail } from '../types/userEngagement';
 
 export class FavoriteButtonContent extends LitElement {
 
     @property({ type: String, attribute: 'content-id' })
     contentId: string | null = null;
+
+    @property({ attribute: false })
+    content: ContentResult | null = null;
 
     @property({
         attribute: 'favorite',
@@ -60,7 +63,7 @@ export class FavoriteButtonContent extends LitElement {
             return false;
         }
 
-        if (!this.contentId) {
+        if (!this.resolvedContentId) {
             console.warn('Relewise: Unable to render favorite button without a content id.');
             this.toggleAttribute('hidden', true);
             return false;
@@ -94,7 +97,8 @@ export class FavoriteButtonContent extends LitElement {
 
         const next = !this.favorite;
         const options = this.getOptions();
-        if (!options || !this.contentId) {
+        const contentId = this.resolvedContentId;
+        if (!options || !contentId) {
             return;
         }
 
@@ -105,29 +109,63 @@ export class FavoriteButtonContent extends LitElement {
             const tracker = getTracker(options);
             await tracker.trackContentEngagement({
                 user: options.contextSettings.getUser(),
-                contentId: this.contentId,
+                contentId,
                 engagement: {
                     isFavorite: this.favorite,
                 },
             });
 
-            this.dispatchChangeEvent();
+            this.dispatchChangeEvent({
+                entityType: 'content',
+                contentId,
+            });
         } catch (error) {
             console.error('Relewise: Failed to track favorite action.', error);
             this.favorite = !next;
+            this.dispatchErrorEvent({
+                entityType: 'content',
+                contentId,
+                error,
+            });
         } finally {
             this.isWorking = false;
         }
     }
 
-    private dispatchChangeEvent() {
+    private dispatchChangeEvent(extraDetail: Partial<FavoriteChangeDetail> = {}) {
+        const detail: FavoriteChangeDetail = {
+            isFavorite: this.favorite,
+            ...extraDetail,
+        };
+
+        this.dispatchEvent(new CustomEvent<FavoriteChangeDetail>('relewise-favorite-toggle', {
+            bubbles: true,
+            composed: true,
+            detail,
+        }));
+
         this.dispatchEvent(new CustomEvent<FavoriteChangeDetail>('relewise-favorite-change', {
             bubbles: true,
             composed: true,
-            detail: {
-                isFavorite: this.favorite,
-            },
+            detail,
         }));
+    }
+
+    private dispatchErrorEvent(extraDetail: Omit<FavoriteErrorDetail, 'isFavorite'>) {
+        const detail: FavoriteErrorDetail = {
+            isFavorite: this.favorite,
+            ...extraDetail,
+        };
+
+        this.dispatchEvent(new CustomEvent<FavoriteErrorDetail>('relewise-favorite-error', {
+            bubbles: true,
+            composed: true,
+            detail,
+        }));
+    }
+
+    private get resolvedContentId(): string | null {
+        return this.content?.contentId ?? this.contentId;
     }
 
     static styles = css`

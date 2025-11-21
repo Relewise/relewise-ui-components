@@ -9,7 +9,7 @@ import { theme } from '../theme';
 import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
-import { FavoriteChangeDetail } from './favorite-button-products';
+import { FavoriteChangeDetail } from '../types/userEngagement';
 
 export class ProductTile extends LitElement {
 
@@ -99,6 +99,7 @@ export class ProductTile extends LitElement {
     }
 
     renderTileContent(product: ProductResult) {
+        console.log(product);
         return html`
             ${(product.data && 'ImageUrl' in product.data)
                 ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${product.data['ImageUrl'].value} alt=${this.getProductImageAlt(product)} /></div>`
@@ -157,14 +158,13 @@ export class ProductTile extends LitElement {
             return nothing;
         }
 
-        const productId = this.product?.productId;
-        if (!productId) {
+        if (!this.product?.productId) {
             return nothing;
         }
 
         return html`
             <relewise-product-favorite-button
-                product-id=${productId}
+                .product=${this.product}
                 .favorite=${this.isFavorite}
                 @relewise-favorite-change=${this.onFavoriteChange}>
             </relewise-product-favorite-button>`;
