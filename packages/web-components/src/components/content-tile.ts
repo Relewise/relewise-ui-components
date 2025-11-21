@@ -8,7 +8,6 @@ import { theme } from '../theme';
 import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
-import { FavoriteChangeDetail } from '../types/userEngagement';
 
 export class ContentTile extends LitElement {
 
@@ -20,9 +19,6 @@ export class ContentTile extends LitElement {
 
     @state()
     private sentiment: 'Like' | 'Dislike' | null = null;
-
-    @state()
-    private isFavorite = false;
 
     // Override Lit's shadow root creation and only attach default styles when no template override exists.
     protected createRenderRoot(): HTMLElement | DocumentFragment {
@@ -55,15 +51,10 @@ export class ContentTile extends LitElement {
         if (changed.has('content')) {
             const sentiment = this.content?.userEngagement?.sentiment;
             const normalizedSentiment: 'Like' | 'Dislike' | null = sentiment === 'Like' || sentiment === 'Dislike' ? sentiment : null;
-            const favorite = Boolean(this.content?.userEngagement?.isFavorite);
-
             if (this.sentiment !== normalizedSentiment) {
                 this.sentiment = normalizedSentiment;
             }
 
-            if (this.isFavorite !== favorite) {
-                this.isFavorite = favorite;
-            }
         }
     }
 
@@ -169,8 +160,7 @@ export class ContentTile extends LitElement {
             <relewise-content-favorite-button
                 .content=${this.content}
                 .user=${this.user}
-                .favorite=${this.isFavorite}
-                @relewise-favorite-change=${this.onFavoriteChange}>
+                >
             </relewise-content-favorite-button>`;
     }
 
@@ -190,7 +180,7 @@ export class ContentTile extends LitElement {
         await this.submitEngagement({ sentiment: newSentiment });
     }
 
-    private async submitEngagement(update: { sentiment?: 'Like' | 'Dislike' | null; isFavorite?: boolean; }) {
+    private async submitEngagement(update: { sentiment?: 'Like' | 'Dislike' | null; }) {
         if (!this.content?.contentId) {
             console.warn('Relewise: Unable to track engagement for content without an id.');
             return;
@@ -198,10 +188,8 @@ export class ContentTile extends LitElement {
 
         const options = getRelewiseUIOptions();
         const sentiment = update.sentiment !== undefined ? update.sentiment : this.sentiment;
-        const isFavorite = update.isFavorite !== undefined ? update.isFavorite : this.isFavorite;
 
         this.sentiment = sentiment ?? null;
-        this.isFavorite = Boolean(isFavorite);
 
         try {
             const tracker = getTracker(options);
@@ -210,16 +198,11 @@ export class ContentTile extends LitElement {
                 contentId: this.content.contentId!,
                 engagement: {
                     sentiment: this.sentiment ? this.sentiment : 'Neutral',
-                    isFavorite: this.isFavorite,
                 },
             });
         } catch (error) {
             console.error('Relewise: Failed to track content engagement.', error);
         }
-    }
-
-    private onFavoriteChange(event: CustomEvent<FavoriteChangeDetail>) {
-        this.isFavorite = event.detail.isFavorite;
     }
 
     private getContentImageAlt(content: ContentResult): string {

@@ -1,5 +1,5 @@
 import { ContentResult, User, userIsAnonymous } from '@relewise/client';
-import { LitElement, css, html, nothing } from 'lit';
+import { LitElement, PropertyValues, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
@@ -13,46 +13,36 @@ export class FavoriteButtonContent extends LitElement {
     @property({ attribute: false })
     content: ContentResult | null = null;
 
-    @property({
-        attribute: 'favorite',
-        reflect: true,
-        converter: {
-            fromAttribute: (value: string | null) => {
-                if (value === null) {
-                    return false;
-                }
-
-                if (value === '' || value === undefined) {
-                    return true;
-                }
-
-                return value !== 'false';
-            },
-            toAttribute: (value: boolean) => value ? '' : null,
-        },
-    })
-    favorite = false;
-
     @state()
     private isWorking = false;
+
+    @state()
+    private isFavorite = false;
+
+    protected willUpdate(changed: PropertyValues<this>): void {
+        // Sync the local favourite state to match its userEngagement flag so the button stays accurate.
+        if (changed.has('content')) {
+            this.isFavorite = Boolean(this.content?.userEngagement?.isFavorite);
+        }
+    }
 
     render() {
         if (!this.shouldRender()) {
             return nothing;
         }
 
-        const label = this.favorite ? 'Remove favorite' : 'Add to favorites';
+        const label = this.isFavorite ? 'Remove favorite' : 'Add to favorites';
 
         return html`
             <button
                 class='rw-favorite-button'
                 type='button'
-                aria-pressed=${this.favorite ? 'true' : 'false'}
+                aria-pressed=${this.isFavorite ? 'true' : 'false'}
                 aria-label=${label}
                 title=${label}
                 @click=${this.onToggle}
                 ?disabled=${this.isWorking}>
-                ${this.favorite ? html`<relewise-heart-filled-icon aria-hidden='true'></relewise-heart-filled-icon>` : html`<relewise-heart-icon aria-hidden='true'></relewise-heart-icon>`}
+                ${this.isFavorite ? html`<relewise-heart-filled-icon aria-hidden='true'></relewise-heart-filled-icon>` : html`<relewise-heart-icon aria-hidden='true'></relewise-heart-icon>`}
             </button>`;
     }
 
@@ -95,7 +85,7 @@ export class FavoriteButtonContent extends LitElement {
             return;
         }
 
-        const next = !this.favorite;
+        const nextState = !this.isFavorite;
         const options = this.getOptions();
         const contentId = this.content?.contentId ?? null;
         const user = this.user;
@@ -103,7 +93,7 @@ export class FavoriteButtonContent extends LitElement {
             return;
         }
 
-        this.favorite = next;
+        this.isFavorite = nextState;
         this.isWorking = true;
 
         try {
@@ -112,7 +102,7 @@ export class FavoriteButtonContent extends LitElement {
                 user,
                 contentId,
                 engagement: {
-                    isFavorite: this.favorite,
+                    isFavorite: this.isFavorite,
                 },
             });
 
@@ -122,7 +112,7 @@ export class FavoriteButtonContent extends LitElement {
             });
         } catch (error) {
             console.error('Relewise: Failed to track favorite action.', error);
-            this.favorite = !next;
+            this.isFavorite = !nextState;
         } finally {
             this.isWorking = false;
         }
@@ -130,7 +120,7 @@ export class FavoriteButtonContent extends LitElement {
 
     private dispatchChangeEvent(extraDetail: Partial<FavoriteChangeDetail> = {}) {
         const detail: FavoriteChangeDetail = {
-            isFavorite: this.favorite,
+            isFavorite: this.isFavorite,
             ...extraDetail,
         };
 
