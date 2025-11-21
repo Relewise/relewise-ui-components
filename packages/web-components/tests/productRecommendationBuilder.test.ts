@@ -10,7 +10,7 @@ suite('productRecommendationBuilder', () => {
         initializeRelewiseUI(mockedRelewiseOptions);
 
         const expected = new PopularProductsBuilder(
-            getRelewiseContextSettings('web-components-tests'))
+            await getRelewiseContextSettings('web-components-tests'))
             .setSelectedProductProperties(getSelectedProductProperties(mockedRelewiseOptions))
             .build();
         const result = (await getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options), 'web-components-tests')).build();
@@ -23,7 +23,7 @@ suite('productRecommendationBuilder', () => {
         initializeRelewiseUI(mockedRelewiseOptions);
 
         const expected = new PopularProductsBuilder
-            (getRelewiseContextSettings('web-components-tests'))
+            (await getRelewiseContextSettings('web-components-tests'))
             .setSelectedProductProperties(getSelectedProductProperties(mockedRelewiseOptions)).build();
         const result = (await getProductRecommendationBuilderWithDefaults<PopularProductsBuilder>(Options => new PopularProductsBuilder(Options), 'web-components-tests')).build();
 

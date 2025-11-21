@@ -1,7 +1,8 @@
-import { ContentRecommendationRequest, ContentRecommendationResponse, ContentResult } from '@relewise/client';
+import { ContentRecommendationRequest, ContentRecommendationResponse, ContentResult, User } from '@relewise/client';
 import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
+import { getRelewiseUIOptions } from '../../helpers';
 
 export abstract class ContentRecommendationBase extends LitElement {
 
@@ -16,6 +17,9 @@ export abstract class ContentRecommendationBase extends LitElement {
 
     @state()
     content: ContentResult[] | null = null;
+
+    @state()
+    private user: User | null = null;
 
     abstract fetchContent(): Promise<ContentRecommendationResponse | undefined> | undefined;
     abstract buildRequest(): Promise<ContentRecommendationRequest | undefined>;
@@ -39,13 +43,15 @@ export abstract class ContentRecommendationBase extends LitElement {
     }
 
     async fetchAndUpdateContent() {
+        this.user = await getRelewiseUIOptions().contextSettings.getUser();
+
         const result = await this.fetchContent();
         this.content = result?.recommendations ?? null;
     };
 
     render() {
         if (this.content && this.content.length > 0) {
-            return html`${this.content.map(content => html`<relewise-content-tile .content=${content}></relewise-content-tile>`)}`;
+            return html`${this.content.map(content => html`<relewise-content-tile .content=${content} .user=${this.user}></relewise-content-tile>`)}`;
         }
     }
 

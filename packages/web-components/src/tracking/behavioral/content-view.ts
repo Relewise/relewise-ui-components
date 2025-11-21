@@ -17,10 +17,11 @@ export class ContentView extends LitElement {
 
         const options = getRelewiseUIOptions();
         const tracker = getTracker(options);
+        const user = await options.contextSettings.getUser();
 
         tracker.trackContentView({
             contentId: this.contentId,
-            user: options.contextSettings.getUser(),
+            user: user,
         });
     }
 }

@@ -6,7 +6,7 @@ export async function getProductRecommendationBuilderWithDefaults<T extends Prod
     // Allow integrators a single tick to inject additional filters before the first request runs.
     await new Promise(r => setTimeout(r, 0));
 
-    const settings = getRelewiseContextSettings(displayedAtLocation);
+    const settings = await getRelewiseContextSettings(displayedAtLocation);
     const relewiseUIOptions = getRelewiseUIOptions();
     const targetedConfiguration = getRelewiseRecommendationTargetedConfigurations();
 

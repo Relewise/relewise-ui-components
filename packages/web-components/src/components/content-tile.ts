@@ -1,4 +1,4 @@
-import { ContentResult, userIsAnonymous } from '@relewise/client';
+import { ContentResult, User, UserFactory, userIsAnonymous } from '@relewise/client';
 import { LitElement, PropertyValues, adoptStyles, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
@@ -14,6 +14,9 @@ export class ContentTile extends LitElement {
 
     @property({ type: Object })
     content: ContentResult | null = null;
+
+    @property({ type: Object })
+    private user: User | null = null
 
     @state()
     private sentiment: 'Like' | 'Dislike' | null = null;
@@ -42,7 +45,7 @@ export class ContentTile extends LitElement {
         return root;
     }
 
-    connectedCallback(): void {
+    connectedCallback() {
         super.connectedCallback();
     }
 
@@ -121,8 +124,7 @@ export class ContentTile extends LitElement {
     private renderSentimentActions(settings: UserEngagementEntityOptions | undefined) {
         const showSentiment = Boolean(settings?.sentiment);
 
-        const uiSettings = getRelewiseUIOptions();
-        if (!showSentiment || userIsAnonymous(uiSettings.contextSettings.getUser())) {
+        if (!showSentiment || !this.user || userIsAnonymous(this.user)) {
             return nothing;
         }
 
@@ -155,8 +157,7 @@ export class ContentTile extends LitElement {
     private renderFavoriteAction(settings: UserEngagementEntityOptions | undefined) {
         const showFavorite = Boolean(settings?.favorite);
 
-        const uiSettings = getRelewiseUIOptions();
-        if (!showFavorite || userIsAnonymous(uiSettings.contextSettings.getUser())) {
+        if (!showFavorite || !this.user || userIsAnonymous(this.user)) {
             return nothing;
         }
 
@@ -204,7 +205,7 @@ export class ContentTile extends LitElement {
         try {
             const tracker = getTracker(options);
             await tracker.trackContentEngagement({
-                user: options.contextSettings.getUser(),
+                user: this.user ?? UserFactory.anonymous(),
                 contentId: this.content.contentId!,
                 engagement: {
                     sentiment: this.sentiment ? this.sentiment : 'Neutral',

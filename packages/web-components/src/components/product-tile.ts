@@ -1,4 +1,4 @@
-import { ProductResult, userIsAnonymous } from '@relewise/client';
+import { ProductResult, User, UserFactory, userIsAnonymous } from '@relewise/client';
 import { LitElement, PropertyValues, adoptStyles, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
@@ -15,6 +15,9 @@ export class ProductTile extends LitElement {
 
     @property({ type: Object })
     product: ProductResult | null = null;
+
+    @property({ type: Object })
+    private user: User | null = null;
 
     @state()
     private sentiment: 'Like' | 'Dislike' | null = null;
@@ -41,6 +44,11 @@ export class ProductTile extends LitElement {
         }
 
         return root;
+    }
+
+
+    connectedCallback() {
+        super.connectedCallback();
     }
 
     protected willUpdate(changed: PropertyValues<this>): void {
@@ -121,7 +129,8 @@ export class ProductTile extends LitElement {
     private renderSentimentActions(settings: UserEngagementEntityOptions | undefined, options: RelewiseUIOptions) {
         const showSentiment = Boolean(settings?.sentiment);
 
-        if (!showSentiment || userIsAnonymous(options.contextSettings.getUser())) {
+        const uiSettings = getRelewiseUIOptions();
+        if (!showSentiment || !this.user || userIsAnonymous(this.user)) {
             return nothing;
         }
 
@@ -154,11 +163,7 @@ export class ProductTile extends LitElement {
     private renderFavoriteAction(settings: UserEngagementEntityOptions | undefined, options: RelewiseUIOptions) {
         const showFavorite = Boolean(settings?.favorite);
 
-        if (!showFavorite || userIsAnonymous(options.contextSettings.getUser())) {
-            return nothing;
-        }
-
-        if (!this.product?.productId) {
+        if (!showFavorite || !this.user || userIsAnonymous(this.user)) {
             return nothing;
         }
 
@@ -201,7 +206,7 @@ export class ProductTile extends LitElement {
         try {
             const tracker = getTracker(options);
             await tracker.trackProductEngagement({
-                user: options.contextSettings.getUser(),
+                user: this.user ?? UserFactory.anonymous(),
                 product: {
                     productId: this.product.productId,
                     variantId: this.product.variant?.variantId ?? undefined,

@@ -47,7 +47,7 @@ export interface RelevanceModifiers {
 }
 
 export interface ContextSettings {
-    getUser: () => User;
+    getUser: () => Promise<User> | User;
     language: string;
     currency: string;
 }

@@ -20,11 +20,11 @@ export class ProductView extends LitElement {
 
         const options = getRelewiseUIOptions();
         const tracker = getTracker(options);
-
+        const user = await options.contextSettings.getUser();
         tracker.trackProductView({
             productId: this.productId,
             variantId: this.variantId,
-            user: options.contextSettings.getUser(),
+            user: user,
         });
     }
 }
