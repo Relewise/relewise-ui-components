@@ -1,4 +1,4 @@
-import { ContentResult, User, userIsAnonymous } from '@relewise/client';
+import { ContentResult, userIsAnonymous } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
@@ -6,9 +6,6 @@ import { getTracker } from '../tracking';
 import { FavoriteChangeDetail, FavoriteErrorDetail } from '../types/userEngagement';
 
 export class FavoriteButtonContent extends LitElement {
-
-    @property({ attribute: false })
-    user: User | null = null;
 
     @property({ type: String, attribute: 'content-id' })
     contentId: string | null = null;
@@ -38,14 +35,6 @@ export class FavoriteButtonContent extends LitElement {
 
     @state()
     private isWorking = false;
-
-    private contextUser: User | null = null;
-    private resolvingUser: Promise<User | null> | null = null;
-
-    override connectedCallback(): void {
-        super.connectedCallback();
-        void this.ensureContextUser();
-    }
 
     render() {
         if (!this.shouldRender()) {
@@ -80,14 +69,7 @@ export class FavoriteButtonContent extends LitElement {
             return false;
         }
 
-        const user = this.user ?? this.contextUser;
-        if (!user) {
-            void this.ensureContextUser();
-            this.toggleAttribute('hidden', true);
-            return false;
-        }
-
-        if (userIsAnonymous(user)) {
+        if (userIsAnonymous(options.contextSettings.getUser())) {
             this.toggleAttribute('hidden', true);
             return false;
         }
@@ -116,8 +98,7 @@ export class FavoriteButtonContent extends LitElement {
         const next = !this.favorite;
         const options = this.getOptions();
         const contentId = this.resolvedContentId;
-        const user = await this.getResolvedUser();
-        if (!options || !contentId || !user || userIsAnonymous(user)) {
+        if (!options || !contentId) {
             return;
         }
 
@@ -127,7 +108,7 @@ export class FavoriteButtonContent extends LitElement {
         try {
             const tracker = getTracker(options);
             await tracker.trackContentEngagement({
-                user,
+                user: options.contextSettings.getUser(),
                 contentId,
                 engagement: {
                     isFavorite: this.favorite,
@@ -185,52 +166,6 @@ export class FavoriteButtonContent extends LitElement {
 
     private get resolvedContentId(): string | null {
         return this.content?.contentId ?? this.contentId;
-    }
-
-    private async getResolvedUser(): Promise<User | null> {
-        if (this.user) {
-            return this.user;
-        }
-
-        if (this.contextUser) {
-            return this.contextUser;
-        }
-
-        return this.ensureContextUser();
-    }
-
-    private async ensureContextUser(): Promise<User | null> {
-        if (this.user) {
-            return this.user;
-        }
-
-        if (this.contextUser) {
-            return this.contextUser;
-        }
-
-        if (this.resolvingUser) {
-            return this.resolvingUser;
-        }
-
-        const options = this.getOptions();
-        if (!options) {
-            return null;
-        }
-
-        this.resolvingUser = Promise.resolve(options.contextSettings.getUser())
-            .then(user => {
-                this.contextUser = user ?? null;
-                this.resolvingUser = null;
-                this.requestUpdate();
-                return this.contextUser;
-            })
-            .catch(error => {
-                console.warn('Relewise: Favorite button failed to resolve user.', error);
-                this.resolvingUser = null;
-                return null;
-            });
-
-        return this.resolvingUser;
     }
 
     static styles = css`
