@@ -125,7 +125,7 @@ export class FavoriteButtonProducts extends LitElement {
     }
 
     private dispatchChangeEvent(detail: FavoriteChangeDetail) {
-        this.dispatchEvent(new CustomEvent<FavoriteChangeDetail>('relewise-favorite-change', {
+        this.dispatchEvent(new CustomEvent<FavoriteChangeDetail>('favorite-change', {
             bubbles: true,
             composed: true,
             detail,

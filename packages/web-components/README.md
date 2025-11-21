@@ -893,7 +893,7 @@ Two dedicated favorite button elements are available if you want to embed them o
 - `<relewise-product-favorite-button>` requires a bound `product` property containing the `ProductResult` you want to favourite. Variant information is read from that object automatically, and the button keeps track of its own state.
 - `<relewise-content-favorite-button>` requires a bound `content` property containing the `ContentResult` you want to favourite. The button reads the current favourite value from `content.userEngagement` and manages subsequent toggles internally.
 
-Both components emit a `relewise-favorite-change` event with `{ isFavorite }` in `detail` whenever the user toggles the button, and reuse the same CSS variables listed below for positioning and appearance.
+Both components emit a `favorite-change` event with `{ isFavorite }` in `detail` whenever the user toggles the button, and reuse the same CSS variables listed below for positioning and appearance.
 
 ## Overwriting styling
 If you want to overwrite the styling of the grid and the default product tile, you can do so by using CSS variables.
