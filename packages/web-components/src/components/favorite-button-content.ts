@@ -162,6 +162,6 @@ export class FavoriteButtonContent extends LitElement {
 
 declare global {
     interface HTMLElementTagNameMap {
-        'relewise-favorite-button-content': FavoriteButtonContent;
+        'relewise-content-favorite-button': FavoriteButtonContent;
     }
 }

@@ -890,8 +890,8 @@ You can tailor the appearance and layout of these buttons via the [user engageme
 
 Two dedicated favorite button elements are available if you want to embed them outside the default tiles:
 
-- `<relewise-favorite-button-products>` requires a `product-id` and accepts an optional `variant-id`.
-- `<relewise-favorite-button-content>` requires a `content-id`.
+- `<relewise-product-favorite-button>` requires a `product-id` and accepts an optional `variant-id`.
+- `<relewise-content-favorite-button>` requires a `content-id`.
 
 Both components support the `favorite` boolean attribute (or property binding) to control their state, emit a `relewise-favorite-change` event with `{ isFavorite }` in `detail`, and reuse the same CSS variables listed below for positioning and appearance.
 

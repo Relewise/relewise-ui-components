@@ -163,11 +163,11 @@ export class ProductTile extends LitElement {
         }
 
         return html`
-            <relewise-favorite-button-products
+            <relewise-product-favorite-button
                 product-id=${productId}
                 .favorite=${this.isFavorite}
                 @relewise-favorite-change=${this.onFavoriteChange}>
-            </relewise-favorite-button-products>`;
+            </relewise-product-favorite-button>`;
     }
 
     private async onLikeClick(event: Event) {

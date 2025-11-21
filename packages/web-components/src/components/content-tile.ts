@@ -166,11 +166,11 @@ export class ContentTile extends LitElement {
         }
 
         return html`
-            <relewise-favorite-button-content
+            <relewise-content-favorite-button
                 content-id=${contentId}
                 .favorite=${this.isFavorite}
                 @relewise-favorite-change=${this.onFavoriteChange}>
-            </relewise-favorite-button-content>`;
+            </relewise-content-favorite-button>`;
     }
 
     private async onLikeClick(event: Event) {

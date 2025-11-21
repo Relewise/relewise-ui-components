@@ -232,8 +232,8 @@ function registerGenericComponents() {
     tryRegisterElement('relewise-like-filled-icon', LikeFilledIcon);
     tryRegisterElement('relewise-dislike-icon', DislikeIcon);
     tryRegisterElement('relewise-dislike-filled-icon', DislikeFilledIcon);
-    tryRegisterElement('relewise-favorite-button-products', FavoriteButtonProducts);
-    tryRegisterElement('relewise-favorite-button-content', FavoriteButtonContent);
+    tryRegisterElement('relewise-product-favorite-button', FavoriteButtonProducts);
+    tryRegisterElement('relewise-content-favorite-button', FavoriteButtonContent);
     tryRegisterElement('relewise-button', Button);
     tryRegisterElement('relewise-loading-spinner', LoadingSpinner);
 }
