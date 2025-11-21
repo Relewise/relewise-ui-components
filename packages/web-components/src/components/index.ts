@@ -3,5 +3,5 @@ export * from './content-tile';
 export * from './icons';
 export * from './button';
 export * from './loading-spinner';
-export * from './favorite-button-products';
-export * from './favorite-button-content';
+export * from './product-favorite-button';
+export * from './content-favorite-button';
