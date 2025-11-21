@@ -3,7 +3,7 @@ import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
-import { FavoriteChangeDetail, FavoriteErrorDetail } from '../types/userEngagement';
+import { FavoriteChangeDetail } from '../types/userEngagement';
 
 export class FavoriteButtonProducts extends LitElement {
 
@@ -128,12 +128,6 @@ export class FavoriteButtonProducts extends LitElement {
         } catch (error) {
             console.error('Relewise: Failed to track favorite action.', error);
             this.favorite = !next;
-            this.dispatchErrorEvent({
-                entityType: 'product',
-                productId,
-                variantId,
-                error,
-            });
         } finally {
             this.isWorking = false;
         }
@@ -152,19 +146,6 @@ export class FavoriteButtonProducts extends LitElement {
         }));
 
         this.dispatchEvent(new CustomEvent<FavoriteChangeDetail>('relewise-favorite-change', {
-            bubbles: true,
-            composed: true,
-            detail,
-        }));
-    }
-
-    private dispatchErrorEvent(extraDetail: Omit<FavoriteErrorDetail, 'isFavorite'>) {
-        const detail: FavoriteErrorDetail = {
-            isFavorite: this.favorite,
-            ...extraDetail,
-        };
-
-        this.dispatchEvent(new CustomEvent<FavoriteErrorDetail>('relewise-favorite-error', {
             bubbles: true,
             composed: true,
             detail,

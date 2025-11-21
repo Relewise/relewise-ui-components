@@ -5,7 +5,3 @@ export type FavoriteChangeDetail = {
     variantId?: string | null;
     contentId?: string;
 };
-
-export type FavoriteErrorDetail = FavoriteChangeDetail & {
-    error: unknown;
-};
