@@ -35,9 +35,11 @@ export abstract class ProductRecommendationBase extends LitElement {
     constructor() {
         super();
         setTimeout(async () => {
-            const request = await this.buildRequest();
-            if (request) {
-                this.dispatchEvent(new CustomEvent(Events.registerProductRecommendation, { bubbles: true, composed: true, detail: request }));
+            if (this.providedData !== undefined) {
+                const request = await this.buildRequest();
+                if (request) {
+                    this.dispatchEvent(new CustomEvent(Events.registerProductRecommendation, { bubbles: true, composed: true, detail: request }));
+                }
             }
         }, 0);
     }
@@ -47,8 +49,6 @@ export abstract class ProductRecommendationBase extends LitElement {
         if (!this.displayedAtLocation) {
             console.error('Missing displayed-at-location attribute on recommendation component.');
         }
-
-        this.user = await getRelewiseUIOptions().contextSettings.getUser();
 
         await this.fetchAndUpdateProducts();
         window.addEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateProductsBound);

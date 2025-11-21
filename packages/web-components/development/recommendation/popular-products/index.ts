@@ -7,6 +7,7 @@ initializeRelewiseUI(
     {
         contextSettings: {
             getUser: () => {
+                console.log("getting user")
                 return UserFactory.anonymous();
             },
             language: import.meta.env.VITE_LANGUAGE,
