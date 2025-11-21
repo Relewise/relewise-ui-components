@@ -7,9 +7,6 @@ import { FavoriteChangeDetail, FavoriteErrorDetail } from '../types/userEngageme
 
 export class FavoriteButtonContent extends LitElement {
 
-    @property({ type: String, attribute: 'content-id' })
-    contentId: string | null = null;
-
     @property({ attribute: false })
     content: ContentResult | null = null;
 
@@ -63,8 +60,8 @@ export class FavoriteButtonContent extends LitElement {
             return false;
         }
 
-        if (!this.resolvedContentId) {
-            console.warn('Relewise: Unable to render favorite button without a content id.');
+        if (!this.content?.contentId) {
+            console.warn('Relewise: Unable to render favorite button without content.');
             this.toggleAttribute('hidden', true);
             return false;
         }
@@ -97,7 +94,7 @@ export class FavoriteButtonContent extends LitElement {
 
         const next = !this.favorite;
         const options = this.getOptions();
-        const contentId = this.resolvedContentId;
+        const contentId = this.content?.contentId ?? null;
         if (!options || !contentId) {
             return;
         }
@@ -162,10 +159,6 @@ export class FavoriteButtonContent extends LitElement {
             composed: true,
             detail,
         }));
-    }
-
-    private get resolvedContentId(): string | null {
-        return this.content?.contentId ?? this.contentId;
     }
 
     static styles = css`

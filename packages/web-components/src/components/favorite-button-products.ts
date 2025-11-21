@@ -10,12 +10,6 @@ export class FavoriteButtonProducts extends LitElement {
     @property({ attribute: false })
     product: ProductResult | null = null;
 
-    @property({ type: String, attribute: 'product-id' })
-    productId: string | null = null;
-
-    @property({ type: String, attribute: 'variant-id' })
-    variantId: string | null = null;
-
     @property({
         attribute: 'favorite',
         reflect: true,
@@ -66,8 +60,8 @@ export class FavoriteButtonProducts extends LitElement {
             return false;
         }
 
-        if (!this.resolvedProductId) {
-            console.warn('Relewise: Unable to render favorite button without a product id.');
+        if (!this.product?.productId) {
+            console.warn('Relewise: Unable to render favorite button without a product.');
             this.toggleAttribute('hidden', true);
             return false;
         }
@@ -100,7 +94,8 @@ export class FavoriteButtonProducts extends LitElement {
 
         const next = !this.favorite;
         const options = this.getOptions();
-        const productId = this.resolvedProductId;
+        const productId = this.product?.productId ?? null;
+        const variantId = this.product?.variant?.variantId ?? null;
         if (!options || !productId) {
             return;
         }
@@ -114,7 +109,7 @@ export class FavoriteButtonProducts extends LitElement {
                 user: options.contextSettings.getUser(),
                 product: {
                     productId,
-                    variantId: this.resolvedVariantId ?? undefined,
+                    variantId: variantId ?? undefined,
                 },
                 engagement: {
                     isFavorite: this.favorite,
@@ -124,7 +119,7 @@ export class FavoriteButtonProducts extends LitElement {
             this.dispatchChangeEvent({
                 entityType: 'product',
                 productId,
-                variantId: this.resolvedVariantId,
+                variantId,
             });
         } catch (error) {
             console.error('Relewise: Failed to track favorite action.', error);
@@ -132,7 +127,7 @@ export class FavoriteButtonProducts extends LitElement {
             this.dispatchErrorEvent({
                 entityType: 'product',
                 productId,
-                variantId: this.resolvedVariantId,
+                variantId,
                 error,
             });
         } finally {
@@ -170,14 +165,6 @@ export class FavoriteButtonProducts extends LitElement {
             composed: true,
             detail,
         }));
-    }
-
-    private get resolvedProductId(): string | null {
-        return this.product?.productId ?? this.productId;
-    }
-
-    private get resolvedVariantId(): string | null {
-        return this.product?.variant?.variantId ?? this.variantId;
     }
 
     static styles = css`

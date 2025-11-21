@@ -126,10 +126,9 @@ export class ProductTile extends LitElement {
             </div>`;
     }
 
-    private renderSentimentActions(settings: UserEngagementEntityOptions | undefined, options: RelewiseUIOptions) {
+    private renderSentimentActions(settings: UserEngagementEntityOptions | undefined) {
         const showSentiment = Boolean(settings?.sentiment);
 
-        const uiSettings = getRelewiseUIOptions();
         if (!showSentiment || !this.user || userIsAnonymous(this.user)) {
             return nothing;
         }
