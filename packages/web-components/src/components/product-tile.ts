@@ -126,7 +126,7 @@ export class ProductTile extends LitElement {
             </div>`;
     }
 
-    private renderSentimentActions(settings: UserEngagementEntityOptions | undefined) {
+    private renderSentimentActions(settings: UserEngagementEntityOptions | undefined | undefined, options: RelewiseUIOptions) {
         const showSentiment = Boolean(settings?.sentiment);
 
         if (!showSentiment || !this.user || userIsAnonymous(this.user)) {
@@ -169,6 +169,7 @@ export class ProductTile extends LitElement {
         return html`
             <relewise-product-favorite-button
                 .product=${this.product}
+                .user=${this.user}
                 .favorite=${this.isFavorite}
                 @relewise-favorite-change=${this.onFavoriteChange}>
             </relewise-product-favorite-button>`;

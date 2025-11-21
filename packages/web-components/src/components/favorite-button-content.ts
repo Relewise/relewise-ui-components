@@ -1,4 +1,4 @@
-import { ContentResult, userIsAnonymous } from '@relewise/client';
+import { ContentResult, User, userIsAnonymous } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
@@ -6,6 +6,9 @@ import { getTracker } from '../tracking';
 import { FavoriteChangeDetail, FavoriteErrorDetail } from '../types/userEngagement';
 
 export class FavoriteButtonContent extends LitElement {
+
+    @property({ attribute: false })
+    user: User | null = null;
 
     @property({ attribute: false })
     content: ContentResult | null = null;
@@ -66,7 +69,7 @@ export class FavoriteButtonContent extends LitElement {
             return false;
         }
 
-        if (userIsAnonymous(options.contextSettings.getUser())) {
+        if (!this.user || userIsAnonymous(this.user)) {
             this.toggleAttribute('hidden', true);
             return false;
         }
@@ -95,7 +98,8 @@ export class FavoriteButtonContent extends LitElement {
         const next = !this.favorite;
         const options = this.getOptions();
         const contentId = this.content?.contentId ?? null;
-        if (!options || !contentId) {
+        const user = this.user;
+        if (!options || !contentId || !user || userIsAnonymous(user)) {
             return;
         }
 
@@ -105,7 +109,7 @@ export class FavoriteButtonContent extends LitElement {
         try {
             const tracker = getTracker(options);
             await tracker.trackContentEngagement({
-                user: options.contextSettings.getUser(),
+                user,
                 contentId,
                 engagement: {
                     isFavorite: this.favorite,

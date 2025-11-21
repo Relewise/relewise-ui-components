@@ -1,4 +1,4 @@
-import { ProductResult, userIsAnonymous } from '@relewise/client';
+import { ProductResult, User, userIsAnonymous } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
@@ -6,6 +6,9 @@ import { getTracker } from '../tracking';
 import { FavoriteChangeDetail, FavoriteErrorDetail } from '../types/userEngagement';
 
 export class FavoriteButtonProducts extends LitElement {
+
+    @property({ attribute: false })
+    user: User | null = null;
 
     @property({ attribute: false })
     product: ProductResult | null = null;
@@ -66,7 +69,7 @@ export class FavoriteButtonProducts extends LitElement {
             return false;
         }
 
-        if (userIsAnonymous(options.contextSettings.getUser())) {
+        if (!this.user || userIsAnonymous(this.user)) {
             this.toggleAttribute('hidden', true);
             return false;
         }
@@ -96,7 +99,8 @@ export class FavoriteButtonProducts extends LitElement {
         const options = this.getOptions();
         const productId = this.product?.productId ?? null;
         const variantId = this.product?.variant?.variantId ?? null;
-        if (!options || !productId) {
+        const user = this.user;
+        if (!options || !productId || !user || userIsAnonymous(user)) {
             return;
         }
 
@@ -106,7 +110,7 @@ export class FavoriteButtonProducts extends LitElement {
         try {
             const tracker = getTracker(options);
             await tracker.trackProductEngagement({
-                user: options.contextSettings.getUser(),
+                user,
                 product: {
                     productId,
                     variantId: variantId ?? undefined,
