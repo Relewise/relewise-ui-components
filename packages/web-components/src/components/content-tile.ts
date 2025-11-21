@@ -16,7 +16,7 @@ export class ContentTile extends LitElement {
     content: ContentResult | null = null;
 
     @property({ type: Object })
-    private user: User | null = null
+    user: User | null = null;
 
     @state()
     private sentiment: 'Like' | 'Dislike' | null = null;
@@ -168,6 +168,7 @@ export class ContentTile extends LitElement {
         return html`
             <relewise-content-favorite-button
                 .content=${this.content}
+                .user=${this.user}
                 .favorite=${this.isFavorite}
                 @relewise-favorite-change=${this.onFavoriteChange}>
             </relewise-content-favorite-button>`;

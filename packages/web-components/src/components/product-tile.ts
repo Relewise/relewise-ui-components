@@ -17,7 +17,7 @@ export class ProductTile extends LitElement {
     product: ProductResult | null = null;
 
     @property({ type: Object })
-    private user: User | null = null;
+    user: User | null = null;
 
     @state()
     private sentiment: 'Like' | 'Dislike' | null = null;
@@ -129,7 +129,6 @@ export class ProductTile extends LitElement {
     private renderSentimentActions(settings: UserEngagementEntityOptions | undefined, options: RelewiseUIOptions) {
         const showSentiment = Boolean(settings?.sentiment);
 
-        const uiSettings = getRelewiseUIOptions();
         if (!showSentiment || !this.user || userIsAnonymous(this.user)) {
             return nothing;
         }
@@ -170,6 +169,7 @@ export class ProductTile extends LitElement {
         return html`
             <relewise-product-favorite-button
                 .product=${this.product}
+                .user=${this.user}
                 .favorite=${this.isFavorite}
                 @relewise-favorite-change=${this.onFavoriteChange}>
             </relewise-product-favorite-button>`;
