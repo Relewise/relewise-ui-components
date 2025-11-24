@@ -36,8 +36,8 @@ initializeRelewiseUI(
             },
         },
     },
-// test localizations:
 ).useRecommendations({
+    // showcase localization usage:
     localization: {
         favoriteButton: {
             addToFavorites: 'Tilføj til favoritter',
