@@ -1,9 +1,10 @@
 import { ProductResult, User, UserFactory, userIsAnonymous } from '@relewise/client';
-import { LitElement, PropertyValues, css, html, nothing } from 'lit';
+import { LitElement, PropertyValues, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions, getRelewiseUIRecommendationOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
 import { SentimentChangeDetail } from '../types/userEngagement';
+import { sentimentButtonStyles } from '../helpers/sentimentButtonStyles';
 
 export class ProductSentimentButtons extends LitElement {
 
@@ -154,42 +155,7 @@ export class ProductSentimentButtons extends LitElement {
         }));
     }
 
-    static styles = css`
-        :host {
-            display: block;
-        }
-
-        .rw-engagement-actions {
-            display: flex;
-            gap: var(--relewise-engagement-button-gap, 0.5em);
-            padding: var(--relewise-engagement-padding, 0 0.5em 0.5em 0.5em);
-            justify-content: flex-end;
-        }
-
-        .rw-engagement-button {
-            border: 0;
-            border-radius: var(--relewise-engagement-border-radius, 9999px);
-            background-color: var(--relewise-engagement-background, transparent);
-            color: inherit;
-            cursor: pointer;
-            padding: var(--relewise-engagement-button-padding, 0.35em);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
-
-        .rw-engagement-button[aria-pressed='true'],
-        .rw-engagement-button:hover {
-            background-color: var(--relewise-engagement-active-background, rgba(0, 0, 0, 0.05));
-            color: var(--relewise-engagement-active-color, inherit);
-        }
-
-        .rw-engagement-button:focus-visible {
-            outline: 2px solid var(--relewise-focus-outline-color, #000);
-            outline-offset: 2px;
-        }
-    `;
+    static styles = sentimentButtonStyles;
 }
 
 declare global {
