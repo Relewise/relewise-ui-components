@@ -73,13 +73,13 @@ export class ContentTile extends LitElement {
             <div class="rw-content-tile${engagementSettings?.favorite ? ' --rw-has-favorite' : ''}">
                 ${this.renderFavoriteAction(engagementSettings)}
                 ${url
-                ? html`<a class='rw-content-link' href=${url}>${this.renderTileContent(this.content)}</a>`
-                : html`<div class='rw-content-link'>${this.renderTileContent(this.content)}</div>`}
-                ${engagementSettings?.sentiment ? 
-                html`<relewise-content-sentiment-buttons
-                        .content=${this.content}
-                        .user=${this.user}>
-                    </relewise-content-sentiment-buttons>`
+                    ? html`<a class='rw-content-link' href=${url}>${this.renderTileContent(this.content)}</a>`
+                    : html`<div class='rw-content-link'>${this.renderTileContent(this.content)}</div>`}
+                ${engagementSettings?.sentiment 
+                    ? html`<relewise-content-sentiment-buttons
+                            .content=${this.content}
+                            .user=${this.user}>
+                        </relewise-content-sentiment-buttons>`
                 : nothing}
             </div>`;
     }
