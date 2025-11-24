@@ -53,6 +53,11 @@ export class FavoriteButtonProducts extends LitElement {
             return false;
         }
 
+        if (!options.userEngagement?.product?.favorite) {
+            this.toggleAttribute('hidden', true);
+            return false;
+        }
+
         if (!this.product?.productId) {
             console.warn('Relewise: Unable to render favorite button without a product.');
             this.toggleAttribute('hidden', true);

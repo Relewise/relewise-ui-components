@@ -89,7 +89,10 @@ export class ProductTile extends LitElement {
 
         return html`
             <div class='rw-tile'>
-                ${this.renderFavoriteAction(engagementSettings, settings)}
+                <relewise-product-favorite-button
+                    .product=${this.product}
+                    .user=${this.user}>
+                </relewise-product-favorite-button>
                 ${url
                 ? html`<a class='rw-tile-link' href=${url}>${this.renderTileContent(this.product)}</a>`
                 : html`<div class='rw-tile-link'>${this.renderTileContent(this.product)}</div>`}
@@ -147,21 +150,6 @@ export class ProductTile extends LitElement {
                     ${this.sentiment === 'Dislike' ? html`<relewise-dislike-filled-icon></relewise-dislike-filled-icon>` : html`<relewise-dislike-icon></relewise-dislike-icon>`}
                 </button>
             </div>`;
-    }
-
-    private renderFavoriteAction(settings: UserEngagementEntityOptions | undefined, options: RelewiseUIOptions) {
-        const showFavorite = Boolean(settings?.favorite);
-
-        if (!showFavorite || !this.user || userIsAnonymous(this.user)) {
-            return nothing;
-        }
-
-        return html`
-            <relewise-product-favorite-button
-                .product=${this.product}
-                .user=${this.user}
-                >
-            </relewise-product-favorite-button>`;
     }
 
     private async onLikeClick(event: Event) {

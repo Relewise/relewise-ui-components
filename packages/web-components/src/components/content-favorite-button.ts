@@ -53,6 +53,11 @@ export class FavoriteButtonContent extends LitElement {
             return false;
         }
 
+        if (!options.userEngagement?.content?.favorite) {
+            this.toggleAttribute('hidden', true);
+            return false;
+        }
+
         if (!this.content?.contentId) {
             console.warn('Relewise: Unable to render favorite button without content.');
             this.toggleAttribute('hidden', true);

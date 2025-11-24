@@ -88,7 +88,10 @@ export class ContentTile extends LitElement {
 
         return html`
             <div class="rw-content-tile${engagementSettings?.favorite ? ' --rw-has-favorite' : ''}">
-                ${this.renderFavoriteAction(engagementSettings)}
+                <relewise-content-favorite-button
+                    .content=${this.content}
+                    .user=${this.user}>
+                </relewise-content-favorite-button>
                 ${url
                 ? html`<a class='rw-content-link' href=${url}>${this.renderTileContent(this.content)}</a>`
                 : html`<div class='rw-content-link'>${this.renderTileContent(this.content)}</div>`}
@@ -143,25 +146,6 @@ export class ContentTile extends LitElement {
                     ${this.sentiment === 'Dislike' ? html`<relewise-dislike-filled-icon></relewise-dislike-filled-icon>` : html`<relewise-dislike-icon></relewise-dislike-icon>`}
                 </button>
             </div>`;
-    }
-
-    private renderFavoriteAction(settings: UserEngagementEntityOptions | undefined) {
-        const showFavorite = Boolean(settings?.favorite);
-
-        if (!showFavorite || !this.user || userIsAnonymous(this.user)) {
-            return nothing;
-        }
-
-        if (!this.content?.contentId) {
-            return nothing;
-        }
-
-        return html`
-            <relewise-content-favorite-button
-                .content=${this.content}
-                .user=${this.user}
-                >
-            </relewise-content-favorite-button>`;
     }
 
     private async onLikeClick(event: Event) {
