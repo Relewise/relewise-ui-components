@@ -51,7 +51,7 @@ export class FavoriteButtonContent extends LitElement {
     }
 
     private shouldRender(): boolean {
-        const options = this.getOptions();
+        const options = getRelewiseUIOptions();
         return canRenderFavoriteButton({
             options: options,
             favoriteEnabled: Boolean(options?.userEngagement?.content?.favorite),
@@ -59,15 +59,6 @@ export class FavoriteButtonContent extends LitElement {
             user: this.user,
             host: this,
         });
-    }
-
-    private getOptions() {
-        try {
-            return getRelewiseUIOptions();
-        } catch (error) {
-            console.warn('Relewise: Favorite button is unable to find initializeRelewiseUI options.', error);
-            return null;
-        }
     }
 
     private async onToggle(event: Event) {
@@ -79,7 +70,7 @@ export class FavoriteButtonContent extends LitElement {
         }
 
         const nextState = !this.isFavorite;
-        const options = this.getOptions();
+        const options = getRelewiseUIOptions();
         const contentId = this.content?.contentId;
         const user = this.user;
         if (!options || !contentId || !user || userIsAnonymous(user)) {
