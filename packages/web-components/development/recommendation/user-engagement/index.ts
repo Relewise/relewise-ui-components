@@ -36,4 +36,11 @@ initializeRelewiseUI(
             },
         },
     },
-).useRecommendations().useSearch();
+).useRecommendations({
+    localization: {
+        favoriteButton: {
+            addToFavorites: 'Tilføj til favoritter',
+            removeFavorite: 'Fjern favorit',
+        },
+    },
+}).useSearch();

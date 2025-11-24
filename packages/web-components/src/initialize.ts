@@ -1,6 +1,6 @@
 import { ContentResult, FilterBuilder, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedContentPropertiesSettings, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
-import { App, RelewiseUISearchOptions } from './app';
+import { App, RelewiseUISearchOptions, RelewiseUIRecommendationOptions } from './app';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { TemplateHelpers } from './helpers/templateHelpers';
 import { TargetedSearchConfigurations } from './targetedSearchConfigurations';
@@ -90,6 +90,7 @@ declare global {
     interface Window {
         relewiseUIOptions: RelewiseUIOptions;
         relewiseUISearchOptions: RelewiseUISearchOptions;
+        relewiseUIRecommendationOptions?: RelewiseUIRecommendationOptions;
         relewiseUISearchTargetedConfigurations: TargetedSearchConfigurations;
         relewiseUIRecommendationTargetedConfigurations: TargetedRecommendationConfigurations;
     }

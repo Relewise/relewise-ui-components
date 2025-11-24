@@ -874,11 +874,20 @@ To specify which search component the configuration should be applied to, simply
 Enable optional like/dislike and favorite interactions by providing the `userEngagement` option when initialising Relewise UI.
 
 ```ts
-initializeRelewiseUI({
+const app = initializeRelewiseUI({
     ...,
     userEngagement: {
         product: { sentiment: true, favorite: true },
         content: { sentiment: true, favorite: true },
+    },
+});
+
+app.useRecommendations({
+    localization: {
+        favoriteButton: {
+            addToFavorites: 'Tilføj til favoritter',
+            removeFavorite: 'Fjern favorit',
+        },
     },
 });
 ```
@@ -894,6 +903,8 @@ Two dedicated favorite button elements are available if you want to embed them o
 - `<relewise-content-favorite-button>` requires a bound `content` property containing the `ContentResult` you want to favourite. The button reads the current favourite value from `content.userEngagement` and manages subsequent toggles internally.
 
 Both components emit a `favorite-change` event with `{ isFavorite }` in `detail` whenever the user toggles the button, and reuse the same CSS variables listed below for positioning and appearance.
+
+Set localized `aria-label`/title strings for these controls by passing `localization.favoriteButton` to `useRecommendations({ ... })`. If you omit the values we fall back to the default English copies shown above.
 
 ## Overwriting styling
 If you want to overwrite the styling of the grid and the default product tile, you can do so by using CSS variables.
