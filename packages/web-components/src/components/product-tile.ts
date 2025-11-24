@@ -73,11 +73,11 @@ export class ProductTile extends LitElement {
         return html`
             <div class='rw-tile'>
                 ${engagementSettings?.favorite
-                ? html`<relewise-product-favorite-button
-                    .product=${this.product}
-                    .user=${this.user}>
-                </relewise-product-favorite-button>`
-                : nothing}
+                    ? html`<relewise-product-favorite-button
+                        .product=${this.product}
+                        .user=${this.user}>
+                    </relewise-product-favorite-button>`
+                    : nothing}
                 ${url
                     ? html`<a class='rw-tile-link' href=${url}>${this.renderTileContent(this.product)}</a>`
                     : html`<div class='rw-tile-link'>${this.renderTileContent(this.product)}</div>`}
