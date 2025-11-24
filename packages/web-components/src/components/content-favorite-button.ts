@@ -30,13 +30,15 @@ export class FavoriteButtonContent extends LitElement {
 
     render() {
         const options = getRelewiseUIOptions();
-        if (!canRenderFavoriteButton({
-            options,
+        const canRender = canRenderFavoriteButton({
             favoriteEnabled: Boolean(options?.userEngagement?.content?.favorite),
             entityId: this.content?.contentId,
             user: this.user,
-            host: this,
-        })) {
+        });
+
+        this.toggleAttribute('hidden', !canRender);
+
+        if (!canRender) {
             return nothing;
         }
 

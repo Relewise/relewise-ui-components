@@ -29,14 +29,15 @@ export class FavoriteButtonProducts extends LitElement {
     }
 
     render() {
-        const options = getRelewiseUIOptions();
-        if (!canRenderFavoriteButton({
-            options,
-            favoriteEnabled: Boolean(options?.userEngagement?.product?.favorite),
+        const canRender = canRenderFavoriteButton({
+            favoriteEnabled: Boolean(getRelewiseUIOptions()?.userEngagement?.product?.favorite),
             entityId: this.product?.productId,
             user: this.user,
-            host: this,
-        })) {
+        });
+
+        this.toggleAttribute('hidden', !canRender);
+
+        if (!canRender) {
             return nothing;
         }
 
