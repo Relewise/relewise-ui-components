@@ -119,7 +119,7 @@ export class FavoriteButtonProducts extends LitElement {
 
             this.dispatchChangeEvent({
                 isFavorite: this.isFavorite,
-                entityType: 'product',
+                entityType: 'Product',
                 productId,
                 variantId,
             });

@@ -115,7 +115,7 @@ export class FavoriteButtonContent extends LitElement {
 
             this.dispatchChangeEvent({
                 isFavorite: this.isFavorite,
-                entityType: 'content',
+                entityType: 'Content',
                 contentId,
             });
         } catch (error) {

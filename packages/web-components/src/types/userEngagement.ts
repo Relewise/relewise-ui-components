@@ -1,6 +1,6 @@
 export type FavoriteChangeDetail = {
     isFavorite: boolean;
-    entityType?: 'product' | 'content';
+    entityType?: 'Product' | 'Content';
     productId?: string;
     variantId?: string | null;
     contentId?: string;
