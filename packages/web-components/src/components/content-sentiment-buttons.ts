@@ -26,7 +26,6 @@ export class ContentSentimentButtons extends LitElement {
     }
 
     render() {
-        console.log('render');
         if (!this.shouldRender()) {
             return nothing;
         }
