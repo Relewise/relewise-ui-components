@@ -17,6 +17,9 @@ export class ProductSentimentButtons extends LitElement {
     @state()
     private sentiment: 'Like' | 'Dislike' | null = null;
 
+    @state()
+    private isWorking = false;
+
     protected willUpdate(changed: PropertyValues<this>): void {
         if (changed.has('product')) {
             const sentiment = this.product?.userEngagement?.sentiment;
@@ -48,6 +51,7 @@ export class ProductSentimentButtons extends LitElement {
                     aria-label=${likeLabel}
                     title=${likeLabel}
                     aria-pressed=${this.sentiment === 'Like' ? 'true' : 'false'}
+                    ?disabled=${this.isWorking}
                     @click=${this.onLikeClick}>
                     ${this.sentiment === 'Like' ? html`<relewise-like-filled-icon></relewise-like-filled-icon>` : html`<relewise-like-icon></relewise-like-icon>`}
                 </button>
@@ -57,6 +61,7 @@ export class ProductSentimentButtons extends LitElement {
                     aria-label=${dislikeLabel}
                     title=${dislikeLabel}
                     aria-pressed=${this.sentiment === 'Dislike' ? 'true' : 'false'}
+                    ?disabled=${this.isWorking}
                     @click=${this.onDislikeClick}>
                     ${this.sentiment === 'Dislike' ? html`<relewise-dislike-filled-icon></relewise-dislike-filled-icon>` : html`<relewise-dislike-icon></relewise-dislike-icon>`}
                 </button>
@@ -97,6 +102,10 @@ export class ProductSentimentButtons extends LitElement {
         event.preventDefault();
         event.stopPropagation();
 
+        if (this.isWorking) {
+            return;
+        }
+
         const newSentiment: 'Like' | 'Dislike' | null = this.sentiment === 'Like' ? null : 'Like';
         await this.submitEngagement({ sentiment: newSentiment });
     }
@@ -104,6 +113,10 @@ export class ProductSentimentButtons extends LitElement {
     private async onDislikeClick(event: Event) {
         event.preventDefault();
         event.stopPropagation();
+
+        if (this.isWorking) {
+            return;
+        }
 
         const newSentiment: 'Like' | 'Dislike' | null = this.sentiment === 'Dislike' ? null : 'Dislike';
         await this.submitEngagement({ sentiment: newSentiment });
@@ -122,7 +135,9 @@ export class ProductSentimentButtons extends LitElement {
 
         const sentiment = update.sentiment !== undefined ? update.sentiment : this.sentiment;
 
+        const previousSentiment = this.sentiment;
         this.sentiment = sentiment ?? null;
+        this.isWorking = true;
         try {
             const tracker = getTracker(options);
             await tracker.trackProductEngagement({
@@ -144,6 +159,9 @@ export class ProductSentimentButtons extends LitElement {
             });
         } catch (error) {
             console.error('Relewise: Failed to track product engagement.', error);
+            this.sentiment = previousSentiment ?? null;
+        } finally {
+            this.isWorking = false;
         }
     }
 
