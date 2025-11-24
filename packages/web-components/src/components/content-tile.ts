@@ -71,11 +71,11 @@ export class ContentTile extends LitElement {
         return html`
             <div class="rw-content-tile${engagementSettings?.favorite ? ' --rw-has-favorite' : ''}">
                 ${engagementSettings?.favorite
-                ? html`<relewise-content-favorite-button
-                    .content=${this.content}
-                    .user=${this.user}>
-                </relewise-content-favorite-button>`
-                : nothing}
+                    ? html`<relewise-content-favorite-button
+                                .content=${this.content}
+                                .user=${this.user}>
+                            </relewise-content-favorite-button>`
+                    : nothing}
                 ${url
                 ? html`<a class='rw-content-link' href=${url}>${this.renderTileContent(this.content)}</a>`
                 : html`<div class='rw-content-link'>${this.renderTileContent(this.content)}</div>`}
@@ -95,7 +95,7 @@ export class ContentTile extends LitElement {
         return html`
             <div class="rw-image-container">
                 ${image
-                ? html`<img class="rw-object-cover" src=${image} alt=${this.getContentImageAlt(content)} />`
+                    ? html`<img class="rw-object-cover" src=${image} alt=${this.getContentImageAlt(content)} />`
                 : nothing}
             </div>
             <div class='rw-information-container'>

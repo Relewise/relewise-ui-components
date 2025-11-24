@@ -79,8 +79,8 @@ export class ProductTile extends LitElement {
                 </relewise-product-favorite-button>`
                 : nothing}
                 ${url
-                ? html`<a class='rw-tile-link' href=${url}>${this.renderTileContent(this.product)}</a>`
-                : html`<div class='rw-tile-link'>${this.renderTileContent(this.product)}</div>`}
+                    ? html`<a class='rw-tile-link' href=${url}>${this.renderTileContent(this.product)}</a>`
+                    : html`<div class='rw-tile-link'>${this.renderTileContent(this.product)}</div>`}
                 ${engagementSettings?.sentiment
                     ? html`<relewise-product-sentiment-buttons
                             .product=${this.product}
@@ -101,10 +101,10 @@ export class ProductTile extends LitElement {
                 <div class='rw-price'>
                     <span>${formatPrice(product.salesPrice)}</span>
 
-                ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
-                    ? html`<span class='rw-list-price'>${formatPrice(product.listPrice)}</span>`
-                    : nothing
-            }
+                    ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
+                        ? html`<span class='rw-list-price'>${formatPrice(product.listPrice)}</span>`
+                        : nothing
+                    }
                 </div>
             </div>`;
     }
