@@ -94,8 +94,8 @@ export class FavoriteButtonProducts extends LitElement {
 
         const nextState = !this.isFavorite;
         const options = this.getOptions();
-        const productId = this.product?.productId ?? null;
-        const variantId = this.product?.variant?.variantId ?? null;
+        const productId = this.product?.productId;
+        const variantId = this.product?.variant?.variantId;
         const user = this.user;
         if (!options || !productId || !user || userIsAnonymous(user)) {
             return;
@@ -109,7 +109,7 @@ export class FavoriteButtonProducts extends LitElement {
             await tracker.trackProductEngagement({
                 user,
                 product: {
-                    productId,
+                    productId: productId,
                     variantId: variantId,
                 },
                 engagement: {
