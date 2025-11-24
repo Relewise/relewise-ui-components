@@ -29,7 +29,14 @@ export class FavoriteButtonProducts extends LitElement {
     }
 
     render() {
-        if (!this.shouldRender()) {
+        const options = getRelewiseUIOptions();
+        if (!canRenderFavoriteButton({
+            options,
+            favoriteEnabled: Boolean(options?.userEngagement?.product?.favorite),
+            entityId: this.product?.productId,
+            user: this.user,
+            host: this,
+        })) {
             return nothing;
         }
 
@@ -51,17 +58,6 @@ export class FavoriteButtonProducts extends LitElement {
                     ? html`<relewise-heart-filled-icon aria-hidden='true'></relewise-heart-filled-icon>` 
                     : html`<relewise-heart-icon aria-hidden='true'></relewise-heart-icon>`}
             </button>`;
-    }
-
-    private shouldRender(): boolean {
-        const options = getRelewiseUIOptions();
-        return canRenderFavoriteButton({
-            options: options,
-            favoriteEnabled: Boolean(options?.userEngagement?.product?.favorite),
-            entityId: this.product?.productId,
-            user: this.user,
-            host: this,
-        });
     }
 
     private async onToggle(event: Event) {
