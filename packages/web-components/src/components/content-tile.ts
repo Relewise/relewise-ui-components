@@ -1,9 +1,8 @@
-import { ContentResult, User, userIsAnonymous } from '@relewise/client';
+import { ContentResult, User } from '@relewise/client';
 import { LitElement, adoptStyles, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { templateHelpers } from '../helpers/templateHelpers';
-import { UserEngagementEntityOptions } from '../initialize';
 import { theme } from '../theme';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
@@ -71,15 +70,20 @@ export class ContentTile extends LitElement {
 
         return html`
             <div class="rw-content-tile${engagementSettings?.favorite ? ' --rw-has-favorite' : ''}">
-                ${this.renderFavoriteAction(engagementSettings)}
+                ${engagementSettings?.favorite
+                ? html`<relewise-content-favorite-button
+                    .content=${this.content}
+                    .user=${this.user}>
+                </relewise-content-favorite-button>`
+                : nothing}
                 ${url
-                    ? html`<a class='rw-content-link' href=${url}>${this.renderTileContent(this.content)}</a>`
-                    : html`<div class='rw-content-link'>${this.renderTileContent(this.content)}</div>`}
-                ${engagementSettings?.sentiment 
-                    ? html`<relewise-content-sentiment-buttons
-                            .content=${this.content}
-                            .user=${this.user}>
-                        </relewise-content-sentiment-buttons>`
+                ? html`<a class='rw-content-link' href=${url}>${this.renderTileContent(this.content)}</a>`
+                : html`<div class='rw-content-link'>${this.renderTileContent(this.content)}</div>`}
+                ${engagementSettings?.sentiment
+                ? html`<relewise-content-sentiment-buttons
+                    .content=${this.content}
+                    .user=${this.user}>
+                </relewise-content-sentiment-buttons>`
                 : nothing}
             </div>`;
     }
@@ -98,25 +102,6 @@ export class ContentTile extends LitElement {
                 <h5 class='rw-display-name'>${content.displayName}</h5>
                 ${summary ? html`<p class="rw-summary">${summary}</p>` : nothing}
             </div>`;
-    }
-
-    private renderFavoriteAction(settings: UserEngagementEntityOptions | undefined) {
-        const showFavorite = Boolean(settings?.favorite);
-
-        if (!showFavorite || !this.user || userIsAnonymous(this.user)) {
-            return nothing;
-        }
-
-        if (!this.content?.contentId) {
-            return nothing;
-        }
-
-        return html`
-            <relewise-content-favorite-button
-                .content=${this.content}
-                .user=${this.user}
-                >
-            </relewise-content-favorite-button>`;
     }
 
     private getContentImageAlt(content: ContentResult): string {

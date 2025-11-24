@@ -1,10 +1,9 @@
-import { ProductResult, User, userIsAnonymous } from '@relewise/client';
+import { ProductResult, User } from '@relewise/client';
 import { LitElement, adoptStyles, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { templateHelpers } from '../helpers/templateHelpers';
-import { UserEngagementEntityOptions } from '../initialize';
 import { theme } from '../theme';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
@@ -73,15 +72,20 @@ export class ProductTile extends LitElement {
 
         return html`
             <div class='rw-tile'>
-                ${this.renderFavoriteAction(engagementSettings)}
+                ${engagementSettings?.favorite
+                ? html`<relewise-product-favorite-button
+                    .product=${this.product}
+                    .user=${this.user}>
+                </relewise-product-favorite-button>`
+                : nothing}
                 ${url
-                    ? html`<a class='rw-tile-link' href=${url}>${this.renderTileContent(this.product)}</a>`
-                    : html`<div class='rw-tile-link'>${this.renderTileContent(this.product)}</div>`}
+                ? html`<a class='rw-tile-link' href=${url}>${this.renderTileContent(this.product)}</a>`
+                : html`<div class='rw-tile-link'>${this.renderTileContent(this.product)}</div>`}
                 ${engagementSettings?.sentiment
-                    ? html`<relewise-product-sentiment-buttons
-                                .product=${this.product}
-                                .user=${this.user}>
-                            </relewise-product-sentiment-buttons>`
+                ? html`<relewise-product-sentiment-buttons
+                    .product=${this.product}
+                    .user=${this.user}>
+                </relewise-product-sentiment-buttons>`
                 : nothing}
             </div>`;
     }
@@ -97,27 +101,12 @@ export class ProductTile extends LitElement {
                 <div class='rw-price'>
                     <span>${formatPrice(product.salesPrice)}</span>
 
-                    ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
-                ? html`<span class='rw-list-price'>${formatPrice(product.listPrice)}</span>`
-                : nothing
+                ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
+                    ? html`<span class='rw-list-price'>${formatPrice(product.listPrice)}</span>`
+                    : nothing
             }
                 </div>
             </div>`;
-    }
-
-    private renderFavoriteAction(settings: UserEngagementEntityOptions | undefined) {
-        const showFavorite = Boolean(settings?.favorite);
-
-        if (!showFavorite || !this.user || userIsAnonymous(this.user)) {
-            return nothing;
-        }
-
-        return html`
-            <relewise-product-favorite-button
-                .product=${this.product}
-                .user=${this.user}
-                >
-            </relewise-product-favorite-button>`;
     }
 
     private getProductImageAlt(product: ProductResult): string {
