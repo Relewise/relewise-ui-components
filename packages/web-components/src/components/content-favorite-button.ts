@@ -95,7 +95,7 @@ export class FavoriteButtonContent extends LitElement {
 
         const nextState = !this.isFavorite;
         const options = this.getOptions();
-        const contentId = this.content?.contentId ?? null;
+        const contentId = this.content?.contentId;
         const user = this.user;
         if (!options || !contentId || !user || userIsAnonymous(user)) {
             return;
