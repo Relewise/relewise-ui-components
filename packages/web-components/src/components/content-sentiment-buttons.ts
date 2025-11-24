@@ -1,8 +1,9 @@
 import { ContentResult, User, UserFactory, userIsAnonymous } from '@relewise/client';
 import { LitElement, PropertyValues, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
+import { getRelewiseUIOptions, getRelewiseUIRecommendationOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
+import { SentimentChangeDetail } from '../types/userEngagement';
 
 export class ContentSentimentButtons extends LitElement {
 
@@ -30,8 +31,13 @@ export class ContentSentimentButtons extends LitElement {
             return nothing;
         }
 
-        const likeLabel = this.sentiment === 'Like' ? 'Remove like' : 'Like';
-        const dislikeLabel = this.sentiment === 'Dislike' ? 'Remove dislike' : 'Dislike';
+        const sentimentLocalization = getRelewiseUIRecommendationOptions()?.localization?.sentimentButtons;
+        const likeLabel = this.sentiment === 'Like'
+            ? sentimentLocalization?.removeLike ?? 'Remove like'
+            : sentimentLocalization?.like ?? 'Like';
+        const dislikeLabel = this.sentiment === 'Dislike'
+            ? sentimentLocalization?.removeDislike ?? 'Remove dislike'
+            : sentimentLocalization?.dislike ?? 'Dislike';
 
         return html`
             <div class='rw-engagement-actions' role='group' aria-label='Content sentiment actions'>
@@ -125,9 +131,23 @@ export class ContentSentimentButtons extends LitElement {
                     sentiment: this.sentiment ? this.sentiment : 'Neutral',
                 },
             });
+
+            this.dispatchChangeEvent({
+                sentiment: this.sentiment,
+                entityType: 'Content',
+                contentId: this.content.contentId,
+            });
         } catch (error) {
             console.error('Relewise: Failed to track content engagement.', error);
         }
+    }
+
+    private dispatchChangeEvent(detail: SentimentChangeDetail) {
+        this.dispatchEvent(new CustomEvent<SentimentChangeDetail>('sentiment-change', {
+            bubbles: true,
+            composed: true,
+            detail,
+        }));
     }
 
     static styles = css`

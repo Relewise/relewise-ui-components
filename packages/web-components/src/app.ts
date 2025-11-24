@@ -104,8 +104,16 @@ export interface FavoriteButtonLocalization {
     removeFavorite?: string;
 }
 
+export interface SentimentButtonsLocalization {
+    like?: string;
+    removeLike?: string;
+    dislike?: string;
+    removeDislike?: string;
+}
+
 export interface RecommendationLocalization {
     favoriteButton?: FavoriteButtonLocalization;
+    sentimentButtons?: SentimentButtonsLocalization;
 }
 
 export interface RelewiseUIRecommendationOptions {

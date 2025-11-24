@@ -1,8 +1,9 @@
 import { ProductResult, User, UserFactory, userIsAnonymous } from '@relewise/client';
 import { LitElement, PropertyValues, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
+import { getRelewiseUIOptions, getRelewiseUIRecommendationOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
+import { SentimentChangeDetail } from '../types/userEngagement';
 
 export class ProductSentimentButtons extends LitElement {
 
@@ -30,8 +31,13 @@ export class ProductSentimentButtons extends LitElement {
             return nothing;
         }
 
-        const likeLabel = this.sentiment === 'Like' ? 'Remove like' : 'Like';
-        const dislikeLabel = this.sentiment === 'Dislike' ? 'Remove dislike' : 'Dislike';
+        const sentimentLocalization = getRelewiseUIRecommendationOptions()?.localization?.sentimentButtons;
+        const likeLabel = this.sentiment === 'Like'
+            ? sentimentLocalization?.removeLike ?? 'Remove like'
+            : sentimentLocalization?.like ?? 'Like';
+        const dislikeLabel = this.sentiment === 'Dislike'
+            ? sentimentLocalization?.removeDislike ?? 'Remove dislike'
+            : sentimentLocalization?.dislike ?? 'Dislike';
 
         return html`
             <div class='rw-engagement-actions' role='group' aria-label='Product sentiment actions'>
@@ -122,15 +128,30 @@ export class ProductSentimentButtons extends LitElement {
                 user: this.user ?? UserFactory.anonymous(),
                 product: {
                     productId: this.product.productId,
-                    variantId: this.product.variant?.variantId ?? undefined,
+                    variantId: this.product.variant?.variantId,
                 },
                 engagement: {
                     sentiment: this.sentiment ? this.sentiment : 'Neutral',
                 },
             });
+
+            this.dispatchChangeEvent({
+                sentiment: this.sentiment,
+                entityType: 'Product',
+                productId: this.product.productId,
+                variantId: this.product.variant?.variantId,
+            });
         } catch (error) {
             console.error('Relewise: Failed to track product engagement.', error);
         }
+    }
+
+    private dispatchChangeEvent(detail: SentimentChangeDetail) {
+        this.dispatchEvent(new CustomEvent<SentimentChangeDetail>('sentiment-change', {
+            bubbles: true,
+            composed: true,
+            detail,
+        }));
     }
 
     static styles = css`
