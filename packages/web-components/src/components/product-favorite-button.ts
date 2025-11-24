@@ -5,6 +5,7 @@ import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
 import { FavoriteChangeDetail } from '../types/userEngagement';
 import { favoriteButtonStyles } from '../helpers/favoriteButtonStyles';
+import { canRenderFavoriteButton } from '../helpers/favoriteRenderGuard';
 
 export class FavoriteButtonProducts extends LitElement {
 
@@ -51,29 +52,13 @@ export class FavoriteButtonProducts extends LitElement {
 
     private shouldRender(): boolean {
         const options = this.getOptions();
-        if (!options) {
-            this.toggleAttribute('hidden', true);
-            return false;
-        }
-
-        if (!options.userEngagement?.product?.favorite) {
-            this.toggleAttribute('hidden', true);
-            return false;
-        }
-
-        if (!this.product?.productId) {
-            console.warn('Relewise: Unable to render favorite button without a product.');
-            this.toggleAttribute('hidden', true);
-            return false;
-        }
-
-        if (!this.user || userIsAnonymous(this.user)) {
-            this.toggleAttribute('hidden', true);
-            return false;
-        }
-
-        this.toggleAttribute('hidden', false);
-        return true;
+        return canRenderFavoriteButton({
+            options: options,
+            favoriteEnabled: Boolean(options?.userEngagement?.product?.favorite),
+            entityId: this.product?.productId,
+            user: this.user,
+            host: this,
+        });
     }
 
     private getOptions() {
