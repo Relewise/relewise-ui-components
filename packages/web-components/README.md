@@ -895,6 +895,19 @@ Two dedicated favorite button elements are available if you want to embed them o
 
 Both components emit a `favorite-change` event with `{ isFavorite }` in `detail` whenever the user toggles the button, and reuse the same CSS variables listed below for positioning and appearance.
 
+Set localized `aria-label`/title strings for these controls by passing `localization.favoriteButton` to `useRecommendations({ ... })`. If you omit the values we fall back to the default English copies shown below.
+
+```ts
+useRecommendations({
+    localization: {
+        favoriteButton: {
+            addToFavorites: 'Add to favorites',
+            removeFavorite: 'Remove favorite',
+        },
+    },
+});
+```
+
 ## Overwriting styling
 If you want to overwrite the styling of the grid and the default product tile, you can do so by using CSS variables.
 

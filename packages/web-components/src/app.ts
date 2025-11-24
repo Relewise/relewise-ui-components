@@ -99,6 +99,19 @@ export interface SearchResultLocalization {
     results?: string;
 }
 
+export interface FavoriteButtonLocalization {
+    addToFavorites?: string;
+    removeFavorite?: string;
+}
+
+export interface RecommendationLocalization {
+    favoriteButton?: FavoriteButtonLocalization;
+}
+
+export interface RelewiseUIRecommendationOptions {
+    localization?: RecommendationLocalization;
+}
+
 export interface SearchFilters {
     product?: (builder: FilterBuilder) => void
     productCategory?: (builder: FilterBuilder) => void
@@ -114,8 +127,8 @@ export interface SearchTemplates {
 }
 
 export class App {
-    useRecommendations(): App {
-        useRecommendations();
+    useRecommendations(options?: RelewiseUIRecommendationOptions): App {
+        useRecommendations(options);
         return this;
     }
 
@@ -145,7 +158,8 @@ export class App {
     }
 }
 
-export function useRecommendations() {
+export function useRecommendations(options?: RelewiseUIRecommendationOptions) {
+    window.relewiseUIRecommendationOptions = options ?? {};
     tryRegisterElement('relewise-product-recommendation-batcher', RecommendationBatcher);
     tryRegisterElement('relewise-popular-products', PopularProducts);
     tryRegisterElement('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);
