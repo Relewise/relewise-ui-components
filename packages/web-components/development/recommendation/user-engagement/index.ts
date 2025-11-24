@@ -36,6 +36,7 @@ initializeRelewiseUI(
             },
         },
     },
+// test localizations:
 ).useRecommendations({
     localization: {
         favoriteButton: {
