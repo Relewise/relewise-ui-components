@@ -1,5 +1,5 @@
 import { ContentResult, User, UserFactory, userIsAnonymous } from '@relewise/client';
-import { LitElement, PropertyValues, css, html, nothing } from 'lit';
+import { LitElement, PropertyValues, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions, getRelewiseUIRecommendationOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
@@ -44,9 +44,9 @@ export class ContentSentimentButtons extends LitElement {
             : sentimentLocalization?.dislike ?? 'Dislike';
 
         return html`
-            <div class='rw-engagement-actions' role='group' aria-label='Content sentiment actions'>
+            <div class='rw-sentiment-actions' role='group' aria-label='Content sentiment actions'>
                 <button
-                    class='rw-engagement-button'
+                    class='rw-sentiment-button'
                     type='button'
                     aria-label=${likeLabel}
                     title=${likeLabel}
@@ -56,7 +56,7 @@ export class ContentSentimentButtons extends LitElement {
                     ${this.sentiment === 'Like' ? html`<relewise-like-filled-icon></relewise-like-filled-icon>` : html`<relewise-like-icon></relewise-like-icon>`}
                 </button>
                 <button
-                    class='rw-engagement-button'
+                    class='rw-sentiment-button'
                     type='button'
                     aria-label=${dislikeLabel}
                     title=${dislikeLabel}
@@ -69,7 +69,7 @@ export class ContentSentimentButtons extends LitElement {
     }
 
     private shouldRender(): boolean {
-        const options = this.getOptions();
+        const options = getRelewiseUIOptions();
         if (!options?.userEngagement?.content?.sentiment) {
             this.toggleAttribute('hidden', true);
             return false;
@@ -87,15 +87,6 @@ export class ContentSentimentButtons extends LitElement {
 
         this.toggleAttribute('hidden', false);
         return true;
-    }
-
-    private getOptions() {
-        try {
-            return getRelewiseUIOptions();
-        } catch (error) {
-            console.warn('Relewise: Sentiment button is unable to find initializeRelewiseUI options.', error);
-            return null;
-        }
     }
 
     private async onLikeClick(event: Event) {
@@ -128,7 +119,7 @@ export class ContentSentimentButtons extends LitElement {
             return;
         }
 
-        const options = this.getOptions();
+        const options = getRelewiseUIOptions();
         if (!options) {
             return;
         }
@@ -169,14 +160,7 @@ export class ContentSentimentButtons extends LitElement {
         }));
     }
 
-    static styles = [
-        sentimentButtonStyles,
-        css`
-            :host {
-                z-index: var(--relewise-sentiment-zindex, 10);
-            }
-        `,
-    ];
+    static styles = sentimentButtonStyles;
 }
 
 declare global {

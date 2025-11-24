@@ -44,9 +44,9 @@ export class ProductSentimentButtons extends LitElement {
             : sentimentLocalization?.dislike ?? 'Dislike';
 
         return html`
-            <div class='rw-engagement-actions' role='group' aria-label='Product sentiment actions'>
+            <div class='rw-sentiment-actions' role='group' aria-label='Product sentiment actions'>
                 <button
-                    class='rw-engagement-button'
+                    class='rw-sentiment-button'
                     type='button'
                     aria-label=${likeLabel}
                     title=${likeLabel}
@@ -56,7 +56,7 @@ export class ProductSentimentButtons extends LitElement {
                     ${this.sentiment === 'Like' ? html`<relewise-like-filled-icon></relewise-like-filled-icon>` : html`<relewise-like-icon></relewise-like-icon>`}
                 </button>
                 <button
-                    class='rw-engagement-button'
+                    class='rw-sentiment-button'
                     type='button'
                     aria-label=${dislikeLabel}
                     title=${dislikeLabel}
@@ -69,7 +69,7 @@ export class ProductSentimentButtons extends LitElement {
     }
 
     private shouldRender(): boolean {
-        const options = this.getOptions();
+        const options = getRelewiseUIOptions();
         if (!options?.userEngagement?.product?.sentiment) {
             this.toggleAttribute('hidden', true);
             return false;
@@ -87,15 +87,6 @@ export class ProductSentimentButtons extends LitElement {
 
         this.toggleAttribute('hidden', false);
         return true;
-    }
-
-    private getOptions() {
-        try {
-            return getRelewiseUIOptions();
-        } catch (error) {
-            console.warn('Relewise: Sentiment button is unable to find initializeRelewiseUI options.', error);
-            return null;
-        }
     }
 
     private async onLikeClick(event: Event) {
@@ -128,10 +119,7 @@ export class ProductSentimentButtons extends LitElement {
             return;
         }
 
-        const options = this.getOptions();
-        if (!options) {
-            return;
-        }
+        const options = getRelewiseUIOptions();
 
         const sentiment = update.sentiment !== undefined ? update.sentiment : this.sentiment;
 
