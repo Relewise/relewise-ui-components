@@ -5,3 +5,5 @@ export * from './button';
 export * from './loading-spinner';
 export * from './product-favorite-button';
 export * from './content-favorite-button';
+export * from './product-sentiment-buttons';
+export * from './content-sentiment-buttons';
