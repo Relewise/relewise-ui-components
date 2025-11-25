@@ -81,7 +81,7 @@ export interface Targets {
 }
 
 export function initializeRelewiseUI(options: RelewiseUIOptions): App {
-    window.relewiseUIOptions = { ...options };
+    window.relewiseUIOptions = options;
     window.relewiseUISearchTargetedConfigurations = new TargetedSearchConfigurations(options.targets?.searchTargets);
     window.relewiseUIRecommendationTargetedConfigurations = new TargetedRecommendationConfigurations(options.targets?.recommendationTargets);
     return new App();
