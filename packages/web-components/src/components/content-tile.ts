@@ -129,7 +129,7 @@ export class ContentTile extends LitElement {
             text-decoration: inherit;
             text-size-adjust: none;
             height: 100%;
-            gap: var(--relewise-engagement-gap, 0.5em);
+            gap: var(--relewise-sentiment-gap, 0.5em);
         }
 
         .rw-content-link {
