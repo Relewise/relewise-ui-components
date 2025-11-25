@@ -5,7 +5,7 @@ import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
 import { SentimentChangeDetail } from '../types/userEngagement';
 import { sentimentButtonStyles } from '../helpers/sentimentButtonStyles';
-import { canRenderUserEngagementAction } from 'src/helpers/userEngagementRenderGuard';
+import { canRenderUserEngagementAction } from '../helpers/userEngagementRenderGuard';
 
 export class ProductSentimentButtons extends LitElement {
 
