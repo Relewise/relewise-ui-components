@@ -1,11 +1,10 @@
-import { ProductResult, User, UserFactory, userIsAnonymous } from '@relewise/client';
+import { ProductResult, User, UserFactory } from '@relewise/client';
 import { LitElement, PropertyValues, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
 import { SentimentChangeDetail } from '../types/userEngagement';
 import { sentimentButtonStyles } from '../helpers/sentimentButtonStyles';
-import { RelewiseUIOptions } from '../initialize';
 import { canRenderUserEngagementAction } from 'src/helpers/userEngagementRenderGuard';
 
 export class ProductSentimentButtons extends LitElement {
@@ -35,7 +34,7 @@ export class ProductSentimentButtons extends LitElement {
     render() {
         const options = getRelewiseUIOptions();
         const canRender = canRenderUserEngagementAction({
-            enabled: Boolean(options?.userEngagement?.content?.sentiment),
+            enabled: Boolean(options?.userEngagement?.product?.sentiment),
             entityId: this.product?.productId,
             user: this.user,
         });
