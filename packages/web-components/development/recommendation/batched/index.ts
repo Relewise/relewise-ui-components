@@ -7,7 +7,8 @@ initializeRelewiseUI(
     {
         contextSettings: {
             getUser: () => {
-                return UserFactory.anonymous();
+                console.log("getting user")
+                return UserFactory.byTemporaryId('temp-id')
             },
             language: import.meta.env.VITE_LANGUAGE,
             currency: import.meta.env.VITE_CURRENCY,
@@ -16,6 +17,6 @@ initializeRelewiseUI(
         apiKey: import.meta.env.VITE_API_KEY,
         clientOptions: {
             serverUrl: import.meta.env.VITE_SERVER_URL,
-        },
+        }
     },
 ).useRecommendations();

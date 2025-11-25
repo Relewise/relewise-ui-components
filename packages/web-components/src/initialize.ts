@@ -12,8 +12,8 @@ export interface UserEngagementEntityOptions {
 }
 
 export interface UserEngagementOptions {
-    product: UserEngagementEntityOptions;
-    content: UserEngagementEntityOptions;
+    product?: UserEngagementEntityOptions;
+    content?: UserEngagementEntityOptions;
 }
 
 export interface RelewiseUIOptions {
