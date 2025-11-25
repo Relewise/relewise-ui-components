@@ -41,7 +41,7 @@ export class FavoriteButtonProducts extends LitElement {
             return nothing;
         }
 
-        const localization = getRelewiseUIOptions()?.localization?.favoriteButton;
+        const localization = getRelewiseUIOptions().localization?.favoriteButton;
         const label = this.isFavorite
             ? localization?.removeFavorite ?? 'Remove favorite'
             : localization?.addToFavorites ?? 'Add to favorites';
