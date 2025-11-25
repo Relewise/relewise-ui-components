@@ -10,10 +10,10 @@ import { RelewiseUIOptions } from '../initialize';
 export class ProductSentimentButtons extends LitElement {
 
     @property({ attribute: false })
-    product: ProductResult | null = null;
+    user: User | null = null;
 
     @property({ attribute: false })
-    user: User | null = null;
+    product: ProductResult | null = null;
 
     @state()
     private sentiment: 'Like' | 'Dislike' | null = null;

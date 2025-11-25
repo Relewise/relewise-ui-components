@@ -10,10 +10,10 @@ import { canRenderUserEngagementAction } from '../helpers/userEngagementRenderGu
 export class ContentSentimentButtons extends LitElement {
 
     @property({ attribute: false })
-    content: ContentResult | null = null;
+    user: User | null = null;
 
     @property({ attribute: false })
-    user: User | null = null;
+    content: ContentResult | null = null;
 
     @state()
     private sentiment: 'Like' | 'Dislike' | null = null;
