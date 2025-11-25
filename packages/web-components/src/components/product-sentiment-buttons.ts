@@ -1,10 +1,11 @@
 import { ProductResult, User, UserFactory, userIsAnonymous } from '@relewise/client';
 import { LitElement, PropertyValues, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { getRelewiseUIOptions, getRelewiseUIRecommendationOptions } from '../helpers/relewiseUIOptions';
+import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
 import { SentimentChangeDetail } from '../types/userEngagement';
 import { sentimentButtonStyles } from '../helpers/sentimentButtonStyles';
+import { RelewiseUIOptions } from '../initialize';
 
 export class ProductSentimentButtons extends LitElement {
 
@@ -31,11 +32,12 @@ export class ProductSentimentButtons extends LitElement {
     }
 
     render() {
-        if (!this.shouldRender()) {
+        const options = getRelewiseUIOptions();
+        if (!this.shouldRender(options)) {
             return nothing;
         }
 
-        const sentimentLocalization = getRelewiseUIRecommendationOptions()?.localization?.sentimentButtons;
+        const sentimentLocalization = options.localization?.sentimentButtons;
         const likeLabel = this.sentiment === 'Like'
             ? sentimentLocalization?.removeLike ?? 'Remove like'
             : sentimentLocalization?.like ?? 'Like';
@@ -68,8 +70,7 @@ export class ProductSentimentButtons extends LitElement {
             </div>`;
     }
 
-    private shouldRender(): boolean {
-        const options = getRelewiseUIOptions();
+    private shouldRender(options: RelewiseUIOptions): boolean {
         if (!options?.userEngagement?.product?.sentiment) {
             this.toggleAttribute('hidden', true);
             return false;

@@ -3,23 +3,23 @@ import { css } from 'lit';
 export const sentimentButtonStyles = css`
     :host {
         display: block;
-        z-index: var(--relewise-sentiment-zindex, 10);
+        z-index: var(--relewise-engagement-zindex, 10);
     }
 
     .rw-sentiment-actions {
         display: flex;
-        gap: var(--relewise-sentiment-button-gap, 0.5em);
-        padding: var(--relewise-sentiment-padding, 0 0.5em 0.5em 0.5em);
+        gap: var(--relewise-engagement-button-gap, 0.5em);
+        padding: var(--relewise-engagement-padding, 0 0.5em 0.5em 0.5em);
         justify-content: flex-end;
     }
 
     .rw-sentiment-button {
         border: 0;
-        border-radius: var(--relewise-sentiment-border-radius, 9999px);
-        background-color: var(--relewise-sentiment-background, transparent);
+        border-radius: var(--relewise-engagement-border-radius, 9999px);
+        background-color: var(--relewise-engagement-background, transparent);
         color: inherit;
         cursor: pointer;
-        padding: var(--relewise-sentiment-button-padding, 0.35em);
+        padding: var(--relewise-engagement-button-padding, 0.35em);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -28,8 +28,8 @@ export const sentimentButtonStyles = css`
 
     .rw-sentiment-button[aria-pressed='true'],
     .rw-sentiment-button:hover {
-        background-color: var(--relewise-sentiment-active-background, rgba(0, 0, 0, 0.05));
-        color: var(--relewise-sentiment-active-color, inherit);
+        background-color: var(--relewise-engagement-active-background, rgba(0, 0, 0, 0.05));
+        color: var(--relewise-engagement-active-color, inherit);
     }
 
     .rw-sentiment-button:focus-visible {

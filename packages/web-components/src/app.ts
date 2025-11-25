@@ -111,14 +111,10 @@ export interface SentimentButtonsLocalization {
     removeDislike?: string;
 }
 
-export interface RecommendationLocalization {
+export type RelewiseUILocalization = {
     favoriteButton?: FavoriteButtonLocalization;
     sentimentButtons?: SentimentButtonsLocalization;
-}
-
-export interface RelewiseUIRecommendationOptions {
-    localization?: RecommendationLocalization;
-}
+};
 
 export interface SearchFilters {
     product?: (builder: FilterBuilder) => void
@@ -135,8 +131,8 @@ export interface SearchTemplates {
 }
 
 export class App {
-    useRecommendations(options?: RelewiseUIRecommendationOptions): App {
-        useRecommendations(options);
+    useRecommendations(): App {
+        useRecommendations();
         return this;
     }
 
@@ -166,8 +162,7 @@ export class App {
     }
 }
 
-export function useRecommendations(options?: RelewiseUIRecommendationOptions) {
-    window.relewiseUIRecommendationOptions = options ?? {};
+export function useRecommendations() {
     tryRegisterElement('relewise-product-recommendation-batcher', RecommendationBatcher);
     tryRegisterElement('relewise-popular-products', PopularProducts);
     tryRegisterElement('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);

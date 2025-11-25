@@ -17,11 +17,25 @@ initializeRelewiseUI(
         clientOptions: {
             serverUrl: import.meta.env.VITE_SERVER_URL,
         },
+        localization: {
+            favoriteButton: {
+                addToFavorites: 'Tilføj til favoritter',
+                removeFavorite: 'Fjern favorit',
+            },
+            sentimentButtons: {
+                like: 'Synes godt om',
+                removeLike: 'Fjern synes godt om',
+                dislike: 'Synes ikke om',
+                removeDislike: 'Fjern synes ikke om',
+            },
+        },
         userEngagement: {
             product: {
                 favorite: true,
+                sentiment: true,
             },
             content: {
+                favorite: true,
                 sentiment: true,
             },
         },
@@ -36,18 +50,4 @@ initializeRelewiseUI(
             },
         },
     },
-).useRecommendations({
-    // showcase localization usage:
-    localization: {
-        favoriteButton: {
-            addToFavorites: 'Tilføj til favoritter',
-            removeFavorite: 'Fjern favorit',
-        },
-        sentimentButtons: {
-            like: 'Synes godt om',
-            removeLike: 'Fjern synes godt om',
-            dislike: 'Synes ikke om',
-            removeDislike: 'Fjern synes ikke om',
-        },
-    },
-}).useSearch();
+).useRecommendations().useSearch();

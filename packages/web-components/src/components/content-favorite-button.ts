@@ -1,7 +1,7 @@
 import { ContentResult, User, userIsAnonymous } from '@relewise/client';
 import { LitElement, PropertyValues, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { getRelewiseUIOptions, getRelewiseUIRecommendationOptions } from '../helpers/relewiseUIOptions';
+import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
 import { FavoriteChangeDetail } from '../types/userEngagement';
 import { favoriteButtonStyles } from '../helpers/favoriteButtonStyles';
@@ -30,17 +30,19 @@ export class FavoriteButtonContent extends LitElement {
 
     render() {
         const options = getRelewiseUIOptions();
-        if (!canRenderFavoriteButton({
-            options,
+        const canRender = canRenderFavoriteButton({
             favoriteEnabled: Boolean(options?.userEngagement?.content?.favorite),
             entityId: this.content?.contentId,
             user: this.user,
-            host: this,
-        })) {
+        });
+
+        this.toggleAttribute('hidden', !canRender);
+
+        if (!canRender) {
             return nothing;
         }
 
-        const localization = getRelewiseUIRecommendationOptions()?.localization?.favoriteButton;
+        const localization = options.localization?.favoriteButton;
         const label = this.isFavorite
             ? localization?.removeFavorite ?? 'Remove favorite'
             : localization?.addToFavorites ?? 'Add to favorites';
@@ -103,7 +105,7 @@ export class FavoriteButtonContent extends LitElement {
     }
 
     private dispatchChangeEvent(detail: FavoriteChangeDetail) {
-        this.dispatchEvent(new CustomEvent<FavoriteChangeDetail>('favorite-change', {
+        this.dispatchEvent(new CustomEvent<FavoriteChangeDetail>('change', {
             bubbles: true,
             composed: true,
             detail,
