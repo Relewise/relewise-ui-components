@@ -914,14 +914,6 @@ initializeRelewiseUI({
             removeDislike: 'Remove dislike',
         },
     },
-    userEngagement: {
-        product: { sentiment: true, favorite: true },
-        content: { sentiment: true, favorite: true },
-    },
-    userEngagement: {
-        product: { sentiment: true, favorite: true },
-        content: { sentiment: true, favorite: true },
-    },
 });
 ```
 
@@ -999,12 +991,12 @@ All CSS variables recognised by the web components are listed below together wit
 | `--relewise-engagement-gap` | `0.5em` | Vertical spacing between the main tile content and the engagement controls. |
 | `--relewise-engagement-button-gap` | `0.5em` | Gap applied between individual engagement buttons. |
 | `--relewise-engagement-padding` | `0 0.5em 0.5em 0.5em` | Padding surrounding the sentiment action bar. |
-| `--relewise-engagement-zindex` | `10` | Stack order applied to engagement button hosts when they need to float above the tile content. |
 | `--relewise-engagement-border-radius` | `9999px` | Border radius used for the engagement buttons. |
 | `--relewise-engagement-background` | `transparent` | Resting background colour of engagement buttons. |
 | `--relewise-engagement-button-padding` | `0.35em` | Internal padding for each engagement button. |
 | `--relewise-engagement-active-background` | `rgba(0, 0, 0, 0.05)` | Background colour applied when an engagement button is hovered or pressed. |
 | `--relewise-engagement-active-color` | `inherit` | Text and icon colour applied when an engagement button is hovered or pressed. |
+| `--relewise-engagement-zindex` | `10` | Stack order applied to engagement button hosts when they need to float above the tile content. |
 | `--relewise-favorite-top` | `0.5em` | Offset from the top edge for the favorite toggle. |
 | `--relewise-favorite-right` | `0.5em` | Offset from the right edge for the favorite toggle. |
 | `--relewise-favorite-background` | `rgba(255, 255, 255, 0.9)` | Background colour of the favorite button. |
