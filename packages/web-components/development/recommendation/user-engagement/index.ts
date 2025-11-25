@@ -7,8 +7,7 @@ initializeRelewiseUI(
     {
         contextSettings: {
             getUser: () => {
-                //return UserFactory.anonymous();
-                return UserFactory.byTemporaryId("mza")
+                return UserFactory.byTemporaryId('temp-id');
             },
             language: import.meta.env.VITE_LANGUAGE,
             currency: import.meta.env.VITE_CURRENCY,
@@ -17,6 +16,13 @@ initializeRelewiseUI(
         apiKey: import.meta.env.VITE_API_KEY,
         clientOptions: {
             serverUrl: import.meta.env.VITE_SERVER_URL,
+        },
+        localization: {
+            // showcase user engagement localizations in Danish
+            favoriteButton: {
+                addToFavorites: 'Tilføj til favoritter',
+                removeFavorite: 'Fjern favorit',
+            },
         },
         userEngagement: {
             product: {
@@ -35,6 +41,6 @@ initializeRelewiseUI(
                     },
                 });
             },
-        }
+        },
     },
 ).useRecommendations().useSearch();

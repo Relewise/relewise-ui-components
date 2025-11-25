@@ -16,10 +16,20 @@ export interface UserEngagementOptions {
     content?: UserEngagementEntityOptions;
 }
 
+export interface FavoriteButtonLocalization {
+    addToFavorites?: string;
+    removeFavorite?: string;
+}
+
+export type RelewiseUILocalization = {
+    favoriteButton?: FavoriteButtonLocalization;
+};
+
 export interface RelewiseUIOptions {
     datasetId: string;
     apiKey: string;
     contextSettings: ContextSettings;
+    localization?: RelewiseUILocalization;
     selectedPropertiesSettings?: {
         product?: Partial<SelectedProductPropertiesSettings>;
         variant?: Partial<SelectedVariantPropertiesSettings>;

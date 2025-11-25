@@ -888,6 +888,31 @@ and dislike buttons, while `favorite` adds the floating heart toggle. The curren
 controls automatically call `trackProductEngagement` or `trackContentEngagement` so interactions are persisted with Relewise.
 You can tailor the appearance and layout of these buttons via the [user engagement and favorites CSS variables](#user-engagement-and-favorites).
 
+Two dedicated favorite button elements are available if you want to embed them outside the default tiles:
+
+- `<relewise-product-favorite-button>` requires a bound `product` property containing the `ProductResult` you want to favourite. Variant information is read from that object automatically, and the button keeps track of its own state.
+- `<relewise-content-favorite-button>` requires a bound `content` property containing the `ContentResult` you want to favourite. The button reads the current favourite value from `content.userEngagement` and manages subsequent toggles internally.
+
+Both components emit a `change` event with `{ isFavorite }` in `detail` whenever the user toggles the button, and reuse the same CSS variables listed below for positioning and appearance.
+
+Set localized `aria-label`/title strings for these controls by passing `localization.favoriteButton` to `initializeRelewiseUI({ ... })`. If you omit the values we fall back to the default English copies shown below.
+
+```ts
+initializeRelewiseUI({
+    ...,
+    localization: {
+        favoriteButton: {
+            addToFavorites: 'Add to favorites',
+            removeFavorite: 'Remove favorite',
+        },
+    },
+    userEngagement: {
+        product: { sentiment: true, favorite: true },
+        content: { sentiment: true, favorite: true },
+    },
+});
+```
+
 ## Overwriting styling
 If you want to overwrite the styling of the grid and the default product tile, you can do so by using CSS variables.
 
@@ -973,6 +998,7 @@ All CSS variables recognised by the web components are listed below together wit
 | `--relewise-favorite-padding` | `0.35em` | Internal padding for the favorite button. |
 | `--relewise-favorite-border-radius` | `9999px` | Border radius applied to the favorite button. |
 | `--relewise-favorite-shadow` | `0 1px 4px rgba(0, 0, 0, 0.12)` | Shadow applied to the floating favorite control. |
+| `--relewise-favorite-zindex` | `10` | Stack order that ensures the favorite toggle floats above the rest of the tile. |
 | `--relewise-favorite-space` | `2.1em` | Extra margin reserved for headings when the favorite toggle is visible. |
 
 #### Search bars and layout

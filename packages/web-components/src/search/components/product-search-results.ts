@@ -93,11 +93,6 @@ export class ProductSearchResults extends LitElement {
             opacity: .5;
         }
 
-        .rw-product-tile {
-            display: flex;
-            align-items: center;
-        }
-
         .rw-fill-grid {
             display: flex;
             flex-direction: column;

@@ -15,13 +15,10 @@ export class ContentTile extends LitElement {
     content: ContentResult | null = null;
 
     @property({ type: Object })
-    private user: User | null = null
+    private user: User | null = null;
 
     @state()
     private sentiment: 'Like' | 'Dislike' | null = null;
-
-    @state()
-    private isFavorite = false;
 
     // Override Lit's shadow root creation and only attach default styles when no template override exists.
     protected createRenderRoot(): HTMLElement | DocumentFragment {
@@ -54,15 +51,10 @@ export class ContentTile extends LitElement {
         if (changed.has('content')) {
             const sentiment = this.content?.userEngagement?.sentiment;
             const normalizedSentiment: 'Like' | 'Dislike' | null = sentiment === 'Like' || sentiment === 'Dislike' ? sentiment : null;
-            const favorite = Boolean(this.content?.userEngagement?.isFavorite);
-
             if (this.sentiment !== normalizedSentiment) {
                 this.sentiment = normalizedSentiment;
             }
 
-            if (this.isFavorite !== favorite) {
-                this.isFavorite = favorite;
-            }
         }
     }
 
@@ -96,10 +88,15 @@ export class ContentTile extends LitElement {
 
         return html`
             <div class="rw-content-tile${engagementSettings?.favorite ? ' --rw-has-favorite' : ''}">
-                ${this.renderFavoriteAction(engagementSettings)}
+                ${engagementSettings?.favorite
+                ? html`<relewise-content-favorite-button
+                            .content=${this.content}
+                            .user=${this.user}>
+                        </relewise-content-favorite-button>`
+                : nothing}
                 ${url
-                ? html`<a class='rw-content-link' href=${url}>${this.renderTileContent(this.content)}</a>`
-                : html`<div class='rw-content-link'>${this.renderTileContent(this.content)}</div>`}
+                    ? html`<a class='rw-content-link' href=${url}>${this.renderTileContent(this.content)}</a>`
+                    : html`<div class='rw-content-link'>${this.renderTileContent(this.content)}</div>`}
                 ${this.renderSentimentActions(engagementSettings)}
             </div>`;
     }
@@ -153,25 +150,6 @@ export class ContentTile extends LitElement {
             </div>`;
     }
 
-    private renderFavoriteAction(settings: UserEngagementEntityOptions | undefined) {
-        const showFavorite = Boolean(settings?.favorite);
-
-        if (!showFavorite || !this.user || userIsAnonymous(this.user)) {
-            return nothing;
-        }
-
-        return html`
-            <div class='rw-favorite-action'>
-                <button
-                    class='rw-favorite-button'
-                    type='button'
-                    aria-pressed=${this.isFavorite ? 'true' : 'false'}
-                    @click=${this.onFavoriteClick}>
-                    ${this.isFavorite ? html`<relewise-heart-filled-icon></relewise-heart-filled-icon>` : html`<relewise-heart-icon></relewise-heart-icon>`}
-                </button>
-            </div>`;
-    }
-
     private async onLikeClick(event: Event) {
         event.preventDefault();
         event.stopPropagation();
@@ -188,14 +166,7 @@ export class ContentTile extends LitElement {
         await this.submitEngagement({ sentiment: newSentiment });
     }
 
-    private async onFavoriteClick(event: Event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        await this.submitEngagement({ isFavorite: !this.isFavorite });
-    }
-
-    private async submitEngagement(update: { sentiment?: 'Like' | 'Dislike' | null; isFavorite?: boolean; }) {
+    private async submitEngagement(update: { sentiment?: 'Like' | 'Dislike' | null; }) {
         if (!this.content?.contentId) {
             console.warn('Relewise: Unable to track engagement for content without an id.');
             return;
@@ -203,10 +174,8 @@ export class ContentTile extends LitElement {
 
         const options = getRelewiseUIOptions();
         const sentiment = update.sentiment !== undefined ? update.sentiment : this.sentiment;
-        const isFavorite = update.isFavorite !== undefined ? update.isFavorite : this.isFavorite;
 
         this.sentiment = sentiment ?? null;
-        this.isFavorite = Boolean(isFavorite);
 
         try {
             const tracker = getTracker(options);
@@ -215,7 +184,6 @@ export class ContentTile extends LitElement {
                 contentId: this.content.contentId!,
                 engagement: {
                     sentiment: this.sentiment ? this.sentiment : 'Neutral',
-                    isFavorite: this.isFavorite,
                 },
             });
         } catch (error) {
@@ -339,28 +307,7 @@ export class ContentTile extends LitElement {
             color: var(--relewise-engagement-active-color, inherit);
         }
 
-        .rw-favorite-action {
-            position: absolute;
-            top: var(--relewise-favorite-top, 0.5em);
-            right: var(--relewise-favorite-right, 0.5em);
-            display: flex;
-        }
-
-        .rw-favorite-button {
-            border: 0;
-            background-color: var(--relewise-favorite-background, rgba(255, 255, 255, 0.9));
-            color: inherit;
-            cursor: pointer;
-            padding: var(--relewise-favorite-padding, 0.35em);
-            border-radius: var(--relewise-favorite-border-radius, 9999px);
-            box-shadow: var(--relewise-favorite-shadow, 0 1px 4px rgba(0, 0, 0, 0.12));
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .rw-engagement-button:focus-visible,
-        .rw-favorite-button:focus-visible {
+        .rw-engagement-button:focus-visible {
             outline: 2px solid var(--relewise-focus-outline-color, #000);
             outline-offset: 2px;
         }

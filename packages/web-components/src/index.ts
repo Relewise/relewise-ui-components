@@ -13,3 +13,4 @@ export * from './theme';
 export * from './targetedSearchConfigurations';
 export * from './targetedRecommendationConfigurations';
 export * from './addFilters';
+export * from './types/userEngagement';

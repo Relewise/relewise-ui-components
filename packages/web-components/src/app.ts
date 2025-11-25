@@ -3,6 +3,8 @@ import { nothing, TemplateResult } from 'lit';
 import { FilterIcon, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon } from './components';
 import { Button } from './components/button';
 import { LoadingSpinner } from './components/loading-spinner';
+import { FavoriteButtonContent } from './components/content-favorite-button';
+import { FavoriteButtonProducts } from './components/product-favorite-button';
 import { ContextSettings, ProductTemplateExtensions } from './initialize';
 import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PopularContent, PersonalContent, ContentViewedAfterViewingContent, ContentViewedAfterViewingMultipleContent, ProductsViewedAfterViewingContent, ContentViewedAfterViewingProduct, ContentViewedAfterViewingMultipleProducts } from './recommendations';
 import { ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar } from './search';
@@ -230,6 +232,8 @@ function registerGenericComponents() {
     tryRegisterElement('relewise-like-filled-icon', LikeFilledIcon);
     tryRegisterElement('relewise-dislike-icon', DislikeIcon);
     tryRegisterElement('relewise-dislike-filled-icon', DislikeFilledIcon);
+    tryRegisterElement('relewise-product-favorite-button', FavoriteButtonProducts);
+    tryRegisterElement('relewise-content-favorite-button', FavoriteButtonContent);
     tryRegisterElement('relewise-button', Button);
     tryRegisterElement('relewise-loading-spinner', LoadingSpinner);
 }
