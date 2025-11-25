@@ -1,12 +1,10 @@
-import { ProductResult, User, UserFactory, userIsAnonymous } from '@relewise/client';
-import { LitElement, PropertyValues, adoptStyles, css, html, nothing } from 'lit';
-import { property, state } from 'lit/decorators.js';
+import { ProductResult, User } from '@relewise/client';
+import { LitElement, adoptStyles, css, html, nothing } from 'lit';
+import { property } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { templateHelpers } from '../helpers/templateHelpers';
-import { RelewiseUIOptions, UserEngagementEntityOptions } from '../initialize';
 import { theme } from '../theme';
-import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
 
@@ -17,9 +15,6 @@ export class ProductTile extends LitElement {
 
     @property({ type: Object })
     private user: User | null = null;
-
-    @state()
-    private sentiment: 'Like' | 'Dislike' | null = null;
 
     // Override Lit's shadow root creation and only attach default styles when no template override exists.
     protected createRenderRoot(): HTMLElement | DocumentFragment {
@@ -45,18 +40,6 @@ export class ProductTile extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-    }
-
-    protected willUpdate(changed: PropertyValues<this>): void {
-        super.willUpdate(changed);
-
-        if (changed.has('product')) {
-            const sentiment = this.product?.userEngagement?.sentiment;
-            const normalizedSentiment: 'Like' | 'Dislike' | null = sentiment === 'Like' || sentiment === 'Dislike' ? sentiment : null;
-            if (this.sentiment !== normalizedSentiment) {
-                this.sentiment = normalizedSentiment;
-            }
-        }
     }
 
     render() {
@@ -91,14 +74,19 @@ export class ProductTile extends LitElement {
             <div class='rw-tile'>
                 ${engagementSettings?.favorite
                     ? html`<relewise-product-favorite-button
-                            .product=${this.product}
-                            .user=${this.user}>
-                        </relewise-product-favorite-button>`
-                : nothing}
+                        .product=${this.product}
+                        .user=${this.user}>
+                    </relewise-product-favorite-button>`
+                    : nothing}
                 ${url
                     ? html`<a class='rw-tile-link' href=${url}>${this.renderTileContent(this.product)}</a>`
                     : html`<div class='rw-tile-link'>${this.renderTileContent(this.product)}</div>`}
-                ${this.renderSentimentActions(engagementSettings, settings)}
+                ${engagementSettings?.sentiment
+                    ? html`<relewise-product-sentiment-buttons
+                            .product=${this.product}
+                            .user=${this.user}>
+                        </relewise-product-sentiment-buttons>`
+                    : nothing}
             </div>`;
     }
 
@@ -113,88 +101,12 @@ export class ProductTile extends LitElement {
                 <div class='rw-price'>
                     <span>${formatPrice(product.salesPrice)}</span>
 
-                ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
-                    ? html`<span class='rw-list-price'>${formatPrice(product.listPrice)}</span>`
-                    : nothing
-            }
+                    ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
+                        ? html`<span class='rw-list-price'>${formatPrice(product.listPrice)}</span>`
+                        : nothing
+                    }
                 </div>
             </div>`;
-    }
-
-    private renderSentimentActions(settings: UserEngagementEntityOptions | undefined | undefined, options: RelewiseUIOptions) {
-        const showSentiment = Boolean(settings?.sentiment);
-
-        if (!showSentiment || !this.user || userIsAnonymous(this.user)) {
-            return nothing;
-        }
-
-        const likeLabel = this.sentiment === 'Like' ? 'Remove like' : 'Like';
-        const dislikeLabel = this.sentiment === 'Dislike' ? 'Remove dislike' : 'Dislike';
-
-        return html`
-            <div class='rw-engagement-actions' role='group' aria-label='Product sentiment actions'>
-                <button
-                    class='rw-engagement-button'
-                    type='button'
-                    aria-label=${likeLabel}
-                    title=${likeLabel}
-                    aria-pressed=${this.sentiment === 'Like' ? 'true' : 'false'}
-                    @click=${this.onLikeClick}>
-                    ${this.sentiment === 'Like' ? html`<relewise-like-filled-icon></relewise-like-filled-icon>` : html`<relewise-like-icon></relewise-like-icon>`}
-                </button>
-                <button
-                    class='rw-engagement-button'
-                    type='button'
-                    aria-label=${dislikeLabel}
-                    title=${dislikeLabel}
-                    aria-pressed=${this.sentiment === 'Dislike' ? 'true' : 'false'}
-                    @click=${this.onDislikeClick}>
-                    ${this.sentiment === 'Dislike' ? html`<relewise-dislike-filled-icon></relewise-dislike-filled-icon>` : html`<relewise-dislike-icon></relewise-dislike-icon>`}
-                </button>
-            </div>`;
-    }
-
-    private async onLikeClick(event: Event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const newSentiment: 'Like' | 'Dislike' | null = this.sentiment === 'Like' ? null : 'Like';
-        await this.submitEngagement({ sentiment: newSentiment });
-    }
-
-    private async onDislikeClick(event: Event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const newSentiment: 'Like' | 'Dislike' | null = this.sentiment === 'Dislike' ? null : 'Dislike';
-        await this.submitEngagement({ sentiment: newSentiment });
-    }
-
-    private async submitEngagement(update: { sentiment?: 'Like' | 'Dislike' | null; }) {
-        if (!this.product?.productId) {
-            console.warn('Relewise: Unable to track engagement for a product without an id.');
-            return;
-        }
-
-        const options = getRelewiseUIOptions();
-        const sentiment = update.sentiment !== undefined ? update.sentiment : this.sentiment;
-
-        this.sentiment = sentiment ?? null;
-        try {
-            const tracker = getTracker(options);
-            await tracker.trackProductEngagement({
-                user: this.user ?? UserFactory.anonymous(),
-                product: {
-                    productId: this.product.productId,
-                    variantId: this.product.variant?.variantId ?? undefined,
-                },
-                engagement: {
-                    sentiment: this.sentiment ? this.sentiment : 'Neutral',
-                },
-            });
-        } catch (error) {
-            console.error('Relewise: Failed to track product engagement.', error);
-        }
     }
 
     private getProductImageAlt(product: ProductResult): string {
@@ -222,7 +134,7 @@ export class ProductTile extends LitElement {
             text-decoration: inherit;
             text-size-adjust: none;
             height: 100%;
-            gap: var(--relewise-engagement-gap, 0.5em);
+            gap: var(--relewise-sentiment-gap, 0.5em);
         }
 
         .rw-tile-link {
@@ -291,36 +203,6 @@ export class ProductTile extends LitElement {
             margin: var(--relewise-list-price-margin, 0em 0em 0em 0.5em);
         }
 
-        .rw-engagement-actions {
-            display: flex;
-            gap: var(--relewise-engagement-button-gap, 0.5em);
-            padding: var(--relewise-engagement-padding, 0 0.5em 0.5em 0.5em);
-            justify-content: flex-end;
-        }
-
-        .rw-engagement-button {
-            border: 0;
-            border-radius: var(--relewise-engagement-border-radius, 9999px);
-            background-color: var(--relewise-engagement-background, transparent);
-            color: inherit;
-            cursor: pointer;
-            padding: var(--relewise-engagement-button-padding, 0.35em);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
-
-        .rw-engagement-button[aria-pressed="true"],
-        .rw-engagement-button:hover {
-            background-color: var(--relewise-engagement-active-background, rgba(0, 0, 0, 0.05));
-            color: var(--relewise-engagement-active-color, inherit);
-        }
-
-        .rw-engagement-button:focus-visible {
-            outline: 2px solid var(--relewise-focus-outline-color, #000);
-            outline-offset: 2px;
-        }
     `];
 }
 

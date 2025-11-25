@@ -23,6 +23,12 @@ initializeRelewiseUI(
                 addToFavorites: 'Tilføj til favoritter',
                 removeFavorite: 'Fjern favorit',
             },
+            sentimentButtons: {
+                like: 'Synes godt om',
+                removeLike: 'Fjern synes godt om',
+                dislike: 'Synes ikke om',
+                removeDislike: 'Fjern synes ikke om',
+            },
         },
         userEngagement: {
             product: {

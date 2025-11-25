@@ -21,8 +21,16 @@ export interface FavoriteButtonLocalization {
     removeFavorite?: string;
 }
 
+export interface SentimentButtonsLocalization {
+    like?: string;
+    removeLike?: string;
+    dislike?: string;
+    removeDislike?: string;
+}
+
 export type RelewiseUILocalization = {
     favoriteButton?: FavoriteButtonLocalization;
+    sentimentButtons?: SentimentButtonsLocalization;
 };
 
 export interface RelewiseUIOptions {

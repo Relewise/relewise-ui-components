@@ -1,6 +1,6 @@
 import { FilterBuilder, ProductCategoryResult, ProductResult } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
-import { FilterIcon, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon } from './components';
+import { FilterIcon, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
 import { Button } from './components/button';
 import { LoadingSpinner } from './components/loading-spinner';
 import { FavoriteButtonContent } from './components/content-favorite-button';
@@ -234,6 +234,8 @@ function registerGenericComponents() {
     tryRegisterElement('relewise-dislike-filled-icon', DislikeFilledIcon);
     tryRegisterElement('relewise-product-favorite-button', FavoriteButtonProducts);
     tryRegisterElement('relewise-content-favorite-button', FavoriteButtonContent);
+    tryRegisterElement('relewise-product-sentiment-buttons', ProductSentimentButtons);
+    tryRegisterElement('relewise-content-sentiment-buttons', ContentSentimentButtons);
     tryRegisterElement('relewise-button', Button);
     tryRegisterElement('relewise-loading-spinner', LoadingSpinner);
 }
