@@ -104,9 +104,9 @@ export interface FavoriteButtonLocalization {
     removeFavorite?: string;
 }
 
-export interface RecommendationLocalization {
+export type RelewiseUILocalization = {
     favoriteButton?: FavoriteButtonLocalization;
-}
+};
 
 export interface SearchFilters {
     product?: (builder: FilterBuilder) => void
