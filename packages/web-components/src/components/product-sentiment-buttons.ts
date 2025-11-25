@@ -6,6 +6,7 @@ import { getTracker } from '../tracking';
 import { SentimentChangeDetail } from '../types/userEngagement';
 import { sentimentButtonStyles } from '../helpers/sentimentButtonStyles';
 import { RelewiseUIOptions } from '../initialize';
+import { canRenderUserEngagementAction } from 'src/helpers/userEngagementRenderGuard';
 
 export class ProductSentimentButtons extends LitElement {
 
@@ -33,7 +34,15 @@ export class ProductSentimentButtons extends LitElement {
 
     render() {
         const options = getRelewiseUIOptions();
-        if (!this.shouldRender(options)) {
+        const canRender = canRenderUserEngagementAction({
+            enabled: Boolean(options?.userEngagement?.content?.sentiment),
+            entityId: this.product?.productId,
+            user: this.user,
+        });
+
+        this.toggleAttribute('hidden', !canRender);
+
+        if (!canRender) {
             return nothing;
         }
 
@@ -68,26 +77,6 @@ export class ProductSentimentButtons extends LitElement {
                     ${this.sentiment === 'Dislike' ? html`<relewise-dislike-filled-icon></relewise-dislike-filled-icon>` : html`<relewise-dislike-icon></relewise-dislike-icon>`}
                 </button>
             </div>`;
-    }
-
-    private shouldRender(options: RelewiseUIOptions): boolean {
-        if (!options?.userEngagement?.product?.sentiment) {
-            this.toggleAttribute('hidden', true);
-            return false;
-        }
-
-        if (!this.product?.productId) {
-            this.toggleAttribute('hidden', true);
-            return false;
-        }
-
-        if (!this.user || userIsAnonymous(this.user)) {
-            this.toggleAttribute('hidden', true);
-            return false;
-        }
-
-        this.toggleAttribute('hidden', false);
-        return true;
     }
 
     private async onLikeClick(event: Event) {
