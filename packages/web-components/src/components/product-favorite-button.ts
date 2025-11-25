@@ -5,7 +5,7 @@ import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
 import { FavoriteChangeDetail } from '../types/userEngagement';
 import { favoriteButtonStyles } from '../helpers/favoriteButtonStyles';
-import { canRenderFavoriteButton } from '../helpers/favoriteRenderGuard';
+import { canRenderUserEngagementAction } from '../helpers/userEngagementRenderGuard';
 
 export class FavoriteButtonProducts extends LitElement {
 
@@ -30,8 +30,8 @@ export class FavoriteButtonProducts extends LitElement {
 
     render() {
         const options = getRelewiseUIOptions();
-        const canRender = canRenderFavoriteButton({
-            favoriteEnabled: Boolean(options?.userEngagement?.product?.favorite),
+        const canRender = canRenderUserEngagementAction({
+            enabled: Boolean(options?.userEngagement?.product?.favorite),
             entityId: this.product?.productId,
             user: this.user,
         });

@@ -1,17 +1,17 @@
 import { User, userIsAnonymous } from '@relewise/client';
 
-type FavoriteRenderGuardArgs = {
-    favoriteEnabled: boolean;
+type RenderGuardArgs = {
+    enabled: boolean;
     entityId: string | null | undefined;
     user: User | null;
 };
 
-export function canRenderFavoriteButton({
-    favoriteEnabled,
+export function canRenderUserEngagementAction({
+    enabled,
     entityId,
     user,
-}: FavoriteRenderGuardArgs): boolean {
-    if (!favoriteEnabled) {
+}: RenderGuardArgs): boolean {
+    if (!enabled) {
         return false;
     }
 
