@@ -1,7 +1,7 @@
 import { ContentResult, User, userIsAnonymous } from '@relewise/client';
 import { LitElement, PropertyValues, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { getRelewiseUIOptions, getRelewiseUIRecommendationOptions } from '../helpers/relewiseUIOptions';
+import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
 import { FavoriteChangeDetail } from '../types/userEngagement';
 import { favoriteButtonStyles } from '../helpers/favoriteButtonStyles';
@@ -42,7 +42,7 @@ export class FavoriteButtonContent extends LitElement {
             return nothing;
         }
 
-        const localization = getRelewiseUIRecommendationOptions()?.localization?.favoriteButton;
+        const localization = getRelewiseUIOptions().localization?.favoriteButton;
         const label = this.isFavorite
             ? localization?.removeFavorite ?? 'Remove favorite'
             : localization?.addToFavorites ?? 'Add to favorites';

@@ -17,6 +17,13 @@ initializeRelewiseUI(
         clientOptions: {
             serverUrl: import.meta.env.VITE_SERVER_URL,
         },
+        localization: {
+            // showcase user engagement localizations in Danish
+            favoriteButton: {
+                addToFavorites: 'Tilføj til favoritter',
+                removeFavorite: 'Fjern favorit',
+            },
+        },
         userEngagement: {
             product: {
                 favorite: true,
@@ -36,12 +43,4 @@ initializeRelewiseUI(
             },
         },
     },
-).useRecommendations({
-    // showcase localization usage:
-    localization: {
-        favoriteButton: {
-            addToFavorites: 'Tilføj til favoritter',
-            removeFavorite: 'Fjern favorit',
-        },
-    },
-}).useSearch();
+).useRecommendations().useSearch();

@@ -895,15 +895,20 @@ Two dedicated favorite button elements are available if you want to embed them o
 
 Both components emit a `change` event with `{ isFavorite }` in `detail` whenever the user toggles the button, and reuse the same CSS variables listed below for positioning and appearance.
 
-Set localized `aria-label`/title strings for these controls by passing `localization.favoriteButton` to `useRecommendations({ ... })`. If you omit the values we fall back to the default English copies shown below.
+Set localized `aria-label`/title strings for these controls by passing `localization.favoriteButton` to `initializeRelewiseUI({ ... })`. If you omit the values we fall back to the default English copies shown below.
 
 ```ts
-useRecommendations({
+initializeRelewiseUI({
+    ...,
     localization: {
         favoriteButton: {
             addToFavorites: 'Add to favorites',
             removeFavorite: 'Remove favorite',
         },
+    },
+    userEngagement: {
+        product: { sentiment: true, favorite: true },
+        content: { sentiment: true, favorite: true },
     },
 });
 ```
