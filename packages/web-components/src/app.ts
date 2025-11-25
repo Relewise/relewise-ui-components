@@ -99,15 +99,6 @@ export interface SearchResultLocalization {
     results?: string;
 }
 
-export interface FavoriteButtonLocalization {
-    addToFavorites?: string;
-    removeFavorite?: string;
-}
-
-export type RelewiseUILocalization = {
-    favoriteButton?: FavoriteButtonLocalization;
-};
-
 export interface SearchFilters {
     product?: (builder: FilterBuilder) => void
     productCategory?: (builder: FilterBuilder) => void
