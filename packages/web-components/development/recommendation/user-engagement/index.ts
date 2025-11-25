@@ -18,6 +18,7 @@ initializeRelewiseUI(
             serverUrl: import.meta.env.VITE_SERVER_URL,
         },
         localization: {
+            // showcase user engagement localizations in Danish
             favoriteButton: {
                 addToFavorites: 'Tilføj til favoritter',
                 removeFavorite: 'Fjern favorit',

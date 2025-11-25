@@ -1,6 +1,6 @@
 import { ContentResult, FilterBuilder, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedContentPropertiesSettings, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
-import { App, RelewiseUISearchOptions, RelewiseUILocalization } from './app';
+import { App, RelewiseUISearchOptions } from './app';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { TemplateHelpers } from './helpers/templateHelpers';
 import { TargetedSearchConfigurations } from './targetedSearchConfigurations';
@@ -15,6 +15,23 @@ export interface UserEngagementOptions {
     product?: UserEngagementEntityOptions;
     content?: UserEngagementEntityOptions;
 }
+
+export interface FavoriteButtonLocalization {
+    addToFavorites?: string;
+    removeFavorite?: string;
+}
+
+export interface SentimentButtonsLocalization {
+    like?: string;
+    removeLike?: string;
+    dislike?: string;
+    removeDislike?: string;
+}
+
+export type RelewiseUILocalization = {
+    favoriteButton?: FavoriteButtonLocalization;
+    sentimentButtons?: SentimentButtonsLocalization;
+};
 
 export interface RelewiseUIOptions {
     datasetId: string;

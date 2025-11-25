@@ -918,6 +918,10 @@ initializeRelewiseUI({
         product: { sentiment: true, favorite: true },
         content: { sentiment: true, favorite: true },
     },
+    userEngagement: {
+        product: { sentiment: true, favorite: true },
+        content: { sentiment: true, favorite: true },
+    },
 });
 ```
 
