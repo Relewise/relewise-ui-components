@@ -895,7 +895,7 @@ Two dedicated favorite button elements are available if you want to embed them o
 
 Both components emit a standard `change` event with `{ isFavorite }` in `detail` whenever the user toggles the button, and reuse the same CSS variables listed below for positioning and appearance.
 
-The matching `<relewise-*-sentiment-buttons>` elements dispatch a `sentiment-change` event with `{ sentiment, entityType, productId?, variantId?, contentId? }` after each successful tracking call so host pages can react to like/dislike toggles.
+The matching `<relewise-*-sentiment-buttons>` elements dispatch a `change` event with `{ sentiment, entityType, productId?, variantId?, contentId? }` after each successful tracking call so host pages can react to like/dislike toggles.
 
 Set localized `aria-label`/title strings for these controls by passing `localization.favoriteButton` and `localization.sentimentButtons` to `initializeRelewiseUI({ ... })`. Use the same API to customize the like/dislike copy via `localization.sentimentButtons`. Enable the buttons you need through `userEngagement`. If you omit the values we fall back to the default English copies shown below.
 

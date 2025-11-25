@@ -142,7 +142,7 @@ export class ContentSentimentButtons extends LitElement {
     }
 
     private dispatchChangeEvent(detail: SentimentChangeDetail) {
-        this.dispatchEvent(new CustomEvent<SentimentChangeDetail>('sentiment-change', {
+        this.dispatchEvent(new CustomEvent<SentimentChangeDetail>('change', {
             bubbles: true,
             composed: true,
             detail,
