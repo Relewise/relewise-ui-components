@@ -29,9 +29,8 @@ export class FavoriteButtonProducts extends LitElement {
     }
 
     render() {
-        const options = getRelewiseUIOptions();
         const canRender = canRenderUserEngagementAction({
-            enabled: Boolean(options?.userEngagement?.product?.favorite),
+            enabled: Boolean(getRelewiseUIOptions()?.userEngagement?.product?.favorite),
             entityId: this.product?.productId,
             user: this.user,
         });
@@ -42,7 +41,7 @@ export class FavoriteButtonProducts extends LitElement {
             return nothing;
         }
 
-        const localization = options.localization?.favoriteButton;
+        const localization = getRelewiseUIOptions()?.localization?.favoriteButton;
         const label = this.isFavorite
             ? localization?.removeFavorite ?? 'Remove favorite'
             : localization?.addToFavorites ?? 'Add to favorites';
