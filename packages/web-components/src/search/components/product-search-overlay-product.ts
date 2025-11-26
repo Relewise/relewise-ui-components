@@ -1,4 +1,4 @@
-import { ProductResult } from '@relewise/client';
+import { ProductResult, User } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { getRelewiseUISearchOptions } from '../../helpers';
@@ -9,6 +9,9 @@ import { until } from 'lit-html/directives/until.js';
 import { theme } from '../../theme';
 
 export class ProductSearchOverlayProduct extends LitElement {
+
+    @property({ type: Object })
+    user: User | null = null;
 
     @property({ type: Object })
     product: ProductResult | undefined | null = null;
@@ -24,7 +27,7 @@ export class ProductSearchOverlayProduct extends LitElement {
 
         const settings = getRelewiseUISearchOptions();
         if (settings?.templates?.searchOverlayProductResult) {
-            const result = settings.templates.searchOverlayProductResult(this.product, { html, helpers: { ...templateHelpers, formatPrice, unsafeHTML, nothing } });
+            const result = settings.templates.searchOverlayProductResult(this.product, { html, helpers: { ...templateHelpers, formatPrice, unsafeHTML, nothing, user: this.user } });
             const markup = result instanceof Promise ? html`
                 ${until(result.then(result => {
                 if (result === nothing) {
