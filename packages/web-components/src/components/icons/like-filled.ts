@@ -23,8 +23,8 @@ export class LikeFilledIcon extends LitElement {
             height: var(--relewise-icon-height, 1em);
         }
         #svg-icon {
-            width: var(--relewise-icon-width, 1rem);
-            height: var(--relewise-icon-height, 1rem);
+            width: var(--relewise-icon-width, 1em);
+            height: var(--relewise-icon-height, 1em);
         }
     `;
 }
