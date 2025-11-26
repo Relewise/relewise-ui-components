@@ -18,8 +18,9 @@ export class LikeFilledIcon extends LitElement {
 
     static styles = css`
         :host {
-            width: var(--relewise-icon-width, 1rem);
-            height: var(--relewise-icon-height, 1rem);
+            line-height: 1;
+            width: var(--relewise-icon-width, 1em);
+            height: var(--relewise-icon-height, 1em);
         }
         #svg-icon {
             width: var(--relewise-icon-width, 1rem);

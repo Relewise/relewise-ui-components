@@ -49,7 +49,7 @@ export class ProductTile extends LitElement {
 
         const settings = getRelewiseUIOptions();
         if (settings.templates?.product) {
-            const result = settings.templates.product(this.product, { html, helpers: { ...templateHelpers, formatPrice, unsafeHTML, nothing } });
+            const result = settings.templates.product(this.product, { html, helpers: { ...templateHelpers, formatPrice, unsafeHTML, nothing, user: this.user } });
             const markup = result instanceof Promise ? html`
                 ${until(result.then(result => {
                 if (result === nothing) {
@@ -73,20 +73,20 @@ export class ProductTile extends LitElement {
         return html`
             <div class='rw-tile'>
                 ${engagementSettings?.favorite
-                    ? html`<relewise-product-favorite-button
+                ? html`<relewise-product-favorite-button
                         .product=${this.product}
                         .user=${this.user}>
                     </relewise-product-favorite-button>`
-                    : nothing}
+                : nothing}
                 ${url
-                    ? html`<a class='rw-tile-link' href=${url}>${this.renderTileContent(this.product)}</a>`
-                    : html`<div class='rw-tile-link'>${this.renderTileContent(this.product)}</div>`}
+                ? html`<a class='rw-tile-link' href=${url}>${this.renderTileContent(this.product)}</a>`
+                : html`<div class='rw-tile-link'>${this.renderTileContent(this.product)}</div>`}
                 ${engagementSettings?.sentiment
-                    ? html`<relewise-product-sentiment-buttons
+                ? html`<relewise-product-sentiment-buttons
                             .product=${this.product}
                             .user=${this.user}>
                         </relewise-product-sentiment-buttons>`
-                    : nothing}
+                : nothing}
             </div>`;
     }
 
@@ -102,9 +102,9 @@ export class ProductTile extends LitElement {
                     <span>${formatPrice(product.salesPrice)}</span>
 
                     ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
-                        ? html`<span class='rw-list-price'>${formatPrice(product.listPrice)}</span>`
-                        : nothing
-                    }
+                ? html`<span class='rw-list-price'>${formatPrice(product.listPrice)}</span>`
+                : nothing
+            }
                 </div>
             </div>`;
     }
