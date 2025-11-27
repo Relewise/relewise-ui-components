@@ -1,4 +1,4 @@
-import { ProductCategoryResult, ProductCategorySearchResponse, ProductResult, ProductSearchResponse, RedirectResult, SearchCollectionBuilder, SearchTermPredictionBuilder, SearchTermPredictionResponse, SearchTermPredictionResult } from '@relewise/client';
+import { ProductCategoryResult, ProductCategorySearchResponse, ProductResult, ProductSearchResponse, RedirectResult, SearchCollectionBuilder, SearchTermPredictionBuilder, SearchTermPredictionResponse, SearchTermPredictionResult, User } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
@@ -58,6 +58,9 @@ export class ProductSearchOverlay extends LitElement {
 
     @state()
     productSearchResultHits: number = 0;
+
+    @state()
+    user: User | null = null;
 
     private debounceTimeoutHandlerId: ReturnType<typeof setTimeout> | null = null;
     private abortController = new AbortController();
@@ -183,6 +186,7 @@ export class ProductSearchOverlay extends LitElement {
         const relewiseUIOptions = getRelewiseUIOptions();
         const settings = await getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
         const searcher = getSearcher(relewiseUIOptions);
+        this.user = settings.user;
 
         const requestBuilder = new SearchCollectionBuilder()
             .addRequest(createProductSearchBuilder(this.term, settings)
@@ -271,7 +275,8 @@ export class ProductSearchOverlay extends LitElement {
                     .redirectToSearchPage=${() => this.redirectToSearchPage()}
                     .noResultsMessage=${localization?.searchResults?.noResults ?? 'No products found'}
                     .setResultOverlayHovered=${(hovered: boolean) => this.resultBoxIsHovered = hovered}
-                    .hits=${this.productSearchResultHits}>
+                    .hits=${this.productSearchResultHits}
+                    .user=${this.user}>
                     </relewise-product-search-overlay-results> ` : nothing
             }
         `;

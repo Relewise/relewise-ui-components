@@ -47,7 +47,7 @@ export class ContentTile extends LitElement {
 
         const settings = getRelewiseUIOptions();
         if (settings.templates?.content) {
-            const result = settings.templates.content(this.content, { html, helpers: { ...templateHelpers, unsafeHTML, nothing } });
+            const result = settings.templates.content(this.content, { html, helpers: { ...templateHelpers, unsafeHTML, nothing, user: this.user } });
             const markup = result instanceof Promise ? html`
                 ${until(result.then(result => {
                 if (result === nothing) {
@@ -71,20 +71,20 @@ export class ContentTile extends LitElement {
         return html`
             <div class="rw-content-tile${engagementSettings?.favorite ? ' --rw-has-favorite' : ''}">
                 ${engagementSettings?.favorite
-                    ? html`<relewise-content-favorite-button
+                ? html`<relewise-content-favorite-button
                                 .content=${this.content}
                                 .user=${this.user}>
                             </relewise-content-favorite-button>`
-                    : nothing}
+                : nothing}
                 ${url
-                    ? html`<a class='rw-content-link' href=${url}>${this.renderTileContent(this.content)}</a>`
-                    : html`<div class='rw-content-link'>${this.renderTileContent(this.content)}</div>`}
+                ? html`<a class='rw-content-link' href=${url}>${this.renderTileContent(this.content)}</a>`
+                : html`<div class='rw-content-link'>${this.renderTileContent(this.content)}</div>`}
                     ${engagementSettings?.sentiment
-                        ? html`<relewise-content-sentiment-buttons
+                ? html`<relewise-content-sentiment-buttons
                                 .content=${this.content}
                                 .user=${this.user}>
                             </relewise-content-sentiment-buttons>`
-                        : nothing}
+                : nothing}
             </div>`;
     }
 
@@ -95,7 +95,7 @@ export class ContentTile extends LitElement {
         return html`
             <div class="rw-image-container">
                 ${image
-                    ? html`<img class="rw-object-cover" src=${image} alt=${this.getContentImageAlt(content)} />`
+                ? html`<img class="rw-object-cover" src=${image} alt=${this.getContentImageAlt(content)} />`
                 : nothing}
             </div>
             <div class='rw-information-container'>

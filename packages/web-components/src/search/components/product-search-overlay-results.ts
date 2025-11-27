@@ -3,6 +3,7 @@ import { property } from 'lit/decorators.js';
 import { theme } from '../../theme';
 import { SearchResult } from '../product-search-overlay';
 import { getRelewiseUISearchOptions } from '../../helpers';
+import { User } from '@relewise/client';
 
 export class ProductSearchOverlayResults extends LitElement {
 
@@ -26,6 +27,9 @@ export class ProductSearchOverlayResults extends LitElement {
 
     @property()
     setResultOverlayHovered = (hovered: boolean) => { };
+
+    @property({ type: Object })
+    user: User | null = null;
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -70,13 +74,13 @@ export class ProductSearchOverlayResults extends LitElement {
                         ${result.productCategory ?
                             html`
                                 <div class="rw-product-item-container">
-                                    <relewise-product-search-overlay-product-category .productCategory=${result.productCategory}></relewise-product-search-overlay-product-category>
+                                    <relewise-product-search-overlay-product-category .productCategory=${result.productCategory} .user=${this.user}></relewise-product-search-overlay-product-category>
                                 </div>
                             ` : nothing}
                         ${result.product ?
                             html`
                                 <div class="rw-product-item-container">
-                                    <relewise-product-search-overlay-product .product=${result.product}></relewise-product-search-overlay-product>
+                                    <relewise-product-search-overlay-product .product=${result.product} .user=${this.user}></relewise-product-search-overlay-product>
                                 </div>
                             ` : nothing}
                        

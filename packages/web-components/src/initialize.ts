@@ -73,6 +73,7 @@ export interface ContextSettings {
 export type CommonTemplateHelpers = TemplateHelpers & {
     unsafeHTML: typeof unsafeHTML;
     nothing: typeof nothing;
+    user: User | null;
 };
 
 export interface ProductTemplateExtensions {
