@@ -15,6 +15,9 @@ export class ProductSentimentButtons extends LitElement {
     @property({ attribute: false })
     product: ProductResult | null = null;
 
+    @property({ attribute: 'track-on-variant', type: Boolean, reflect: true })
+    trackOnVariant: Boolean = false;
+
     @state()
     private sentiment: 'Like' | 'Dislike' | null = null;
 
@@ -121,7 +124,7 @@ export class ProductSentimentButtons extends LitElement {
                 user: this.user ?? UserFactory.anonymous(),
                 product: {
                     productId: this.product.productId,
-                    variantId: this.product.variant?.variantId,
+                    variantId: this.trackOnVariant ? this.product?.variant?.variantId : null,
                 },
                 engagement: {
                     sentiment: this.sentiment ? this.sentiment : 'Neutral',
