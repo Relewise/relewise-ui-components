@@ -15,6 +15,9 @@ export class FavoriteButtonProducts extends LitElement {
     @property({ attribute: false })
     product: ProductResult | null = null;
 
+    @property({ attribute: 'track-on-variant', type: Boolean, reflect: true })
+    trackOnVariant: Boolean = false;
+
     @state()
     private isWorking = false;
 
@@ -56,9 +59,9 @@ export class FavoriteButtonProducts extends LitElement {
                 title=${label}
                 @click=${this.onToggle}
                 ?disabled=${this.isWorking}>
-                ${this.isFavorite 
-                    ? html`<relewise-heart-filled-icon aria-hidden='true'></relewise-heart-filled-icon>` 
-                    : html`<relewise-heart-icon aria-hidden='true'></relewise-heart-icon>`}
+                ${this.isFavorite
+                ? html`<relewise-heart-filled-icon aria-hidden='true'></relewise-heart-filled-icon>`
+                : html`<relewise-heart-icon aria-hidden='true'></relewise-heart-icon>`}
             </button>`;
     }
 
@@ -73,7 +76,7 @@ export class FavoriteButtonProducts extends LitElement {
         const nextState = !this.isFavorite;
         const options = getRelewiseUIOptions();
         const productId = this.product?.productId;
-        const variantId = this.product?.variant?.variantId;
+        const variantId = this.trackOnVariant ? this.product?.variant?.variantId : null;
         const user = this.user;
         if (!options || !productId || !user || userIsAnonymous(user)) {
             return;
