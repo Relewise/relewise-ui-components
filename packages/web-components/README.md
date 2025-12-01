@@ -895,10 +895,6 @@ Two dedicated favorite button elements are available if you want to embed them o
 
 Both components emit a standard `change` event with `{ isFavorite }` in `detail` whenever the user toggles the button, and reuse the same CSS variables listed below for positioning and appearance.
 
-Additionally, a global event is dispatched on `window` named `relewise-ui-components:user-engagement-changed` whenever either a favorite or sentiment toggle is successfully tracked.
-This event is primarily intended for list components (product or content recommendation/search components) to keep local arrays in sync across the page. The default tile components are intentionally kept lightweight and do not implement global sync logic — they remain presentational and rely on their incoming `product`/`content` property.
-This global event carries the same detail as the local `change` event and is intended to help applications keep consistent UI state across multiple components or recommendation lists that might display the same product/content in different places.
-
 The matching `<relewise-*-sentiment-buttons>` elements dispatch a `change` event with `{ sentiment, entityType, productId?, variantId?, contentId? }` after each successful tracking call so host pages can react to like/dislike toggles.
 
 Set localized `aria-label`/title strings for these controls by passing `localization.favoriteButton` and `localization.sentimentButtons` to `initializeRelewiseUI({ ... })`. Use the same API to customize the like/dislike copy via `localization.sentimentButtons`. Enable the buttons you need through `userEngagement`. If you omit the values we fall back to the default English copies shown below.
