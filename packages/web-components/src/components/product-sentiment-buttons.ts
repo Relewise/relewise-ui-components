@@ -3,7 +3,8 @@ import { LitElement, PropertyValues, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
-import { SentimentChangeDetail } from '../types/userEngagement';
+import { SentimentChangeDetail, FavoriteChangeDetail } from '../types/userEngagement';
+import { Events } from '../helpers/events';
 import { sentimentButtonStyles } from '../helpers/sentimentButtonStyles';
 import { canRenderUserEngagementAction } from '../helpers/userEngagementRenderGuard';
 
@@ -23,6 +24,32 @@ export class ProductSentimentButtons extends LitElement {
 
     @state()
     private isWorking = false;
+
+    private handleUserEngagementChanged = (evt: Event) => {
+        const detail = (evt as CustomEvent).detail as (SentimentChangeDetail | FavoriteChangeDetail | undefined);
+        if (!detail) return;
+        if (detail.entityType && detail.entityType !== 'Product') return;
+        if ((detail as any).productId !== this.product?.productId) return;
+
+        if (this.trackOnVariant && detail.variantId !== undefined && detail.variantId !== this.product?.variant?.variantId) {
+            return;
+        }
+
+        if ((detail as SentimentChangeDetail).sentiment === undefined) return;
+
+        const incoming = (detail as SentimentChangeDetail).sentiment;
+        this.sentiment = incoming === 'Like' || incoming === 'Dislike' ? incoming : null;
+    };
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        try { window.addEventListener(Events.userEngagementChanged, this.handleUserEngagementChanged as EventListener); } catch (e) { /* non-browser */ }
+    }
+
+    disconnectedCallback(): void {
+        try { window.removeEventListener(Events.userEngagementChanged, this.handleUserEngagementChanged as EventListener); } catch (e) { /* non-browser */ }
+        super.disconnectedCallback();
+    }
 
     protected willUpdate(changed: PropertyValues<this>): void {
         if (changed.has('product')) {
@@ -151,6 +178,7 @@ export class ProductSentimentButtons extends LitElement {
             composed: true,
             detail,
         }));
+        try { window.dispatchEvent(new CustomEvent(Events.userEngagementChanged, { detail })); } catch (e) { /* ignore in non-browser envs */ }
     }
 
     static styles = sentimentButtonStyles;

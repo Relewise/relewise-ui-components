@@ -3,7 +3,8 @@ import { LitElement, PropertyValues, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
-import { FavoriteChangeDetail } from '../types/userEngagement';
+import { FavoriteChangeDetail, SentimentChangeDetail } from '../types/userEngagement';
+import { Events } from '../helpers/events';
 import { favoriteButtonStyles } from '../helpers/favoriteButtonStyles';
 import { canRenderUserEngagementAction } from '../helpers/userEngagementRenderGuard';
 
@@ -23,6 +24,31 @@ export class FavoriteButtonProducts extends LitElement {
 
     @state()
     private isFavorite = false;
+
+    private handleUserEngagementChanged = (evt: Event) => {
+        const detail = (evt as CustomEvent).detail as (FavoriteChangeDetail | SentimentChangeDetail | undefined);
+        if (!detail) return;
+        if (detail.entityType && detail.entityType !== 'Product') return;
+        if ((detail as any).productId !== this.product?.productId) return;
+
+        if (this.trackOnVariant && detail.variantId !== undefined && detail.variantId !== this.product?.variant?.variantId) {
+            return;
+        }
+
+        if ((detail as FavoriteChangeDetail).isFavorite === undefined) return;
+
+        this.isFavorite = Boolean((detail as FavoriteChangeDetail).isFavorite);
+    };
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        try { window.addEventListener(Events.userEngagementChanged, this.handleUserEngagementChanged as EventListener); } catch (e) { /* non-browser */ }
+    }
+
+    disconnectedCallback(): void {
+        try { window.removeEventListener(Events.userEngagementChanged, this.handleUserEngagementChanged as EventListener); } catch (e) { /* non-browser */ }
+        super.disconnectedCallback();
+    }
 
     protected willUpdate(changed: PropertyValues<this>): void {
         // Sync the local favourite state to match its userEngagement flag so the button stays accurate.
@@ -118,6 +144,8 @@ export class FavoriteButtonProducts extends LitElement {
             composed: true,
             detail,
         }));
+        // Broadcast globally so other components showing the same product can update their UI.
+        try { window.dispatchEvent(new CustomEvent(Events.userEngagementChanged, { detail })); } catch (e) { /* ignore in non-browser envs */ }
     }
 
     static styles = favoriteButtonStyles;
