@@ -34,11 +34,19 @@ export class FavoriteButtonContent extends LitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
-        try { window.addEventListener(Events.userEngagementChanged, this.handleUserEngagementChanged as EventListener); } catch (e) { /* non-browser */ }
+
+        try {
+            window.addEventListener(Events.userEngagementChanged, this.handleUserEngagementChanged as EventListener);
+        }
+        catch (e) { /* non-browser */ }
     }
 
     disconnectedCallback(): void {
-        try { window.removeEventListener(Events.userEngagementChanged, this.handleUserEngagementChanged as EventListener); } catch (e) { /* non-browser */ }
+        try {
+            window.removeEventListener(Events.userEngagementChanged, this.handleUserEngagementChanged as EventListener);
+        }
+        catch (e) { /* non-browser */ }
+
         super.disconnectedCallback();
     }
 
@@ -131,7 +139,11 @@ export class FavoriteButtonContent extends LitElement {
             composed: true,
             detail,
         }));
-        try { window.dispatchEvent(new CustomEvent(Events.userEngagementChanged, { detail })); } catch (e) { /* ignore in non-browser envs */ }
+
+        try {
+            window.dispatchEvent(new CustomEvent(Events.userEngagementChanged, { detail }));
+        }
+        catch (e) { /* ignore in non-browser envs */ }
     }
 
     static styles = favoriteButtonStyles;
