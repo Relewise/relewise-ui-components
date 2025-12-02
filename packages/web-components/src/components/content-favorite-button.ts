@@ -3,7 +3,8 @@ import { LitElement, PropertyValues, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
-import { FavoriteChangeDetail } from '../types/userEngagement';
+import { FavoriteChangeDetail, SentimentChangeDetail } from '../types/userEngagement';
+import { Events } from '../helpers/events';
 import { favoriteButtonStyles } from '../helpers/favoriteButtonStyles';
 import { canRenderUserEngagementAction } from '../helpers/userEngagementRenderGuard';
 
@@ -20,6 +21,34 @@ export class FavoriteButtonContent extends LitElement {
 
     @state()
     private isFavorite = false;
+
+    private handleUserEngagementChanged = (evt: Event) => {
+        const detail = (evt as CustomEvent).detail as (FavoriteChangeDetail | SentimentChangeDetail | undefined);
+        if (!detail) return;
+        if (detail.entityType && detail.entityType !== 'Content') return;
+        if ((detail as any).contentId !== this.content?.contentId) return;
+        if ((detail as FavoriteChangeDetail).isFavorite === undefined) return;
+
+        this.isFavorite = Boolean((detail as FavoriteChangeDetail).isFavorite);
+    };
+
+    connectedCallback(): void {
+        super.connectedCallback();
+
+        try {
+            window.addEventListener(Events.userEngagementChanged, this.handleUserEngagementChanged as EventListener);
+        }
+        catch (e) { /* non-browser */ }
+    }
+
+    disconnectedCallback(): void {
+        try {
+            window.removeEventListener(Events.userEngagementChanged, this.handleUserEngagementChanged as EventListener);
+        }
+        catch (e) { /* non-browser */ }
+
+        super.disconnectedCallback();
+    }
 
     protected willUpdate(changed: PropertyValues<this>): void {
         // Sync the local favourite state to match its userEngagement flag so the button stays accurate.
@@ -56,9 +85,9 @@ export class FavoriteButtonContent extends LitElement {
                 title=${label}
                 @click=${this.onToggle}
                 ?disabled=${this.isWorking}>
-                ${this.isFavorite 
-                    ? html`<relewise-heart-filled-icon aria-hidden='true'></relewise-heart-filled-icon>` 
-                    : html`<relewise-heart-icon aria-hidden='true'></relewise-heart-icon>`}
+                ${this.isFavorite
+                ? html`<relewise-heart-filled-icon aria-hidden='true'></relewise-heart-filled-icon>`
+                : html`<relewise-heart-icon aria-hidden='true'></relewise-heart-icon>`}
             </button>`;
     }
 
@@ -110,6 +139,11 @@ export class FavoriteButtonContent extends LitElement {
             composed: true,
             detail,
         }));
+
+        try {
+            window.dispatchEvent(new CustomEvent(Events.userEngagementChanged, { detail }));
+        }
+        catch (e) { /* ignore in non-browser envs */ }
     }
 
     static styles = favoriteButtonStyles;

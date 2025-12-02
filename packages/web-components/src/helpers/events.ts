@@ -8,4 +8,5 @@ export const Events = {
     dimPreviousResult: 'relewise-ui-components:dim-previous-result',
     searchingForProductsCompleted: 'relewise-ui-components:search-for-products-completed',
     registerProductRecommendation: 'relewise-ui-components:register-product-recommendation-component',
+    userEngagementChanged: 'relewise-ui-components:user-engagement-changed',
 };
