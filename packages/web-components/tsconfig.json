@@ -10,6 +10,7 @@
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "skipLibCheck": true,
+    "outDir": "./dist",
     "plugins": [
       {
         "name": "ts-lit-plugin"
