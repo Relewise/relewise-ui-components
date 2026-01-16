@@ -15,7 +15,10 @@ export default [
             sourcemap: true,
         },
         plugins: [
-            typescript({ tsconfig: './tsconfig.json' }),
+            typescript({
+                tsconfig: './tsconfig.json',
+                tsconfigOverride: { compilerOptions: { outDir: './dist/browser' } },
+            }),
             resolve(),
             commonjs(),
         ],
