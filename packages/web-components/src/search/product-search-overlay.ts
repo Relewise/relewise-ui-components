@@ -132,7 +132,7 @@ export class ProductSearchOverlay extends LitElement {
             return false;
         }
         const url = new URL(this.searchPageUrl, window.location.href);
-        url.searchParams.set('rw-term', termOverride ?? this.term ?? '');
+        url.searchParams.set('rw-term', termOverride ?? this.term);
         window.location.href = url.toString();
         return true;
     }
