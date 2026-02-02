@@ -32,6 +32,9 @@ export class ProductSearchOverlay extends LitElement {
     @property({ attribute: 'search-page-url' })
     searchPageUrl?: string = undefined;
 
+    @property({ type: Boolean, attribute: 'navigate-on-suggestion' })
+    navigateOnSuggestion = false;
+
     @property({ type: Boolean, reflect: true })
     autofocus = false;
 
@@ -121,11 +124,17 @@ export class ProductSearchOverlay extends LitElement {
         }
     }
 
-    redirectToSearchPage() {
-        if (!this.searchPageUrl) return;
+    redirectToSearchPage(termOverride?: string): boolean {
+        if (!this.searchPageUrl) {
+            if (termOverride) {
+                console.warn('[Relewise] navigate-on-suggestion requires search-page-url. Falling back to autofill.');
+            }
+            return false;
+        }
         const url = new URL(this.searchPageUrl, window.location.href);
-        url.searchParams.set('rw-term', this.term);
+        url.searchParams.set('rw-term', termOverride ?? this.term ?? '');
         window.location.href = url.toString();
+        return true;
     }
 
     handleActionOnResult(result?: SearchResult) {
@@ -133,7 +142,15 @@ export class ProductSearchOverlay extends LitElement {
             if (!this.searchPageUrl) return;
             this.redirectToSearchPage();
         } else if (result?.searchTermPrediction) {
-            this.setSearchTerm(result.searchTermPrediction.term ?? '');
+            const term = result.searchTermPrediction.term ?? '';
+            if (this.navigateOnSuggestion) {
+                const navigated = this.redirectToSearchPage(term);
+                if (!navigated) {
+                    this.setSearchTerm(term);
+                }
+            } else {
+                this.setSearchTerm(term);
+            }
         } else if (result?.productCategory) {
             const selectedCategory = this.shadowRoot!
                 .querySelector('relewise-product-search-overlay-results')
@@ -272,11 +289,12 @@ export class ProductSearchOverlay extends LitElement {
                     .selectedIndex=${this.selectedIndex}
                     .results=${this.results} 
                     .setSearchTerm=${(term: string) => this.setSearchTerm(term)}
-                    .redirectToSearchPage=${() => this.redirectToSearchPage()}
+                    .redirectToSearchPage=${(term?: string) => this.redirectToSearchPage(term)}
                     .noResultsMessage=${localization?.searchResults?.noResults ?? 'No products found'}
                     .setResultOverlayHovered=${(hovered: boolean) => this.resultBoxIsHovered = hovered}
                     .hits=${this.productSearchResultHits}
-                    .user=${this.user}>
+                    .user=${this.user}
+                    .navigateOnSuggestion=${this.navigateOnSuggestion}>
                     </relewise-product-search-overlay-results> ` : nothing
             }
         `;

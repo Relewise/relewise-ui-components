@@ -601,6 +601,10 @@ useSearch({
 
     The url of your search page. When provided, an option to go to the search page will be present, when results are found.
 
+- **navigate-on-suggestion** (Optional, true/false, *Default false*):
+
+    When true, clicking a search term suggestion immediately redirects to the configured search page using that term. Requires **search-page-url** to be set; otherwise the overlay falls back to autofilling the input and logs a warning.
+
 - **debounce-time** (Optional, *Default 250*): 
 
     The amount of time, in milliseconds, that must pass between requests to Relewise with a new search call.
