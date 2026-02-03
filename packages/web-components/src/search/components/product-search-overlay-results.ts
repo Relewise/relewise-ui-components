@@ -11,7 +11,7 @@ export class ProductSearchOverlayResults extends LitElement {
     setSearchTerm = (term: string) => { };
 
     @property()
-    redirectToSearchPage = () => { };
+    redirectToSearchPage: (term?: string) => boolean = () => false;
 
     @property({ type: Number })
     hits = 0;
@@ -33,6 +33,21 @@ export class ProductSearchOverlayResults extends LitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
+    }
+
+    @property({ type: Boolean })
+    navigateOnSuggestion = false;
+
+    private handleSuggestionClick(term: string) {
+        if (this.navigateOnSuggestion) {
+            const navigated = this.redirectToSearchPage(term);
+            if (!navigated) {
+                this.setSearchTerm(term);
+            }
+            return;
+        }
+
+        this.setSearchTerm(term);
     }
 
     render() {
@@ -64,7 +79,7 @@ export class ProductSearchOverlayResults extends LitElement {
                             </div>` : nothing}
                         ${result.searchTermPrediction ?
                             html`
-                                <div class="rw-item-container" @click=${() => this.setSearchTerm(result.searchTermPrediction!.term ?? '')}>
+                                <div class="rw-item-container" @click=${() => this.handleSuggestionClick(result.searchTermPrediction!.term ?? '')}>
                                     <span class="rw-item">
                                         ${result.searchTermPrediction.term}
                                     </span>
