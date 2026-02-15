@@ -1,0 +1,4 @@
+interface:
+  display_name: "Upgrade Dependencies"
+  short_description: "Upgrade npm dependencies with strict main-branch safety, Trello requirement, validation, and PR flow"
+  default_prompt: "Run safe npm dependency upgrades from main for relewise-ui-components: verify clean tree, update main with fast-forward, require a Trello card URL (ask if missing), create chore/upgrade-dependencies-yyyyMM branch, discover package.json manifests, upgrade direct dependencies and devDependencies to latest stable, resolve manageable compatibility fallout, validate with npm run build, npm run build:types, and npm run test in packages/web-components, then push and open PR to main with Trello URL at the top of the PR description."
