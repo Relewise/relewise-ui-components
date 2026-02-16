@@ -33,7 +33,7 @@
     "publish": "npm run build && npm run build:types"
   },
   "dependencies": {
-    "@lit/context": "^1.1.6",
+    "@lit/context": ">=1.1.6 <2.0.0",
     "lit": ">=3.3.1 <4.0.0"
   },
   "peerDependencies": {
