@@ -12,7 +12,7 @@ export class ProductSearchSorting extends LitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.selectedOption = this.getSelectedOptionId();
+        this.selectedOption = readCurrentUrlState(QueryKeys.sortBy);
         window.addEventListener(Events.search, this.readSortingFromUrlBound);
     }
 
@@ -22,7 +22,7 @@ export class ProductSearchSorting extends LitElement {
     }
 
     readSortingFromUrl() {
-        this.selectedOption = this.getSelectedOptionId();
+        this.selectedOption = readCurrentUrlState(QueryKeys.sortBy);
     }
 
     setSelectedValue(event: Event) {
@@ -30,13 +30,6 @@ export class ProductSearchSorting extends LitElement {
         this.selectedOption = selectElement.value;
         updateUrlState(QueryKeys.sortBy, this.selectedOption);
         window.dispatchEvent(new CustomEvent(Events.applySorting));
-    }
-
-    getSelectedOptionId(): string | null {
-        return getSearchSortingSelection(
-            readCurrentUrlState(QueryKeys.sortBy),
-            getRelewiseUISearchOptions()?.sorting,
-        )?.id ?? null;
     }
 
     getOptionText(option: SearchSortingOption): string {
@@ -50,6 +43,7 @@ export class ProductSearchSorting extends LitElement {
             return nothing;
         }
 
+        const selectedOptionId = this.selectedOption ?? options[0].id ?? null;
         const localization = getRelewiseUISearchOptions()?.localization?.sortingButton;
         return html`
             <label class="rw-label-wrapper">
@@ -57,7 +51,7 @@ export class ProductSearchSorting extends LitElement {
                 <select @change=${this.setSelectedValue} class="rw-select rw-border" part="select">
                 ${options.map((item) => {
             return html`
-                        <option value=${item.id} ?selected=${this.selectedOption === item.id}>
+                        <option value=${item.id} ?selected=${selectedOptionId === item.id}>
                             <span>${this.getOptionText(item)}</span>
                         </option>
                     `;

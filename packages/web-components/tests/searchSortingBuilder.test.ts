@@ -3,7 +3,8 @@ import { ProductSortingBuilder } from '@relewise/client';
 import { getSearchSortingOptions, getSearchSortingSelection, SearchSortingOptionsBuilder, SortingEnum } from '../src';
 
 function buildSortingValue(selectedOptionId: string | null | undefined, configure?: (builder: SearchSortingOptionsBuilder) => void) {
-    const selectedOption = getSearchSortingSelection(selectedOptionId, configure);
+    const options = getSearchSortingOptions(configure);
+    const selectedOption = getSearchSortingSelection(options, selectedOptionId);
     const builder = new ProductSortingBuilder();
 
     selectedOption?.apply(builder);
@@ -103,7 +104,13 @@ suite('searchSortingBuilder', () => {
         assert.deepEqual(result, expected.build());
     });
 
-    test('unknown selection falls back to relevance when configured', () => {
+    test('selection returns null when no options exist', () => {
+        const result = getSearchSortingSelection([], 'unknown');
+
+        assert.isNull(result);
+    });
+
+    test('selection falls back to the first option when the id is not found', () => {
         const expected = new ProductSortingBuilder();
         expected.sortByProductRelevance('Descending', thenBy => thenBy.sortByProductRelevance());
 
@@ -112,21 +119,24 @@ suite('searchSortingBuilder', () => {
         assert.deepEqual(result, expected.build());
     });
 
-    test('unknown selection falls back to the first configured option when relevance is removed', () => {
-        const selected = getSearchSortingSelection('unknown', builder => builder
-            .clear()
-            .addProductData({
-                label: 'Rating',
-                key: 'Rating',
-                selectionStrategy: 'Product',
-                order: 'Descending',
-            })
-            .addProductData({
-                label: 'Stock',
-                key: 'Stock',
-                selectionStrategy: 'Product',
-                order: 'Ascending',
-            }));
+    test('selection falls back to the first configured option when relevance is removed', () => {
+        const selected = getSearchSortingSelection(
+            getSearchSortingOptions(builder => builder
+                .clear()
+                .addProductData({
+                    label: 'Rating',
+                    key: 'Rating',
+                    selectionStrategy: 'Product',
+                    order: 'Descending',
+                })
+                .addProductData({
+                    label: 'Stock',
+                    key: 'Stock',
+                    selectionStrategy: 'Product',
+                    order: 'Ascending',
+                })),
+            'unknown',
+        );
 
         assert.equal(selected!.id, 'ProductData:Rating:Product:Descending:Auto');
     });

@@ -8,7 +8,7 @@ import { getSearcher } from './searcher';
 import { Facet } from './types';
 import { RelewiseFacetBuilder } from '../facetBuilder';
 import { createProductSearchBuilder } from '../builders';
-import { getSearchSortingSelection } from './searchSortingBuilder';
+import { getSearchSortingOptions, getSearchSortingSelection } from './searchSortingBuilder';
 
 export class ProductSearch extends LitElement {
 
@@ -135,10 +135,8 @@ export class ProductSearch extends LitElement {
                 }
             })
             .sorting(builder => {
-                const sorting = getSearchSortingSelection(
-                    readCurrentUrlState(QueryKeys.sortBy),
-                    searchOptions?.sorting,
-                );
+                const sortingOptions = getSearchSortingOptions(searchOptions?.sorting);
+                const sorting = getSearchSortingSelection(sortingOptions, readCurrentUrlState(QueryKeys.sortBy));
 
                 if (sorting) {
                     sorting.apply(builder);

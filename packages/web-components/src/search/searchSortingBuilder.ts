@@ -159,10 +159,9 @@ export function getSearchSortingOptions(configure?: (builder: SearchSortingOptio
 }
 
 export function getSearchSortingSelection(
+    options: SearchSortingOption[],
     selectedOptionId: string | null | undefined,
-    configure?: (builder: SearchSortingOptionsBuilder) => void,
 ): SearchSortingOption | null {
-    const options = getSearchSortingOptions(configure);
     if (options.length < 1) {
         return null;
     }
@@ -174,5 +173,5 @@ export function getSearchSortingSelection(
         }
     }
 
-    return options.find(option => option.id === SortingEnum.Relevance) ?? options[0];
+    return options[0];
 }
