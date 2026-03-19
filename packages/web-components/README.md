@@ -515,6 +515,42 @@ addFilters({
 
 The provided callbacks are composed with the filters defined during initialization as well as any previous `addFilters` calls, ensuring all filters run for subsequent requests.
 
+#### Sorting
+To configure which sorting options should be available in product search, call `useSearch` with a sorting builder.
+
+By default, the builder starts with the built-in sorting options already configured. Call `clear()` if you want to replace them completely.
+
+```ts
+useSearch({
+    sorting: sorting => sorting
+        .clear()
+        .addRelevance()
+        .addBrandAscending()
+        .addPopularityDescending()
+        .addProductData({
+            label: 'Rating',
+            key: 'Rating',
+            selectionStrategy: 'Product',
+            order: 'Descending',
+            mode: 'Numerical',
+        }),
+});
+```
+
+You can also extend the default sorting menu without clearing it first.
+
+```ts
+useSearch({
+    sorting: sorting => sorting.addProductData({
+        label: 'Stock',
+        key: 'Stock',
+        selectionStrategy: 'Product',
+        order: 'Ascending',
+        mode: 'Numerical',
+    }),
+});
+```
+
 #### Localization
 To overwrite words and sentences used by the search components, call the `useSearch` function with the desired localization configuration.
 
@@ -550,6 +586,10 @@ useSearch({
             sortBy: "Sort by:"
             alphabeticalAscending: 'a - z',
             alphabeticalDescending: 'z - a',
+            brandAscending: 'brand a - z',
+            brandDescending: 'brand z - a',
+            popularityAscending: 'least popular',
+            popularityDescending: 'most popular',
             relevance: 'Relevance',
             salesPriceAscending: 'low - high',
             salesPriceDescending: 'high - low',
@@ -792,7 +832,7 @@ The component will search as the user types or presses the search button.
 ```
 
 ###### Sorting
-Renders a sorting button with options in an overlay.
+Renders a sorting button with options configured through `useSearch({ sorting: ... })`.
 
 ```html
 <relewise-product-search-sorting></relewise-product-search-sorting>

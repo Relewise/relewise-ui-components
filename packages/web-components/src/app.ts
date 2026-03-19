@@ -36,11 +36,13 @@ import { LikeIcon } from './components/icons/like';
 import { LikeFilledIcon } from './components/icons/like-filled';
 import { DislikeIcon } from './components/icons/dislike';
 import { DislikeFilledIcon } from './components/icons/dislike-filled';
+import { SearchSortingOptionsBuilder } from './search/searchSortingBuilder';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
     templates?: SearchTemplates;
     facets?: SearchFacets;
+    sorting?: (builder: SearchSortingOptionsBuilder) => void;
     localization?: SearchLocalization;
     rememberScrollPosition?: boolean;
     debounceTimeInMs?: number;
@@ -74,6 +76,10 @@ export interface SortingLocalization {
     salesPriceDescending?: string;
     alphabeticalAscending?: string;
     alphabeticalDescending?: string;
+    brandAscending?: string;
+    brandDescending?: string;
+    popularityAscending?: string;
+    popularityDescending?: string;
 }
 
 export interface LoadMoreLocalization {

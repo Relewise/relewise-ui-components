@@ -1,18 +1,18 @@
-import { LitElement, css, html } from 'lit';
+import { LitElement, css, html, nothing } from 'lit';
 import { state } from 'lit/decorators.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../helpers';
 import { theme } from '../../theme';
-import { SortingEnum } from '../enums';
+import { getSearchSortingOptions, getSearchSortingSelection, SearchSortingOption } from '../searchSortingBuilder';
 
 export class ProductSearchSorting extends LitElement {
     @state()
-    selectedOption: string = SortingEnum.Relevance;
+    selectedOption: string | null = null;
 
     readSortingFromUrlBound = this.readSortingFromUrl.bind(this);
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.selectedOption = readCurrentUrlState(QueryKeys.sortBy) ?? SortingEnum.Relevance;
+        this.selectedOption = this.getSelectedOptionId();
         window.addEventListener(Events.search, this.readSortingFromUrlBound);
     }
 
@@ -22,7 +22,7 @@ export class ProductSearchSorting extends LitElement {
     }
 
     readSortingFromUrl() {
-        this.selectedOption = readCurrentUrlState(QueryKeys.sortBy) ?? SortingEnum.Relevance;
+        this.selectedOption = this.getSelectedOptionId();
     }
 
     setSelectedValue(event: Event) {
@@ -32,36 +32,32 @@ export class ProductSearchSorting extends LitElement {
         window.dispatchEvent(new CustomEvent(Events.applySorting));
     }
 
-    getOptionText(sortingValue: string): string {
+    getSelectedOptionId(): string | null {
+        return getSearchSortingSelection(
+            readCurrentUrlState(QueryKeys.sortBy),
+            getRelewiseUISearchOptions()?.sorting,
+        )?.id ?? null;
+    }
 
-        const sortingEnum = SortingEnum[sortingValue as keyof typeof SortingEnum];
+    getOptionText(option: SearchSortingOption): string {
         const localization = getRelewiseUISearchOptions()?.localization?.sortingButton;
-
-        switch (sortingEnum) {
-            case SortingEnum.SalesPriceAsc:
-                return localization?.salesPriceAscending ?? 'Price: low - high';
-            case SortingEnum.SalesPriceDesc:
-                return localization?.salesPriceDescending ?? 'Price: high - low';
-            case SortingEnum.AlphabeticallyAsc:
-                return localization?.alphabeticalAscending ?? 'Name: a - z';
-            case SortingEnum.AlphabeticallyDesc:
-                return localization?.alphabeticalDescending ?? 'Name: z - a';
-            case SortingEnum.Relevance:
-                return localization?.relevance ?? 'Relevance';
-            default:
-                return '';
-        }
+        return option.getLabel(localization);
     }
 
     render() {
+        const options = getSearchSortingOptions(getRelewiseUISearchOptions()?.sorting);
+        if (options.length < 1) {
+            return nothing;
+        }
+
         const localization = getRelewiseUISearchOptions()?.localization?.sortingButton;
         return html`
             <label class="rw-label-wrapper">
                 <span class="rw-label" part="label">${localization?.sortBy ?? 'Sort by:'}</span>
                 <select @change=${this.setSelectedValue} class="rw-select rw-border" part="select">
-                ${Object.keys(SortingEnum).map((item) => {
+                ${options.map((item) => {
             return html`
-                        <option value=${item} ?selected=${this.selectedOption === item}>
+                        <option value=${item.id} ?selected=${this.selectedOption === item.id}>
                             <span>${this.getOptionText(item)}</span>
                         </option>
                     `;
