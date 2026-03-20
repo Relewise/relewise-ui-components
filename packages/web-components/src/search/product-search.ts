@@ -118,6 +118,7 @@ export class ProductSearch extends LitElement {
         const targetedConfiguration = getRelewiseSearchTargetedConfigurations();
         const searchOptions = getRelewiseUISearchOptions();
         const searcher = getSearcher(relewiseUIOptions);
+        const sortingOptions = getSearchSortingOptions(searchOptions?.sorting);
 
         // Wait a tick so runtime filter extensions can run before the first automatic search executes.
         await new Promise(r => setTimeout(r, 0));
@@ -135,7 +136,6 @@ export class ProductSearch extends LitElement {
                 }
             })
             .sorting(builder => {
-                const sortingOptions = getSearchSortingOptions(searchOptions?.sorting);
                 const sorting = getSearchSortingSelection(sortingOptions, readCurrentUrlState(QueryKeys.sortBy));
 
                 if (sorting) {
@@ -275,6 +275,14 @@ export class ProductSearch extends LitElement {
                     node.setAttribute('labels', JSON.stringify(this.facetLabels));
                 }
 
+                if (node.tagName.toLowerCase() === 'relewise-product-search-sorting') {
+                    if (this.target) {
+                        node.setAttribute('target', this.target);
+                    } else {
+                        node.removeAttribute('target');
+                    }
+                }
+
                 if (node.children.length > 0) {
                     this.setDataOnNodes(Array.from(node.childNodes));
                 }
@@ -318,7 +326,7 @@ export class ProductSearch extends LitElement {
                     <div class="rw-sorting-container">
                      <span class="rw-results-text">${this.searchResult?.hits ?? 0} ${this.searchResult?.hits === 1 ? localization?.result ?? "Result" : localization?.results ?? "Results"}</span>
                      <div class="rw-sorting-button-container">
-                        <relewise-product-search-sorting class="rw-sorting-button" exportparts="select: sorting-select, label: sorting-label"></relewise-product-search-sorting>
+                        <relewise-product-search-sorting .target=${this.target} class="rw-sorting-button" exportparts="select: sorting-select, label: sorting-label"></relewise-product-search-sorting>
                         </div>
                     </div>` : nothing}
                  

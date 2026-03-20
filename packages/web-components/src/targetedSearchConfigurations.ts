@@ -1,11 +1,14 @@
 import { FilterBuilder, ProductSearchBuilder, RelevanceModifierBuilder } from '@relewise/client';
+import { QueryKeys, readCurrentUrlState } from './helpers/urlState';
 import { RelewiseFacetBuilder } from './facetBuilder';
+import { SearchSortingOption, SearchSortingOptionsBuilder, getSearchSortingOptions, getSearchSortingSelection } from './search/searchSortingBuilder';
 
 
 export type TargetedSearchConfiguration = {
-  overwriteFacets?: (builder: RelewiseFacetBuilder) => void,
-  filters?: (builder: FilterBuilder) => void;
-  relevanceModifiers?: (builder: RelevanceModifierBuilder) => void;
+    overwriteFacets?: (builder: RelewiseFacetBuilder) => void,
+    overwriteSorting?: (builder: SearchSortingOptionsBuilder) => void,
+    filters?: (builder: FilterBuilder) => void;
+    relevanceModifiers?: (builder: RelevanceModifierBuilder) => void;
 };
 
 export class TargetedSearchConfigurations {
@@ -30,9 +33,14 @@ export class TargetedSearchConfigurations {
         return this.templates.has(target);
     }
 
-    hasOverwrittenFacets(target: string): boolean {
-        const config = this.templates.get(target);
-        return typeof config?.overwriteFacets === 'function';
+    getSortingOptions(target: string): SearchSortingOption[] | undefined {
+        const configuration = this.templates.get(target);
+
+        if (!configuration?.overwriteSorting) {
+            return undefined;
+        }
+
+        return getSearchSortingOptions(configuration.overwriteSorting);
     }
 
     handle(target: string, builder: ProductSearchBuilder): { facetLabels?: string[] } {
@@ -46,12 +54,26 @@ export class TargetedSearchConfigurations {
         }
 
         let facetLabels: string[] | undefined = undefined;
-        if (this.hasOverwrittenFacets(target) && configuration.overwriteFacets) {
+        if (configuration.overwriteFacets) {
             builder.facets(b => b.clear());
             builder.facets(b => {
                 const facetBuilder = new RelewiseFacetBuilder(b);
                 configuration.overwriteFacets!(facetBuilder);
                 facetLabels = facetBuilder.getLabels();
+            });
+        }
+
+        if (configuration.overwriteSorting) {
+            const sortingOptions = this.getSortingOptions(target) ?? [];
+            const selectedSorting = getSearchSortingSelection(sortingOptions, readCurrentUrlState(QueryKeys.sortBy));
+
+            builder.sorting(sortingBuilder => {
+                if (selectedSorting) {
+                    selectedSorting.apply(sortingBuilder);
+                    return;
+                }
+
+                sortingBuilder.sortByProductRelevance();
             });
         }
 
@@ -62,7 +84,7 @@ export class TargetedSearchConfigurations {
         if (configuration.relevanceModifiers) {
             builder.relevanceModifiers(b => configuration.relevanceModifiers!(b));
         }
-        
+
         return {
             facetLabels: facetLabels,
         };

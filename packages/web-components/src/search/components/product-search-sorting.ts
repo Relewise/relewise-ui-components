@@ -1,10 +1,13 @@
 import { LitElement, css, html, nothing } from 'lit';
-import { state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../helpers';
 import { theme } from '../../theme';
-import { getSearchSortingOptions, getSearchSortingSelection, SearchSortingOption } from '../searchSortingBuilder';
+import { getSearchSortingOptions, SearchSortingOption } from '../searchSortingBuilder';
 
 export class ProductSearchSorting extends LitElement {
+    @property({ type: String, attribute: 'target' })
+    target: string | null = null;
+
     @state()
     selectedOption: string | null = null;
 
@@ -37,8 +40,19 @@ export class ProductSearchSorting extends LitElement {
         return option.getLabel(localization);
     }
 
+    getOptions(): SearchSortingOption[] {
+        if (this.target) {
+            const targetedOptions = window.relewiseUISearchTargetedConfigurations?.getSortingOptions(this.target);
+            if (targetedOptions) {
+                return targetedOptions;
+            }
+        }
+
+        return getSearchSortingOptions(getRelewiseUISearchOptions()?.sorting);
+    }
+
     render() {
-        const options = getSearchSortingOptions(getRelewiseUISearchOptions()?.sorting);
+        const options = this.getOptions();
         if (options.length < 1) {
             return nothing;
         }

@@ -1,13 +1,19 @@
 import { assert, fixture, html } from '@open-wc/testing';
-import { clearUrlState, ProductSearchSorting, QueryKeys, readCurrentUrlState, updateUrlState, useSearch } from '../src';
+import { ProductSortingBuilder, Searcher } from '@relewise/client';
+import { clearUrlState, initializeRelewiseUI, ProductSearch, ProductSearchSorting, QueryKeys, readCurrentUrlState, registerSearchTarget, SortingEnum, updateUrlState, useSearch } from '../src';
+import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('product-search-sorting', () => {
+    const originalSearchProducts = Searcher.prototype.searchProducts;
+
     setup(() => {
         clearUrlState();
+        Searcher.prototype.searchProducts = originalSearchProducts;
     });
 
     teardown(() => {
         clearUrlState();
+        Searcher.prototype.searchProducts = originalSearchProducts;
     });
 
     test('renders the seeded default sorting options', async () => {
@@ -125,5 +131,107 @@ suite('product-search-sorting', () => {
         const select = element.shadowRoot!.querySelector('select') as HTMLSelectElement;
 
         assert.equal(select.value, 'ProductData:Rating:Product:Descending:Auto');
+    });
+
+    test('renders targeted sorting options when a target overrides sorting', async () => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            sorting: builder => builder
+                .clear()
+                .addRelevance(),
+        });
+
+        registerSearchTarget('campaign', {
+            overwriteSorting: builder => builder
+                .clear()
+                .addBrandAscending()
+                .addPopularityDescending(),
+        });
+
+        const element = await fixture<ProductSearchSorting>(html`
+            <relewise-product-search-sorting target="campaign"></relewise-product-search-sorting>
+        `);
+
+        const options = Array.from(element.shadowRoot!.querySelectorAll('option')).map(option => option.value);
+
+        assert.deepEqual(options, [
+            SortingEnum.BrandAsc,
+            SortingEnum.PopularityDesc,
+        ]);
+    });
+
+    test('falls back to the first targeted option when the URL contains an unknown id for that target', async () => {
+        updateUrlState(QueryKeys.sortBy, SortingEnum.Relevance);
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            sorting: builder => builder
+                .clear()
+                .addRelevance(),
+        });
+
+        registerSearchTarget('campaign', {
+            overwriteSorting: builder => builder
+                .clear()
+                .addProductData({
+                    label: 'Rating',
+                    key: 'Rating',
+                    selectionStrategy: 'Product',
+                    order: 'Descending',
+                })
+                .addPopularityDescending(),
+        });
+
+        const element = await fixture<ProductSearchSorting>(html`
+            <relewise-product-search-sorting target="campaign"></relewise-product-search-sorting>
+        `);
+
+        const select = element.shadowRoot!.querySelector('select') as HTMLSelectElement;
+
+        assert.equal(select.value, 'ProductData:Rating:Product:Descending:Auto');
+    });
+
+    test('uses targeted sorting for the product search request when a target overrides sorting', async () => {
+        let capturedRequest: { sorting?: unknown } | null = null;
+
+        Searcher.prototype.searchProducts = async function(request) {
+            capturedRequest = request;
+
+            return {
+                hits: 0,
+                results: [],
+                facets: null,
+            } as any;
+        };
+
+        updateUrlState(QueryKeys.sortBy, SortingEnum.PopularityDesc);
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            sorting: builder => builder
+                .clear()
+                .addRelevance(),
+        });
+
+        registerSearchTarget('campaign', {
+            overwriteSorting: builder => builder
+                .clear()
+                .addBrandAscending()
+                .addPopularityDescending(),
+        });
+
+        await fixture<ProductSearch>(html`
+            <relewise-product-search
+                target="campaign"
+                displayed-at-location="PLP">
+            </relewise-product-search>
+        `);
+
+        await new Promise(resolve => setTimeout(resolve, 10));
+
+        const expectedSorting = new ProductSortingBuilder();
+        expectedSorting.sortByProductPopularity('Descending', thenBy => thenBy.sortByProductRelevance());
+
+        assert.deepEqual((capturedRequest as any)?.sorting, expectedSorting.build());
     });
 });
