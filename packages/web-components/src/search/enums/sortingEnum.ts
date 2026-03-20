@@ -4,4 +4,8 @@ export enum SortingEnum {
     SalesPriceDesc = 'SalesPriceDesc',
     AlphabeticallyAsc = 'AlphabeticallyAsc',
     AlphabeticallyDesc = 'AlphabeticallyDesc',
+    BrandAsc = 'BrandAsc',
+    BrandDesc = 'BrandDesc',
+    PopularityAsc = 'PopularityAsc',
+    PopularityDesc = 'PopularityDesc',
 }
