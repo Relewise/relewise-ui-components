@@ -834,6 +834,8 @@ The component will search as the user types or presses the search button.
 ###### Sorting
 Renders a sorting button with options configured through `useSearch({ sorting: ... })`.
 
+If the component is used with a `target` attribute, it will render sorting options configured for that targeted search instead.
+
 ```html
 <relewise-product-search-sorting></relewise-product-search-sorting>
 ```
@@ -864,7 +866,7 @@ Renders button that will load more results once pressed.
 ```
 
 #### Targeted Search
-You can target specific search components to ensure certain filters and/or relevance modifiers are only applied to the target and overwrite the facets used. This can be done by calling `registerSearchTarget` either during initialization or afterwards by calling the function independently.
+You can target specific search components to ensure certain filters and/or relevance modifiers are only applied to the target and overwrite the facets and sorting options used. This can be done by calling `registerSearchTarget` either during initialization or afterwards by calling the function independently.
 
 ```ts
 initializeRelewiseUI(
@@ -877,6 +879,12 @@ initializeRelewiseUI(
                     configuration: {
                         overwriteFacets(facetBuilder) {
                             facetBuilder.addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Sales price' });
+                        },
+                        overwriteSorting(sortingBuilder) {
+                            sortingBuilder
+                                .clear()
+                                .addBrandAscending()
+                                .addPopularityDescending();
                         },
                         filters(filterBuilder) {
                             filterBuilder.addProductCategoryIdFilter('ImmediateParent', ['4797']);
@@ -897,6 +905,12 @@ registerSearchTarget('target', {
     overwriteFacets(builder) {
         builder.addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Sales price' });
     },
+    overwriteSorting(builder) {
+        builder
+            .clear()
+            .addBrandAscending()
+            .addPopularityDescending();
+    },
     filters(builder) {
         builder.addProductCategoryIdFilter('ImmediateParent', ['4797']);
     },
@@ -913,6 +927,8 @@ To specify which search component the configuration should be applied to, simply
 ```
 
 ***Note: The target must match the target specified when calling `registerSearchTarget`!***
+
+When sorting is overwritten for a target, the targeted product-search request and its rendered sorting dropdown will both use that targeted sorting configuration.
 
 ## User engagement
 Enable optional like/dislike and favorite interactions by providing the `userEngagement` option when initialising Relewise UI.

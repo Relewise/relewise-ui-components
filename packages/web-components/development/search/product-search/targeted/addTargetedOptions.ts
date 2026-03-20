@@ -12,4 +12,7 @@ registerSearchTarget('plp', {
     relevanceModifiers(builder) {
         builder.addBrandIdRelevanceModifier('83', 1000);
     },
+    overwriteSorting(builder) {
+        builder.clear().addAlphabeticallyAscending();
+    }
 });
