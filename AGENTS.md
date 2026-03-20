@@ -63,6 +63,13 @@ Preserve current file/module patterns:
 - Keep event listener lifecycle symmetric (`connectedCallback` add, `disconnectedCallback` remove).
 - Prefer extending existing base classes for recommendations/search components when applicable.
 
+Prefer the simplest type/control-flow that correctly expresses the runtime behavior:
+- Do not add defensive null/undefined checks when the type system or earlier guards already guarantee a value exists.
+- Reuse existing public/shared types instead of creating duplicate local aliases for the same shape unless there is a clear separation-of-concerns reason.
+- Avoid recomputing the same derived configuration multiple times in a single code path; build or resolve it once and pass it through.
+- When exposing ordered user-configured options, prefer defaults derived from the configured order unless a stronger domain-specific default is required.
+- Do not require users to supply internal-only identifiers when those ids can be derived deterministically from the configuration itself.
+
 ## Safe Change Patterns
 When adding/changing components:
 1. Implement component logic in feature folder (`recommendations`, `search`, `tracking`, or `components`).
