@@ -5,7 +5,7 @@ import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { TemplateHelpers } from './helpers/templateHelpers';
 import { TargetedSearchConfigurations } from './targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from './targetedRecommendationConfigurations';
-import { type RelewiseWebComponentsOptions } from './relewise-lit-element';
+import { type RelewiseComponentsOptions } from './relewise-lit-element';
 
 export interface UserEngagementEntityOptions {
     sentiment?: boolean;
@@ -51,7 +51,7 @@ export interface RelewiseUIOptions {
     relevanceModifiers?: RelevanceModifiers;
     targets?: Targets;
     userEngagement?: UserEngagementOptions;
-    webComponents?: RelewiseWebComponentsOptions;
+    components?: RelewiseComponentsOptions;
 }
 
 export interface Filters {

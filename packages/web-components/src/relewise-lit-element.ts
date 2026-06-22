@@ -1,14 +1,14 @@
 import { LitElement } from 'lit';
 
-export type RelewiseRenderRoot = 'shadow' | 'light';
+export type RelewiseDomMode = 'shadow' | 'light';
 
-export interface RelewiseWebComponentsOptions {
-    renderRoot?: RelewiseRenderRoot;
+export interface RelewiseComponentsOptions {
+    domMode?: RelewiseDomMode;
 }
 
 export class RelewiseLitElement extends LitElement {
     protected createRenderRoot(): HTMLElement | DocumentFragment {
-        if (window.relewiseUIOptions?.webComponents?.renderRoot === 'light') {
+        if (window.relewiseUIOptions?.components?.domMode === 'light') {
             return this;
         }
 

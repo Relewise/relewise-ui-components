@@ -20,7 +20,7 @@ function product(): ProductResult {
     } as ProductResult;
 }
 
-suite('renderRoot', () => {
+suite('domMode', () => {
     test('renders into shadow DOM by default', async() => {
         initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
 
@@ -34,8 +34,8 @@ suite('renderRoot', () => {
 
     test('renders into light DOM when configured', async() => {
         const options = mockRelewiseOptions();
-        options.webComponents = {
-            renderRoot: 'light',
+        options.components = {
+            domMode: 'light',
         };
         initializeRelewiseUI(options).useRecommendations();
 
@@ -60,8 +60,8 @@ suite('renderRoot', () => {
 
     test('renders customer product templates into queryable light DOM', async() => {
         const options = mockRelewiseOptions();
-        options.webComponents = {
-            renderRoot: 'light',
+        options.components = {
+            domMode: 'light',
         };
         options.templates = {
             product: (product, { html }) => html`<article class="customer-product-template">${product.displayName}</article>`,
