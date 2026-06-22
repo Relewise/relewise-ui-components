@@ -1,5 +1,6 @@
+import { RelewiseLitElement } from '../relewise-lit-element';
 import { ContentResult, User } from '@relewise/client';
-import { LitElement, adoptStyles, css, html, nothing } from 'lit';
+import { adoptStyles, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { templateHelpers } from '../helpers/templateHelpers';
@@ -7,7 +8,7 @@ import { theme } from '../theme';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
 
-export class ContentTile extends LitElement {
+export class ContentTile extends RelewiseLitElement {
 
     @property({ type: Object })
     content: ContentResult | null = null;

@@ -1,10 +1,11 @@
-import { LitElement, css, html, nothing } from 'lit';
+import { RelewiseLitElement } from '../../../relewise-lit-element';
+import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlStateValues, updateUrlStateValues } from '../../../helpers';
 import { theme } from '../../../theme';
 import { CheckListFacet, CheckListFacetValue } from '../../types';
 
-export abstract class ChecklistFacetBase extends LitElement {
+export abstract class ChecklistFacetBase extends RelewiseLitElement {
 
     abstract handleChange(e: Event, item: CheckListFacetValue): void;
 

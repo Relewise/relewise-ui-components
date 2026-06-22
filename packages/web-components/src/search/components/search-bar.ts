@@ -1,8 +1,9 @@
-import { LitElement, css, html } from 'lit';
+import { RelewiseLitElement } from '../../relewise-lit-element';
+import { css, html } from 'lit';
 import { property } from 'lit/decorators.js';
 import { theme } from '../../theme';
 
-export class SearchBar extends LitElement {
+export class SearchBar extends RelewiseLitElement {
 
     @property()
     term: string = '';

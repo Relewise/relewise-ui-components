@@ -1,5 +1,6 @@
+import { RelewiseLitElement } from '../relewise-lit-element';
 import { ProductResult, User } from '@relewise/client';
-import { LitElement, adoptStyles, css, html, nothing } from 'lit';
+import { adoptStyles, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
@@ -8,7 +9,7 @@ import { theme } from '../theme';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
 
-export class ProductTile extends LitElement {
+export class ProductTile extends RelewiseLitElement {
 
     @property({ type: Object })
     product: ProductResult | null = null;

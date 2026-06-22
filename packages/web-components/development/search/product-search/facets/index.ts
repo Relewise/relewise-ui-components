@@ -17,6 +17,9 @@ initializeRelewiseUI(
         clientOptions: {
             serverUrl: import.meta.env.VITE_SERVER_URL,
         },
+        webComponents: {
+            renderRoot: 'light',
+        }
     },
 ).useSearch({
     facets: {

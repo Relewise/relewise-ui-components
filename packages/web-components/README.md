@@ -31,6 +31,21 @@ initializeRelewiseUI(
 Replace the `RELEWISE_DATASET_ID`, `RELEWISE_API_KEY`, `RELEWISE_SERVER_URL` with your dataset, api-key and server-url found at [My.Relewise](https://my.relewise.com/developer-settings). 
 
 After which you have access to various components configured with the configuration provided.
+
+### Configuring render root
+Components render in Shadow DOM by default. To opt in to Light DOM rendering for all Relewise web components, set `webComponents.renderRoot` during initialization.
+
+```ts
+initializeRelewiseUI({
+    ...
+    webComponents: {
+        renderRoot: 'light',
+    },
+});
+```
+
+Use Light DOM when rendered internals, including custom product and content templates, must be available to normal page CSS or global JavaScript DOM queries. Leave the option unset, or set `renderRoot: 'shadow'`, to keep the default Shadow DOM behavior and component styles.
+
 ### Updating Context Settings
 To update Context Settings after initialization simply call updateContextSettings.
 ```ts

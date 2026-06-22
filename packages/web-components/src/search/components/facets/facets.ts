@@ -1,11 +1,12 @@
+import { RelewiseLitElement } from '../../../relewise-lit-element';
 import { ProductFacetResult } from '@relewise/client';
-import { LitElement, TemplateResult, css, html, nothing } from 'lit';
+import { TemplateResult, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { FacetResult } from '../../types';
 import { Events, getRelewiseUISearchOptions } from '../../../helpers';
 import { theme } from '../../../theme';
 
-export class Facets extends LitElement {
+export class Facets extends RelewiseLitElement {
 
     @property({ type: Object, attribute: 'facets-result' })
     facetResult: ProductFacetResult | null | undefined = null;

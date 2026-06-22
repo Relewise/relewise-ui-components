@@ -1,10 +1,10 @@
-import { LitElement } from 'lit';
+import { RelewiseLitElement } from '../../relewise-lit-element';
 import { property } from 'lit/decorators.js';
 import { idPathAsArray } from '../../helpers/idPathValidator';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
 import { getTracker } from '../tracker';
 
-export class ContentCategoryView extends LitElement {
+export class ContentCategoryView extends RelewiseLitElement {
 
     @property({ attribute: 'id-path' })
     idPath: string | null = null;

@@ -1,8 +1,9 @@
-import { LitElement, css, html, nothing } from 'lit';
+import { RelewiseLitElement } from '../relewise-lit-element';
+import { css, html, nothing } from 'lit';
 import { theme } from '../theme';
 import { property } from 'lit/decorators.js';
 
-export class Button extends LitElement {
+export class Button extends RelewiseLitElement {
 
     @property({ attribute: 'button-text' })
     buttonText: string | null = null;

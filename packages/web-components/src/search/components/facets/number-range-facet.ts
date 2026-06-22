@@ -1,10 +1,11 @@
+import { RelewiseLitElement } from '../../../relewise-lit-element';
 import { ProductDataDoubleRangeFacetResult } from '@relewise/client';
-import { LitElement, css, html } from 'lit';
+import { css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../../helpers';
 import { theme } from '../../../theme';
 
-export class NumberRangeFacet extends LitElement {
+export class NumberRangeFacet extends RelewiseLitElement {
 
     @property({ type: Object })
     result: (ProductDataDoubleRangeFacetResult) | null = null;

@@ -1,6 +1,7 @@
-import { LitElement, css, html } from 'lit';
+import { RelewiseLitElement } from '../../relewise-lit-element';
+import { css, html } from 'lit';
 
-export class ArrowUpIcon extends LitElement {
+export class ArrowUpIcon extends RelewiseLitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
