@@ -4,6 +4,7 @@ import { theme } from '../theme';
 import { property } from 'lit/decorators.js';
 
 export class Button extends RelewiseLitElement {
+    private lightDomChildren: ChildNode[] = [];
 
     @property({ attribute: 'button-text' })
     buttonText: string | null = null;
@@ -15,15 +16,43 @@ export class Button extends RelewiseLitElement {
         super.connectedCallback();
     }
 
+    protected createRenderRoot(): HTMLElement | DocumentFragment {
+        const root = super.createRenderRoot();
+
+        if (root === this && this.lightDomChildren.length === 0) {
+            this.lightDomChildren = Array.from(this.childNodes);
+        }
+
+        return root;
+    }
+
     render() {
         return html`
             <button class="rw-button rw-border" @click=${() => this.handleClick()}>  
-                    ${this.buttonText ? html`
-                        <span class="rw-button-text">${this.buttonText}</span>
-                    ` : nothing}
-                    <span class="rw-button-icon"><slot slot="icon"></slot></span>
+                    ${this.renderButtonText()}
+                    ${this.renderButtonIcon()}
             </button>
         `;
+    }
+
+    private renderButtonText() {
+        if (this.buttonText) {
+            return html`<span class="rw-button-text">${this.buttonText}</span>`;
+        }
+
+        if (window.relewiseUIOptions?.components?.domMode === 'light') {
+            return html`<span class="rw-button-text">${this.lightDomChildren}</span>`;
+        }
+
+        return nothing;
+    }
+
+    private renderButtonIcon() {
+        if (window.relewiseUIOptions?.components?.domMode === 'light') {
+            return this.buttonText && this.lightDomChildren.length > 0 ? html`<span class="rw-button-icon">${this.lightDomChildren}</span>` : nothing;
+        }
+
+        return html`<span class="rw-button-icon"><slot slot="icon"></slot></span>`;
     }
 
     static styles = [theme, css`
@@ -53,6 +82,10 @@ export class Button extends RelewiseLitElement {
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
             font-size: 0.9em;
             justify-content: center;
+        }
+
+        .rw-button.rw-border {
+            border-radius: 0.5em;
         }
 
         .rw-button-text {

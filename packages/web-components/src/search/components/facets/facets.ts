@@ -186,6 +186,23 @@ export class Facets extends RelewiseLitElement {
             --relewise-icon-color: black;
         }
 
+        .rw-facet-button {
+            --button-color: white;
+            --relewise-button-border-color: var(--relewise-checklist-facet-border-color, #eee);
+            --relewise-button-text-color: #333;
+            --relewise-button-height: auto;
+            --relewise-button-font-size: 0.9em;
+            margin: 0 0 0.5em 0;
+        }
+
+        .rw-facet-button .rw-button {
+            height: auto;
+            padding: 0;
+            background-color: white;
+            border-color: var(--relewise-checklist-facet-border-color, #eee);
+            color: #333;
+        }
+
         .rw-dimmed {
             opacity: .5;
         }

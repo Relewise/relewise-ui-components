@@ -120,12 +120,12 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
                     <relewise-button
                         class="rw-show-more"
                         @click=${() => this.showAll = false}>
-                        <span>${localization?.showLess ?? 'Show Less'}</span>
+                        ${localization?.showLess ?? 'Show Less'}
                     </relewise-button>` : html`
                     <relewise-button
                         class="rw-show-more"
                         @click=${() => this.showAll = true}>
-                        <span>${localization?.showMore ?? 'Show More'}</span>
+                        ${localization?.showMore ?? 'Show More'}
                     </relewise-button>`}    
                 ` : nothing}
     </div>
@@ -163,6 +163,19 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
 
         .rw-show-more {
             margin: 0px;
+            --button-color: white;
+            --relewise-button-border-color: var(--relewise-checklist-facet-border-color, #eee);
+            --relewise-button-text-color: #333;
+            --relewise-button-height: auto;
+            --relewise-button-font-size: 0.85em;
+            --relewise-button-icon-padding: 0.3em .8em;
+        }
+
+        .rw-show-more .rw-button {
+            height: auto;
+            background-color: white;
+            border-color: var(--relewise-checklist-facet-border-color, #eee);
+            color: #333;
         }
 
         .rw-hits {

@@ -79,7 +79,7 @@ export class ProductSearchBar extends RelewiseLitElement {
                 height: 3em;
             }
 
-            .rw-search-bar {
+            :host > .rw-search-bar {
                 width: var(--relewise-product-search-bar-width, 100%);
                 --color: var(--accent-color);
             }

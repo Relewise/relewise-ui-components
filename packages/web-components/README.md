@@ -40,11 +40,14 @@ initializeRelewiseUI({
     ...
     components: {
         domMode: 'light',
+        styling: 'default',
     },
 });
 ```
 
 Use Light DOM when rendered internals, including custom product and content templates, must be available to normal page CSS or global JavaScript DOM queries. Leave the option unset, or set `domMode: 'shadow'`, to keep the default Shadow DOM behavior and component styles.
+
+In Light DOM mode, baseline component styling is enabled by default. Set `styling: 'none'` to skip injecting Relewise Light DOM styles and style the markup entirely from page CSS. The `styling` option only affects Light DOM mode; Shadow DOM components keep their scoped styles.
 
 ### Updating Context Settings
 To update Context Settings after initialization simply call updateContextSettings.

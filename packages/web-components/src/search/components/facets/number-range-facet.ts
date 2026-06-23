@@ -137,8 +137,10 @@ export class NumberRangeFacet extends RelewiseLitElement {
                         class="rw-input-container rw-border"
                         @keydown=${this.handleKeyEvent}>
             </div>
-            <relewise-button class="rw-save" @click=${this.save}>
-                <span class="rw-save-text">${localization?.save ?? 'Apply'}</span>
+            <relewise-button
+                button-text=${localization?.save ?? 'Apply'}
+                class="rw-save"
+                @click=${this.save}>
             </relewise-button>
         </div>
       `;
@@ -156,6 +158,18 @@ export class NumberRangeFacet extends RelewiseLitElement {
         .rw-save {
             width: 100%;
             align: center;
+            --button-color: white;
+            --relewise-button-border-color: var(--relewise-checklist-facet-border-color, #eee);
+            --relewise-button-text-color: #333;
+            --relewise-button-height: auto;
+        }
+
+        .rw-save .rw-button {
+            width: 100%;
+            height: auto;
+            background-color: white;
+            border-color: var(--relewise-checklist-facet-border-color, #eee);
+            color: #333;
         }
 
         .rw-save-text {

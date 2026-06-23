@@ -21,18 +21,20 @@ export class ProductTile extends RelewiseLitElement {
     protected createRenderRoot(): HTMLElement | DocumentFragment {
         const root = super.createRenderRoot();
 
-        if (root instanceof ShadowRoot) {
-            let hasCustomTemplate = false;
-            try {
-                const settings = getRelewiseUIOptions();
-                hasCustomTemplate = Boolean(settings.templates?.product);
-            } catch (error) {
-                console.error('Relewise: Error initializing initializeRelewiseUI. Keeping default styles, ', error);
-            }
+        let hasCustomTemplate = false;
+        try {
+            const settings = getRelewiseUIOptions();
+            hasCustomTemplate = Boolean(settings.templates?.product);
+        } catch (error) {
+            console.error('Relewise: Error initializing initializeRelewiseUI. Keeping default styles, ', error);
+        }
 
+        if (root instanceof ShadowRoot) {
             if (!hasCustomTemplate) {
                 adoptStyles(root, ProductTile.defaultStyles);
             }
+        } else if (!hasCustomTemplate) {
+            this.registerLightDomStyles(ProductTile.defaultStyles);
         }
 
         return root;
