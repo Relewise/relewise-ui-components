@@ -1,14 +1,6 @@
 import { LitElement } from 'lit';
 import { registerLightDomStyles } from './lightDomStyles';
 
-export type RelewiseDomMode = 'shadow' | 'light';
-export type RelewiseComponentStyling = 'default' | 'none';
-
-export interface RelewiseComponentsOptions {
-    domMode?: RelewiseDomMode;
-    styling?: RelewiseComponentStyling;
-}
-
 export class RelewiseLitElement extends LitElement {
     protected createRenderRoot(): HTMLElement | DocumentFragment {
         if (window.relewiseUIOptions?.components?.domMode === 'light') {

@@ -5,7 +5,6 @@ import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { TemplateHelpers } from './helpers/templateHelpers';
 import { TargetedSearchConfigurations } from './targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from './targetedRecommendationConfigurations';
-import { type RelewiseComponentsOptions } from './relewise-lit-element';
 
 export interface UserEngagementEntityOptions {
     sentiment?: boolean;
@@ -33,6 +32,14 @@ export type RelewiseUILocalization = {
     favoriteButton?: FavoriteButtonLocalization;
     sentimentButtons?: SentimentButtonsLocalization;
 };
+
+export type RelewiseDomMode = 'shadow' | 'light';
+export type RelewiseComponentStyling = 'default' | 'none';
+
+export interface RelewiseComponentsOptions {
+    domMode?: RelewiseDomMode;
+    styling?: RelewiseComponentStyling;
+}
 
 export interface RelewiseUIOptions {
     datasetId: string;
