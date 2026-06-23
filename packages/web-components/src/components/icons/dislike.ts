@@ -1,9 +1,10 @@
-import { LitElement, css, html } from 'lit';
+import { RelewiseLitElement } from '../../relewise-lit-element';
+import { css, html } from 'lit';
 
 /**
  * Icon is sourced from: https://iconmonstr.com/thumb-6-svg/
  */
-export class DislikeIcon extends LitElement {
+export class DislikeIcon extends RelewiseLitElement {
 
     connectedCallback(): void {
         super.connectedCallback();

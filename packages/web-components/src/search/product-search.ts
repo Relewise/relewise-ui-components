@@ -1,5 +1,6 @@
+import { RelewiseLitElement } from '../relewise-lit-element';
 import { DoubleNullableRange, ProductResult, ProductSearchResponse, User } from '@relewise/client';
-import { LitElement, css, html, nothing } from 'lit';
+import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseSearchTargetedConfigurations, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
@@ -10,7 +11,7 @@ import { RelewiseFacetBuilder } from '../facetBuilder';
 import { createProductSearchBuilder } from '../builders';
 import { getSearchSortingOptions, getSearchSortingSelection } from './searchSortingBuilder';
 
-export class ProductSearch extends LitElement {
+export class ProductSearch extends RelewiseLitElement {
 
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;

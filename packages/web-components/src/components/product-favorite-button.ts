@@ -1,5 +1,6 @@
+import { RelewiseLitElement } from '../relewise-lit-element';
 import { ProductResult, User, userIsAnonymous } from '@relewise/client';
-import { LitElement, PropertyValues, html, nothing } from 'lit';
+import { PropertyValues, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getTracker } from '../tracking';
@@ -8,7 +9,7 @@ import { Events } from '../helpers/events';
 import { favoriteButtonStyles } from '../helpers/favoriteButtonStyles';
 import { canRenderUserEngagementAction } from '../helpers/userEngagementRenderGuard';
 
-export class FavoriteButtonProducts extends LitElement {
+export class FavoriteButtonProducts extends RelewiseLitElement {
 
     @property({ attribute: false })
     user: User | null = null;

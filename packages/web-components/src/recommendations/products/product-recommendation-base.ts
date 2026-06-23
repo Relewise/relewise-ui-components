@@ -1,12 +1,13 @@
+import { RelewiseLitElement } from '../../relewise-lit-element';
 import { ProductRecommendationRequest, ProductRecommendationResponse, ProductResult, User } from '@relewise/client';
-import { LitElement, css, html } from 'lit';
+import { css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
 import { consume } from '@lit/context';
 import { BatchingContextValue, context } from '../product-recommendation-batcher';
 import { getRelewiseUIOptions } from '../../helpers';
 
-export abstract class ProductRecommendationBase extends LitElement {
+export abstract class ProductRecommendationBase extends RelewiseLitElement {
 
     @property({ type: String, attribute: 'target' })
     target: string | null = null;

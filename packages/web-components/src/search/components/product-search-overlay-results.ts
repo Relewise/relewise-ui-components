@@ -1,11 +1,12 @@
-import { LitElement, css, html, nothing } from 'lit';
+import { RelewiseLitElement } from '../../relewise-lit-element';
+import { css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { theme } from '../../theme';
 import { SearchResult } from '../product-search-overlay';
 import { getRelewiseUISearchOptions } from '../../helpers';
 import { User } from '@relewise/client';
 
-export class ProductSearchOverlayResults extends LitElement {
+export class ProductSearchOverlayResults extends RelewiseLitElement {
 
     @property()
     setSearchTerm = (term: string) => { };

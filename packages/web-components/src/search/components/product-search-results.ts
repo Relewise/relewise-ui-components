@@ -1,10 +1,11 @@
+import { RelewiseLitElement } from '../../relewise-lit-element';
 import { ProductResult, User } from '@relewise/client';
-import { LitElement, css, html, nothing } from 'lit';
+import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, getRelewiseUISearchOptions, QueryKeys, readCurrentUrlState } from '../../helpers';
 import { theme } from '../../theme';
 
-export class ProductSearchResults extends LitElement {
+export class ProductSearchResults extends RelewiseLitElement {
     @property({ type: Array })
     products: ProductResult[] = [];
 

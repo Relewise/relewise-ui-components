@@ -1,11 +1,12 @@
+import { RelewiseLitElement } from '../../../relewise-lit-element';
 import { ProductFacetResult } from '@relewise/client';
-import { LitElement, TemplateResult, css, html, nothing } from 'lit';
+import { TemplateResult, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { FacetResult } from '../../types';
 import { Events, getRelewiseUISearchOptions } from '../../../helpers';
 import { theme } from '../../../theme';
 
-export class Facets extends LitElement {
+export class Facets extends RelewiseLitElement {
 
     @property({ type: Object, attribute: 'facets-result' })
     facetResult: ProductFacetResult | null | undefined = null;
@@ -183,6 +184,23 @@ export class Facets extends LitElement {
 
         .rw-icon {
             --relewise-icon-color: black;
+        }
+
+        .rw-facet-button {
+            --button-color: white;
+            --relewise-button-border-color: var(--relewise-checklist-facet-border-color, #eee);
+            --relewise-button-text-color: #333;
+            --relewise-button-height: auto;
+            --relewise-button-font-size: 0.9em;
+            margin: 0 0 0.5em 0;
+        }
+
+        .rw-facet-button .rw-button {
+            height: auto;
+            padding: 0;
+            background-color: white;
+            border-color: var(--relewise-checklist-facet-border-color, #eee);
+            color: #333;
         }
 
         .rw-dimmed {

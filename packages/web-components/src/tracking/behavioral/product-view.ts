@@ -1,9 +1,9 @@
-import { LitElement } from 'lit';
+import { RelewiseLitElement } from '../../relewise-lit-element';
 import { property } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
 import { getTracker } from '../tracker';
 
-export class ProductView extends LitElement {
+export class ProductView extends RelewiseLitElement {
 
     @property({ attribute: 'product-id' })
     productId: string | null = null;

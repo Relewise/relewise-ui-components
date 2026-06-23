@@ -16,6 +16,10 @@ initializeRelewiseUI(
         apiKey: import.meta.env.VITE_API_KEY,
         clientOptions: {
             serverUrl: import.meta.env.VITE_SERVER_URL,
+        },
+        components: {
+            domMode: 'light',
+            styling: 'none',
         }
     },
 ).useSearch({

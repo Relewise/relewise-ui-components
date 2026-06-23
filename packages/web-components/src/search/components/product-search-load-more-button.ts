@@ -1,9 +1,10 @@
-import { LitElement, css, html } from 'lit';
+import { RelewiseLitElement } from '../../relewise-lit-element';
+import { css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, getRelewiseUISearchOptions } from '../../helpers';
 import { theme } from '../../theme';
 
-export class LoadMoreProducts extends LitElement {
+export class LoadMoreProducts extends RelewiseLitElement {
     @property({ type: Number })
     hits: number | null = null;
 

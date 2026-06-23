@@ -1,5 +1,6 @@
+import { RelewiseLitElement } from '../relewise-lit-element';
 import { ProductResult, User } from '@relewise/client';
-import { LitElement, adoptStyles, css, html, nothing } from 'lit';
+import { adoptStyles, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
@@ -8,7 +9,7 @@ import { theme } from '../theme';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { until } from 'lit-html/directives/until.js';
 
-export class ProductTile extends LitElement {
+export class ProductTile extends RelewiseLitElement {
 
     @property({ type: Object })
     product: ProductResult | null = null;
@@ -20,18 +21,20 @@ export class ProductTile extends LitElement {
     protected createRenderRoot(): HTMLElement | DocumentFragment {
         const root = super.createRenderRoot();
 
-        if (root instanceof ShadowRoot) {
-            let hasCustomTemplate = false;
-            try {
-                const settings = getRelewiseUIOptions();
-                hasCustomTemplate = Boolean(settings.templates?.product);
-            } catch (error) {
-                console.error('Relewise: Error initializing initializeRelewiseUI. Keeping default styles, ', error);
-            }
+        let hasCustomTemplate = false;
+        try {
+            const settings = getRelewiseUIOptions();
+            hasCustomTemplate = Boolean(settings.templates?.product);
+        } catch (error) {
+            console.error('Relewise: Error initializing initializeRelewiseUI. Keeping default styles, ', error);
+        }
 
+        if (root instanceof ShadowRoot) {
             if (!hasCustomTemplate) {
                 adoptStyles(root, ProductTile.defaultStyles);
             }
+        } else if (!hasCustomTemplate) {
+            this.registerLightDomStyles(ProductTile.defaultStyles);
         }
 
         return root;

@@ -1,4 +1,5 @@
-import { LitElement, html } from 'lit';
+import { RelewiseLitElement } from '../relewise-lit-element';
+import { html } from 'lit';
 import { getRecommender } from './recommender';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { ProductRecommendationRequest, ProductRecommendationResponse, ProductsRecommendationCollectionBuilder } from '@relewise/client';
@@ -12,7 +13,7 @@ export type BatchingContextValue = {
 }
 export const context = createContext<BatchingContextValue>(contextKey);
 
-export class RecommendationBatcher extends LitElement {
+export class RecommendationBatcher extends RelewiseLitElement {
 
     @provide({ context })
     data: BatchingContextValue = { requests: [] };

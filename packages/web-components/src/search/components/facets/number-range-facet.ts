@@ -1,10 +1,11 @@
+import { RelewiseLitElement } from '../../../relewise-lit-element';
 import { ProductDataDoubleRangeFacetResult } from '@relewise/client';
-import { LitElement, css, html } from 'lit';
+import { css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../../helpers';
 import { theme } from '../../../theme';
 
-export class NumberRangeFacet extends LitElement {
+export class NumberRangeFacet extends RelewiseLitElement {
 
     @property({ type: Object })
     result: (ProductDataDoubleRangeFacetResult) | null = null;
@@ -136,8 +137,10 @@ export class NumberRangeFacet extends LitElement {
                         class="rw-input-container rw-border"
                         @keydown=${this.handleKeyEvent}>
             </div>
-            <relewise-button class="rw-save" @click=${this.save}>
-                <span class="rw-save-text">${localization?.save ?? 'Apply'}</span>
+            <relewise-button
+                button-text=${localization?.save ?? 'Apply'}
+                class="rw-save"
+                @click=${this.save}>
             </relewise-button>
         </div>
       `;
@@ -155,6 +158,18 @@ export class NumberRangeFacet extends LitElement {
         .rw-save {
             width: 100%;
             align: center;
+            --button-color: white;
+            --relewise-button-border-color: var(--relewise-checklist-facet-border-color, #eee);
+            --relewise-button-text-color: #333;
+            --relewise-button-height: auto;
+        }
+
+        .rw-save .rw-button {
+            width: 100%;
+            height: auto;
+            background-color: white;
+            border-color: var(--relewise-checklist-facet-border-color, #eee);
+            color: #333;
         }
 
         .rw-save-text {

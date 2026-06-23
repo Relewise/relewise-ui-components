@@ -1,9 +1,9 @@
-import { LitElement } from 'lit';
+import { RelewiseLitElement } from '../../relewise-lit-element';
 import { property } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
 import { getTracker } from '../tracker';
 
-export class ContentView extends LitElement {
+export class ContentView extends RelewiseLitElement {
 
     @property({ attribute: 'content-id' })
     contentId: string | null = null;
