@@ -15,6 +15,21 @@ export class ContentTile extends LitElement {
     @property({ type: Object })
     private user: User | null = null;
 
+    @property({ attribute: 'image-data-key' })
+    imageDataKey: string = 'ImageUrl';
+
+    @property({ attribute: 'image-base-url' })
+    imageBaseUrl: string | null = null;
+
+    @property({ attribute: 'url-data-key' })
+    urlDataKey: string = 'Url';
+
+    @property({ attribute: 'display-name-data-key' })
+    displayNameDataKey: string | null = null;
+
+    @property({ attribute: 'description-data-key' })
+    descriptionDataKey: string = 'Summary';
+
     // Override Lit's shadow root creation and only attach default styles when no template override exists.
     protected createRenderRoot(): HTMLElement | DocumentFragment {
         const root = super.createRenderRoot();
@@ -64,7 +79,7 @@ export class ContentTile extends LitElement {
             return html`${markup}`;
         }
 
-        const url = this.content.data && 'Url' in this.content.data ? this.content.data['Url'].value ?? '' : null;
+        const url = this.getContentDataValue(this.content, this.urlDataKey) ?? null;
 
         const engagementSettings = settings.userEngagement?.content;
 
@@ -89,8 +104,9 @@ export class ContentTile extends LitElement {
     }
 
     renderTileContent(content: ContentResult) {
-        const image = content.data && 'ImageUrl' in content.data ? content.data['ImageUrl'].value : null;
-        const summary = content.data && 'Summary' in content.data ? content.data['Summary'].value : null;
+        const image = this.resolveImageUrl(this.getContentDataValue(content, this.imageDataKey));
+        const displayName = this.getContentDataValue(content, this.displayNameDataKey) ?? content.displayName;
+        const summary = this.getContentDataValue(content, this.descriptionDataKey);
 
         return html`
             <div class="rw-image-container">
@@ -99,7 +115,7 @@ export class ContentTile extends LitElement {
                 : nothing}
             </div>
             <div class='rw-information-container'>
-                <h5 class='rw-display-name'>${content.displayName}</h5>
+                <h5 class='rw-display-name'>${displayName}</h5>
                 ${summary ? html`<p class="rw-summary">${summary}</p>` : nothing}
             </div>`;
     }
@@ -108,6 +124,22 @@ export class ContentTile extends LitElement {
         const altText = content.displayName ?? '';
 
         return altText ?? '';
+    }
+
+    private getContentDataValue(content: ContentResult, key: string | null) {
+        if (!key || !content.data || !(key in content.data)) {
+            return null;
+        }
+
+        return content.data[key].value ?? null;
+    }
+
+    private resolveImageUrl(image: unknown): unknown {
+        if (!image || !this.imageBaseUrl || typeof image !== 'string' || /^https?:\/\//.test(image) || image.startsWith('//')) {
+            return image;
+        }
+
+        return `${this.imageBaseUrl.replace(/\/$/, '')}/${image.replace(/^\//, '')}`;
     }
 
     static defaultStyles = [

@@ -1209,6 +1209,49 @@ The builder is a type exposed from the [relewise-sdk-javascript](https://github.
 
 For more examples and information about relevance modifiers visit the official [docs](https://docs.relewise.com/).
 
+## Tile field mapping
+Product and content tiles use Relewise standard fields and common data keys by default. If your dataset stores display fields under different data keys, set attributes on the tile to point the default rendering at those keys.
+
+These attributes only affect the built-in tile rendering. If you provide `templates.product` or `templates.content`, your custom template remains fully responsible for rendering.
+
+### Product tile attributes
+- **image-data-key** (Optional, *Default ImageUrl*): Data key used for the product image.
+- **image-base-url** (Optional): Prepended to relative image paths.
+- **url-data-key** (Optional, *Default Url*): Data key used for the product link.
+- **display-name-data-key** (Optional): Data key used for the displayed product name. Falls back to `product.displayName`.
+- **description-data-key** (Optional): Data key used for product description text. No description is shown by default.
+- **sales-price-data-key** (Optional): Data key used for the sales price. Falls back to `product.salesPrice`.
+- **list-price-data-key** (Optional): Data key used for the list price. Falls back to `product.listPrice`.
+
+```html
+<relewise-product-tile
+    image-data-key="PrimaryImage"
+    image-base-url="https://cdn.example.com"
+    url-data-key="ProductUrl"
+    display-name-data-key="CardTitle"
+    description-data-key="ShortDescription"
+    sales-price-data-key="CardSalesPrice"
+    list-price-data-key="CardListPrice">
+</relewise-product-tile>
+```
+
+### Content tile attributes
+- **image-data-key** (Optional, *Default ImageUrl*): Data key used for the content image.
+- **image-base-url** (Optional): Prepended to relative image paths.
+- **url-data-key** (Optional, *Default Url*): Data key used for the content link.
+- **display-name-data-key** (Optional): Data key used for the displayed content name. Falls back to `content.displayName`.
+- **description-data-key** (Optional, *Default Summary*): Data key used for content description text.
+
+```html
+<relewise-content-tile
+    image-data-key="HeroImage"
+    image-base-url="https://cdn.example.com"
+    url-data-key="ContentUrl"
+    display-name-data-key="CardTitle"
+    description-data-key="Excerpt">
+</relewise-content-tile>
+```
+
 ## Template overwriting
 It is possible to overwrite the template used for rendering products and/or content. This is done using [lit templating](https://lit.dev/docs/templates/overview/).
 When the template is overwritten, the corresponding tile skips attaching default CSS styles on the tile, so your template has full control over layout and presentation.

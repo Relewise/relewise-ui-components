@@ -16,6 +16,27 @@ export class ProductTile extends LitElement {
     @property({ type: Object })
     private user: User | null = null;
 
+    @property({ attribute: 'image-data-key' })
+    imageDataKey: string = 'ImageUrl';
+
+    @property({ attribute: 'image-base-url' })
+    imageBaseUrl: string | null = null;
+
+    @property({ attribute: 'url-data-key' })
+    urlDataKey: string = 'Url';
+
+    @property({ attribute: 'display-name-data-key' })
+    displayNameDataKey: string | null = null;
+
+    @property({ attribute: 'description-data-key' })
+    descriptionDataKey: string | null = null;
+
+    @property({ attribute: 'sales-price-data-key' })
+    salesPriceDataKey: string | null = null;
+
+    @property({ attribute: 'list-price-data-key' })
+    listPriceDataKey: string | null = null;
+
     // Override Lit's shadow root creation and only attach default styles when no template override exists.
     protected createRenderRoot(): HTMLElement | DocumentFragment {
         const root = super.createRenderRoot();
@@ -66,7 +87,7 @@ export class ProductTile extends LitElement {
             return html`${markup}`;
         }
 
-        const url = this.product.data && 'Url' in this.product.data ? this.product.data['Url'].value ?? '' : null;
+        const url = this.getProductDataValue(this.product, this.urlDataKey) ?? null;
 
         const engagementSettings = settings.userEngagement?.product;
 
@@ -91,18 +112,24 @@ export class ProductTile extends LitElement {
     }
 
     renderTileContent(product: ProductResult) {
+        const image = this.resolveImageUrl(this.getProductDataValue(product, this.imageDataKey));
+        const displayName = this.getProductDataValue(product, this.displayNameDataKey) ?? product.displayName;
+        const description = this.getProductDataValue(product, this.descriptionDataKey);
+        const salesPrice = this.getProductDataValue(product, this.salesPriceDataKey) ?? product.salesPrice;
+        const listPrice = this.getProductDataValue(product, this.listPriceDataKey) ?? product.listPrice;
         return html`
-            ${(product.data && 'ImageUrl' in product.data)
-                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${product.data['ImageUrl'].value} alt=${this.getProductImageAlt(product)} /></div>`
+            ${image
+                ? html`<div class="rw-image-container"><img class="rw-object-cover" src=${image} alt=${this.getProductImageAlt(product)} /></div>`
                 : nothing
             }
             <div class='rw-information-container'>
-                <h5 class='rw-display-name'>${product.displayName}</h5>
+                <h5 class='rw-display-name'>${displayName}</h5>
+                ${description ? html`<p class="rw-description">${description}</p>` : nothing}
                 <div class='rw-price'>
-                    <span>${formatPrice(product.salesPrice)}</span>
+                    <span>${formatPrice(salesPrice)}</span>
 
-                    ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
-                ? html`<span class='rw-list-price'>${formatPrice(product.listPrice)}</span>`
+                    ${(salesPrice && listPrice && listPrice !== salesPrice)
+                ? html`<span class='rw-list-price'>${formatPrice(listPrice)}</span>`
                 : nothing
             }
                 </div>
@@ -113,6 +140,22 @@ export class ProductTile extends LitElement {
         const altText = product.variant?.displayName ?? product.displayName ?? '';
 
         return altText ?? '';
+    }
+
+    private getProductDataValue(product: ProductResult, key: string | null) {
+        if (!key || !product.data || !(key in product.data)) {
+            return null;
+        }
+
+        return product.data[key].value ?? null;
+    }
+
+    private resolveImageUrl(image: unknown): unknown {
+        if (!image || !this.imageBaseUrl || typeof image !== 'string' || /^https?:\/\//.test(image) || image.startsWith('//')) {
+            return image;
+        }
+
+        return `${this.imageBaseUrl.replace(/\/$/, '')}/${image.replace(/^\//, '')}`;
     }
 
     static defaultStyles = [
@@ -201,6 +244,13 @@ export class ProductTile extends LitElement {
             font-weight: 400;
             color: var(--relewise-list-price-color, #bbb);
             margin: var(--relewise-list-price-margin, 0em 0em 0em 0.5em);
+        }
+
+        .rw-description {
+            color: var(--relewise-description-color, #666);
+            font-size: var(--relewise-description-font-size, 0.9em);
+            line-height: var(--relewise-description-line-height, 1.2);
+            margin: var(--relewise-description-margin, 0.5em 0em 0em 0em);
         }
 
     `];
