@@ -1,4 +1,4 @@
-import { ProductDataDoubleRangeFacetResult } from '@relewise/client';
+import { ContentDataDoubleRangeFacetResult, PriceRangeFacetResult, ProductCategoryDataDoubleRangeFacetResult, ProductDataDoubleRangeFacetResult } from '@relewise/client';
 import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../../helpers';
@@ -7,10 +7,16 @@ import { theme } from '../../../theme';
 export class NumberRangeFacet extends LitElement {
 
     @property({ type: Object })
-    result: (ProductDataDoubleRangeFacetResult) | null = null;
+    result: ProductDataDoubleRangeFacetResult | ContentDataDoubleRangeFacetResult | ProductCategoryDataDoubleRangeFacetResult | PriceRangeFacetResult | null = null;
 
     @property()
     label: string = '';
+
+    @property({ attribute: 'facet-upper-bound-query-key-prefix' })
+    facetUpperBoundQueryKeyPrefix: string = QueryKeys.facetUpperbound;
+
+    @property({ attribute: 'facet-lower-bound-query-key-prefix' })
+    facetLowerBoundQueryKeyPrefix: string = QueryKeys.facetLowerbound;
 
     @state()
     upperBound: number | null | undefined = null;
@@ -25,13 +31,8 @@ export class NumberRangeFacet extends LitElement {
             let upperBound = null;
             let lowerBound = null;
 
-            if ('key' in this.result) {
-                upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + this.result.field + this.result.key);
-                lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + this.result.field + this.result.key);
-            } else {
-                upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + this.result.field);
-                lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + this.result.field);
-            }
+            upperBound = readCurrentUrlState(this.getFacetUpperBoundQueryKey());
+            lowerBound = readCurrentUrlState(this.getFacetLowerBoundQueryKey());
             if (upperBound && !isNaN(+upperBound)) {
                 this.upperBound = +upperBound;
             }
@@ -85,15 +86,34 @@ export class NumberRangeFacet extends LitElement {
             this.result.available?.value?.lowerBoundInclusive;
         }
 
-        if ('key' in this.result) {
-            updateUrlState(QueryKeys.facetUpperbound + this.result.field + this.result.key, upperBound?.toString() ?? '');
-            updateUrlState(QueryKeys.facetLowerbound + this.result.field + this.result.key, lowerBound?.toString() ?? '');
-        } else {
-            updateUrlState(QueryKeys.facetUpperbound + this.result.field, upperBound?.toString() ?? '');
-            updateUrlState(QueryKeys.facetLowerbound + this.result.field, lowerBound?.toString() ?? '');
-        }
+        updateUrlState(this.getFacetUpperBoundQueryKey(), upperBound?.toString() ?? '');
+        updateUrlState(this.getFacetLowerBoundQueryKey(), lowerBound?.toString() ?? '');
 
         window.dispatchEvent(new CustomEvent(Events.applyFacet));
+    }
+
+    getFacetUpperBoundQueryKey(): string {
+        if (!this.result) {
+            return this.facetUpperBoundQueryKeyPrefix;
+        }
+
+        if ('key' in this.result) {
+            return this.facetUpperBoundQueryKeyPrefix + this.result.field + this.result.key;
+        }
+
+        return this.facetUpperBoundQueryKeyPrefix + this.result.field;
+    }
+
+    getFacetLowerBoundQueryKey(): string {
+        if (!this.result) {
+            return this.facetLowerBoundQueryKeyPrefix;
+        }
+
+        if ('key' in this.result) {
+            return this.facetLowerBoundQueryKeyPrefix + this.result.field + this.result.key;
+        }
+
+        return this.facetLowerBoundQueryKeyPrefix + this.result.field;
     }
 
     handleKeyEvent(event: KeyboardEvent): void {

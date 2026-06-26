@@ -269,6 +269,8 @@ export interface SearchFacets {
   - `ContentAssortmentFacetResult`
   - `CategoryHierarchyFacetResult` for content categories if compatible.
 - Add an overridable URL key scope/prefix so product and content selected facet values do not collide.
+- Keep facet components dispatching the existing `Events.applyFacet` event in this phase.
+- Add scoped product/content facet events later only if the full-search orchestrator needs separate event handling.
 - Hide empty facet groups.
 - Preserve wrapping/overflow rules so long labels do not overlap.
 

@@ -1,4 +1,4 @@
-import { BooleanAvailableFacetValue, ProductDataBooleanValueFacetResult } from '@relewise/client';
+import { BooleanAvailableFacetValue, ContentDataBooleanValueFacetResult, ProductCategoryDataBooleanValueFacetResult, ProductDataBooleanValueFacetResult } from '@relewise/client';
 import { property } from 'lit/decorators.js';
 import { getRelewiseUISearchOptions } from '../../../helpers';
 import { ChecklistFacetBase } from './checklist-facet-base';
@@ -6,7 +6,7 @@ import { ChecklistFacetBase } from './checklist-facet-base';
 export class ChecklistBooleanValueFacet extends ChecklistFacetBase {
 
     @property({ type: Object })
-    result: ProductDataBooleanValueFacetResult | null = null;
+    result: ProductDataBooleanValueFacetResult | ContentDataBooleanValueFacetResult | ProductCategoryDataBooleanValueFacetResult | null = null;
 
     handleChange(e: Event, item: BooleanAvailableFacetValue) {
         const checkbox = e.target as HTMLInputElement;

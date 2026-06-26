@@ -1,11 +1,11 @@
-import { ProductDataStringValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
+import { ContentDataStringValueFacetResult, ProductCategoryDataStringValueFacetResult, ProductDataStringValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
 import { property } from 'lit/decorators.js';
 import { ChecklistFacetBase } from './checklist-facet-base';
 
 export class ChecklistStringValueFacet extends ChecklistFacetBase {
 
     @property({ type: Object })
-    result: ProductDataStringValueFacetResult | null = null;
+    result: ProductDataStringValueFacetResult | ContentDataStringValueFacetResult | ProductCategoryDataStringValueFacetResult | null = null;
 
     handleChange(e: Event, item: StringAvailableFacetValue) {
         const checkbox = e.target as HTMLInputElement;
