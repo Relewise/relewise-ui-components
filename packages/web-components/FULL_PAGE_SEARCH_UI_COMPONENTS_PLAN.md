@@ -79,6 +79,7 @@ The exact `fullSearch` type should be finalized in the first implementation PR, 
 - `fullSearch` adds shell behavior, tab behavior, input-assist behavior, empty/no-result recommendations, layout defaults, and tab enablement.
 - Product result rendering delegates to `relewise-product-tile`.
 - Content result rendering delegates to `relewise-content-tile`.
+- Product/content custom field rendering is handled through existing `templates.product` and `templates.content`.
 - Category rendering can use a new reusable category tile because no general category tile exists today.
 
 ## Existing Architecture Research
@@ -320,7 +321,6 @@ Current behavior:
 - Product recommendations and product search results render `relewise-product-tile`.
 - Content recommendations render `relewise-content-tile`.
 - Tiles support complete override through `initializeRelewiseUI({ templates: { product, content } })`.
-- Tiles already support `image-data-key` and `image-base-url`.
 - Product tile default rendering uses `product.displayName`, `product.salesPrice`, `product.listPrice`, and data key `Url`.
 - Content tile default rendering uses `content.displayName`, data key `Url`, and hardcoded data key `Summary`.
 
@@ -330,22 +330,8 @@ Reuse decision:
 - Full-search content results must render `relewise-content-tile`.
 - Product/content recommendation blocks inside full-search should also use the same tiles.
 - Do not add a separate product card template API for full-search unless tile templates cannot cover a real use case.
-
-Needed tile enhancements:
-
-- Product tile:
-  - Optional `url-data-key`, default `Url`.
-  - Optional `display-name-data-key`, fallback `Product.DisplayName`.
-  - Optional `description-data-key`, default empty.
-  - Optional `sales-price-data-key`, fallback `Product.SalesPrice`.
-  - Optional `list-price-data-key`, fallback `Product.ListPrice`.
-  - Optional `brand-data-key`, fallback `Product.Brand` if available.
-- Content tile:
-  - Optional `url-data-key`, default `Url`.
-  - Optional `display-name-data-key`, fallback `Content.DisplayName`.
-  - Optional `description-data-key`, default `Summary`.
-- Full-search should pass these tile attributes based on `fullSearch` field mapping config.
-- Request helpers must include required data keys in selected properties or document that consumers must request them. Prefer merging full-search field keys into full-search requests to avoid silent blank cards.
+- Do not add tile field-mapping attributes in the first full-search iteration. If a consumer needs custom product/content fields, the established solution is `templates.product` and `templates.content`.
+- Request helpers should continue to respect existing selected property settings. Consumers using custom templates are responsible for selecting the data keys their templates need, as they are today.
 
 ### Category Rendering
 
@@ -519,7 +505,6 @@ export interface FullSearchOptions {
     tabs?: FullSearchTabsOptions;
     behavior?: FullSearchBehaviorOptions;
     inputAssist?: FullSearchInputAssistOptions;
-    fields?: FullSearchFieldOptions;
     recommendations?: FullSearchRecommendationOptions;
 }
 ```
@@ -593,42 +578,6 @@ Defaults:
 - Search term predictions enabled.
 - Prediction entity types: Product, ProductCategory, Content.
 
-### Field Mapping
-
-```ts
-export interface FullSearchFieldOptions {
-    imageBaseUrl?: string;
-    product?: FullSearchProductFieldOptions;
-    content?: FullSearchContentFieldOptions;
-    category?: FullSearchCategoryFieldOptions;
-}
-```
-
-The full-search component uses these options to pass attributes to reusable tiles.
-
-Product field options:
-
-- `imageDataKey`
-- `urlDataKey`
-- `displayNameDataKey`
-- `descriptionDataKey`
-- `salesPriceDataKey`
-- `listPriceDataKey`
-- `brandDataKey`
-
-Content field options:
-
-- `imageDataKey`
-- `urlDataKey`
-- `displayNameDataKey`
-- `descriptionDataKey`
-
-Category field options:
-
-- `imageDataKey`
-- `urlDataKey`
-- `displayNameDataKey`
-
 ### Recommendations
 
 ```ts
@@ -686,8 +635,8 @@ Avoid adding components that simply duplicate current tiles/facets/sorting with 
 | Existing piece | Reuse | Notes |
 | --- | --- | --- |
 | `relewise-search-bar` | Direct reuse | Full-search controls URL/state itself. |
-| `relewise-product-tile` | Direct reuse | Add optional field mapping attributes first. |
-| `relewise-content-tile` | Direct reuse | Add optional field mapping attributes first. |
+| `relewise-product-tile` | Direct reuse | Custom product rendering uses existing `templates.product`. |
+| `relewise-content-tile` | Direct reuse | Custom content rendering uses existing `templates.content`. |
 | `relewise-facets` | Reuse after generalization | Must support content facets and scoped URL state. |
 | Facet item components | Reuse after generalization | Avoid duplicate product/content filter markup. |
 | `SearchSortingOptionsBuilder` | Reuse for product tab | Do not duplicate product sorting config. |
@@ -731,32 +680,7 @@ Acceptance:
 - Existing sorting tests still pass.
 - No full-search UI yet.
 
-### PR 2: Tile Field Mapping Enhancements
-
-Goal:
-
-Make product/content tiles flexible enough for full-search field mapping while preserving template overrides.
-
-Tasks:
-
-- Add optional data-key attributes to `ProductTile`.
-- Add optional data-key attributes to `ContentTile`.
-- Keep existing defaults unchanged.
-- Ensure custom `templates.product` and `templates.content` still fully override default rendering.
-- Add tests for:
-  - Product URL key.
-  - Product display name data key fallback.
-  - Product description data key.
-  - Product sales/list price data key fallback.
-  - Product brand data key rendering if enabled.
-  - Content URL/display/description data key fallback.
-
-Acceptance:
-
-- Existing tile image tests pass.
-- Existing recommendation/search components render as before when new attributes are absent.
-
-### PR 3: Facet Generalization
+### PR 2: Facet Generalization
 
 Goal:
 
@@ -778,7 +702,7 @@ Acceptance:
 - Content facet results can render through the same facet panel path.
 - No duplicate product/content facet row implementation.
 
-### PR 4: Full Search API And Skeleton
+### PR 3: Full Search API And Skeleton
 
 Goal:
 
@@ -803,7 +727,7 @@ Acceptance:
 - Modal can open/close.
 - No product/content/category network work yet, or only mocked/dev-safe network work.
 
-### PR 5: Products Tab
+### PR 4: Products Tab
 
 Goal:
 
@@ -816,7 +740,6 @@ Tasks:
 - Use existing `facets.product`.
 - Use existing product sorting builder and target overrides.
 - Render `relewise-product-tile`.
-- Pass configured field mapping attributes to tiles.
 - Support pagination/load more.
 - Support zero-result product tab state.
 
@@ -826,7 +749,7 @@ Acceptance:
 - Shopify-style target config can be applied through a `target` attribute or equivalent.
 - Product cards are fully overridable through `templates.product`.
 
-### PR 6: Product Categories And Content Tabs
+### PR 5: Product Categories And Content Tabs
 
 Goal:
 
@@ -850,7 +773,7 @@ Acceptance:
 - Content cards are fully overridable through `templates.content`.
 - Category cards have a documented default rendering and extension path.
 
-### PR 7: Input Assist
+### PR 6: Input Assist
 
 Goal:
 
@@ -872,7 +795,7 @@ Acceptance:
 - SearchTermPredictions only appears on focused typed input.
 - Suggestions do not persist after selection/search.
 
-### PR 8: Initial And No-Result Recommendation Blocks
+### PR 7: Initial And No-Result Recommendation Blocks
 
 Goal:
 
@@ -895,7 +818,7 @@ Acceptance:
 - Zero-result behavior follows config.
 - Tab auto-switch happens only from initial state.
 
-### PR 9: Responsive Layout And Styling
+### PR 8: Responsive Layout And Styling
 
 Goal:
 
@@ -923,7 +846,7 @@ Acceptance:
 - Cards do not overflow.
 - Search input, tabs, facets, and result layout are configurable by CSS variables.
 
-### PR 10: Documentation
+### PR 9: Documentation
 
 Goal:
 
@@ -967,7 +890,6 @@ Future Shopify tasks:
    - enabled tabs
    - initial/recovery blocks
    - input assist
-   - field mappings if not already covered by selected properties/templates
    - full-page search toggle
 8. Keep current compact overlay available.
 
@@ -1006,7 +928,6 @@ Test coverage by phase:
 
 - Request helper tests for product/category/content builders.
 - URL state tests for scoped full-search keys.
-- Tile rendering tests for field mapping.
 - Facet rendering tests for product and content facet result types.
 - Sorting builder/control tests.
 - Component registration tests.
@@ -1024,7 +945,6 @@ Test coverage by phase:
 - Research and plan alignment.
 - Extract shared product search request helper.
 - Add full-search scoped URL helper.
-- Extend product/content tile field mapping.
 - Add category tile.
 - Generalize facet renderer for content-compatible facets.
 - Add full-search option types and component registration.
