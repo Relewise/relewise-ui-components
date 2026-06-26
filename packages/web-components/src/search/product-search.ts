@@ -1,14 +1,11 @@
-import { DoubleNullableRange, ProductResult, ProductSearchResponse, User } from '@relewise/client';
+import { ProductResult, ProductSearchResponse, User } from '@relewise/client';
 import { LitElement, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
-import { getRelewiseContextSettings, getRelewiseSearchTargetedConfigurations, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
+import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, updateUrlState } from '../helpers';
+import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { getSearcher } from './searcher';
-import { Facet } from './types';
-import { RelewiseFacetBuilder } from '../facetBuilder';
-import { createProductSearchBuilder } from '../builders';
-import { getSearchSortingOptions, getSearchSortingSelection } from './searchSortingBuilder';
+import { buildProductSearchRequest } from './productSearchRequestBuilder';
 
 export class ProductSearch extends LitElement {
 
@@ -115,54 +112,25 @@ export class ProductSearch extends LitElement {
         const numberOfProductsToFetch = getNumberOfProductsToFetch();
 
         const relewiseUIOptions = getRelewiseUIOptions();
-        const targetedConfiguration = getRelewiseSearchTargetedConfigurations();
-        const searchOptions = getRelewiseUISearchOptions();
         const searcher = getSearcher(relewiseUIOptions);
-        const sortingOptions = getSearchSortingOptions(searchOptions?.sorting);
 
         // Wait a tick so runtime filter extensions can run before the first automatic search executes.
         await new Promise(r => setTimeout(r, 0));
         const settings = await getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search');
         this.user = settings.user;
-        const requestBuilder = createProductSearchBuilder(term, settings)
-            .pagination(p => p
-                .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)
-                .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))
-            .facets(builder => {
-                if (searchOptions?.facets?.product) {
-                    const facetBuilder = new RelewiseFacetBuilder(builder);
-                    searchOptions.facets.product(facetBuilder);
-                    this.facetLabels = facetBuilder.getLabels();
-                }
-            })
-            .sorting(builder => {
-                const sorting = getSearchSortingSelection(sortingOptions, readCurrentUrlState(QueryKeys.sortBy));
-
-                if (sorting) {
-                    sorting.apply(builder);
-                    return;
-                }
-
-                builder.sortByProductRelevance();
-            });
-
-        if (this.target) {
-            const overwrittenConfigSettings = targetedConfiguration.handle(this.target, requestBuilder);
-            if (overwrittenConfigSettings.facetLabels) {
-                this.facetLabels = overwrittenConfigSettings.facetLabels;
-            }
-        }
-
-        const request = requestBuilder.build();
-
-        if (request.facets) {
-            request.facets.items.forEach(facet => {
-                this.getSelectedValuesForFacet(facet);
-            });
-        }
+        const requestResult = buildProductSearchRequest({
+            term,
+            settings,
+            page: this.page,
+            pageSize: this.numberOfProducts,
+            productsLoaded: this.products.length,
+            productsToFetch: numberOfProductsToFetch,
+            target: this.target,
+        });
+        this.facetLabels = requestResult.facetLabels;
 
         this.abortController = new AbortController();
-        const response = await searcher.searchProducts(request, { abortSignal: this.abortController.signal });
+        const response = await searcher.searchProducts(requestResult.request, { abortSignal: this.abortController.signal });
         if (!response) {
             return;
         }
@@ -177,76 +145,6 @@ export class ProductSearch extends LitElement {
 
         this.setSearchResultOnSlotChilderen();
         window.dispatchEvent(new CustomEvent(Events.searchingForProductsCompleted));
-    }
-
-    getSelectedValuesForFacet(facet: Facet) {
-        if (facet.$type.includes('ProductDataDoubleRangeFacet') ||
-            facet.$type.includes('PriceRangeFacet')) {
-            this.getSelectedRange(facet);
-            return;
-        }
-
-        if (facet.$type.includes('PriceRangesFacet') ||
-            facet.$type.includes('ProductDataDoubleRangesFacet')) {
-            this.getSelectedRanges(facet);
-            return;
-        }
-
-        this.getSelectedStrings(facet);
-
-        if (!facet.settings) {
-            facet.settings = { alwaysIncludeSelectedInAvailable: true, includeZeroHitsInAvailable: false };
-        }
-    }
-
-    getSelectedRange(facet: Facet) {
-        if ('selected' in facet) {
-            let upperBound = null;
-            let lowerBound = null;
-
-            if ('key' in facet) {
-                upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field + facet.key);
-                lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field + facet.key);
-            } else {
-                upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field);
-                lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field);
-            }
-
-            facet.selected = {
-                lowerBoundInclusive: lowerBound ? +lowerBound : null,
-                upperBoundInclusive: upperBound ? +upperBound : null,
-            };
-        }
-    }
-
-    getSelectedRanges(facet: Facet) {
-        if ('selected' in facet) {
-            let queryValues = null;
-            if ('key' in facet) {
-                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key);
-            } else {
-                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field);
-            }
-            facet.selected = queryValues.map(x => {
-                const split = x.split('-');
-                return {
-                    lowerBoundInclusive: +split[0],
-                    upperBoundExclusive: +split[1],
-                } as DoubleNullableRange;
-            });
-        }
-    }
-
-    getSelectedStrings(facet: Facet) {
-        if ('selected' in facet) {
-            let queryValues = null;
-            if ('key' in facet) {
-                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key);
-            } else {
-                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field);
-            }
-            facet.selected = queryValues;
-        }
     }
 
     setSearchResultOnSlotChilderen() {
