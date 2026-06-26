@@ -10,7 +10,7 @@ const settings: Settings = {
     user: UserFactory.anonymous(),
 };
 
-suite('productSearchRequest', () => {
+suite('productSearchRequestBuilder', () => {
     setup(() => {
         clearUrlState();
         initializeRelewiseUI(mockRelewiseOptions());
