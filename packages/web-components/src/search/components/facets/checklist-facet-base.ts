@@ -31,11 +31,7 @@ export abstract class ChecklistFacetBase extends LitElement {
         window.addEventListener(Events.search, this.clearSelectedValuesBound);
 
         if (this.result) {
-            if ('key' in this.result) {
-                this.selectedValues = readCurrentUrlStateValues(QueryKeys.facet + this.result.field + this.result.key);
-            } else {
-                this.selectedValues = readCurrentUrlStateValues(QueryKeys.facet + this.result.field);
-            }
+            this.selectedValues = readCurrentUrlStateValues(this.getFacetQueryKey());
         }
     }
 
@@ -54,15 +50,23 @@ export abstract class ChecklistFacetBase extends LitElement {
             return;
         }
 
-        if ('key' in this.result) {
-            updateUrlStateValues(QueryKeys.facet + this.result.field + this.result.key, this.selectedValues);
-        } else {
-            updateUrlStateValues(QueryKeys.facet + this.result.field, this.selectedValues);
-        }
+        updateUrlStateValues(this.getFacetQueryKey(), this.selectedValues);
 
         if (searchForProducts) {
             window.dispatchEvent(new CustomEvent(Events.applyFacet));
         }
+    }
+
+    getFacetQueryKey(): string {
+        if (!this.result) {
+            return QueryKeys.facet;
+        }
+
+        if ('key' in this.result) {
+            return QueryKeys.facet + this.result.field + this.result.key;
+        }
+
+        return QueryKeys.facet + this.result.field;
     }
 
     render() {

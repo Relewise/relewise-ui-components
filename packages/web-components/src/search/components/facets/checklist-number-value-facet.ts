@@ -1,13 +1,13 @@
-import { BooleanAvailableFacetValue, BrandNameAndIdResultAvailableFacetValue, Int32AvailableFacetValue, ProductAssortmentFacetResult, ProductDataDoubleValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
+import { BooleanAvailableFacetValue, BrandNameAndIdResultAvailableFacetValue, ContentAssortmentFacetResult, ContentDataDoubleValueFacetResult, ContentDataIntegerValueFacetResult, DoubleAvailableFacetValue, Int32AvailableFacetValue, ProductAssortmentFacetResult, ProductCategoryAssortmentFacetResult, ProductCategoryDataDoubleValueFacetResult, ProductDataDoubleValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
 import { property } from 'lit/decorators.js';
 import { ChecklistFacetBase } from './checklist-facet-base';
 
 export class ChecklistNumberValueFacet extends ChecklistFacetBase {
 
     @property({ type: Object })
-    result: ProductAssortmentFacetResult | ProductDataDoubleValueFacetResult | null = null;
+    result: ProductAssortmentFacetResult | ProductDataDoubleValueFacetResult | ContentAssortmentFacetResult | ContentDataDoubleValueFacetResult | ContentDataIntegerValueFacetResult | ProductCategoryAssortmentFacetResult | ProductCategoryDataDoubleValueFacetResult | null = null;
 
-    handleChange(e: Event, item: Int32AvailableFacetValue) {
+    handleChange(e: Event, item: Int32AvailableFacetValue | DoubleAvailableFacetValue) {
         const checkbox = e.target as HTMLInputElement;
 
         if (!item.value || !this.result) {
@@ -24,7 +24,7 @@ export class ChecklistNumberValueFacet extends ChecklistFacetBase {
         this.updateUrlState(true);
     }
 
-    getOptionDisplayValue(item: Int32AvailableFacetValue): string {
+    getOptionDisplayValue(item: Int32AvailableFacetValue | DoubleAvailableFacetValue): string {
         if (!item.value) {
             return '';
         }
@@ -32,7 +32,7 @@ export class ChecklistNumberValueFacet extends ChecklistFacetBase {
         return item.value.toString();
     }
 
-    shouldOptionBeChecked(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue): boolean {
+    shouldOptionBeChecked(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue | DoubleAvailableFacetValue): boolean {
         if (!item.value) {
             return false;
         }
