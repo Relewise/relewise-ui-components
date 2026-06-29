@@ -36,15 +36,14 @@ suite('facet generalization', () => {
         assert.deepEqual(new URL(window.location.href).searchParams.getAll(QueryKeys.facet + 'DataColor'), ['Red']);
     });
 
-    test('renders content facets through the same checklist component with scoped URL keys', async () => {
+    test('renders content facets through the same checklist component with existing URL keys', async () => {
         let eventCount = 0;
         window.addEventListener(Events.applyFacet, () => eventCount++, { once: true });
 
         const el = await fixture(html`
             <relewise-facets
                 .facetResult=${contentStringFacetResult()}
-                .labels=${['Topic']}
-                facet-query-key-prefix="rw-content-facet-">
+                .labels=${['Topic']}>
             </relewise-facets>
         `) as Facets;
 
@@ -57,8 +56,7 @@ suite('facet generalization', () => {
         facet.shadowRoot!.querySelector('input')!.click();
 
         const searchParams = new URL(window.location.href).searchParams;
-        assert.deepEqual(searchParams.getAll('rw-content-facet-DataTopic'), ['Guide']);
-        assert.deepEqual(searchParams.getAll(QueryKeys.facet + 'DataTopic'), []);
+        assert.deepEqual(searchParams.getAll(QueryKeys.facet + 'DataTopic'), ['Guide']);
         assert.equal(eventCount, 1);
     });
 

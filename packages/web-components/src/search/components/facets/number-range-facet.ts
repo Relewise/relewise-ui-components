@@ -12,12 +12,6 @@ export class NumberRangeFacet extends LitElement {
     @property()
     label: string = '';
 
-    @property({ attribute: 'facet-upper-bound-query-key-prefix' })
-    facetUpperBoundQueryKeyPrefix: string = QueryKeys.facetUpperbound;
-
-    @property({ attribute: 'facet-lower-bound-query-key-prefix' })
-    facetLowerBoundQueryKeyPrefix: string = QueryKeys.facetLowerbound;
-
     @state()
     upperBound: number | null | undefined = null;
 
@@ -94,26 +88,26 @@ export class NumberRangeFacet extends LitElement {
 
     getFacetUpperBoundQueryKey(): string {
         if (!this.result) {
-            return this.facetUpperBoundQueryKeyPrefix;
+            return QueryKeys.facetUpperbound;
         }
 
         if ('key' in this.result) {
-            return this.facetUpperBoundQueryKeyPrefix + this.result.field + this.result.key;
+            return QueryKeys.facetUpperbound + this.result.field + this.result.key;
         }
 
-        return this.facetUpperBoundQueryKeyPrefix + this.result.field;
+        return QueryKeys.facetUpperbound + this.result.field;
     }
 
     getFacetLowerBoundQueryKey(): string {
         if (!this.result) {
-            return this.facetLowerBoundQueryKeyPrefix;
+            return QueryKeys.facetLowerbound;
         }
 
         if ('key' in this.result) {
-            return this.facetLowerBoundQueryKeyPrefix + this.result.field + this.result.key;
+            return QueryKeys.facetLowerbound + this.result.field + this.result.key;
         }
 
-        return this.facetLowerBoundQueryKeyPrefix + this.result.field;
+        return QueryKeys.facetLowerbound + this.result.field;
     }
 
     handleKeyEvent(event: KeyboardEvent): void {

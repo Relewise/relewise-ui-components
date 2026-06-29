@@ -268,7 +268,7 @@ export interface SearchFacets {
   - `ContentDataDoubleRangeFacetResult`
   - `ContentAssortmentFacetResult`
   - `CategoryHierarchyFacetResult` for content categories if compatible.
-- Add an overridable URL key scope/prefix so product and content selected facet values do not collide.
+- Keep existing facet URL keys in this phase; add scoped full-search facet URL state later with the full-search orchestrator if product/content facet keys can collide.
 - Keep facet components dispatching the existing `Events.applyFacet` event in this phase.
 - Add scoped product/content facet events later only if the full-search orchestrator needs separate event handling.
 - Hide empty facet groups.
@@ -639,7 +639,7 @@ Avoid adding components that simply duplicate current tiles/facets/sorting with 
 | `relewise-search-bar` | Direct reuse | Full-search controls URL/state itself. |
 | `relewise-product-tile` | Direct reuse | Custom product rendering uses existing `templates.product`. |
 | `relewise-content-tile` | Direct reuse | Custom content rendering uses existing `templates.content`. |
-| `relewise-facets` | Reuse after generalization | Must support content facets and scoped URL state. |
+| `relewise-facets` | Reuse after generalization | Must support content-compatible facet result shapes; scoped URL state belongs with the full-search orchestrator if needed. |
 | Facet item components | Reuse after generalization | Avoid duplicate product/content filter markup. |
 | `SearchSortingOptionsBuilder` | Reuse for product tab | Do not duplicate product sorting config. |
 | `relewise-product-search-sorting` | Reuse logic, maybe not component | Component is currently coupled to product URL state. |
@@ -691,7 +691,6 @@ Make facet rendering reusable for full-search product and content tabs.
 Tasks:
 
 - Broaden facet component types from product-only to compatible generic facet result types.
-- Add URL key scope/prefix support.
 - Add content data string/boolean/double facet rendering.
 - Add content assortment facet rendering if compatible.
 - Add content category hierarchy rendering if supported cleanly.

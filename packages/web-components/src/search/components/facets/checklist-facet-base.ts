@@ -18,9 +18,6 @@ export abstract class ChecklistFacetBase extends LitElement {
     @property()
     label: string = '';
 
-    @property({ attribute: 'facet-query-key-prefix' })
-    facetQueryKeyPrefix: string = QueryKeys.facet;
-
     @state()
     selectedValues: string[] = [];
 
@@ -62,14 +59,14 @@ export abstract class ChecklistFacetBase extends LitElement {
 
     getFacetQueryKey(): string {
         if (!this.result) {
-            return this.facetQueryKeyPrefix;
+            return QueryKeys.facet;
         }
 
         if ('key' in this.result) {
-            return this.facetQueryKeyPrefix + this.result.field + this.result.key;
+            return QueryKeys.facet + this.result.field + this.result.key;
         }
 
-        return this.facetQueryKeyPrefix + this.result.field;
+        return QueryKeys.facet + this.result.field;
     }
 
     render() {
