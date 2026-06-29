@@ -616,6 +616,35 @@ useSearch({
 });
 ```
 
+#### Full Search
+This component renders a full-search shell that can be opened by a custom trigger. In this initial version, it provides modal state and search term URL synchronization only. Product, content, category, and recommendation result orchestration will be added separately.
+
+```ts
+useSearch({
+    fullSearch: {},
+});
+```
+
+```html
+<button onclick="document.querySelector('relewise-full-search').open()">
+    Search
+</button>
+
+<relewise-full-search displayed-at-location="LOCATION"></relewise-full-search>
+```
+
+The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
+
+##### Attributes
+
+- **displayed-at-location** :
+
+    Where the full-search component is being shown.
+
+- **open** (Optional, true/false):
+
+    Opens the modal shell. The component can also be controlled through the `open()` and `close()` methods.
+
 #### Product Search Overlay
 This component renders a search bar that will [search for products](https://docs.relewise.com/docs/intro/search.html#product-search) in Relewise and show results in an overlay.
 

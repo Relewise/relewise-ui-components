@@ -63,11 +63,10 @@ initializeRelewiseUI({ ... }).useSearch({
         .addRelevance()
         .addSalesPriceAscending(),
     fullSearch: {
-        enabled: true,
         tabs: {
-            products: { enabled: true },
-            productCategories: { enabled: true },
-            content: { enabled: true },
+            products: {},
+            productCategories: {},
+            content: {},
         },
     },
 });
@@ -503,13 +502,14 @@ Proposed starting shape:
 
 ```ts
 export interface FullSearchOptions {
-    enabled?: boolean;
     tabs?: FullSearchTabsOptions;
     behavior?: FullSearchBehaviorOptions;
     inputAssist?: FullSearchInputAssistOptions;
     recommendations?: FullSearchRecommendationOptions;
 }
 ```
+
+Providing `fullSearch` opts in to registering and using the full-search component. There is no top-level `enabled` flag; consumers remove or omit `fullSearch` to opt out.
 
 Keep styling primarily in CSS variables and parts, not JavaScript configuration.
 
@@ -523,13 +523,13 @@ export interface FullSearchTabsOptions {
 }
 
 export interface FullSearchTabOptions {
-    enabled?: boolean;
     pageSize?: number;
 }
 ```
 
 Notes:
 
+- Providing a tab option enables that tab. Omit a tab to disable it.
 - Product tab uses existing `facets.product` and existing `sorting`.
 - Content facets can use `facets.content` once added.
 - Content/category sorting needs separate config if included.
@@ -563,11 +563,9 @@ Rules:
 ```ts
 export interface FullSearchInputAssistOptions {
     popularSearchTerms?: {
-        enabled?: boolean;
         take?: number;
     };
     searchTermPredictions?: {
-        enabled?: boolean;
         take?: number;
         entityTypes?: Array<'Product' | 'ProductCategory' | 'Content'>;
     };
@@ -576,9 +574,8 @@ export interface FullSearchInputAssistOptions {
 
 Defaults:
 
-- Popular search terms enabled.
-- Search term predictions enabled.
-- Prediction entity types: Product, ProductCategory, Content.
+- Providing an input-assist option enables that section. Omit a section to disable it.
+- Prediction entity types default to Product, ProductCategory, Content when search term predictions are configured.
 
 ### Recommendations
 
@@ -608,10 +605,11 @@ export interface FullSearchRecommendationBlock {
         | 'PopularContentCategories'
         | 'PopularSearchTerms'
         | 'SearchTermBasedProduct';
-    enabled?: boolean;
     take?: number;
 }
 ```
+
+Providing a recommendation block enables it. Omit the block to disable it.
 
 ## Component Model
 
@@ -715,12 +713,15 @@ Tasks:
 - Register `relewise-full-search` through `useSearch`.
 - Add base modal shell:
   - open/close
+  - reflected `open` attribute with `open()` / `close()` methods
   - search input
   - keyboard close
   - ARIA dialog semantics
   - CSS parts and variables
 - Add URL term read/write using `rw-term`.
 - Add initial termless view placeholder.
+- Do not auto-open from `rw-term` in this phase; prefill only.
+- Do not add tab placeholders in this phase.
 
 Acceptance:
 

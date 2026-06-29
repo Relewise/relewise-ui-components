@@ -1,5 +1,6 @@
 export * from './components'; 
 export * from './enums'; 
+export * from './full-search';
 export * from './product-search-overlay';
 export * from './product-search';
 export * from './productSearchRequestBuilder';
