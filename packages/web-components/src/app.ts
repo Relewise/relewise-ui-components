@@ -120,6 +120,7 @@ export interface SearchFilters {
 
 export interface SearchFacets {
     product?: (builder: RelewiseFacetBuilder) => void;
+    content?: (builder: RelewiseFacetBuilder) => void;
 }
 
 export interface SearchTemplates {

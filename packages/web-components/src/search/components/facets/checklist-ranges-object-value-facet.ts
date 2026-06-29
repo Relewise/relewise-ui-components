@@ -1,11 +1,11 @@
-import { DecimalNullableChainableRangeAvailableFacetValue, PriceRangesFacetResult, ProductDataDoubleRangesFacetResult } from '@relewise/client';
+import { ContentDataDoubleRangesFacetResult, DecimalNullableChainableRangeAvailableFacetValue, PriceRangesFacetResult, ProductCategoryDataDoubleRangesFacetResult, ProductDataDoubleRangesFacetResult } from '@relewise/client';
 import { property } from 'lit/decorators.js';
 import { ChecklistFacetBase } from './checklist-facet-base';
 
 export class ChecklistRangesObjectValueFacet extends ChecklistFacetBase {
 
     @property({ type: Object })
-    result: PriceRangesFacetResult | ProductDataDoubleRangesFacetResult | null = null;
+    result: PriceRangesFacetResult | ProductDataDoubleRangesFacetResult | ContentDataDoubleRangesFacetResult | ProductCategoryDataDoubleRangesFacetResult | null = null;
 
     handleChange(e: Event, item: DecimalNullableChainableRangeAvailableFacetValue) {
         const checkbox = e.target as HTMLInputElement;
