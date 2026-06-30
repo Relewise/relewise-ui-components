@@ -1,9 +1,30 @@
 import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
-import { clearUrlState, UniversalSearch, QueryKeys, readCurrentUrlState, updateUrlState, useSearch } from '../src';
+import { ProductResult, Searcher } from '@relewise/client';
+import { clearUrlState, UniversalSearch, initializeRelewiseUI, QueryKeys, readCurrentUrlState, updateUrlState, useSearch } from '../src';
+import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
+
+function product(productId: string): ProductResult {
+    return {
+        productId,
+        rank: 1,
+        displayName: `Product ${productId}`,
+        salesPrice: 10,
+        data: {
+            Url: {
+                type: 'String',
+                isCollection: false,
+                value: `/products/${productId}`,
+            },
+        },
+    } as ProductResult;
+}
 
 suite('relewise-universal-search', () => {
+    const originalSearchProducts = Searcher.prototype.searchProducts;
+
     setup(() => {
         clearUrlState();
+        Searcher.prototype.searchProducts = originalSearchProducts;
         useSearch({ debounceTimeInMs: 0, universalSearch: {} });
     });
 
@@ -11,6 +32,8 @@ suite('relewise-universal-search', () => {
         clearUrlState();
         fixtureCleanup();
         window.relewiseUISearchOptions = undefined!;
+        window.relewiseUIOptions = undefined!;
+        Searcher.prototype.searchProducts = originalSearchProducts;
     });
 
     test('is registered through useSearch', () => {
@@ -100,5 +123,108 @@ suite('relewise-universal-search', () => {
         el.setSearchTerm('shoe');
 
         await waitUntil(() => readCurrentUrlState(QueryKeys.term) === 'shoe', 'term was not written to URL state');
+    });
+
+    test('does not render tabs without a search term', async () => {
+        useSearch({ debounceTimeInMs: 0, universalSearch: { tabs: { products: {} } } });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        assert.isNull(el.shadowRoot!.querySelector('[part="tabs"]'));
+        assert.include(el.shadowRoot!.textContent ?? '', 'Start typing to search.');
+    });
+
+    test('searches and renders products when products tab is configured', async () => {
+        let capturedTerm: string | null = null;
+
+        Searcher.prototype.searchProducts = async function(request) {
+            capturedTerm = request.term ?? null;
+
+            return {
+                hits: 1,
+                results: [product('1')],
+                facets: null,
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: { tabs: { products: { pageSize: 2 } } } });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        el.setSearchTerm('shoe');
+
+        await waitUntil(() => el.products.length === 1, 'products were not rendered');
+
+        assert.equal(capturedTerm, 'shoe');
+        assert.isNotNull(el.shadowRoot!.querySelector('[part="tabs"]'));
+        assert.equal(el.shadowRoot!.querySelectorAll('relewise-product-tile').length, 1);
+    });
+
+    test('loads more products using existing take URL state', async () => {
+        let searchCount = 0;
+
+        Searcher.prototype.searchProducts = async function() {
+            searchCount++;
+
+            return {
+                hits: 3,
+                results: searchCount === 1 ? [product('1'), product('2')] : [product('3')],
+                facets: null,
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: { tabs: { products: { pageSize: 2 } } } });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        el.setSearchTerm('shoe');
+        await waitUntil(() => el.products.length === 2, 'initial products were not rendered');
+
+        el.handleLoadMoreProducts();
+        await waitUntil(() => el.products.length === 3, 'more products were not appended');
+
+        assert.equal(readCurrentUrlState(QueryKeys.take), '4');
+        assert.equal(el.shadowRoot!.querySelectorAll('relewise-product-tile').length, 3);
+    });
+
+    test('continues load more from an existing take URL state', async () => {
+        let searchCount = 0;
+
+        Searcher.prototype.searchProducts = async function() {
+            searchCount++;
+
+            return {
+                hits: 6,
+                results: searchCount === 1
+                    ? [product('1'), product('2'), product('3'), product('4')]
+                    : [product('5'), product('6')],
+                facets: null,
+            } as any;
+        };
+
+        updateUrlState(QueryKeys.term, 'shoe');
+        updateUrlState(QueryKeys.take, '4');
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: { tabs: { products: { pageSize: 2 } } } });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        await waitUntil(() => el.products.length === 4, 'initial URL take was not loaded');
+
+        el.handleLoadMoreProducts();
+        await waitUntil(() => el.products.length === 6, 'more products were not appended after URL take');
+
+        assert.equal(readCurrentUrlState(QueryKeys.take), '6');
     });
 });

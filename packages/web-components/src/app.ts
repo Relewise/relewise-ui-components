@@ -51,6 +51,15 @@ export interface RelewiseUISearchOptions {
 }
 
 export interface UniversalSearchOptions {
+    tabs?: UniversalSearchTabsOptions;
+}
+
+export interface UniversalSearchTabsOptions {
+    products?: UniversalSearchProductsTabOptions;
+}
+
+export interface UniversalSearchProductsTabOptions {
+    pageSize?: number;
 }
 
 export interface SearchLocalization {

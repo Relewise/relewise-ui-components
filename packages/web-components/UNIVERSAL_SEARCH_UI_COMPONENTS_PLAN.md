@@ -1,6 +1,6 @@
 # Universal Search UI Components Plan
 
-Last updated: 2026-06-26
+Last updated: 2026-06-30
 
 ## Purpose
 
@@ -634,7 +634,7 @@ Avoid adding components that simply duplicate current tiles/facets/sorting with 
 
 | Existing piece | Reuse | Notes |
 | --- | --- | --- |
-| `relewise-search-bar` | Direct reuse | Full-search controls URL/state itself. |
+| `relewise-search-bar` | Direct reuse | Universal Search controls URL/state itself. |
 | `relewise-product-tile` | Direct reuse | Custom product rendering uses existing `templates.product`. |
 | `relewise-content-tile` | Direct reuse | Custom content rendering uses existing `templates.content`. |
 | `relewise-facets` | Reuse after generalization | Must support content-compatible facet result shapes; scoped URL state belongs with the universal-search orchestrator if needed. |
@@ -742,7 +742,7 @@ Tasks:
 - Use existing `facets.product`.
 - Use existing product sorting builder and target overrides.
 - Render `relewise-product-tile`.
-- Support pagination/load more.
+- Support existing load-more behavior.
 - Support zero-result product tab state.
 
 Acceptance:
@@ -750,6 +750,8 @@ Acceptance:
 - Product facets/sorting match current product search config.
 - Shopify-style target config can be applied through a `target` attribute or equivalent.
 - Product cards are fully overridable through `templates.product`.
+- Tabs remain hidden before a search term exists.
+- Other pagination modes can be considered later, but are not part of this phase.
 
 ### PR 5: Product Categories And Content Tabs
 

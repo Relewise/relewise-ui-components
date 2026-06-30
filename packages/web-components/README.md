@@ -621,11 +621,26 @@ useSearch({
 ```
 
 #### Universal Search
-This component renders a universal-search modal that can be opened by a custom trigger. In this initial version, it provides modal state and search term URL synchronization only. Product, content, category, and recommendation result orchestration will be added separately.
+This component renders a universal-search modal that can be opened by a custom trigger. The products tab can be enabled through `useSearch({ universalSearch })` and reuses the existing product search configuration for facets, sorting, filters, relevance modifiers, selected properties, and target overrides.
 
 ```ts
 useSearch({
-    universalSearch: {},
+    facets: {
+        product(builder) {
+            builder.addFacet(f => f.addBrandFacet(), { heading: 'Brand' });
+        },
+    },
+    sorting: sorting => sorting
+        .clear()
+        .addRelevance()
+        .addSalesPriceAscending(),
+    universalSearch: {
+        tabs: {
+            products: {
+                pageSize: 16,
+            },
+        },
+    },
 });
 ```
 
@@ -638,6 +653,10 @@ useSearch({
 ```
 
 The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
+
+When the products tab is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option. Additional universal-search tabs for product categories and content will be added separately.
+
+The current products tab uses load-more behavior. Additional pagination modes are not part of the initial products tab implementation.
 
 ##### Attributes
 
