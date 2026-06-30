@@ -1,9 +1,10 @@
-import { LitElement, css, html, nothing } from 'lit';
+import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../helpers';
+import { RelewiseLitElement } from '../relewise-lit-element';
 import { theme } from '../theme';
 
-export class FullSearch extends LitElement {
+export class FullSearch extends RelewiseLitElement {
 
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;
@@ -64,7 +65,7 @@ export class FullSearch extends LitElement {
         this.close();
     }
 
-    handleBackdropClick(event: MouseEvent): void {
+    closeWhenClickingOutsideDialog(event: MouseEvent): void {
         if (event.target === event.currentTarget) {
             this.close();
         }
@@ -78,7 +79,7 @@ export class FullSearch extends LitElement {
         const localization = getRelewiseUISearchOptions()?.localization?.searchBar;
 
         return html`
-            <div class="rw-backdrop" part="backdrop" @click=${this.handleBackdropClick}>
+            <div class="rw-backdrop" part="backdrop" @click=${this.closeWhenClickingOutsideDialog}>
                 <section
                     class="rw-dialog"
                     part="dialog"
