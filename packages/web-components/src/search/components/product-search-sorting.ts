@@ -1,10 +1,11 @@
-import { LitElement, css, html, nothing } from 'lit';
+import { RelewiseLitElement } from '../../relewise-lit-element';
+import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../helpers';
 import { theme } from '../../theme';
 import { getSearchSortingOptions, SearchSortingOption } from '../searchSortingBuilder';
 
-export class ProductSearchSorting extends LitElement {
+export class ProductSearchSorting extends RelewiseLitElement {
     @property({ type: String, attribute: 'target' })
     target: string | null = null;
 

@@ -1,7 +1,8 @@
-import { LitElement, css, html } from 'lit';
+import { RelewiseLitElement } from '../relewise-lit-element';
+import { css, html } from 'lit';
 import { theme } from '../theme';
 
-export class LoadingSpinner extends LitElement {
+export class LoadingSpinner extends RelewiseLitElement {
     render() {
         return html`<div class="loader"></div>`;
     }

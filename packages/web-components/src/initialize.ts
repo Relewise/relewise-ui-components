@@ -33,6 +33,14 @@ export type RelewiseUILocalization = {
     sentimentButtons?: SentimentButtonsLocalization;
 };
 
+export type RelewiseDomMode = 'shadow' | 'light';
+export type RelewiseComponentStyling = 'default' | 'none';
+
+export interface RelewiseComponentsOptions {
+    domMode?: RelewiseDomMode;
+    styling?: RelewiseComponentStyling;
+}
+
 export interface RelewiseUIOptions {
     datasetId: string;
     apiKey: string;
@@ -50,6 +58,7 @@ export interface RelewiseUIOptions {
     relevanceModifiers?: RelevanceModifiers;
     targets?: Targets;
     userEngagement?: UserEngagementOptions;
+    components?: RelewiseComponentsOptions;
 }
 
 export interface Filters {

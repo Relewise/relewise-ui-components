@@ -1,9 +1,10 @@
-import { LitElement, css, html } from 'lit';
+import { RelewiseLitElement } from '../../relewise-lit-element';
+import { css, html } from 'lit';
 
 /**
  * Icon is sourced from: https://iconmonstr.com/heart-lined-svg/
  */
-export class HeartIcon extends LitElement {
+export class HeartIcon extends RelewiseLitElement {
 
     connectedCallback(): void {
         super.connectedCallback();

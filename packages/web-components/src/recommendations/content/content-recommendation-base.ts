@@ -1,10 +1,11 @@
+import { RelewiseLitElement } from '../../relewise-lit-element';
 import { ContentRecommendationRequest, ContentRecommendationResponse, ContentResult, User } from '@relewise/client';
-import { LitElement, css, html } from 'lit';
+import { css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
 import { getRelewiseUIOptions } from '../../helpers';
 
-export abstract class ContentRecommendationBase extends LitElement {
+export abstract class ContentRecommendationBase extends RelewiseLitElement {
 
     @property({ type: String, attribute: 'target' })
     target: string | null = null;

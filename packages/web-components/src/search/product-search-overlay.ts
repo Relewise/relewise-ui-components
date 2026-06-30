@@ -1,5 +1,6 @@
+import { RelewiseLitElement } from '../relewise-lit-element';
 import { ProductCategoryResult, ProductCategorySearchResponse, ProductResult, ProductSearchResponse, RedirectResult, SearchCollectionBuilder, SearchTermPredictionBuilder, SearchTermPredictionResponse, SearchTermPredictionResult, User } from '@relewise/client';
-import { LitElement, css, html, nothing } from 'lit';
+import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { getSearcher } from './searcher';
@@ -15,7 +16,7 @@ export type SearchResult = {
     showAllResults?: boolean;
 }
 
-export class ProductSearchOverlay extends LitElement {
+export class ProductSearchOverlay extends RelewiseLitElement {
 
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;

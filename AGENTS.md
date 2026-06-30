@@ -61,6 +61,7 @@ Preserve current file/module patterns:
 - Keep exports wired through existing barrels (`src/index.ts` and feature `index.ts` files).
 - Keep custom-element definitions idempotent (existing `tryRegisterElement` pattern).
 - Keep event listener lifecycle symmetric (`connectedCallback` add, `disconnectedCallback` remove).
+- All Lit-based Relewise web components must extend `RelewiseLitElement` unless there is a documented reason not to. This preserves shared behavior such as `components.domMode`, Light DOM stylesheet registration, and future cross-component runtime settings.
 - Prefer extending existing base classes for recommendations/search components when applicable.
 
 Prefer the simplest type/control-flow that correctly expresses the runtime behavior:
@@ -72,11 +73,12 @@ Prefer the simplest type/control-flow that correctly expresses the runtime behav
 
 ## Safe Change Patterns
 When adding/changing components:
-1. Implement component logic in feature folder (`recommendations`, `search`, `tracking`, or `components`).
-2. Register tag via existing app registration flow if needed.
-3. Export through relevant barrel files.
-4. Add/update tests under `tests/`.
-5. Update `packages/web-components/README.md` for new attributes, behavior, or examples.
+1. Extend `RelewiseLitElement` for Lit components so global component options apply consistently.
+2. Implement component logic in feature folder (`recommendations`, `search`, `tracking`, or `components`).
+3. Register tag via existing app registration flow if needed.
+4. Export through relevant barrel files.
+5. Add/update tests under `tests/`.
+6. Update `packages/web-components/README.md` for new attributes, behavior, or examples.
 
 When changing initialization/configuration behavior:
 - Preserve backward compatibility of `RelewiseUIOptions` and `RelewiseUISearchOptions`.

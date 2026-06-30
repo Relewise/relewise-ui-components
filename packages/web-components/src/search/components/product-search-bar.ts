@@ -1,9 +1,10 @@
-import { LitElement, css, html } from 'lit';
+import { RelewiseLitElement } from '../../relewise-lit-element';
+import { css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, clearUrlState, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../helpers';
 import { theme } from '../../theme';
 
-export class ProductSearchBar extends LitElement {
+export class ProductSearchBar extends RelewiseLitElement {
     @property({ type: Boolean, reflect: true })
     autofocus = false;
 
@@ -78,7 +79,7 @@ export class ProductSearchBar extends LitElement {
                 height: 3em;
             }
 
-            .rw-search-bar {
+            :host > .rw-search-bar {
                 width: var(--relewise-product-search-bar-width, 100%);
                 --color: var(--accent-color);
             }

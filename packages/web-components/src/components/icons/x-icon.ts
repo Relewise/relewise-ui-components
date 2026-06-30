@@ -1,6 +1,7 @@
-import { LitElement, css, html } from 'lit';
+import { RelewiseLitElement } from '../../relewise-lit-element';
+import { css, html } from 'lit';
 
-export class XIcon extends LitElement {
+export class XIcon extends RelewiseLitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
