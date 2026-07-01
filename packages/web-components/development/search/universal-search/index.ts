@@ -19,5 +19,5 @@ initializeRelewiseUI(
         },
     },
 ).useSearch({
-    fullSearch: {},
+    universalSearch: {},
 });

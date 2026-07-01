@@ -4,7 +4,7 @@ import { QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlSt
 import { RelewiseLitElement } from '../relewise-lit-element';
 import { theme } from '../theme';
 
-export class FullSearch extends RelewiseLitElement {
+export class UniversalSearch extends RelewiseLitElement {
 
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;
@@ -78,7 +78,7 @@ export class FullSearch extends RelewiseLitElement {
 
         const localization = getRelewiseUISearchOptions()?.localization;
         const searchBarLocalization = localization?.searchBar;
-        const fullSearchLocalization = localization?.fullSearch;
+        const universalSearchLocalization = localization?.universalSearch;
 
         return html`
             <div class="rw-backdrop" part="backdrop" @click=${this.closeWhenClickingOutsideDialog}>
@@ -101,13 +101,13 @@ export class FullSearch extends RelewiseLitElement {
                         <relewise-button
                             class="rw-close"
                             part="close-button"
-                            button-text=${fullSearchLocalization?.close ?? 'Close'}
+                            button-text=${universalSearchLocalization?.close ?? 'Close'}
                             @click=${this.close}>
                         </relewise-button>
                     </header>
                     <div class="rw-content" part="content">
                         <slot>
-                            <p class="rw-empty" part="empty-state">${fullSearchLocalization?.emptyState ?? 'Start typing to search.'}</p>
+                            <p class="rw-empty" part="empty-state">${universalSearchLocalization?.emptyState ?? 'Start typing to search.'}</p>
                         </slot>
                     </div>
                 </section>
@@ -118,35 +118,35 @@ export class FullSearch extends RelewiseLitElement {
     static styles = [theme, css`
         :host {
             font-family: var(--font);
-            --relewise-full-search-color: var(--relewise-color, #212427);
+            --relewise-universal-search-color: var(--relewise-color, #212427);
         }
 
         .rw-backdrop {
             position: fixed;
             inset: 0;
-            z-index: var(--relewise-full-search-z-index, 1000);
-            background: var(--relewise-full-search-backdrop-background, rgb(0 0 0 / 0.35));
+            z-index: var(--relewise-universal-search-z-index, 1000);
+            background: var(--relewise-universal-search-backdrop-background, rgb(0 0 0 / 0.35));
             display: flex;
             justify-content: center;
             align-items: stretch;
         }
 
         .rw-dialog {
-            background: var(--relewise-full-search-background, white);
-            color: var(--relewise-full-search-color);
-            --color: var(--relewise-full-search-color);
-            width: var(--relewise-full-search-width, 100%);
-            height: var(--relewise-full-search-height, 100%);
+            background: var(--relewise-universal-search-background, white);
+            color: var(--relewise-universal-search-color);
+            --color: var(--relewise-universal-search-color);
+            width: var(--relewise-universal-search-width, 100%);
+            height: var(--relewise-universal-search-height, 100%);
             display: flex;
             flex-direction: column;
         }
 
         .rw-header {
             display: flex;
-            gap: var(--relewise-full-search-header-gap, 1em);
+            gap: var(--relewise-universal-search-header-gap, 1em);
             align-items: center;
-            padding: var(--relewise-full-search-header-padding, 1em);
-            border-bottom: 1px solid var(--relewise-full-search-border-color, #ddd);
+            padding: var(--relewise-universal-search-header-padding, 1em);
+            border-bottom: 1px solid var(--relewise-universal-search-border-color, #ddd);
         }
 
         relewise-search-bar {
@@ -157,15 +157,15 @@ export class FullSearch extends RelewiseLitElement {
             flex: 0 0 auto;
             height: var(--relewise-product-search-bar-height, 3em);
             margin: 0;
-            padding: var(--relewise-full-search-close-button-padding, 0 0.75em);
+            padding: var(--relewise-universal-search-close-button-padding, 0 0.75em);
             --relewise-button-icon-padding: 0;
-            --relewise-button-text-color: var(--relewise-full-search-color);
+            --relewise-button-text-color: var(--relewise-universal-search-color);
         }
 
         .rw-content {
             flex: 1;
             overflow: auto;
-            padding: var(--relewise-full-search-content-padding, 1em);
+            padding: var(--relewise-universal-search-content-padding, 1em);
         }
 
         .rw-empty {
@@ -176,6 +176,6 @@ export class FullSearch extends RelewiseLitElement {
 
 declare global {
     interface HTMLElementTagNameMap {
-        'relewise-full-search': FullSearch;
+        'relewise-universal-search': UniversalSearch;
     }
 }

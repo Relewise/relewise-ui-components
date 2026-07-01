@@ -1,10 +1,10 @@
 import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
-import { clearUrlState, FullSearch, QueryKeys, readCurrentUrlState, updateUrlState, useSearch } from '../src';
+import { clearUrlState, UniversalSearch, QueryKeys, readCurrentUrlState, updateUrlState, useSearch } from '../src';
 
-suite('relewise-full-search', () => {
+suite('relewise-universal-search', () => {
     setup(() => {
         clearUrlState();
-        useSearch({ debounceTimeInMs: 0, fullSearch: {} });
+        useSearch({ debounceTimeInMs: 0, universalSearch: {} });
     });
 
     teardown(() => {
@@ -14,15 +14,15 @@ suite('relewise-full-search', () => {
     });
 
     test('is registered through useSearch', () => {
-        assert.isDefined(customElements.get('relewise-full-search'));
+        assert.isDefined(customElements.get('relewise-universal-search'));
     });
 
     test('prefills term from URL without opening', async () => {
         updateUrlState(QueryKeys.term, 'shoe');
 
         const el = await fixture(html`
-            <relewise-full-search displayed-at-location="Full Search"></relewise-full-search>
-        `) as FullSearch;
+            <relewise-universal-search displayed-at-location="Universal Search"></relewise-universal-search>
+        `) as UniversalSearch;
 
         assert.equal(el.term, 'shoe');
         assert.isFalse(el.isOpen);
@@ -31,8 +31,8 @@ suite('relewise-full-search', () => {
 
     test('opens and closes through methods', async () => {
         const el = await fixture(html`
-            <relewise-full-search displayed-at-location="Full Search"></relewise-full-search>
-        `) as FullSearch;
+            <relewise-universal-search displayed-at-location="Universal Search"></relewise-universal-search>
+        `) as UniversalSearch;
 
         el.open();
         await el.updateComplete;
@@ -51,19 +51,19 @@ suite('relewise-full-search', () => {
 
     test('opens through the open attribute', async () => {
         const el = await fixture(html`
-            <relewise-full-search displayed-at-location="Full Search" open></relewise-full-search>
-        `) as FullSearch;
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
 
         assert.isTrue(el.isOpen);
         assert.isNotNull(el.shadowRoot!.querySelector('[role="dialog"]'));
     });
 
-    test('uses full-search localization', async () => {
+    test('uses universal-search localization', async () => {
         useSearch({
             debounceTimeInMs: 0,
-            fullSearch: {},
+            universalSearch: {},
             localization: {
-                fullSearch: {
+                universalSearch: {
                     close: 'Luk',
                     emptyState: 'Begynd at søge.',
                 },
@@ -71,8 +71,8 @@ suite('relewise-full-search', () => {
         });
 
         const el = await fixture(html`
-            <relewise-full-search displayed-at-location="Full Search" open></relewise-full-search>
-        `) as FullSearch;
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
 
         const closeButton = el.shadowRoot!.querySelector('relewise-button[part="close-button"]');
         const emptyState = el.shadowRoot!.querySelector('[part="empty-state"]');
@@ -83,8 +83,8 @@ suite('relewise-full-search', () => {
 
     test('closes on Escape', async () => {
         const el = await fixture(html`
-            <relewise-full-search displayed-at-location="Full Search" open></relewise-full-search>
-        `) as FullSearch;
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
         await el.updateComplete;
@@ -94,8 +94,8 @@ suite('relewise-full-search', () => {
 
     test('writes term to URL state', async () => {
         const el = await fixture(html`
-            <relewise-full-search displayed-at-location="Full Search" open></relewise-full-search>
-        `) as FullSearch;
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
 
         el.setSearchTerm('shoe');
 

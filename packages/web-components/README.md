@@ -589,7 +589,7 @@ useSearch({
             outOf: 'ud af',
             products: 'produkter',
         },
-        fullSearch: {
+        universalSearch: {
             close: 'Close',
             emptyState: 'Start typing to search.',
         },
@@ -620,21 +620,21 @@ useSearch({
 });
 ```
 
-#### Full Search
-This component renders a full-search modal that can be opened by a custom trigger. In this initial version, it provides modal state and search term URL synchronization only. Product, content, category, and recommendation result orchestration will be added separately.
+#### Universal Search
+This component renders a universal-search modal that can be opened by a custom trigger. In this initial version, it provides modal state and search term URL synchronization only. Product, content, category, and recommendation result orchestration will be added separately.
 
 ```ts
 useSearch({
-    fullSearch: {},
+    universalSearch: {},
 });
 ```
 
 ```html
-<button onclick="document.querySelector('relewise-full-search').open()">
+<button onclick="document.querySelector('relewise-universal-search').open()">
     Search
 </button>
 
-<relewise-full-search displayed-at-location="LOCATION"></relewise-full-search>
+<relewise-universal-search displayed-at-location="LOCATION"></relewise-universal-search>
 ```
 
 The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
@@ -643,7 +643,7 @@ The component reads the existing `rw-term` URL parameter when it is connected, b
 
 - **displayed-at-location** :
 
-    Where the full-search component is being shown.
+    Where the universal-search component is being shown.
 
 - **open** (Optional, true/false):
 
