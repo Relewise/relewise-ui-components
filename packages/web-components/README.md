@@ -589,6 +589,10 @@ useSearch({
             outOf: 'ud af',
             products: 'produkter',
         },
+        universalSearch: {
+            close: 'Close',
+            emptyState: 'Start typing to search.',
+        },
         searchBar: {
             placeholder: 'Search',
             search: 'Search',
@@ -615,6 +619,35 @@ useSearch({
     },
 });
 ```
+
+#### Universal Search
+This component renders a universal-search modal that can be opened by a custom trigger. In this initial version, it provides modal state and search term URL synchronization only. Product, content, category, and recommendation result orchestration will be added separately.
+
+```ts
+useSearch({
+    universalSearch: {},
+});
+```
+
+```html
+<button onclick="document.querySelector('relewise-universal-search').open()">
+    Search
+</button>
+
+<relewise-universal-search displayed-at-location="LOCATION"></relewise-universal-search>
+```
+
+The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
+
+##### Attributes
+
+- **displayed-at-location** :
+
+    Where the universal-search component is being shown.
+
+- **open** (Optional, true/false):
+
+    Opens the modal. The component can also be controlled through the `open()` and `close()` methods.
 
 #### Product Search Overlay
 This component renders a search bar that will [search for products](https://docs.relewise.com/docs/intro/search.html#product-search) in Relewise and show results in an overlay.

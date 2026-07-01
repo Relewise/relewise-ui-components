@@ -1,12 +1,12 @@
-# Full Page Search UI Components Plan
+# Universal Search UI Components Plan
 
 Last updated: 2026-06-26
 
 ## Purpose
 
-Build the full-page search experience in `packages/web-components` first. The Shopify web-components extension is the end goal, but it is explicitly a second iteration and should not be implemented until the UI Components work is complete, documented, tested, and stable.
+Build the universal search experience in `packages/web-components` first. The Shopify web-components extension is the end goal, but it is explicitly a second iteration and should not be implemented until the UI Components work is complete, documented, tested, and stable.
 
-This plan supersedes the POC-driven implementation direction from `FULL_PAGE_SEARCH_PLAN.md` where it conflicts with existing UI Components architecture. The POC remains useful as behavioral research, but its standalone `MerchantConfig`, custom card rendering, custom facet rendering, and custom URL state should not become the final public contract.
+This plan supersedes the earlier POC-driven implementation direction where it conflicts with existing UI Components architecture. The POC remains useful as behavioral research, but its standalone `MerchantConfig`, custom card rendering, custom facet rendering, and custom URL state should not become the final public contract.
 
 ## Working Rules
 
@@ -17,21 +17,21 @@ This plan supersedes the POC-driven implementation direction from `FULL_PAGE_SEA
   - `relewise-product-search-results`
   - `relewise-product-search-sorting`
   - `relewise-facets`
-- Add full-page search as part of the existing search feature surface, not as a separate search ecosystem.
+- Add universal search as part of the existing search feature surface, not as a separate search ecosystem.
 - Keep Shopify out of the first implementation. Shopify should later map app settings into the UI Components API.
 - Split implementation into small pull requests. Avoid one large feature PR.
-- Prefer extracting reusable logic from existing components before adding full-search-only logic.
+- Prefer extracting reusable logic from existing components before adding universal-search-only logic.
 - Product and content cards must reuse the existing tile/template override model wherever possible.
 
 ## Branching Strategy
 
-Use a dedicated full-page search integration branch as the temporary base for this work. Smaller implementation branches should branch from and merge back into that integration branch. Only merge the integration branch into `main` when the UI Components full-search implementation is complete, tested, documented, and ready for public consumption.
+Use a dedicated universal search integration branch as the temporary base for this work. Smaller implementation branches should branch from and merge back into that integration branch. Only merge the integration branch into `main` when the UI Components universal-search implementation is complete, tested, documented, and ready for public consumption.
 
 The integration branch should contain this plan file so every smaller task can reference the same source of truth.
 
 ## Implementation Discipline
 
-Avoid overengineering. The full-search implementation should look and feel like the existing UI Components codebase, not like a new framework inside the package.
+Avoid overengineering. The universal-search implementation should look and feel like the existing UI Components codebase, not like a new framework inside the package.
 
 Rules:
 
@@ -45,7 +45,7 @@ Rules:
 
 ## Direction
 
-The full-page search should be an opt-in search experience registered through `useSearch(...)`.
+The universal search should be an opt-in search experience registered through `useSearch(...)`.
 
 The recommended shape is:
 
@@ -62,21 +62,20 @@ initializeRelewiseUI({ ... }).useSearch({
         .clear()
         .addRelevance()
         .addSalesPriceAscending(),
-    fullSearch: {
-        enabled: true,
+    universalSearch: {
         tabs: {
-            products: { enabled: true },
-            productCategories: { enabled: true },
-            content: { enabled: true },
+            products: {},
+            productCategories: {},
+            content: {},
         },
     },
 });
 ```
 
-The exact `fullSearch` type should be finalized in the first implementation PR, but the principle is fixed:
+The exact `universalSearch` type should be finalized in the first implementation PR, but the principle is fixed:
 
 - Existing product `facets`, product `sorting`, filters, relevance modifiers, target overrides, selected properties, and templates stay authoritative.
-- `fullSearch` adds shell behavior, tab behavior, input-assist behavior, empty/no-result recommendations, layout defaults, and tab enablement.
+- `universalSearch` adds modal behavior, tab behavior, input-assist behavior, empty/no-result recommendations, layout defaults, and tab enablement.
 - Product result rendering delegates to `relewise-product-tile`.
 - Content result rendering delegates to `relewise-content-tile`.
 - Product/content custom field rendering is handled through existing `templates.product` and `templates.content`.
@@ -101,7 +100,7 @@ Current behavior:
 
 Reuse decision:
 
-- Extend `RelewiseUISearchOptions` with `fullSearch?: FullSearchOptions`.
+- Extend `RelewiseUISearchOptions` with `universalSearch?: UniversalSearchOptions`.
 - Register the new full-page components inside `useSearch`.
 - Export new types/components through `src/search/index.ts` and `src/index.ts`.
 - Do not add a second initializer.
@@ -124,7 +123,7 @@ Current behavior:
 
 Reuse decision:
 
-- Extract product request assembly from `ProductSearch` into reusable helpers before building the full-search products tab.
+- Extract product request assembly from `ProductSearch` into reusable helpers before building the universal-search products tab.
 - Keep `ProductSearch` behavior unchanged by making it call the extracted helper.
 - Full-search products tab must use the same helper, including targeted product search config.
 - Reuse `createProductCategorySearchBuilder` for the product categories tab.
@@ -168,9 +167,9 @@ Reuse decision:
 
 Potential new events:
 
-- `relewise-ui-components:full-search-opened`
-- `relewise-ui-components:full-search-closed`
-- `relewise-ui-components:full-search-completed`
+- `relewise-ui-components:universal-search-opened`
+- `relewise-ui-components:universal-search-closed`
+- `relewise-ui-components:universal-search-completed`
 
 These are not first-pass requirements. Add them only if an actual consumer or testable integration need appears.
 
@@ -198,17 +197,17 @@ Current behavior:
 
 Reuse decision:
 
-- Reuse `rw-term` for the search term so full-page search aligns with current product search/share URLs.
+- Reuse `rw-term` for the search term so universal search aligns with current product search/share URLs.
 - Preserve current product search behavior.
-- Add scoped URL helpers for full-search state instead of changing `clearUrlState()` behavior globally.
-- Namespaced full-search keys are allowed where the existing keys would collide.
+- Add scoped URL helpers for universal-search state instead of changing `clearUrlState()` behavior globally.
+- Namespaced universal-search keys are allowed where the existing keys would collide.
 
-Proposed full-search URL keys:
+Proposed universal-search URL keys:
 
 | State | Proposed key | Notes |
 | --- | --- | --- |
 | Search term | `rw-term` | Reuse existing search term key. |
-| Active tab | `rw-full-search-tab` | Needed for shareable tabs. |
+| Active tab | `rw-universal-search-tab` | Needed for shareable tabs. |
 | Product sorting | `rw-sorting` | Reuse existing product sorting key. |
 | Product facets | `rw-facet-*` | Reuse existing product facet keys. |
 | Product pagination/take | `rw-take` or `rw-products-take` | Prefer existing `rw-take` if behavior matches product search. |
@@ -244,7 +243,7 @@ Current behavior:
 
 Reuse decision:
 
-- Reuse the existing facet components, but generalize them before full-search depends on content facets.
+- Reuse the existing facet components, but generalize them before universal-search depends on content facets.
 - Product facets must still behave exactly as they do now.
 - Add content facet support through the same rendering path where result shapes are compatible.
 - Avoid separate product/content facet row implementations.
@@ -268,9 +267,9 @@ export interface SearchFacets {
   - `ContentDataDoubleRangeFacetResult`
   - `ContentAssortmentFacetResult`
   - `CategoryHierarchyFacetResult` for content categories if compatible.
-- Keep existing facet URL keys in this phase; add scoped full-search facet URL state later with the full-search orchestrator if product/content facet keys can collide.
+- Keep existing facet URL keys in this phase; add scoped universal-search facet URL state later with the universal-search orchestrator if product/content facet keys can collide.
 - Keep facet components dispatching the existing `Events.applyFacet` event in this phase.
-- Add scoped product/content facet events later only if the full-search orchestrator needs separate event handling.
+- Add scoped product/content facet events later only if the universal-search orchestrator needs separate event handling.
 - Hide empty facet groups.
 - Preserve wrapping/overflow rules so long labels do not overlap.
 
@@ -293,8 +292,8 @@ Current behavior:
 
 Reuse decision:
 
-- Product full-search tab must use the existing product sorting builder and targeted sorting behavior.
-- `relewise-product-search-sorting` may be too coupled to global product URL state for direct reuse inside full-search, but its builder logic should be reused.
+- Product universal-search tab must use the existing product sorting builder and targeted sorting behavior.
+- `relewise-product-search-sorting` may be too coupled to global product URL state for direct reuse inside universal-search, but its builder logic should be reused.
 - Add content/category sorting only if the API surface and design need it in the first release.
 
 Needed changes:
@@ -330,9 +329,9 @@ Reuse decision:
 
 - Full-search product results must render `relewise-product-tile`.
 - Full-search content results must render `relewise-content-tile`.
-- Product/content recommendation blocks inside full-search should also use the same tiles.
-- Do not add a separate product card template API for full-search unless tile templates cannot cover a real use case.
-- Do not add tile field-mapping attributes in the first full-search iteration. If a consumer needs custom product/content fields, the established solution is `templates.product` and `templates.content`.
+- Product/content recommendation blocks inside universal-search should also use the same tiles.
+- Do not add a separate product card template API for universal-search unless tile templates cannot cover a real use case.
+- Do not add tile field-mapping attributes in the first universal-search iteration. If a consumer needs custom product/content fields, the established solution is `templates.product` and `templates.content`.
 - Request helpers should continue to respect existing selected property settings. Consumers using custom templates are responsible for selecting the data keys their templates need, as they are today.
 
 ### Category Rendering
@@ -345,7 +344,7 @@ Current behavior:
 
 Reuse decision:
 
-- Add a small reusable category tile for full-search category surfaces.
+- Add a small reusable category tile for universal-search category surfaces.
 - The tile should support both product categories and content categories if the result shapes allow it.
 - It should support:
   - `image-data-key`
@@ -361,7 +360,7 @@ Potential component:
 Open decision:
 
 - Whether category templates belong in `initializeRelewiseUI({ templates })`.
-- If added, prefer general names such as `productCategory` and `contentCategory`, not full-search-only names.
+- If added, prefer general names such as `productCategory` and `contentCategory`, not universal-search-only names.
 
 ### Search Input And Input Assist
 
@@ -370,7 +369,7 @@ Relevant files:
 - `src/search/components/search-bar.ts`
 - `src/search/components/product-search-bar.ts`
 - `src/search/product-search-overlay.ts`
-- POC `development/search/full-search-poc/index.ts`
+- POC `development/search/universal-search-poc/index.ts`
 
 Current behavior:
 
@@ -380,7 +379,7 @@ Current behavior:
 
 Reuse decision:
 
-- Full-search should use `relewise-search-bar` directly, not `ProductSearchBar`, because full-search has modal state, input-assist state, tabs, and scoped URL updates.
+- Full-search should use `relewise-search-bar` directly, not `ProductSearchBar`, because universal-search has modal state, input-assist state, tabs, and scoped URL updates.
 - Reuse the compact overlay's search term prediction idea, but not its compact overlay result renderer.
 
 Required behavior:
@@ -398,12 +397,12 @@ Relevant files:
 
 - `src/recommendations/*`
 - `src/recommendations/recommender.ts`
-- POC `development/search/full-search-poc/index.ts`
+- POC `development/search/universal-search-poc/index.ts`
 
 Current behavior:
 
 - Product/content recommendation components exist and render tiles.
-- There are no reusable components for every recommendation block needed by full-search:
+- There are no reusable components for every recommendation block needed by universal-search:
   - popular product categories
   - popular content categories
   - popular search terms
@@ -414,7 +413,7 @@ Reuse decision:
 - Full-search can call `Recommender` directly through new helper functions for initial/no-result blocks.
 - Use product/content tiles for product/content recommendation rendering.
 - Use the new category tile for category recommendation rendering.
-- Do not force every recommendation block to be a standalone Web Component before full-search can ship.
+- Do not force every recommendation block to be a standalone Web Component before universal-search can ship.
 
 Recommendation block types from the POC that are reasonable for first release:
 
@@ -458,7 +457,7 @@ Current behavior:
 
 Reuse decision:
 
-- Do not refactor the compact overlay as part of the first full-search PRs.
+- Do not refactor the compact overlay as part of the first universal-search PRs.
 - Do not break its templates.
 - A later compatibility option may let a trigger choose compact overlay or full-page overlay, but the first UI Components work should keep compact overlay stable.
 
@@ -481,7 +480,7 @@ Findings:
 
 Implication:
 
-- The UI Components full-search API must preserve the existing facet/sorting/template model so Shopify can later map app settings into it.
+- The UI Components universal-search API must preserve the existing facet/sorting/template model so Shopify can later map app settings into it.
 - Shopify work should become a mapping/integration layer, not a forked implementation.
 
 ## Proposed Public API Areas
@@ -493,43 +492,44 @@ Add:
 ```ts
 export interface RelewiseUISearchOptions {
     // existing options remain
-    fullSearch?: FullSearchOptions;
+    universalSearch?: UniversalSearchOptions;
 }
 ```
 
-### `FullSearchOptions`
+### `UniversalSearchOptions`
 
 Proposed starting shape:
 
 ```ts
-export interface FullSearchOptions {
-    enabled?: boolean;
-    tabs?: FullSearchTabsOptions;
-    behavior?: FullSearchBehaviorOptions;
-    inputAssist?: FullSearchInputAssistOptions;
-    recommendations?: FullSearchRecommendationOptions;
+export interface UniversalSearchOptions {
+    tabs?: UniversalSearchTabsOptions;
+    behavior?: UniversalSearchBehaviorOptions;
+    inputAssist?: UniversalSearchInputAssistOptions;
+    recommendations?: UniversalSearchRecommendationOptions;
 }
 ```
+
+Providing `universalSearch` opts in to registering and using the universal-search component. There is no top-level `enabled` flag; consumers remove or omit `universalSearch` to opt out.
 
 Keep styling primarily in CSS variables and parts, not JavaScript configuration.
 
 ### Tabs
 
 ```ts
-export interface FullSearchTabsOptions {
-    products?: FullSearchTabOptions;
-    productCategories?: FullSearchTabOptions;
-    content?: FullSearchTabOptions;
+export interface UniversalSearchTabsOptions {
+    products?: UniversalSearchTabOptions;
+    productCategories?: UniversalSearchTabOptions;
+    content?: UniversalSearchTabOptions;
 }
 
-export interface FullSearchTabOptions {
-    enabled?: boolean;
+export interface UniversalSearchTabOptions {
     pageSize?: number;
 }
 ```
 
 Notes:
 
+- Providing a tab option enables that tab. Omit a tab to disable it.
 - Product tab uses existing `facets.product` and existing `sorting`.
 - Content facets can use `facets.content` once added.
 - Content/category sorting needs separate config if included.
@@ -537,7 +537,7 @@ Notes:
 ### Behavior
 
 ```ts
-export interface FullSearchBehaviorOptions {
+export interface UniversalSearchBehaviorOptions {
     minimumCharactersToSearch?: number;
     showModalBeforeInput?: boolean;
     zeroResultTabs?: 'show' | 'hide';
@@ -561,13 +561,11 @@ Rules:
 ### Input Assist
 
 ```ts
-export interface FullSearchInputAssistOptions {
+export interface UniversalSearchInputAssistOptions {
     popularSearchTerms?: {
-        enabled?: boolean;
         take?: number;
     };
     searchTermPredictions?: {
-        enabled?: boolean;
         take?: number;
         entityTypes?: Array<'Product' | 'ProductCategory' | 'Content'>;
     };
@@ -576,20 +574,19 @@ export interface FullSearchInputAssistOptions {
 
 Defaults:
 
-- Popular search terms enabled.
-- Search term predictions enabled.
-- Prediction entity types: Product, ProductCategory, Content.
+- Providing an input-assist option enables that section. Omit a section to disable it.
+- Prediction entity types default to Product, ProductCategory, Content when search term predictions are configured.
 
 ### Recommendations
 
 ```ts
-export interface FullSearchRecommendationOptions {
-    initial?: FullSearchRecommendationBlock[];
+export interface UniversalSearchRecommendationOptions {
+    initial?: UniversalSearchRecommendationBlock[];
     noResults?: {
-        global?: FullSearchRecommendationBlock[];
-        products?: FullSearchRecommendationBlock[];
-        productCategories?: FullSearchRecommendationBlock[];
-        content?: FullSearchRecommendationBlock[];
+        global?: UniversalSearchRecommendationBlock[];
+        products?: UniversalSearchRecommendationBlock[];
+        productCategories?: UniversalSearchRecommendationBlock[];
+        content?: UniversalSearchRecommendationBlock[];
     };
 }
 ```
@@ -597,7 +594,7 @@ export interface FullSearchRecommendationOptions {
 Recommendation block:
 
 ```ts
-export interface FullSearchRecommendationBlock {
+export interface UniversalSearchRecommendationBlock {
     id?: string;
     title?: string;
     type:
@@ -608,10 +605,11 @@ export interface FullSearchRecommendationBlock {
         | 'PopularContentCategories'
         | 'PopularSearchTerms'
         | 'SearchTermBasedProduct';
-    enabled?: boolean;
     take?: number;
 }
 ```
+
+Providing a recommendation block enables it. Omit the block to disable it.
 
 ## Component Model
 
@@ -619,13 +617,13 @@ export interface FullSearchRecommendationBlock {
 
 Recommended components:
 
-- `relewise-full-search`
+- `relewise-universal-search`
   - Owns modal state, term state, active tab, batched requests, URL sync, input assist, empty states, no-result states, and mobile drawer state.
-- `relewise-full-search-tabs`
+- `relewise-universal-search-tabs`
   - Renders enabled tabs, active tab, counts, disabled/zero-hit state.
-- `relewise-full-search-facet-panel`
+- `relewise-universal-search-facet-panel`
   - Shell for active-tab facets.
-- `relewise-full-search-facet-drawer`
+- `relewise-universal-search-facet-drawer`
   - Mobile facet sheet/drawer.
 - `relewise-category-tile`
   - Renders product/content category cards.
@@ -639,7 +637,7 @@ Avoid adding components that simply duplicate current tiles/facets/sorting with 
 | `relewise-search-bar` | Direct reuse | Full-search controls URL/state itself. |
 | `relewise-product-tile` | Direct reuse | Custom product rendering uses existing `templates.product`. |
 | `relewise-content-tile` | Direct reuse | Custom content rendering uses existing `templates.content`. |
-| `relewise-facets` | Reuse after generalization | Must support content-compatible facet result shapes; scoped URL state belongs with the full-search orchestrator if needed. |
+| `relewise-facets` | Reuse after generalization | Must support content-compatible facet result shapes; scoped URL state belongs with the universal-search orchestrator if needed. |
 | Facet item components | Reuse after generalization | Avoid duplicate product/content filter markup. |
 | `SearchSortingOptionsBuilder` | Reuse for product tab | Do not duplicate product sorting config. |
 | `relewise-product-search-sorting` | Reuse logic, maybe not component | Component is currently coupled to product URL state. |
@@ -680,13 +678,13 @@ Acceptance:
 
 - Existing `ProductSearch` behavior unchanged.
 - Existing sorting tests still pass.
-- No full-search UI yet.
+- No universal-search UI yet.
 
 ### PR 2: Facet Generalization
 
 Goal:
 
-Make facet rendering reusable for full-search product and content tabs.
+Make facet rendering reusable for universal-search product and content tabs.
 
 Tasks:
 
@@ -703,24 +701,27 @@ Acceptance:
 - Content facet results can render through the same facet panel path.
 - No duplicate product/content facet row implementation.
 
-### PR 3: Full Search API And Skeleton
+### PR 3: Universal Search API And Skeleton
 
 Goal:
 
-Introduce the public full-search option and shell without completing every tab.
+Introduce the public universal-search option and base modal without completing every tab.
 
 Tasks:
 
-- Add `fullSearch?: FullSearchOptions` to `RelewiseUISearchOptions`.
-- Register `relewise-full-search` through `useSearch`.
-- Add base modal shell:
+- Add `universalSearch?: UniversalSearchOptions` to `RelewiseUISearchOptions`.
+- Register `relewise-universal-search` through `useSearch`.
+- Add base modal:
   - open/close
+  - reflected `open` attribute with `open()` / `close()` methods
   - search input
   - keyboard close
   - ARIA dialog semantics
   - CSS parts and variables
 - Add URL term read/write using `rw-term`.
 - Add initial termless view placeholder.
+- Do not auto-open from `rw-term` in this phase; prefill only.
+- Do not add tab placeholders in this phase.
 
 Acceptance:
 
@@ -732,11 +733,11 @@ Acceptance:
 
 Goal:
 
-Ship full-search product tab using existing product search configuration.
+Ship universal-search product tab using existing product search configuration.
 
 Tasks:
 
-- Add products tab with batched/full-search request orchestration.
+- Add products tab with batched/universal-search request orchestration.
 - Use shared product search request helper.
 - Use existing `facets.product`.
 - Use existing product sorting builder and target overrides.
@@ -858,7 +859,7 @@ Tasks:
 - Update `packages/web-components/README.md`.
 - Add usage examples.
 - Add custom template examples.
-- Add full-search config examples.
+- Add universal-search config examples.
 - Add migration guidance from compact overlay.
 
 Acceptance:
@@ -871,11 +872,11 @@ Do not start this until UI Components work is complete.
 
 Future Shopify tasks:
 
-1. Update the Shopify extension bundle version to include full-search UI Components.
+1. Update the Shopify extension bundle version to include universal-search UI Components.
 2. Add a Shopify search experience setting:
    - disabled
    - current compact overlay
-   - full-page search
+   - universal search
 3. Add a new storefront integration path instead of modifying current compact overlay behavior in place.
 4. Reuse existing Shopify init context:
    - credentials
@@ -891,7 +892,7 @@ Future Shopify tasks:
    - enabled tabs
    - initial/recovery blocks
    - input assist
-   - full-page search toggle
+   - universal search toggle
 8. Keep current compact overlay available.
 
 ## Non-Goals For UI Components First Iteration
@@ -900,20 +901,20 @@ Future Shopify tasks:
 - Do not remove or deprecate the compact product search overlay.
 - Do not replace existing product search configuration.
 - Do not introduce a parallel product facet/sorting/card configuration model.
-- Do not make full-search depend on Shopify-specific data keys.
+- Do not make universal-search depend on Shopify-specific data keys.
 - Do not commit built `dist` or `build` artifacts unless explicitly requested.
 
 ## Implementation Risks
 
 | Risk | Mitigation |
 | --- | --- |
-| Full-search duplicates product search logic | Extract helpers from `ProductSearch` before adding full-search product tab. |
+| Full-search duplicates product search logic | Extract helpers from `ProductSearch` before adding universal-search product tab. |
 | Product cards are not fully overridable | Render `relewise-product-tile` and preserve `templates.product`. |
 | Content cards are not fully overridable | Render `relewise-content-tile` and preserve `templates.content`. |
 | Content facets diverge from product facets | Generalize existing facet components first. |
 | URL state becomes incompatible | Reuse `rw-term` and product keys where safe; namespace only tab-specific state. |
 | PR becomes too large | Follow the PR phases above and keep behavior-preserving refactors separate from feature work. |
-| Shopify needs a different API | Keep full-search under `useSearch` and reuse existing facet/sorting/template contracts. |
+| Shopify needs a different API | Keep universal-search under `useSearch` and reuse existing facet/sorting/template contracts. |
 
 ## Validation Strategy
 
@@ -928,7 +929,7 @@ npm run test
 Test coverage by phase:
 
 - Request helper tests for product/category/content builders.
-- URL state tests for scoped full-search keys.
+- URL state tests for scoped universal-search keys.
 - Facet rendering tests for product and content facet result types.
 - Sorting builder/control tests.
 - Component registration tests.
@@ -945,11 +946,11 @@ Test coverage by phase:
 
 - Research and plan alignment.
 - Extract shared product search request helper.
-- Add full-search scoped URL helper.
+- Add universal-search scoped URL helper.
 - Add category tile.
 - Generalize facet renderer for content-compatible facets.
-- Add full-search option types and component registration.
-- Build full-search shell.
+- Add universal-search option types and component registration.
+- Build universal-search base modal.
 - Build products tab.
 - Build product categories tab.
 - Build content tab.
