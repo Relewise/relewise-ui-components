@@ -198,7 +198,8 @@ export class UniversalSearch extends RelewiseLitElement {
             this.products = this.products.concat(response.results ?? []);
         } catch (error) {
             if (!abortController.signal.aborted) {
-                this.error = error instanceof Error ? error.message : 'Could not load products.';
+                const productsLocalization = getRelewiseUISearchOptions()?.localization?.universalSearch?.products;
+                this.error = error instanceof Error ? error.message : productsLocalization?.error ?? 'Could not load products.';
             }
         } finally {
             if (!abortController.signal.aborted) {
@@ -253,6 +254,7 @@ export class UniversalSearch extends RelewiseLitElement {
 
     renderDefaultContent() {
         const universalSearchLocalization = getRelewiseUISearchOptions()?.localization?.universalSearch;
+        const productsLocalization = universalSearchLocalization?.products;
 
         if (!this.term) {
             return html`<p class="rw-empty" part="empty-state">${universalSearchLocalization?.emptyState ?? 'Start typing to search.'}</p>`;
@@ -260,13 +262,13 @@ export class UniversalSearch extends RelewiseLitElement {
 
         if (this.productsTabEnabled) {
             return html`
-                <nav class="rw-tabs" part="tabs" aria-label="Search result tabs">
+                <nav class="rw-tabs" part="tabs" aria-label=${universalSearchLocalization?.tabsLabel ?? 'Search result tabs'}>
                     <button
                         class="rw-tab"
                         part="tab"
                         type="button"
                         aria-selected=${this.activeTab === 'products'}>
-                        Products
+                        ${productsLocalization?.tab ?? 'Products'}
                         ${this.searchResult ? html`<span class="rw-tab-count" part="tab-count">${this.searchResult.hits}</span>` : nothing}
                     </button>
                 </nav>
@@ -274,13 +276,15 @@ export class UniversalSearch extends RelewiseLitElement {
             `;
         }
 
-        return html`<p class="rw-empty" part="empty-state">No universal-search tabs configured.</p>`;
+        return html`<p class="rw-empty" part="empty-state">${universalSearchLocalization?.noTabsConfigured ?? 'No universal-search tabs configured.'}</p>`;
     }
 
     renderProductsTab() {
+        const productsLocalization = getRelewiseUISearchOptions()?.localization?.universalSearch?.products;
+
         return html`
             <div class="rw-results-summary" part="results-summary">
-                Search results for <strong>${this.term}</strong>
+                ${productsLocalization?.resultsFor ?? 'Search results for'} <strong>${this.term}</strong>
             </div>
             <div class="rw-results-layout" part="results-layout">
                 ${this.products.length > 0 && this.searchResult?.facets ? html`
@@ -295,9 +299,9 @@ export class UniversalSearch extends RelewiseLitElement {
                 <section class="rw-results" part="results">
                     <header class="rw-results-header" part="results-header">
                         <div>
-                            <h2 class="rw-results-title" part="results-title">Product Results</h2>
+                            <h2 class="rw-results-title" part="results-title">${productsLocalization?.resultsTitle ?? 'Product Results'}</h2>
                             ${this.searchResult ? html`
-                                <span class="rw-results-count" part="results-count">${this.searchResult.hits} products</span>
+                                <span class="rw-results-count" part="results-count">${this.searchResult.hits} ${this.searchResult.hits === 1 ? (productsLocalization?.result ?? 'product') : (productsLocalization?.results ?? 'products')}</span>
                             ` : nothing}
                         </div>
                         ${this.products.length > 0 ? html`
@@ -317,6 +321,7 @@ export class UniversalSearch extends RelewiseLitElement {
 
     renderProductResults() {
         const localization = getRelewiseUISearchOptions()?.localization?.loadMoreButton;
+        const productsLocalization = getRelewiseUISearchOptions()?.localization?.universalSearch?.products;
 
         if (this.error) {
             return html`<p class="rw-empty" part="error-state">${this.error}</p>`;
@@ -327,7 +332,7 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         if (this.products.length === 0) {
-            return html`<p class="rw-empty" part="zero-results">No products found.</p>`;
+            return html`<p class="rw-empty" part="zero-results">${productsLocalization?.noResults ?? 'No products found.'}</p>`;
         }
 
         return html`

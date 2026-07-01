@@ -89,6 +89,7 @@ suite('relewise-universal-search', () => {
                 universalSearch: {
                     close: 'Luk',
                     emptyState: 'Begynd at søge.',
+                    noTabsConfigured: 'Ingen faner konfigureret.',
                 },
             },
         });
@@ -102,6 +103,9 @@ suite('relewise-universal-search', () => {
 
         assert.equal(closeButton?.getAttribute('button-text'), 'Luk');
         assert.equal(emptyState?.textContent?.trim(), 'Begynd at søge.');
+
+        el.setSearchTerm('sko');
+        await waitUntil(() => el.shadowRoot!.textContent?.includes('Ingen faner konfigureret.'), 'no tabs text was not localized');
     });
 
     test('closes on Escape', async () => {
@@ -163,6 +167,49 @@ suite('relewise-universal-search', () => {
         assert.equal(capturedTerm, 'shoe');
         assert.isNotNull(el.shadowRoot!.querySelector('[part="tabs"]'));
         assert.equal(el.shadowRoot!.querySelectorAll('relewise-product-tile').length, 1);
+    });
+
+    test('uses products tab localization', async () => {
+        Searcher.prototype.searchProducts = async function() {
+            return {
+                hits: 0,
+                results: [],
+                facets: null,
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: { tabs: { products: { pageSize: 2 } } },
+            localization: {
+                universalSearch: {
+                    tabsLabel: 'Søgeresultatfaner',
+                    products: {
+                        tab: 'Varer',
+                        resultsFor: 'Søgeresultater for',
+                        resultsTitle: 'Vareresultater',
+                        result: 'vare',
+                        results: 'varer',
+                        noResults: 'Ingen varer fundet.',
+                    },
+                },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        el.setSearchTerm('sko');
+        await waitUntil(() => el.shadowRoot!.querySelector('[part="zero-results"]') !== null, 'zero-results was not rendered');
+
+        assert.equal(el.shadowRoot!.querySelector('[part="tabs"]')?.getAttribute('aria-label'), 'Søgeresultatfaner');
+        assert.include(el.shadowRoot!.querySelector('[part="tab"]')?.textContent ?? '', 'Varer');
+        assert.include(el.shadowRoot!.querySelector('[part="results-summary"]')?.textContent ?? '', 'Søgeresultater for');
+        assert.equal(el.shadowRoot!.querySelector('[part="results-title"]')?.textContent?.trim(), 'Vareresultater');
+        assert.equal(el.shadowRoot!.querySelector('[part="results-count"]')?.textContent?.trim(), '0 varer');
+        assert.equal(el.shadowRoot!.querySelector('[part="zero-results"]')?.textContent?.trim(), 'Ingen varer fundet.');
     });
 
     test('loads more products using existing take URL state', async () => {

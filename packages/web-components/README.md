@@ -592,6 +592,17 @@ useSearch({
         universalSearch: {
             close: 'Close',
             emptyState: 'Start typing to search.',
+            noTabsConfigured: 'No universal-search tabs configured.',
+            tabsLabel: 'Search result tabs',
+            products: {
+                tab: 'Products',
+                resultsFor: 'Search results for',
+                resultsTitle: 'Product Results',
+                result: 'product',
+                results: 'products',
+                noResults: 'No products found.',
+                error: 'Could not load products.',
+            },
         },
         searchBar: {
             placeholder: 'Search',

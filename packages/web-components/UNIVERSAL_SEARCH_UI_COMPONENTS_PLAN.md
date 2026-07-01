@@ -720,6 +720,7 @@ Tasks:
   - CSS parts and variables
 - Add URL term read/write using `rw-term`.
 - Add initial termless view placeholder.
+- Add `localization.universalSearch` for modal-owned text.
 - Do not auto-open from `rw-term` in this phase; prefill only.
 - Do not add tab placeholders in this phase.
 
@@ -744,6 +745,7 @@ Tasks:
 - Render `relewise-product-tile`.
 - Support existing load-more behavior.
 - Support zero-result product tab state.
+- Add `localization.universalSearch.products` for product-tab-owned labels and state text.
 
 Acceptance:
 

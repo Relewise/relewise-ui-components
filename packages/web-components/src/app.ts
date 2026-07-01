@@ -74,6 +74,19 @@ export interface SearchLocalization {
 export interface UniversalSearchLocalization {
     close?: string;
     emptyState?: string;
+    noTabsConfigured?: string;
+    tabsLabel?: string;
+    products?: UniversalSearchProductsLocalization;
+}
+
+export interface UniversalSearchProductsLocalization {
+    tab?: string;
+    resultsFor?: string;
+    resultsTitle?: string;
+    result?: string;
+    results?: string;
+    noResults?: string;
+    error?: string;
 }
 
 export interface SearchBarLocalization {
