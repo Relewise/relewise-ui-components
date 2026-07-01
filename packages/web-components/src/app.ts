@@ -7,7 +7,7 @@ import { FavoriteButtonContent } from './components/content-favorite-button';
 import { FavoriteButtonProducts } from './components/product-favorite-button';
 import { ContextSettings, ProductTemplateExtensions } from './initialize';
 import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PopularContent, PersonalContent, ContentViewedAfterViewingContent, ContentViewedAfterViewingMultipleContent, ProductsViewedAfterViewingContent, ContentViewedAfterViewingProduct, ContentViewedAfterViewingMultipleProducts, PopularProductCategories, PopularContentCategories, PopularSearchTerms, SearchTermBasedProducts } from './recommendations';
-import { ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar } from './search';
+import { UniversalSearch, ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar } from './search';
 import { ChecklistBooleanValueFacet } from './search/components/facets/checklist-boolean-value-facet';
 import { ChecklistNumberValueFacet } from './search/components/facets/checklist-number-value-facet';
 import { ChecklistObjectValueFacet } from './search/components/facets/checklist-object-value-facet';
@@ -47,6 +47,10 @@ export interface RelewiseUISearchOptions {
     rememberScrollPosition?: boolean;
     debounceTimeInMs?: number;
     explodedVariants?: number;
+    universalSearch?: UniversalSearchOptions;
+}
+
+export interface UniversalSearchOptions {
 }
 
 export type PopularSearchTermEntityType = NonNullable<RecommendPopularSearchTermSettings['targetEntityTypes']>[number];
@@ -59,10 +63,16 @@ export interface RelewiseUIRecommendationOptions {
 
 export interface SearchLocalization {
     searchBar?: SearchBarLocalization;
+    universalSearch?: UniversalSearchLocalization;
     sortingButton?: SortingLocalization;
     loadMoreButton?: LoadMoreLocalization;
     facets?: FacetLocalization;
     searchResults?: SearchResultLocalization;
+}
+
+export interface UniversalSearchLocalization {
+    close?: string;
+    emptyState?: string;
 }
 
 export interface SearchBarLocalization {
@@ -219,6 +229,9 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     }
 
     tryRegisterElement('relewise-product-search-overlay', ProductSearchOverlay);
+    if (window.relewiseUISearchOptions.universalSearch) {
+        tryRegisterElement('relewise-universal-search', UniversalSearch);
+    }
     tryRegisterElement('relewise-product-search', ProductSearch);
     tryRegisterElement('relewise-search-bar', SearchBar);
     tryRegisterElement('relewise-product-search-bar', ProductSearchBar);
