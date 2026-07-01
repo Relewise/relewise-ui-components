@@ -76,7 +76,9 @@ export class FullSearch extends RelewiseLitElement {
             return nothing;
         }
 
-        const localization = getRelewiseUISearchOptions()?.localization?.searchBar;
+        const localization = getRelewiseUISearchOptions()?.localization;
+        const searchBarLocalization = localization?.searchBar;
+        const fullSearchLocalization = localization?.fullSearch;
 
         return html`
             <div class="rw-backdrop" part="backdrop" @click=${this.closeWhenClickingOutsideDialog}>
@@ -85,7 +87,7 @@ export class FullSearch extends RelewiseLitElement {
                     part="dialog"
                     role="dialog"
                     aria-modal="true"
-                    aria-label=${localization?.search ?? 'Search'}>
+                    aria-label=${searchBarLocalization?.search ?? 'Search'}>
                     <header class="rw-header" part="header">
                         <relewise-search-bar
                             part="search-bar"
@@ -93,19 +95,19 @@ export class FullSearch extends RelewiseLitElement {
                             .term=${this.term}
                             .setSearchTerm=${(term: string) => this.setSearchTerm(term)}
                             .handleKeyEvent=${(event: KeyboardEvent) => this.handleKeyEvent(event)}
-                            .placeholder=${localization?.placeholder ?? null}
+                            .placeholder=${searchBarLocalization?.placeholder ?? null}
                             autofocus>
                         </relewise-search-bar>
                         <relewise-button
                             class="rw-close"
                             part="close-button"
-                            button-text="Close"
+                            button-text=${fullSearchLocalization?.close ?? 'Close'}
                             @click=${this.close}>
                         </relewise-button>
                     </header>
                     <div class="rw-content" part="content">
                         <slot>
-                            <p class="rw-empty" part="empty-state">Start typing to search.</p>
+                            <p class="rw-empty" part="empty-state">${fullSearchLocalization?.emptyState ?? 'Start typing to search.'}</p>
                         </slot>
                     </div>
                 </section>

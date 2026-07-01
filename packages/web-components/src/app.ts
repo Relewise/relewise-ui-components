@@ -55,10 +55,16 @@ export interface FullSearchOptions {
 
 export interface SearchLocalization {
     searchBar?: SearchBarLocalization;
+    fullSearch?: FullSearchLocalization;
     sortingButton?: SortingLocalization;
     loadMoreButton?: LoadMoreLocalization;
     facets?: FacetLocalization;
     searchResults?: SearchResultLocalization;
+}
+
+export interface FullSearchLocalization {
+    close?: string;
+    emptyState?: string;
 }
 
 export interface SearchBarLocalization {

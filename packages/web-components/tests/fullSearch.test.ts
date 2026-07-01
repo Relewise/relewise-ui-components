@@ -58,6 +58,29 @@ suite('relewise-full-search', () => {
         assert.isNotNull(el.shadowRoot!.querySelector('[role="dialog"]'));
     });
 
+    test('uses full-search localization', async () => {
+        useSearch({
+            debounceTimeInMs: 0,
+            fullSearch: {},
+            localization: {
+                fullSearch: {
+                    close: 'Luk',
+                    emptyState: 'Begynd at søge.',
+                },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-full-search displayed-at-location="Full Search" open></relewise-full-search>
+        `) as FullSearch;
+
+        const closeButton = el.shadowRoot!.querySelector('relewise-button[part="close-button"]');
+        const emptyState = el.shadowRoot!.querySelector('[part="empty-state"]');
+
+        assert.equal(closeButton?.getAttribute('button-text'), 'Luk');
+        assert.equal(emptyState?.textContent?.trim(), 'Begynd at søge.');
+    });
+
     test('closes on Escape', async () => {
         const el = await fixture(html`
             <relewise-full-search displayed-at-location="Full Search" open></relewise-full-search>

@@ -589,6 +589,10 @@ useSearch({
             outOf: 'ud af',
             products: 'produkter',
         },
+        fullSearch: {
+            close: 'Close',
+            emptyState: 'Start typing to search.',
+        },
         searchBar: {
             placeholder: 'Search',
             search: 'Search',
