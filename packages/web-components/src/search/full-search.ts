@@ -101,7 +101,6 @@ export class FullSearch extends RelewiseLitElement {
                             part="close-button"
                             button-text="Close"
                             @click=${this.close}>
-                            <relewise-x-icon></relewise-x-icon>
                         </relewise-button>
                     </header>
                     <div class="rw-content" part="content">
@@ -117,6 +116,7 @@ export class FullSearch extends RelewiseLitElement {
     static styles = [theme, css`
         :host {
             font-family: var(--font);
+            --relewise-full-search-color: var(--relewise-color, #212427);
         }
 
         .rw-backdrop {
@@ -131,7 +131,8 @@ export class FullSearch extends RelewiseLitElement {
 
         .rw-dialog {
             background: var(--relewise-full-search-background, white);
-            color: var(--relewise-full-search-color, var(--color));
+            color: var(--relewise-full-search-color);
+            --color: var(--relewise-full-search-color);
             width: var(--relewise-full-search-width, 100%);
             height: var(--relewise-full-search-height, 100%);
             display: flex;
@@ -152,6 +153,11 @@ export class FullSearch extends RelewiseLitElement {
 
         .rw-close {
             flex: 0 0 auto;
+            height: var(--relewise-product-search-bar-height, 3em);
+            margin: 0;
+            padding: var(--relewise-full-search-close-button-padding, 0 0.75em);
+            --relewise-button-icon-padding: 0;
+            --relewise-button-text-color: var(--relewise-full-search-color);
         }
 
         .rw-content {
