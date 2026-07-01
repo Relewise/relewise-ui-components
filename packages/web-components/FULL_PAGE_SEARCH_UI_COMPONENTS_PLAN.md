@@ -75,7 +75,7 @@ initializeRelewiseUI({ ... }).useSearch({
 The exact `fullSearch` type should be finalized in the first implementation PR, but the principle is fixed:
 
 - Existing product `facets`, product `sorting`, filters, relevance modifiers, target overrides, selected properties, and templates stay authoritative.
-- `fullSearch` adds shell behavior, tab behavior, input-assist behavior, empty/no-result recommendations, layout defaults, and tab enablement.
+- `fullSearch` adds modal behavior, tab behavior, input-assist behavior, empty/no-result recommendations, layout defaults, and tab enablement.
 - Product result rendering delegates to `relewise-product-tile`.
 - Content result rendering delegates to `relewise-content-tile`.
 - Product/content custom field rendering is handled through existing `templates.product` and `templates.content`.
@@ -705,13 +705,13 @@ Acceptance:
 
 Goal:
 
-Introduce the public full-search option and shell without completing every tab.
+Introduce the public full-search option and base modal without completing every tab.
 
 Tasks:
 
 - Add `fullSearch?: FullSearchOptions` to `RelewiseUISearchOptions`.
 - Register `relewise-full-search` through `useSearch`.
-- Add base modal shell:
+- Add base modal:
   - open/close
   - reflected `open` attribute with `open()` / `close()` methods
   - search input
@@ -950,7 +950,7 @@ Test coverage by phase:
 - Add category tile.
 - Generalize facet renderer for content-compatible facets.
 - Add full-search option types and component registration.
-- Build full-search shell.
+- Build full-search base modal.
 - Build products tab.
 - Build product categories tab.
 - Build content tab.
