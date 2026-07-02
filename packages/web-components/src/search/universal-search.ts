@@ -242,9 +242,9 @@ export class UniversalSearch extends RelewiseLitElement {
                             @click=${this.close}>
                         </relewise-button>
                     </header>
-                    <div class="rw-content" part="content">
+                    <div class="rw-body" part="body">
                         <slot>
-                            ${this.renderDefaultContent()}
+                            ${this.renderDefaultView()}
                         </slot>
                     </div>
                 </section>
@@ -252,7 +252,7 @@ export class UniversalSearch extends RelewiseLitElement {
         `;
     }
 
-    renderDefaultContent() {
+    renderDefaultView() {
         const universalSearchLocalization = getRelewiseUISearchOptions()?.localization?.universalSearch;
         const productsLocalization = universalSearchLocalization?.products;
 
@@ -407,10 +407,10 @@ export class UniversalSearch extends RelewiseLitElement {
             --relewise-button-text-color: var(--relewise-universal-search-color);
         }
 
-        .rw-content {
+        .rw-body {
             flex: 1;
             overflow: auto;
-            padding: var(--relewise-universal-search-content-padding, 1em);
+            padding: var(--relewise-universal-search-body-padding, 1em);
         }
 
         .rw-empty {
