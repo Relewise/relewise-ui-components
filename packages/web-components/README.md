@@ -579,9 +579,9 @@ useSearch({
             save: 'Save',
             showLess: 'Show Less',
             showMore: 'Show More',
-            toggle: 'Filter',
+            filter: 'Filter',
             yes: 'Yes',
-            no: 'No'
+            no: 'No',
         },
         loadMoreButton: {
             loadMore: 'Hent flere!',
@@ -611,12 +611,12 @@ useSearch({
         searchResults: {
             noResults: 'No products found',
             showAllResults: 'Show all results',
-            result: "Result";
-            results: "Results";
+            result: 'Result',
+            results: 'Results',
         },
         sortingButton: {
             sorting: 'sorting',
-            sortBy: "Sort by:"
+            sortBy: 'Sort by:',
             alphabeticalAscending: 'a - z',
             alphabeticalDescending: 'z - a',
             brandAscending: 'brand a - z',

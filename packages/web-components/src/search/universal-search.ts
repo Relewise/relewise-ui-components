@@ -80,11 +80,23 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     close(): void {
+        this.abortController.abort();
+        this.loading = false;
         this.isOpen = false;
     }
 
     setSearchTerm(term: string): void {
+        if (this.term === term) {
+            return;
+        }
+
         this.term = term;
+        this.abortController.abort();
+        this.activeTab = this.productsTabEnabled && this.term ? 'products' : null;
+        this.products = [];
+        this.searchResult = null;
+        this.error = null;
+        this.loading = Boolean(this.isOpen && this.term && this.productsTabEnabled);
 
         if (this.debounceTimeoutHandlerId) {
             clearTimeout(this.debounceTimeoutHandlerId);
@@ -329,6 +341,10 @@ export class UniversalSearch extends RelewiseLitElement {
 
         if (this.loading && this.products.length === 0) {
             return html`<relewise-loading-spinner></relewise-loading-spinner>`;
+        }
+
+        if (!this.searchResult) {
+            return nothing;
         }
 
         if (this.products.length === 0) {

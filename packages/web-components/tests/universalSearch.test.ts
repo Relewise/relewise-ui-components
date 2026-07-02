@@ -169,6 +169,60 @@ suite('relewise-universal-search', () => {
         assert.equal(el.shadowRoot!.querySelectorAll('relewise-product-tile').length, 1);
     });
 
+    test('does not render zero results before product search responds', async () => {
+        Searcher.prototype.searchProducts = async function() {
+            return {
+                hits: 0,
+                results: [],
+                facets: null,
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 50, universalSearch: { tabs: { products: {} } } });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        el.setSearchTerm('shoe');
+        await el.updateComplete;
+
+        assert.isNull(el.shadowRoot!.querySelector('[part="zero-results"]'));
+        assert.isNotNull(el.shadowRoot!.querySelector('relewise-loading-spinner'));
+
+        await waitUntil(() => el.shadowRoot!.querySelector('[part="zero-results"]') !== null, 'zero-results was not rendered after search response');
+    });
+
+    test('clears previous products when the search term changes', async () => {
+        Searcher.prototype.searchProducts = async function(request) {
+            return {
+                hits: 1,
+                results: [product(request.term ?? 'missing')],
+                facets: null,
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 50, universalSearch: { tabs: { products: {} } } });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        el.setSearchTerm('shoe');
+        await waitUntil(() => el.products.length === 1, 'initial products were not rendered');
+
+        el.setSearchTerm('boot');
+        await el.updateComplete;
+
+        assert.equal(el.products.length, 0);
+        assert.equal(el.shadowRoot!.querySelectorAll('relewise-product-tile').length, 0);
+
+        await waitUntil(() => el.products.length === 1, 'new products were not rendered');
+        assert.equal(el.products[0].productId, 'boot');
+    });
+
     test('uses products tab localization', async () => {
         Searcher.prototype.searchProducts = async function() {
             return {
