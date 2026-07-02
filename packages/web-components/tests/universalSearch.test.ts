@@ -1,6 +1,6 @@
 import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
 import { ProductResult, Searcher } from '@relewise/client';
-import { clearUrlState, UniversalSearch, initializeRelewiseUI, QueryKeys, readCurrentUrlState, updateUrlState, useSearch } from '../src';
+import { clearUrlState, UniversalSearch, initializeRelewiseUI, QueryKeys, readCurrentUrlState, updateUrlState, updateUrlStateValues, useSearch } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 function product(productId: string): ProductResult {
@@ -221,6 +221,37 @@ suite('relewise-universal-search', () => {
 
         await waitUntil(() => el.products.length === 1, 'new products were not rendered');
         assert.equal(el.products[0].productId, 'boot');
+    });
+
+    test('clears facet URL state when the search term changes', async () => {
+        Searcher.prototype.searchProducts = async function() {
+            return {
+                hits: 0,
+                results: [],
+                facets: null,
+            } as any;
+        };
+
+        updateUrlStateValues(QueryKeys.facet + 'Brand', ['Adidas', 'Nike']);
+        updateUrlState(QueryKeys.facetLowerbound + 'SalesPrice', '50');
+        updateUrlState(QueryKeys.facetUpperbound + 'SalesPrice', '100');
+        updateUrlState(QueryKeys.sortBy, 'price');
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: { tabs: { products: {} } } });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        el.setSearchTerm('boot');
+
+        await waitUntil(() => readCurrentUrlState(QueryKeys.term) === 'boot', 'term was not written to URL state');
+
+        assert.deepEqual(new URL(window.location.href).searchParams.getAll(QueryKeys.facet + 'Brand'), []);
+        assert.isNull(readCurrentUrlState(QueryKeys.facetLowerbound + 'SalesPrice'));
+        assert.isNull(readCurrentUrlState(QueryKeys.facetUpperbound + 'SalesPrice'));
+        assert.equal(readCurrentUrlState(QueryKeys.sortBy), 'price');
     });
 
     test('uses products tab localization', async () => {

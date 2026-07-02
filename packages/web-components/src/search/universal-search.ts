@@ -1,7 +1,7 @@
 import { ProductResult, ProductSearchResponse, User } from '@relewise/client';
 import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { Events, QueryKeys, getNumberOfProductsToFetch, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../helpers';
+import { Events, QueryKeys, clearUrlStateByPrefixes, getNumberOfProductsToFetch, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { RelewiseLitElement } from '../relewise-lit-element';
 import { theme } from '../theme';
@@ -105,6 +105,7 @@ export class UniversalSearch extends RelewiseLitElement {
         this.debounceTimeoutHandlerId = setTimeout(() => {
             updateUrlState(QueryKeys.term, this.term || null);
             updateUrlState(QueryKeys.take, null);
+            clearUrlStateByPrefixes([QueryKeys.facet, QueryKeys.facetUpperbound, QueryKeys.facetLowerbound]);
             if (this.isOpen) {
                 this.searchProducts(true);
             }
@@ -311,7 +312,7 @@ export class UniversalSearch extends RelewiseLitElement {
                 <section class="rw-results" part="results">
                     <header class="rw-results-header" part="results-header">
                         <div>
-                            <h2 class="rw-results-title" part="results-title">${productsLocalization?.resultsTitle ?? 'Product Results'}</h2>
+                            <h2 class="rw-results-title" part="results-title">${productsLocalization?.resultsTitle ?? 'Products'}</h2>
                             ${this.searchResult ? html`
                                 <span class="rw-results-count" part="results-count">${this.searchResult.hits} ${this.searchResult.hits === 1 ? (productsLocalization?.result ?? 'product') : (productsLocalization?.results ?? 'products')}</span>
                             ` : nothing}
@@ -340,7 +341,11 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         if (this.loading && this.products.length === 0) {
-            return html`<relewise-loading-spinner></relewise-loading-spinner>`;
+            return html`
+                <div class="rw-loading" part="loading-state">
+                    <relewise-loading-spinner></relewise-loading-spinner>
+                </div>
+            `;
         }
 
         if (!this.searchResult) {
@@ -362,7 +367,11 @@ export class UniversalSearch extends RelewiseLitElement {
                     </relewise-product-tile>
                 `)}
             </div>
-            ${this.loading ? html`<relewise-loading-spinner></relewise-loading-spinner>` : nothing}
+            ${this.loading ? html`
+                <div class="rw-loading" part="loading-state">
+                    <relewise-loading-spinner></relewise-loading-spinner>
+                </div>
+            ` : nothing}
             ${this.searchResult && this.products.length < this.searchResult.hits ? html`
                 <div class="rw-load-more" part="load-more">
                     <span class="rw-products-shown">
@@ -471,7 +480,7 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         .rw-results-layout:has(.rw-facets) {
-            grid-template-columns: minmax(12em, 1fr) minmax(0, 3fr);
+            grid-template-columns: minmax(10em, var(--relewise-universal-search-facets-width, 14em)) minmax(0, 1fr);
         }
 
         .rw-results-header {
@@ -493,8 +502,14 @@ export class UniversalSearch extends RelewiseLitElement {
 
         .rw-product-grid {
             display: grid;
-            grid-template-columns: repeat(var(--relewise-universal-search-product-columns, 4), minmax(0, 1fr));
+            grid-template-columns: repeat(var(--relewise-universal-search-product-columns, 5), minmax(0, 1fr));
             gap: var(--relewise-universal-search-product-grid-gap, 1em);
+        }
+
+        .rw-loading {
+            display: flex;
+            justify-content: center;
+            padding: var(--relewise-universal-search-loading-padding, 2em 0);
         }
 
         .rw-load-more {
