@@ -1,4 +1,4 @@
-import { FilterBuilder, ProductCategoryResult, ProductResult } from '@relewise/client';
+import { FilterBuilder, ProductCategoryResult, ProductResult, RetailMediaResultPlacementResultEntityDisplayAd, RetailMediaResultPlacementResultEntityProduct } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { FilterIcon, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
 import { Button } from './components/button';
@@ -37,12 +37,14 @@ import { LikeFilledIcon } from './components/icons/like-filled';
 import { DislikeIcon } from './components/icons/dislike';
 import { DislikeFilledIcon } from './components/icons/dislike-filled';
 import { SearchSortingOptionsBuilder } from './search/searchSortingBuilder';
+import { RetailMediaOptionsBuilder } from './search/retailMediaBuilder';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
     templates?: SearchTemplates;
     facets?: SearchFacets;
     sorting?: (builder: SearchSortingOptionsBuilder) => void;
+    retailMedia?: (builder: RetailMediaOptionsBuilder) => void;
     localization?: SearchLocalization;
     rememberScrollPosition?: boolean;
     debounceTimeInMs?: number;
@@ -117,6 +119,8 @@ export interface SearchFacets {
 export interface SearchTemplates {
     searchOverlayProductResult?: (product: ProductResult, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
     searchOverlayProductCategoryResult?: (productCategory: ProductCategoryResult, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    retailMediaSponsoredLabel?: (product: RetailMediaResultPlacementResultEntityProduct, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    retailMediaDisplayAd?: (displayAd: RetailMediaResultPlacementResultEntityDisplayAd, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
 }
 
 export class App {
