@@ -1,4 +1,4 @@
-import { FilterBuilder, ProductCategoryResult, ProductResult, RetailMediaResultPlacementResultEntityDisplayAd, RetailMediaResultPlacementResultEntityProduct } from '@relewise/client';
+import { FilterBuilder, ProductCategoryResult, ProductResult } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { FilterIcon, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
 import { Button } from './components/button';
@@ -118,8 +118,6 @@ export interface SearchFacets {
 export interface SearchTemplates {
     searchOverlayProductResult?: (product: ProductResult, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
     searchOverlayProductCategoryResult?: (productCategory: ProductCategoryResult, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
-    retailMediaSponsoredLabel?: (product: RetailMediaResultPlacementResultEntityProduct, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
-    retailMediaDisplayAd?: (displayAd: RetailMediaResultPlacementResultEntityDisplayAd, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
 }
 
 export class App {

@@ -2,8 +2,12 @@ import {
     RetailMediaQuery,
     RetailMediaQueryBuilder,
     RetailMediaQueryPlacementSelector,
+    RetailMediaResultPlacementResultEntityDisplayAd,
+    RetailMediaResultPlacementResultEntityProduct,
     SelectedDisplayAdPropertiesSettings,
 } from '@relewise/client';
+import { nothing, type TemplateResult } from 'lit';
+import type { ProductTemplateExtensions } from '../initialize';
 
 export interface RetailMediaVariationConfiguration {
     key: string;
@@ -28,7 +32,13 @@ export interface RetailMediaTargetConfiguration {
 export interface RetailMediaConfiguration {
     variations: RetailMediaVariationConfiguration[];
     selectedDisplayAdProperties: Partial<SelectedDisplayAdPropertiesSettings> | null;
+    templates?: RetailMediaTemplates;
     targets: Map<string, RetailMediaTargetConfiguration>;
+}
+
+export interface RetailMediaTemplates {
+    retailMediaSponsoredLabel?: (product: RetailMediaResultPlacementResultEntityProduct, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    retailMediaDisplayAd?: (displayAd: RetailMediaResultPlacementResultEntityDisplayAd, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
 }
 
 export class RetailMediaPlacementBuilder {
@@ -92,6 +102,7 @@ export class RetailMediaTargetBuilder {
 export class RetailMediaOptionsBuilder {
     private readonly variations: RetailMediaVariationConfiguration[] = [];
     private selectedDisplayAdPropertiesValue: Partial<SelectedDisplayAdPropertiesSettings> | null = null;
+    private templatesValue: RetailMediaTemplates | undefined = undefined;
     private readonly targets = new Map<string, RetailMediaTargetConfiguration>();
 
     variation(configuration: RetailMediaVariationConfiguration): this {
@@ -101,6 +112,11 @@ export class RetailMediaOptionsBuilder {
 
     selectedDisplayAdProperties(displayAdProperties: Partial<SelectedDisplayAdPropertiesSettings> | null): this {
         this.selectedDisplayAdPropertiesValue = displayAdProperties;
+        return this;
+    }
+
+    templates(templates: RetailMediaTemplates): this {
+        this.templatesValue = { ...templates };
         return this;
     }
 
@@ -115,6 +131,7 @@ export class RetailMediaOptionsBuilder {
         return {
             variations: this.variations.map(variation => ({ ...variation })),
             selectedDisplayAdProperties: this.selectedDisplayAdPropertiesValue,
+            templates: this.templatesValue ? { ...this.templatesValue } : undefined,
             targets: new Map(this.targets),
         };
     }

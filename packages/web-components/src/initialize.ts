@@ -5,7 +5,7 @@ import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { TemplateHelpers } from './helpers/templateHelpers';
 import { TargetedSearchConfigurations } from './targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from './targetedRecommendationConfigurations';
-import { RetailMediaConfiguration } from './search/retailMediaBuilder';
+import type { RetailMediaConfiguration } from './search/retailMediaBuilder';
 
 export interface UserEngagementEntityOptions {
     sentiment?: boolean;

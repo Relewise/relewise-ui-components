@@ -772,6 +772,10 @@ useRetailMedia(builder => builder
         allData: true,
         clickedByUserInfo: false,
     })
+    .templates({
+        retailMediaSponsoredLabel: (product, { html }) => html`<span>Sponsored</span>`,
+        retailMediaDisplayAd: (displayAd, { html }) => html`<span>${displayAd.result.name}</span>`,
+    })
     .target('search-page', target => target
         .location('Search Results')
         .placement('Top Banner', placement => placement
@@ -816,15 +820,14 @@ registerSearchTarget('search-page', {
 });
 ```
 
-Display ad and sponsored label rendering can be overwritten with Lit templates:
+Display ad and sponsored label rendering can be overwritten with Lit templates in the retail media configuration:
 
 ```ts
-useSearch({
-    templates: {
+useRetailMedia(builder => builder
+    .templates({
         retailMediaSponsoredLabel: (product, { html }) => html`<span>Sponsored</span>`,
         retailMediaDisplayAd: (displayAd, { html }) => html`<span>${displayAd.result.name}</span>`,
-    },
-});
+    }));
 ```
 
 Retail media rendering is based on the configured placement position:

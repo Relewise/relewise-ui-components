@@ -124,6 +124,10 @@ suite('productSearchRequestBuilder', () => {
             .variation({ key: 'Mobile', minWidth: 0 })
             .variation({ key: 'Tablet', minWidth: 768 })
             .variation({ key: 'Desktop', minWidth: 1024 })
+            .templates({
+                retailMediaSponsoredLabel: (product, { html }) => html`<span>${product.result.productId} Sponsored</span>`,
+                retailMediaDisplayAd: (displayAd, { html }) => html`<span>${displayAd.result.name}</span>`,
+            })
             .target('campaign', target => target
                 .location('Search Results')
                 .placement('Top Banner', placement => placement.beforeResults())
@@ -159,6 +163,8 @@ suite('productSearchRequestBuilder', () => {
                 },
             },
         });
+        assert.exists(window.relewiseUIRetailMediaConfiguration?.templates?.retailMediaSponsoredLabel);
+        assert.exists(window.relewiseUIRetailMediaConfiguration?.templates?.retailMediaDisplayAd);
     });
 
     test('uses custom retail media variation min widths and falls back to first configured variation', () => {

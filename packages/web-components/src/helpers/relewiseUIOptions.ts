@@ -1,7 +1,7 @@
 import { Settings } from '@relewise/client';
 import { RelewiseUIOptions } from '../initialize';
 import { RelewiseUISearchOptions } from '../app';
-import { RetailMediaConfiguration } from '../search/retailMediaBuilder';
+import type { RetailMediaConfiguration } from '../search/retailMediaBuilder';
 import { TargetedSearchConfigurations } from '../targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from 'src/targetedRecommendationConfigurations';
 
