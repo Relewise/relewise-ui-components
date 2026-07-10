@@ -1,6 +1,6 @@
 import { assert } from '@esm-bundle/chai';
 import { ProductSortingBuilder, Settings, UserFactory } from '@relewise/client';
-import { buildProductSearchRequest, clearUrlState, initializeRelewiseUI, QueryKeys, registerSearchTarget, SortingEnum, updateUrlState, updateUrlStateValues, useSearch } from '../src';
+import { buildProductSearchRequest, clearUrlState, initializeRelewiseUI, QueryKeys, registerSearchTarget, SortingEnum, updateUrlState, updateUrlStateValues, useRetailMedia, useSearch } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 const settings: Settings = {
@@ -18,6 +18,7 @@ suite('productSearchRequestBuilder', () => {
 
     teardown(() => {
         clearUrlState();
+        window.relewiseUIRetailMediaConfiguration = null;
     });
 
     test('builds product facets with labels and selected values from URL state', () => {
@@ -113,22 +114,21 @@ suite('productSearchRequestBuilder', () => {
     test('adds retail media query configured for the product search target', () => {
         Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1200 });
 
-        useSearch({
-            retailMedia: builder => builder
-                .selectedDisplayAdProperties({
-                    displayName: true,
-                    allData: true,
-                    clickedByUserInfo: false,
-                })
-                .variation({ key: 'Mobile', minWidth: 0 })
-                .variation({ key: 'Tablet', minWidth: 768 })
-                .variation({ key: 'Desktop', minWidth: 1024 })
-                .target('campaign', target => target
-                    .location('Search Results')
-                    .placement('Top Banner', placement => placement.beforeResults())
-                    .placement('Sponsored Grid', placement => placement
-                        .atPosition({ position: 4 }))),
-        });
+        useSearch();
+        useRetailMedia(builder => builder
+            .selectedDisplayAdProperties({
+                displayName: true,
+                allData: true,
+                clickedByUserInfo: false,
+            })
+            .variation({ key: 'Mobile', minWidth: 0 })
+            .variation({ key: 'Tablet', minWidth: 768 })
+            .variation({ key: 'Desktop', minWidth: 1024 })
+            .target('campaign', target => target
+                .location('Search Results')
+                .placement('Top Banner', placement => placement.beforeResults())
+                .placement('Sponsored Grid', placement => placement
+                    .atPosition({ position: 4 }))));
 
         const result = buildProductSearchRequest({
             term: 'shoe',
@@ -164,14 +164,13 @@ suite('productSearchRequestBuilder', () => {
     test('uses custom retail media variation min widths and falls back to first configured variation', () => {
         Object.defineProperty(window, 'innerWidth', { configurable: true, value: 700 });
 
-        useSearch({
-            retailMedia: builder => builder
-                .variation({ key: 'Tablet', minWidth: 768 })
-                .variation({ key: 'Desktop', minWidth: 1024 })
-                .target('campaign', target => target
-                    .location('Search Results')
-                    .placement('Sponsored Grid')),
-        });
+        useSearch();
+        useRetailMedia(builder => builder
+            .variation({ key: 'Tablet', minWidth: 768 })
+            .variation({ key: 'Desktop', minWidth: 1024 })
+            .target('campaign', target => target
+                .location('Search Results')
+                .placement('Sponsored Grid')));
 
         const result = buildProductSearchRequest({
             term: 'shoe',
@@ -189,13 +188,12 @@ suite('productSearchRequestBuilder', () => {
     test('uses targeted retail media configuration before global target configuration', () => {
         Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1200 });
 
-        useSearch({
-            retailMedia: builder => builder
-                .variation({ key: 'Desktop', minWidth: 1024 })
-                .target('campaign', target => target
-                    .location('Global Search Results')
-                    .placement('Global Placement')),
-        });
+        useSearch();
+        useRetailMedia(builder => builder
+            .variation({ key: 'Desktop', minWidth: 1024 })
+            .target('campaign', target => target
+                .location('Global Search Results')
+                .placement('Global Placement')));
 
         registerSearchTarget('campaign', {
             retailMedia: builder => builder
@@ -219,12 +217,11 @@ suite('productSearchRequestBuilder', () => {
     });
 
     test('skips incomplete retail media configuration', () => {
-        useSearch({
-            retailMedia: builder => builder
-                .variation({ key: 'Desktop', minWidth: 1024 })
-                .target('campaign', target => target
-                    .placement('Sponsored Grid')),
-        });
+        useSearch();
+        useRetailMedia(builder => builder
+            .variation({ key: 'Desktop', minWidth: 1024 })
+            .target('campaign', target => target
+                .placement('Sponsored Grid')));
 
         const result = buildProductSearchRequest({
             term: 'shoe',

@@ -758,30 +758,26 @@ useSearch({
 ```
 
 #### Retail Media
-Retail media can be requested for product search requests by configuring it through `useSearch`.
+Retail media can be requested for product search requests by configuring it through `useRetailMedia`.
 
 The product search component's `target` attribute selects the retail media configuration. The retail media location is not related to the component's `displayed-at-location` attribute.
 
 ```ts
-useSearch({
-    retailMedia(builder) {
-        builder
-            .variation({ key: 'Mobile', minWidth: 0 })
-            .variation({ key: 'Tablet', minWidth: 768 })
-            .variation({ key: 'Desktop', minWidth: 1024 })
-            .selectedDisplayAdProperties({
-                displayName: true,
-                allData: true,
-                clickedByUserInfo: false,
-            })
-            .target('search-page', target => target
-                .location('Search Results')
-                .placement('Top Banner', placement => placement
-                    .beforeResults())
-                .placement('Sponsored Grid', placement => placement
-                    .atPosition({ position: 4 })));
-    },
-});
+useRetailMedia(builder => builder
+    .variation({ key: 'Mobile', minWidth: 0 })
+    .variation({ key: 'Tablet', minWidth: 768 })
+    .variation({ key: 'Desktop', minWidth: 1024 })
+    .selectedDisplayAdProperties({
+        displayName: true,
+        allData: true,
+        clickedByUserInfo: false,
+    })
+    .target('search-page', target => target
+        .location('Search Results')
+        .placement('Top Banner', placement => placement
+            .beforeResults())
+        .placement('Sponsored Grid', placement => placement
+            .atPosition({ position: 4 }))));
 ```
 
 ```html
@@ -796,15 +792,11 @@ Variation keys are global for retail media requests. Configure each variation wi
 The min-width can be overwritten, and custom variation names can be configured by passing the key and min-width together:
 
 ```ts
-useSearch({
-    retailMedia(builder) {
-        builder
-            .variation({ key: 'Mobile', minWidth: 0 })
-            .variation({ key: 'Tablet', minWidth: 700 })
-            .variation({ key: 'Desktop', minWidth: 1100 })
-            .variation({ key: 'Wide', minWidth: 1440 });
-    },
-});
+useRetailMedia(builder => builder
+    .variation({ key: 'Mobile', minWidth: 0 })
+    .variation({ key: 'Tablet', minWidth: 700 })
+    .variation({ key: 'Desktop', minWidth: 1100 })
+    .variation({ key: 'Wide', minWidth: 1440 }));
 ```
 
 Retail media keys are passed directly to Relewise. If a matching location, variation, or placement cannot be resolved, the configuration is skipped with a console warning.
@@ -840,7 +832,6 @@ Retail media rendering is based on the configured placement position:
 - `beforeResults()`
 - `afterResults()`
 - `atPosition({ position: 4 })`
-- `mixed({ every: 8 })`
 
 #### Facets
 By default the component will not render any facets.

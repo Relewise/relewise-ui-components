@@ -1,11 +1,11 @@
 import { DoubleNullableRange, ProductSearchRequest, Settings } from '@relewise/client';
 import { createProductSearchBuilder } from '../builders';
 import { RelewiseFacetBuilder } from '../facetBuilder';
-import { getRelewiseSearchTargetedConfigurations, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
+import { getRelewiseSearchTargetedConfigurations, getRelewiseUIRetailMediaConfiguration, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { QueryKeys, readCurrentUrlState, readCurrentUrlStateValues } from '../helpers/urlState';
 import { getSearchSortingOptions, getSearchSortingSelection } from './searchSortingBuilder';
 import { Facet } from './types';
-import { buildRetailMediaQuery, getRetailMediaConfiguration } from './retailMediaBuilder';
+import { buildRetailMediaQuery } from './retailMediaBuilder';
 
 export type ProductSearchRequestOptions = {
     term: string | null;
@@ -58,7 +58,7 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
 
     const retailMediaQuery = buildRetailMediaQuery(
         options.target,
-        getRetailMediaConfiguration(searchOptions?.retailMedia),
+        getRelewiseUIRetailMediaConfiguration() ?? null,
         options.target ? getRelewiseSearchTargetedConfigurations().getRetailMediaConfiguration(options.target) : null,
     );
 

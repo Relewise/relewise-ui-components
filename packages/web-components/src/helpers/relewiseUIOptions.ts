@@ -1,6 +1,7 @@
 import { Settings } from '@relewise/client';
 import { RelewiseUIOptions } from '../initialize';
 import { RelewiseUISearchOptions } from '../app';
+import { RetailMediaConfiguration } from '../search/retailMediaBuilder';
 import { TargetedSearchConfigurations } from '../targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from 'src/targetedRecommendationConfigurations';
 
@@ -19,6 +20,10 @@ export function getRelewiseUIOptions(): RelewiseUIOptions {
 
 export function getRelewiseUISearchOptions(): RelewiseUISearchOptions | undefined {
     return window.relewiseUISearchOptions;
+}
+
+export function getRelewiseUIRetailMediaConfiguration(): RetailMediaConfiguration | null | undefined {
+    return window.relewiseUIRetailMediaConfiguration;
 }
 
 export function getRelewiseSearchTargetedConfigurations(): TargetedSearchConfigurations {

@@ -13,8 +13,7 @@ export interface RetailMediaVariationConfiguration {
 export type RetailMediaPlacementPosition =
     | { type: 'beforeResults' }
     | { type: 'afterResults' }
-    | { type: 'atPosition'; position: number }
-    | { type: 'mixed'; every: number };
+    | { type: 'atPosition'; position: number };
 
 export interface RetailMediaPlacementConfiguration {
     key: string;
@@ -54,11 +53,6 @@ export class RetailMediaPlacementBuilder {
 
     atPosition(options: { position: number }): this {
         this.configuration.position = { type: 'atPosition', position: options.position };
-        return this;
-    }
-
-    mixed(options: { every: number }): this {
-        this.configuration.position = { type: 'mixed', every: options.every };
         return this;
     }
 
