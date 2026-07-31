@@ -1,12 +1,16 @@
-import { ProductResult, ProductSearchResponse, User } from '@relewise/client';
+import { ContentResult, ContentSearchResponse, ProductCategoryResult, ProductCategorySearchResponse, ProductResult, ProductSearchResponse, SearchCollectionBuilder, SearchResponseCollection, User } from '@relewise/client';
 import { html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import { createProductCategorySearchBuilder } from '../builders';
 import { Events, QueryKeys, clearUrlStateByPrefixes, getNumberOfProductsToFetch, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { RelewiseLitElement } from '../relewise-lit-element';
+import { buildContentSearchRequest } from './contentSearchRequestBuilder';
 import { buildProductSearchRequest } from './productSearchRequestBuilder';
 import { getSearcher } from './searcher';
 import { universalSearchStyles } from './universal-search.styles';
+
+export type UniversalSearchTab = 'products' | 'productCategories' | 'content';
 
 export class UniversalSearch extends RelewiseLitElement {
 
@@ -23,16 +27,34 @@ export class UniversalSearch extends RelewiseLitElement {
     term: string = '';
 
     @state()
-    activeTab: 'products' | null = null;
+    activeTab: UniversalSearchTab | null = null;
 
     @state()
-    searchResult: ProductSearchResponse | null = null;
+    productSearchResult: ProductSearchResponse | null = null;
+
+    @state()
+    productCategorySearchResult: ProductCategorySearchResponse | null = null;
+
+    @state()
+    contentSearchResult: ContentSearchResponse | null = null;
 
     @state()
     products: ProductResult[] = [];
 
     @state()
-    page: number = 1;
+    productCategories: ProductCategoryResult[] = [];
+
+    @state()
+    content: ContentResult[] = [];
+
+    @state()
+    productPage: number = 1;
+
+    @state()
+    productCategoryPage: number = 1;
+
+    @state()
+    contentPage: number = 1;
 
     @state()
     loading: boolean = false;
@@ -41,7 +63,10 @@ export class UniversalSearch extends RelewiseLitElement {
     error: string | null = null;
 
     @state()
-    facetLabels: string[] = [];
+    productFacetLabels: string[] = [];
+
+    @state()
+    contentFacetLabels: string[] = [];
 
     @state()
     private user: User | null = null;
@@ -52,18 +77,18 @@ export class UniversalSearch extends RelewiseLitElement {
     private debounceTimeoutHandlerId: ReturnType<typeof setTimeout> | null = null;
     private handleWindowKeyDownBound = this.handleWindowKeyDown.bind(this);
     private handleSearchConfigurationChangedBound = this.handleSearchConfigurationChanged.bind(this);
-    private defaultProductsPageSize = 15;
+    private defaultPageSize = 15;
 
     connectedCallback(): void {
         super.connectedCallback();
         this.term = readCurrentUrlState(QueryKeys.term) ?? '';
-        this.activeTab = this.productsTabEnabled && this.term ? 'products' : null;
+        this.activeTab = this.term ? this.firstEnabledTab : null;
         window.addEventListener('keydown', this.handleWindowKeyDownBound);
         window.addEventListener(Events.applyFacet, this.handleSearchConfigurationChangedBound);
         window.addEventListener(Events.applySorting, this.handleSearchConfigurationChangedBound);
 
         if (this.isOpen) {
-            this.searchProducts(true);
+            this.searchEnabledTabs(true);
         }
     }
 
@@ -76,7 +101,7 @@ export class UniversalSearch extends RelewiseLitElement {
 
     open(): void {
         this.isOpen = true;
-        this.searchProducts(true);
+        this.searchEnabledTabs(true);
     }
 
     close(): void {
@@ -92,11 +117,10 @@ export class UniversalSearch extends RelewiseLitElement {
 
         this.term = term;
         this.abortController.abort();
-        this.activeTab = this.productsTabEnabled && this.term ? 'products' : null;
-        this.products = [];
-        this.searchResult = null;
+        this.activeTab = this.term ? this.firstEnabledTab : null;
+        this.clearAllResults();
         this.error = null;
-        this.loading = Boolean(this.isOpen && this.term && this.productsTabEnabled);
+        this.loading = Boolean(this.isOpen && this.term && this.enabledTabs.length > 0);
 
         if (this.debounceTimeoutHandlerId) {
             clearTimeout(this.debounceTimeoutHandlerId);
@@ -106,8 +130,9 @@ export class UniversalSearch extends RelewiseLitElement {
             updateUrlState(QueryKeys.term, this.term || null);
             updateUrlState(QueryKeys.take, null);
             clearUrlStateByPrefixes([QueryKeys.facet, QueryKeys.facetUpperbound, QueryKeys.facetLowerbound]);
+            this.activeTab = this.term ? this.firstEnabledTab : null;
             if (this.isOpen) {
-                this.searchProducts(true);
+                this.searchEnabledTabs(true);
             }
         }, getRelewiseUISearchOptions()?.debounceTimeInMs);
     }
@@ -116,8 +141,36 @@ export class UniversalSearch extends RelewiseLitElement {
         return Boolean(getRelewiseUISearchOptions()?.universalSearch?.entities?.products);
     }
 
+    private get productCategoriesTabEnabled(): boolean {
+        return Boolean(getRelewiseUISearchOptions()?.universalSearch?.entities?.productCategories);
+    }
+
+    private get contentTabEnabled(): boolean {
+        return Boolean(getRelewiseUISearchOptions()?.universalSearch?.entities?.content);
+    }
+
+    private get enabledTabs(): UniversalSearchTab[] {
+        const tabs: UniversalSearchTab[] = [];
+        if (this.productsTabEnabled) tabs.push('products');
+        if (this.productCategoriesTabEnabled) tabs.push('productCategories');
+        if (this.contentTabEnabled) tabs.push('content');
+        return tabs;
+    }
+
+    private get firstEnabledTab(): UniversalSearchTab | null {
+        return this.enabledTabs[0] ?? null;
+    }
+
     private get productsPageSize(): number {
-        return getRelewiseUISearchOptions()?.universalSearch?.entities?.products?.pageSize ?? this.defaultProductsPageSize;
+        return getRelewiseUISearchOptions()?.universalSearch?.entities?.products?.pageSize ?? this.defaultPageSize;
+    }
+
+    private get productCategoriesPageSize(): number {
+        return getRelewiseUISearchOptions()?.universalSearch?.entities?.productCategories?.pageSize ?? this.defaultPageSize;
+    }
+
+    private get contentPageSize(): number {
+        return getRelewiseUISearchOptions()?.universalSearch?.entities?.content?.pageSize ?? this.defaultPageSize;
     }
 
     handleKeyEvent(event: KeyboardEvent): void {
@@ -143,41 +196,61 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     handleSearchConfigurationChanged(): void {
-        if (!this.isOpen || this.activeTab !== 'products') {
+        if (!this.isOpen || !this.term) {
             return;
         }
 
         updateUrlState(QueryKeys.take, null);
-        this.searchProducts(true);
+        this.searchEnabledTabs(true);
     }
 
-    handleLoadMoreProducts(): void {
-        this.page = this.page + 1;
-        updateUrlState(QueryKeys.take, (this.productsPageSize * this.page).toString());
-        this.searchProducts(false);
+    handleSelectTab(tab: UniversalSearchTab): void {
+        this.activeTab = tab;
     }
 
-    async searchProducts(shouldClearOldResult: boolean): Promise<void> {
+    handleLoadMoreActiveTab(): void {
+        if (!this.activeTab) {
+            return;
+        }
+
+        if (this.activeTab === 'products') {
+            this.productPage = this.productPage + 1;
+            updateUrlState(QueryKeys.take, (this.productsPageSize * this.productPage).toString());
+        } else if (this.activeTab === 'productCategories') {
+            this.productCategoryPage = this.productCategoryPage + 1;
+        } else {
+            this.contentPage = this.contentPage + 1;
+        }
+
+        this.searchTabs([this.activeTab], false);
+    }
+
+    searchEnabledTabs(shouldClearOldResult: boolean): Promise<void> {
+        return this.searchTabs(this.enabledTabs, shouldClearOldResult);
+    }
+
+    async searchTabs(tabs: UniversalSearchTab[], shouldClearOldResult: boolean): Promise<void> {
         this.abortController.abort();
 
-        if (!this.productsTabEnabled || !this.term) {
+        if (!this.term || tabs.length === 0) {
             this.activeTab = null;
-            this.products = [];
-            this.searchResult = null;
+            this.clearAllResults();
             this.error = null;
             this.loading = false;
             return;
         }
 
+        if (!this.activeTab || !this.enabledTabs.includes(this.activeTab)) {
+            this.activeTab = this.firstEnabledTab;
+        }
+
         const numberOfProductsToFetch = getNumberOfProductsToFetch();
-        this.activeTab = 'products';
         this.loading = true;
         this.error = null;
 
         if (shouldClearOldResult) {
-            this.page = numberOfProductsToFetch ? numberOfProductsToFetch / this.productsPageSize : 1;
-            this.products = [];
-            this.searchResult = null;
+            this.resetPages(numberOfProductsToFetch);
+            this.clearResults(tabs);
         }
 
         const relewiseUIOptions = getRelewiseUIOptions();
@@ -187,38 +260,116 @@ export class UniversalSearch extends RelewiseLitElement {
         const settings = await getRelewiseContextSettings(this.displayedAtLocation ?? 'Relewise Universal Search');
         this.user = settings.user;
 
-        const requestResult = buildProductSearchRequest({
-            term: this.term,
-            settings,
-            page: this.page,
-            pageSize: this.productsPageSize,
-            productsLoaded: this.products.length,
-            productsToFetch: numberOfProductsToFetch,
-            target: this.target,
-        });
-        this.facetLabels = requestResult.facetLabels;
+        const requestBuilder = new SearchCollectionBuilder();
+
+        if (tabs.includes('products')) {
+            const requestResult = buildProductSearchRequest({
+                term: this.term,
+                settings,
+                page: this.productPage,
+                pageSize: this.productsPageSize,
+                productsLoaded: this.products.length,
+                productsToFetch: numberOfProductsToFetch,
+                target: this.target,
+            });
+            this.productFacetLabels = requestResult.facetLabels;
+            requestBuilder.addRequest(requestResult.request);
+        }
+
+        if (tabs.includes('productCategories')) {
+            requestBuilder.addRequest(createProductCategorySearchBuilder(this.term, settings)
+                .pagination(p => p
+                    .setPageSize(this.productCategoriesPageSize)
+                    .setPage(this.productCategoryPage))
+                .build());
+        }
+
+        if (tabs.includes('content')) {
+            const requestResult = buildContentSearchRequest({
+                term: this.term,
+                settings,
+                page: this.contentPage,
+                pageSize: this.contentPageSize,
+            });
+            this.contentFacetLabels = requestResult.facetLabels;
+            requestBuilder.addRequest(requestResult.request);
+        }
 
         const abortController = new AbortController();
         this.abortController = abortController;
 
         try {
-            const response = await searcher.searchProducts(requestResult.request, { abortSignal: abortController.signal });
+            const response = await searcher.batch(requestBuilder.build(), { abortSignal: abortController.signal });
             if (!response) {
                 return;
             }
 
-            this.searchResult = response;
-            this.products = this.products.concat(response.results ?? []);
+            this.applySearchResponse(response);
         } catch (error) {
             if (!abortController.signal.aborted) {
-                const productsLocalization = getRelewiseUISearchOptions()?.localization?.universalSearch?.products;
-                this.error = error instanceof Error ? error.message : productsLocalization?.error ?? 'Could not load products.';
+                this.error = error instanceof Error ? error.message : this.activeLocalization?.error ?? 'Could not load results.';
             }
         } finally {
             if (!abortController.signal.aborted) {
                 this.loading = false;
             }
         }
+    }
+
+    private applySearchResponse(response: SearchResponseCollection): void {
+        const productSearchResult = findResponseOfType<ProductSearchResponse>(response.responses ?? undefined, 'ProductSearchResponse');
+        if (productSearchResult) {
+            this.productSearchResult = productSearchResult;
+            this.products = this.products.concat(productSearchResult.results ?? []);
+        }
+
+        const productCategorySearchResult = findResponseOfType<ProductCategorySearchResponse>(response.responses ?? undefined, 'ProductCategorySearchResponse');
+        if (productCategorySearchResult) {
+            this.productCategorySearchResult = productCategorySearchResult;
+            this.productCategories = this.productCategories.concat(productCategorySearchResult.results ?? []);
+        }
+
+        const contentSearchResult = findResponseOfType<ContentSearchResponse>(response.responses ?? undefined, 'ContentSearchResponse');
+        if (contentSearchResult) {
+            this.contentSearchResult = contentSearchResult;
+            this.content = this.content.concat(contentSearchResult.results ?? []);
+        }
+    }
+
+    private resetPages(numberOfProductsToFetch: number | null): void {
+        this.productPage = numberOfProductsToFetch ? numberOfProductsToFetch / this.productsPageSize : 1;
+        this.productCategoryPage = 1;
+        this.contentPage = 1;
+    }
+
+    private clearAllResults(): void {
+        this.clearResults(['products', 'productCategories', 'content']);
+    }
+
+    private clearResults(tabs: UniversalSearchTab[]): void {
+        if (tabs.includes('products')) {
+            this.products = [];
+            this.productSearchResult = null;
+        }
+        if (tabs.includes('productCategories')) {
+            this.productCategories = [];
+            this.productCategorySearchResult = null;
+        }
+        if (tabs.includes('content')) {
+            this.content = [];
+            this.contentSearchResult = null;
+        }
+    }
+
+    private get activeLocalization() {
+        const universalSearchLocalization = getRelewiseUISearchOptions()?.localization?.universalSearch;
+        if (this.activeTab === 'productCategories') {
+            return universalSearchLocalization?.productCategories;
+        }
+        if (this.activeTab === 'content') {
+            return universalSearchLocalization?.content;
+        }
+        return universalSearchLocalization?.products;
     }
 
     render() {
@@ -267,64 +418,71 @@ export class UniversalSearch extends RelewiseLitElement {
 
     renderDefaultView() {
         const universalSearchLocalization = getRelewiseUISearchOptions()?.localization?.universalSearch;
-        const productsLocalization = universalSearchLocalization?.products;
 
         if (!this.term) {
             return html`<p class="rw-empty" part="empty-state">${universalSearchLocalization?.emptyState ?? 'Start typing to search.'}</p>`;
         }
 
-        if (this.productsTabEnabled) {
-            return html`
-                ${this.renderResultsSummary()}
-                <nav class="rw-tabs" part="tabs" aria-label=${universalSearchLocalization?.tabsLabel ?? 'Search result tabs'}>
-                    <button
-                        class="rw-tab"
-                        part="tab"
-                        type="button"
-                        aria-selected=${this.activeTab === 'products'}>
-                        ${productsLocalization?.tab ?? 'Products'}
-                        ${this.searchResult ? html`<span class="rw-tab-count" part="tab-count">${this.searchResult.hits}</span>` : nothing}
-                    </button>
-                </nav>
-                ${this.renderProductsTab()}
-            `;
+        const tabs = this.enabledTabs;
+        if (tabs.length === 0) {
+            return html`<p class="rw-empty" part="empty-state">${universalSearchLocalization?.noEntitiesConfigured ?? 'No universal-search entities configured.'}</p>`;
         }
 
-        return html`<p class="rw-empty" part="empty-state">${universalSearchLocalization?.noEntitiesConfigured ?? 'No universal-search entities configured.'}</p>`;
-    }
-
-    renderResultsSummary() {
-        const productsLocalization = getRelewiseUISearchOptions()?.localization?.universalSearch?.products;
-
         return html`
-            <div class="rw-results-summary" part="results-summary">
-                ${productsLocalization?.resultsFor ?? 'Search results for'} <strong>${this.term}</strong>
-            </div>
+            ${this.renderResultsSummary()}
+            <nav class="rw-tabs" part="tabs" aria-label=${universalSearchLocalization?.tabsLabel ?? 'Search result tabs'}>
+                ${tabs.map(tab => this.renderTab(tab))}
+            </nav>
+            ${this.renderActiveTab()}
         `;
     }
 
+    renderTab(tab: UniversalSearchTab) {
+        const localization = this.getTabLocalization(tab);
+        const result = this.getTabResult(tab);
+
+        return html`
+            <button
+                class="rw-tab"
+                part="tab"
+                type="button"
+                aria-selected=${this.activeTab === tab}
+                @click=${() => this.handleSelectTab(tab)}>
+                ${localization.tab}
+                ${result ? html`<span class="rw-tab-count" part="tab-count">${result.hits}</span>` : nothing}
+            </button>
+        `;
+    }
+
+    renderActiveTab() {
+        if (this.activeTab === 'productCategories') {
+            return this.renderProductCategoriesTab();
+        }
+
+        if (this.activeTab === 'content') {
+            return this.renderContentTab();
+        }
+
+        return this.renderProductsTab();
+    }
+
     renderProductsTab() {
-        const productsLocalization = getRelewiseUISearchOptions()?.localization?.universalSearch?.products;
+        const productsLocalization = this.getTabLocalization('products');
 
         return html`
             <div class="rw-results-layout" part="results-layout">
-                ${this.products.length > 0 && this.searchResult?.facets ? html`
+                ${this.products.length > 0 && this.productSearchResult?.facets ? html`
                     <relewise-facets
                         class="rw-facets"
                         part="facets"
                         exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
-                        .labels=${this.facetLabels}
-                        .facetResult=${this.searchResult.facets}>
+                        .labels=${this.productFacetLabels}
+                        .facetResult=${this.productSearchResult.facets}>
                     </relewise-facets>
                 ` : nothing}
                 <section class="rw-results" part="results">
                     <header class="rw-results-header" part="results-header">
-                        <div>
-                            <h2 class="rw-results-title" part="results-title">${productsLocalization?.resultsTitle ?? 'Products'}</h2>
-                            ${this.searchResult ? html`
-                                <span class="rw-results-count" part="results-count">${this.searchResult.hits} ${this.searchResult.hits === 1 ? (productsLocalization?.result ?? 'product') : (productsLocalization?.results ?? 'products')}</span>
-                            ` : nothing}
-                        </div>
+                        ${this.renderResultsHeader('products')}
                         ${this.products.length > 0 ? html`
                             <relewise-product-search-sorting
                                 class="rw-sorting"
@@ -340,9 +498,65 @@ export class UniversalSearch extends RelewiseLitElement {
         `;
     }
 
+    renderProductCategoriesTab() {
+        return html`
+            <section class="rw-results" part="results">
+                <header class="rw-results-header" part="results-header">
+                    ${this.renderResultsHeader('productCategories')}
+                </header>
+                ${this.renderProductCategoryResults()}
+            </section>
+        `;
+    }
+
+    renderContentTab() {
+        return html`
+            <div class="rw-results-layout" part="results-layout">
+                ${this.content.length > 0 && this.contentSearchResult?.facets ? html`
+                    <relewise-facets
+                        class="rw-facets"
+                        part="facets"
+                        exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
+                        .labels=${this.contentFacetLabels}
+                        .facetResult=${this.contentSearchResult.facets}>
+                    </relewise-facets>
+                ` : nothing}
+                <section class="rw-results" part="results">
+                    <header class="rw-results-header" part="results-header">
+                        ${this.renderResultsHeader('content')}
+                    </header>
+                    ${this.renderContentResults()}
+                </section>
+            </div>
+        `;
+    }
+
+    renderResultsSummary() {
+        const localization = this.activeLocalization;
+
+        return html`
+            <div class="rw-results-summary" part="results-summary">
+                ${localization?.resultsFor ?? 'Search results for'} <strong>${this.term}</strong>
+            </div>
+        `;
+    }
+
+    renderResultsHeader(tab: UniversalSearchTab) {
+        const localization = this.getTabLocalization(tab);
+        const result = this.getTabResult(tab);
+
+        return html`
+            <div>
+                <h2 class="rw-results-title" part="results-title">${localization.resultsTitle}</h2>
+                ${result ? html`
+                    <span class="rw-results-count" part="results-count">${result.hits} ${result.hits === 1 ? localization.result : localization.results}</span>
+                ` : nothing}
+            </div>
+        `;
+    }
+
     renderProductResults() {
-        const localization = getRelewiseUISearchOptions()?.localization?.loadMoreButton;
-        const productsLocalization = getRelewiseUISearchOptions()?.localization?.universalSearch?.products;
+        const productsLocalization = this.getTabLocalization('products');
 
         if (this.error) {
             return html`<p class="rw-empty" part="error-state">${this.error}</p>`;
@@ -356,16 +570,16 @@ export class UniversalSearch extends RelewiseLitElement {
             `;
         }
 
-        if (!this.searchResult) {
+        if (!this.productSearchResult) {
             return nothing;
         }
 
         if (this.products.length === 0) {
-            return html`<p class="rw-empty" part="zero-results">${productsLocalization?.noResults ?? 'No products found.'}</p>`;
+            return html`<p class="rw-empty" part="zero-results">${productsLocalization.noResults}</p>`;
         }
 
         return html`
-            <div class="rw-product-grid" part="product-grid">
+            <div class="rw-result-grid" part="product-grid">
                 ${this.products.map(product => html`
                     <relewise-product-tile
                         class="rw-product-tile"
@@ -375,17 +589,92 @@ export class UniversalSearch extends RelewiseLitElement {
                     </relewise-product-tile>
                 `)}
             </div>
+            ${this.renderLoadMore(this.products.length, this.productSearchResult?.hits ?? 0, productsLocalization.results)}
+        `;
+    }
+
+    renderProductCategoryResults() {
+        const productCategoriesLocalization = this.getTabLocalization('productCategories');
+
+        if (this.error) {
+            return html`<p class="rw-empty" part="error-state">${this.error}</p>`;
+        }
+
+        if (this.loading && this.productCategories.length === 0) {
+            return html`
+                <div class="rw-loading" part="loading-state">
+                    <relewise-loading-spinner></relewise-loading-spinner>
+                </div>
+            `;
+        }
+
+        if (this.productCategories.length === 0) {
+            return html`<p class="rw-empty" part="zero-results">${productCategoriesLocalization.noResults}</p>`;
+        }
+
+        return html`
+            <div class="rw-result-grid" part="category-grid">
+                ${this.productCategories.map(category => html`
+                    <relewise-category-tile
+                        class="rw-category-tile"
+                        part="category-tile"
+                        .category=${category}>
+                    </relewise-category-tile>
+                `)}
+            </div>
+            ${this.renderLoadMore(this.productCategories.length, this.productCategorySearchResult?.hits ?? 0, productCategoriesLocalization.results)}
+        `;
+    }
+
+    renderContentResults() {
+        const contentLocalization = this.getTabLocalization('content');
+
+        if (this.error) {
+            return html`<p class="rw-empty" part="error-state">${this.error}</p>`;
+        }
+
+        if (this.loading && this.content.length === 0) {
+            return html`
+                <div class="rw-loading" part="loading-state">
+                    <relewise-loading-spinner></relewise-loading-spinner>
+                </div>
+            `;
+        }
+
+        if (this.content.length === 0) {
+            return html`<p class="rw-empty" part="zero-results">${contentLocalization.noResults}</p>`;
+        }
+
+        return html`
+            <div class="rw-result-grid" part="content-grid">
+                ${this.content.map(content => html`
+                    <relewise-content-tile
+                        class="rw-content-tile"
+                        part="content-tile"
+                        .content=${content}
+                        .user=${this.user}>
+                    </relewise-content-tile>
+                `)}
+            </div>
+            ${this.renderLoadMore(this.content.length, this.contentSearchResult?.hits ?? 0, contentLocalization.results)}
+        `;
+    }
+
+    renderLoadMore(loaded: number, total: number, resultLabel: string) {
+        const localization = getRelewiseUISearchOptions()?.localization?.loadMoreButton;
+
+        return html`
             ${this.loading ? html`
                 <div class="rw-loading" part="loading-state">
                     <relewise-loading-spinner></relewise-loading-spinner>
                 </div>
             ` : nothing}
-            ${this.searchResult && this.products.length < this.searchResult.hits ? html`
+            ${loaded < total ? html`
                 <div class="rw-load-more" part="load-more">
-                    <span class="rw-products-shown">
-                        ${localization?.showing ?? 'Showing'} ${this.products.length} ${localization?.outOf ?? 'out of'} ${this.searchResult.hits} ${localization?.products ?? 'products'}
+                    <span class="rw-results-shown">
+                        ${localization?.showing ?? 'Showing'} ${loaded} ${localization?.outOf ?? 'out of'} ${total} ${resultLabel}
                     </span>
-                    <relewise-button @click=${this.handleLoadMoreProducts}>
+                    <relewise-button @click=${this.handleLoadMoreActiveTab}>
                         <span>${localization?.loadMore ?? 'Load More'}</span>
                     </relewise-button>
                 </div>
@@ -393,7 +682,66 @@ export class UniversalSearch extends RelewiseLitElement {
         `;
     }
 
+    private getTabResult(tab: UniversalSearchTab): ProductSearchResponse | ProductCategorySearchResponse | ContentSearchResponse | null {
+        if (tab === 'productCategories') {
+            return this.productCategorySearchResult;
+        }
+        if (tab === 'content') {
+            return this.contentSearchResult;
+        }
+        return this.productSearchResult;
+    }
+
+    private getTabLocalization(tab: UniversalSearchTab) {
+        const universalSearchLocalization = getRelewiseUISearchOptions()?.localization?.universalSearch;
+        const defaults = {
+            products: {
+                tab: 'Products',
+                resultsFor: 'Search results for',
+                resultsTitle: 'Products',
+                result: 'product',
+                results: 'products',
+                noResults: 'No products found.',
+                error: 'Could not load products.',
+            },
+            productCategories: {
+                tab: 'Categories',
+                resultsFor: 'Search results for',
+                resultsTitle: 'Category Results',
+                result: 'category',
+                results: 'categories',
+                noResults: 'No categories found.',
+                error: 'Could not load categories.',
+            },
+            content: {
+                tab: 'Content',
+                resultsFor: 'Search results for',
+                resultsTitle: 'Content Results',
+                result: 'content result',
+                results: 'content results',
+                noResults: 'No content found.',
+                error: 'Could not load content.',
+            },
+        };
+
+        return {
+            ...defaults[tab],
+            ...universalSearchLocalization?.[tab],
+        };
+    }
+
     static styles = universalSearchStyles;
+}
+
+function isResponseWithType(response: any, typeName: string): boolean {
+    if (!response || typeof response !== 'object') return false;
+    const maybeType = response.$type ?? response['@type'] ?? response.type;
+    return typeof maybeType === 'string' && maybeType.includes(typeName);
+}
+
+function findResponseOfType<T>(responses: any[] | undefined, typeName: string): T | undefined {
+    if (!responses) return undefined;
+    return responses.find(r => isResponseWithType(r, typeName)) as T | undefined;
 }
 
 declare global {

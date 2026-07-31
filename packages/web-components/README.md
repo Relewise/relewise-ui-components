@@ -603,6 +603,24 @@ useSearch({
                 noResults: 'No products found.',
                 error: 'Could not load products.',
             },
+            productCategories: {
+                tab: 'Categories',
+                resultsFor: 'Search results for',
+                resultsTitle: 'Category Results',
+                result: 'category',
+                results: 'categories',
+                noResults: 'No categories found.',
+                error: 'Could not load categories.',
+            },
+            content: {
+                tab: 'Content',
+                resultsFor: 'Search results for',
+                resultsTitle: 'Content Results',
+                result: 'content result',
+                results: 'content results',
+                noResults: 'No content found.',
+                error: 'Could not load content.',
+            },
         },
         searchBar: {
             placeholder: 'Search',
@@ -632,13 +650,18 @@ useSearch({
 ```
 
 #### Universal Search
-This component renders a universal-search modal that can be opened by a custom trigger. Product search can be enabled through `useSearch({ universalSearch: { entities } })` and reuses the existing product search configuration for facets, sorting, filters, relevance modifiers, selected properties, and target overrides.
+This component renders a universal-search modal that can be opened by a custom trigger. Products, product categories, and content can be enabled through `useSearch({ universalSearch: { entities } })`.
+
+The products tab reuses the existing product search configuration for facets, sorting, filters, relevance modifiers, selected properties, and target overrides. Product categories and content reuse their existing filters, relevance modifiers, and selected properties. Content can also use the generalized facet configuration path.
 
 ```ts
 useSearch({
     facets: {
         product(builder) {
             builder.addFacet(f => f.addBrandFacet(), { heading: 'Brand' });
+        },
+        content(builder) {
+            builder.addFacet(f => f.addContentDataStringValueFacet('ContentType'), { heading: 'Content type' });
         },
     },
     sorting: sorting => sorting
@@ -648,7 +671,13 @@ useSearch({
     universalSearch: {
         entities: {
             products: {
-                pageSize: 16,
+                pageSize: 15,
+            },
+            productCategories: {
+                pageSize: 15,
+            },
+            content: {
+                pageSize: 15,
             },
         },
     },
@@ -665,9 +694,15 @@ useSearch({
 
 The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
 
-When the product entity is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option. Additional universal-search entities for product categories and content will be added separately.
+Configured entities are searched in one batched search request. Omitted entities are not rendered and are not requested.
 
-The current products tab uses load-more behavior. Additional pagination modes are not part of the initial products tab implementation.
+When the products tab is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option.
+
+When the content tab is configured, it renders content results with `relewise-content-tile`. Content rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { content } })` template option.
+
+When the product categories tab is configured, it renders product category results with `relewise-category-tile`. The default category tile reads `Url` and `ImageUrl` from selected category data and exposes CSS parts for styling.
+
+The current tabs use load-more behavior. Additional pagination modes are not part of the initial universal-search implementation.
 
 ##### Attributes
 

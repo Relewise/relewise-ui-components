@@ -23,6 +23,14 @@ initializeRelewiseUI(
                 pricing: true,
                 dataKeys: ['Url', 'Image', 'ImageUrl'],
             },
+            productCategory: {
+                displayName: true,
+                dataKeys: ['Url', 'ImageUrl'],
+            },
+            content: {
+                displayName: true,
+                dataKeys: ['Url', 'ImageUrl', 'Summary'],
+            },
         },
         templates: {
             product(product, { html, helpers }) {
@@ -66,6 +74,13 @@ initializeRelewiseUI(
                     .addFacet((f) => f.addCategoryFacet('ImmediateParent'), { heading: 'Categories' })
                     .addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Sales Price' });
             },
+            content(builder) {
+                builder
+                    .addFacet((f) => f.addCategoryFacet('ImmediateParent'), { heading: 'Content categories' });
+
+                // Dataset-specific example. Replace "ContentType" with a content data key from your dataset.
+                // builder.addFacet((f) => f.addContentDataStringValueFacet('ContentType'), { heading: 'Content types' });
+            },
         },
         sorting: sorting => sorting
             .clear()
@@ -94,7 +109,13 @@ initializeRelewiseUI(
         universalSearch: {
             entities: {
                 products: {
-                    pageSize: 8,
+                    pageSize: 15,
+                },
+                productCategories: {
+                    pageSize: 15,
+                },
+                content: {
+                    pageSize: 15,
                 },
             },
         },

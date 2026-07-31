@@ -10,15 +10,21 @@
 <body>
     <script type="module" src="index.ts"></script>
     <h1>Universal Search</h1>
-    <p>This page exercises the universal-search modal and the first products tab.</p>
+    <p>This page exercises the universal-search modal and the currently implemented result tabs.</p>
 
     <ul>
         <li>Products tab with page size 8.</li>
+        <li>Product categories tab with page size 8.</li>
+        <li>Content tab with page size 8.</li>
         <li>Product facets: brand, immediate parent category, and sales price.</li>
+        <li>Content facets: immediate parent category, with a commented custom data-key facet example in <code>index.ts</code>.</li>
         <li>Product sorting: relevance, price, name, brand, and popularity.</li>
         <li>Product rendering through <code>relewise-product-tile</code> with a demo <code>templates.product</code> override.</li>
+        <li>Product category rendering through <code>relewise-category-tile</code>.</li>
+        <li>Content rendering through <code>relewise-content-tile</code>.</li>
         <li>Product images requested from <code>Image</code>, with <code>ImageUrl</code> as fallback.</li>
-        <li>Load more through the existing <code>rw-take</code> URL state.</li>
+        <li>Product load more through the existing <code>rw-take</code> URL state.</li>
+        <li>Enabled tabs are searched together in a batched search request.</li>
     </ul>
 
     <button onclick="document.querySelector('relewise-universal-search').open()">
