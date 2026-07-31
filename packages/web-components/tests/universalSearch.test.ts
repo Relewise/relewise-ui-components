@@ -89,7 +89,7 @@ suite('relewise-universal-search', () => {
                 universalSearch: {
                     close: 'Luk',
                     emptyState: 'Begynd at søge.',
-                    noTabsConfigured: 'Ingen faner konfigureret.',
+                    noEntitiesConfigured: 'Ingen faner konfigureret.',
                 },
             },
         });
@@ -130,7 +130,7 @@ suite('relewise-universal-search', () => {
     });
 
     test('does not render tabs without a search term', async () => {
-        useSearch({ debounceTimeInMs: 0, universalSearch: { tabs: { products: {} } } });
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: {} } } });
 
         const el = await fixture(html`
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
@@ -154,7 +154,7 @@ suite('relewise-universal-search', () => {
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
-        useSearch({ debounceTimeInMs: 0, universalSearch: { tabs: { products: { pageSize: 2 } } } });
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: { pageSize: 2 } } } });
 
         const el = await fixture(html`
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
@@ -179,7 +179,7 @@ suite('relewise-universal-search', () => {
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
-        useSearch({ debounceTimeInMs: 50, universalSearch: { tabs: { products: {} } } });
+        useSearch({ debounceTimeInMs: 50, universalSearch: { entities: { products: {} } } });
 
         const el = await fixture(html`
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
@@ -204,7 +204,7 @@ suite('relewise-universal-search', () => {
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
-        useSearch({ debounceTimeInMs: 50, universalSearch: { tabs: { products: {} } } });
+        useSearch({ debounceTimeInMs: 50, universalSearch: { entities: { products: {} } } });
 
         const el = await fixture(html`
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
@@ -238,7 +238,7 @@ suite('relewise-universal-search', () => {
         updateUrlState(QueryKeys.sortBy, 'price');
 
         initializeRelewiseUI(mockRelewiseOptions());
-        useSearch({ debounceTimeInMs: 0, universalSearch: { tabs: { products: {} } } });
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: {} } } });
 
         const el = await fixture(html`
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
@@ -266,7 +266,7 @@ suite('relewise-universal-search', () => {
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch({
             debounceTimeInMs: 0,
-            universalSearch: { tabs: { products: { pageSize: 2 } } },
+            universalSearch: { entities: { products: { pageSize: 2 } } },
             localization: {
                 universalSearch: {
                     tabsLabel: 'Søgeresultatfaner',
@@ -311,7 +311,7 @@ suite('relewise-universal-search', () => {
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
-        useSearch({ debounceTimeInMs: 0, universalSearch: { tabs: { products: { pageSize: 2 } } } });
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: { pageSize: 2 } } } });
 
         const el = await fixture(html`
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
@@ -346,7 +346,7 @@ suite('relewise-universal-search', () => {
         updateUrlState(QueryKeys.take, '4');
 
         initializeRelewiseUI(mockRelewiseOptions());
-        useSearch({ debounceTimeInMs: 0, universalSearch: { tabs: { products: { pageSize: 2 } } } });
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: { pageSize: 2 } } } });
 
         const el = await fixture(html`
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
@@ -360,3 +360,4 @@ suite('relewise-universal-search', () => {
         assert.equal(readCurrentUrlState(QueryKeys.take), '6');
     });
 });
+

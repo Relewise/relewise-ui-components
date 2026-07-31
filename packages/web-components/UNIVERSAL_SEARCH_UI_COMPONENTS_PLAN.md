@@ -63,7 +63,7 @@ initializeRelewiseUI({ ... }).useSearch({
         .addRelevance()
         .addSalesPriceAscending(),
     universalSearch: {
-        tabs: {
+        entities: {
             products: {},
             productCategories: {},
             content: {},
@@ -75,7 +75,7 @@ initializeRelewiseUI({ ... }).useSearch({
 The exact `universalSearch` type should be finalized in the first implementation PR, but the principle is fixed:
 
 - Existing product `facets`, product `sorting`, filters, relevance modifiers, target overrides, selected properties, and templates stay authoritative.
-- `universalSearch` adds modal behavior, tab behavior, input-assist behavior, empty/no-result recommendations, layout defaults, and tab enablement.
+- `universalSearch` adds modal behavior, result-entity behavior, input-assist behavior, empty/no-result recommendations, layout defaults, and result-tab rendering.
 - Product result rendering delegates to `relewise-product-tile`.
 - Content result rendering delegates to `relewise-content-tile`.
 - Product/content custom field rendering is handled through existing `templates.product` and `templates.content`.
@@ -502,7 +502,7 @@ Proposed starting shape:
 
 ```ts
 export interface UniversalSearchOptions {
-    tabs?: UniversalSearchTabsOptions;
+    entities?: UniversalSearchEntitiesOptions;
     behavior?: UniversalSearchBehaviorOptions;
     inputAssist?: UniversalSearchInputAssistOptions;
     recommendations?: UniversalSearchRecommendationOptions;
@@ -513,10 +513,10 @@ Providing `universalSearch` opts in to registering and using the universal-searc
 
 Keep styling primarily in CSS variables and parts, not JavaScript configuration.
 
-### Tabs
+### Entities
 
 ```ts
-export interface UniversalSearchTabsOptions {
+export interface UniversalSearchEntitiesOptions {
     products?: UniversalSearchTabOptions;
     productCategories?: UniversalSearchTabOptions;
     content?: UniversalSearchTabOptions;
@@ -529,7 +529,7 @@ export interface UniversalSearchTabOptions {
 
 Notes:
 
-- Providing a tab option enables that tab. Omit a tab to disable it.
+- Providing an entity option enables that result type. Omit an entity to disable it.
 - Product tab uses existing `facets.product` and existing `sorting`.
 - Content facets can use `facets.content` once added.
 - Content/category sorting needs separate config if included.
@@ -738,7 +738,7 @@ Ship universal-search product tab using existing product search configuration.
 
 Tasks:
 
-- Add products tab with batched/universal-search request orchestration.
+- Add product entity result tab with universal-search request orchestration.
 - Use shared product search request helper.
 - Use existing `facets.product`.
 - Use existing product sorting builder and target overrides.
@@ -752,7 +752,7 @@ Acceptance:
 - Product facets/sorting match current product search config.
 - Shopify-style target config can be applied through a `target` attribute or equivalent.
 - Product cards are fully overridable through `templates.product`.
-- Tabs remain hidden before a search term exists.
+- Result tabs remain hidden before a search term exists.
 - Other pagination modes can be considered later, but are not part of this phase.
 
 ### PR 5: Product Categories And Content Tabs
@@ -963,3 +963,4 @@ Test coverage by phase:
 - Add responsive styling and CSS variables.
 - Add README documentation.
 - Shopify integration planning after UI Components completion.
+

@@ -92,10 +92,11 @@ initializeRelewiseUI(
         //     mode: 'Numerical',
         // }),
         universalSearch: {
-            tabs: {
+            entities: {
                 products: {
                     pageSize: 8,
                 },
             },
         },
     });
+

@@ -592,12 +592,12 @@ useSearch({
         universalSearch: {
             close: 'Close',
             emptyState: 'Start typing to search.',
-            noTabsConfigured: 'No universal-search tabs configured.',
+            noEntitiesConfigured: 'No universal-search entities configured.',
             tabsLabel: 'Search result tabs',
             products: {
                 tab: 'Products',
                 resultsFor: 'Search results for',
-                resultsTitle: 'Product Results',
+                resultsTitle: 'Products',
                 result: 'product',
                 results: 'products',
                 noResults: 'No products found.',
@@ -632,7 +632,7 @@ useSearch({
 ```
 
 #### Universal Search
-This component renders a universal-search modal that can be opened by a custom trigger. The products tab can be enabled through `useSearch({ universalSearch })` and reuses the existing product search configuration for facets, sorting, filters, relevance modifiers, selected properties, and target overrides.
+This component renders a universal-search modal that can be opened by a custom trigger. Product search can be enabled through `useSearch({ universalSearch: { entities } })` and reuses the existing product search configuration for facets, sorting, filters, relevance modifiers, selected properties, and target overrides.
 
 ```ts
 useSearch({
@@ -646,7 +646,7 @@ useSearch({
         .addRelevance()
         .addSalesPriceAscending(),
     universalSearch: {
-        tabs: {
+        entities: {
             products: {
                 pageSize: 16,
             },
@@ -665,7 +665,7 @@ useSearch({
 
 The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
 
-When the products tab is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option. Additional universal-search tabs for product categories and content will be added separately.
+When the product entity is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option. Additional universal-search entities for product categories and content will be added separately.
 
 The current products tab uses load-more behavior. Additional pagination modes are not part of the initial products tab implementation.
 
@@ -1484,3 +1484,4 @@ This component sends a [track brand view](https://docs.relewise.com/docs/develop
 - **brand-id**:
     
     The id of the brand that has been viewed.
+

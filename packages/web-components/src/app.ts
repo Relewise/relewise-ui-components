@@ -51,14 +51,14 @@ export interface RelewiseUISearchOptions {
 }
 
 export interface UniversalSearchOptions {
-    tabs?: UniversalSearchTabsOptions;
+    entities?: UniversalSearchEntitiesOptions;
 }
 
-export interface UniversalSearchTabsOptions {
-    products?: UniversalSearchProductsTabOptions;
+export interface UniversalSearchEntitiesOptions {
+    products?: UniversalSearchProductEntityOptions;
 }
 
-export interface UniversalSearchProductsTabOptions {
+export interface UniversalSearchProductEntityOptions {
     pageSize?: number;
 }
 
@@ -74,7 +74,7 @@ export interface SearchLocalization {
 export interface UniversalSearchLocalization {
     close?: string;
     emptyState?: string;
-    noTabsConfigured?: string;
+    noEntitiesConfigured?: string;
     tabsLabel?: string;
     products?: UniversalSearchProductsLocalization;
 }
