@@ -2,6 +2,7 @@ import { FilterBuilder, ProductSearchBuilder, RelevanceModifierBuilder } from '@
 import { QueryKeys, readCurrentUrlState } from './helpers/urlState';
 import { RelewiseFacetBuilder } from './facetBuilder';
 import { SearchSortingOption, SearchSortingOptionsBuilder, getSearchSortingOptions, getSearchSortingSelection } from './search/searchSortingBuilder';
+import { RetailMediaTargetBuilder, RetailMediaTargetConfiguration } from './search/retailMediaBuilder';
 
 
 export type TargetedSearchConfiguration = {
@@ -9,6 +10,7 @@ export type TargetedSearchConfiguration = {
     overwriteSorting?: (builder: SearchSortingOptionsBuilder) => void,
     filters?: (builder: FilterBuilder) => void;
     relevanceModifiers?: (builder: RelevanceModifierBuilder) => void;
+    retailMedia?: (builder: RetailMediaTargetBuilder) => void;
 };
 
 export class TargetedSearchConfigurations {
@@ -41,6 +43,19 @@ export class TargetedSearchConfigurations {
         }
 
         return getSearchSortingOptions(configuration.overwriteSorting);
+    }
+
+    getRetailMediaConfiguration(target: string): RetailMediaTargetConfiguration | null {
+        const configuration = this.templates.get(target);
+
+        if (!configuration?.retailMedia) {
+            return null;
+        }
+
+        const builder = new RetailMediaTargetBuilder();
+        configuration.retailMedia(builder);
+
+        return builder.build();
     }
 
     handle(target: string, builder: ProductSearchBuilder): { facetLabels?: string[] } {

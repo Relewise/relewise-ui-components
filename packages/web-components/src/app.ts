@@ -37,6 +37,7 @@ import { LikeFilledIcon } from './components/icons/like-filled';
 import { DislikeIcon } from './components/icons/dislike';
 import { DislikeFilledIcon } from './components/icons/dislike-filled';
 import { SearchSortingOptionsBuilder } from './search/searchSortingBuilder';
+import { getRetailMediaConfiguration, RetailMediaOptionsBuilder } from './search/retailMediaBuilder';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -140,6 +141,11 @@ export class App {
         return this;
     }
 
+    useRetailMedia(configure: (builder: RetailMediaOptionsBuilder) => void): App {
+        useRetailMedia(configure);
+        return this;
+    }
+
     registerSearchTarget(target: string, configuration: TargetedSearchConfiguration): App {
         registerSearchTarget(target, configuration);
         return this;
@@ -222,6 +228,10 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     tryRegisterElement('relewise-product-search-sorting', ProductSearchSorting);
 
     registerGenericComponents();
+}
+
+export function useRetailMedia(configure: (builder: RetailMediaOptionsBuilder) => void) {
+    window.relewiseUIRetailMediaConfiguration = getRetailMediaConfiguration(configure);
 }
 
 function registerGenericComponents() {

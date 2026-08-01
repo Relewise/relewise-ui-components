@@ -757,6 +757,85 @@ useSearch({
 });
 ```
 
+#### Retail Media
+Retail media can be requested for product search requests by configuring it through `useRetailMedia`.
+
+The product search component's `target` attribute selects the retail media configuration. The retail media location is not related to the component's `displayed-at-location` attribute.
+
+```ts
+useRetailMedia(builder => builder
+    .variation({ key: 'Mobile', minWidth: 0 })
+    .variation({ key: 'Tablet', minWidth: 768 })
+    .variation({ key: 'Desktop', minWidth: 1024 })
+    .selectedDisplayAdProperties({
+        displayName: true,
+        allData: true,
+        clickedByUserInfo: false,
+    })
+    .templates({
+        retailMediaSponsoredLabel: (product, { html }) => html`<span>Sponsored</span>`,
+        retailMediaDisplayAd: (displayAd, { html }) => html`<span>${displayAd.result.name}</span>`,
+    })
+    .target('search-page', target => target
+        .location('Search Results')
+        .placement('Top Banner', placement => placement
+            .beforeResults())
+        .placement('Sponsored Grid', placement => placement
+            .atPosition({ position: 4 }))));
+```
+
+```html
+<relewise-product-search
+    displayed-at-location="Search Page"
+    target="search-page">
+</relewise-product-search>
+```
+
+Variation keys are global for retail media requests. Configure each variation with the Relewise variation key and the min-width where it becomes active.
+
+The min-width can be overwritten, and custom variation names can be configured by passing the key and min-width together:
+
+```ts
+useRetailMedia(builder => builder
+    .variation({ key: 'Mobile', minWidth: 0 })
+    .variation({ key: 'Tablet', minWidth: 700 })
+    .variation({ key: 'Desktop', minWidth: 1100 })
+    .variation({ key: 'Wide', minWidth: 1440 }));
+```
+
+Retail media keys are passed directly to Relewise. If a matching location, variation, or placement cannot be resolved, the configuration is skipped with a console warning.
+
+Whether a placement returns sponsored products, display ads, or both is configured in Relewise backoffice.
+
+Targeted search configuration can also define retail media for the target:
+
+```ts
+registerSearchTarget('search-page', {
+    retailMedia(builder) {
+        builder
+            .location('Search Results')
+            .placement('Sponsored Grid', placement => placement
+                .atPosition({ position: 4 }));
+    },
+});
+```
+
+Display ad and sponsored label rendering can be overwritten with Lit templates in the retail media configuration:
+
+```ts
+useRetailMedia(builder => builder
+    .templates({
+        retailMediaSponsoredLabel: (product, { html }) => html`<span>Sponsored</span>`,
+        retailMediaDisplayAd: (displayAd, { html }) => html`<span>${displayAd.result.name}</span>`,
+    }));
+```
+
+Retail media rendering is based on the configured placement position:
+
+- `beforeResults()`
+- `afterResults()`
+- `atPosition({ position: 4 })`
+
 #### Facets
 By default the component will not render any facets.
 
