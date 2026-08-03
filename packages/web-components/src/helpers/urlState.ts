@@ -26,6 +26,17 @@ export function clearUrlState() {
     window.history.replaceState({}, document.title, currentUrl);
 }
 
+export function clearUrlStateByPrefixes(queryParamNamePrefixes: string[]) {
+    const currentUrl = new URL(window.location.href);
+    const queryParamNames = [...new Set(Array.from(currentUrl.searchParams.keys()))];
+
+    queryParamNames
+        .filter(queryParamName => queryParamNamePrefixes.some(prefix => queryParamName.startsWith(prefix)))
+        .forEach(queryParamName => currentUrl.searchParams.delete(queryParamName));
+
+    window.history.replaceState({}, document.title, currentUrl);
+}
+
 export function updateUrlStateValues(queryParamName: string, values: string[]) {
     const currentUrl = new URL(window.location.href);
     
