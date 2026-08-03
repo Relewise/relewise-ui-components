@@ -711,9 +711,9 @@ useSearch({
             save: 'Save',
             showLess: 'Show Less',
             showMore: 'Show More',
-            toggle: 'Filter',
+            filter: 'Filter',
             yes: 'Yes',
-            no: 'No'
+            no: 'No',
         },
         loadMoreButton: {
             loadMore: 'Hent flere!',
@@ -724,6 +724,17 @@ useSearch({
         universalSearch: {
             close: 'Close',
             emptyState: 'Start typing to search.',
+            noEntitiesConfigured: 'No universal-search entities configured.',
+            tabsLabel: 'Search result tabs',
+            products: {
+                tab: 'Products',
+                resultsFor: 'Search results for',
+                resultsTitle: 'Products',
+                result: 'product',
+                results: 'products',
+                noResults: 'No products found.',
+                error: 'Could not load products.',
+            },
         },
         searchBar: {
             placeholder: 'Search',
@@ -732,12 +743,12 @@ useSearch({
         searchResults: {
             noResults: 'No products found',
             showAllResults: 'Show all results',
-            result: "Result";
-            results: "Results";
+            result: 'Result',
+            results: 'Results',
         },
         sortingButton: {
             sorting: 'sorting',
-            sortBy: "Sort by:"
+            sortBy: 'Sort by:',
             alphabeticalAscending: 'a - z',
             alphabeticalDescending: 'z - a',
             brandAscending: 'brand a - z',
@@ -753,11 +764,26 @@ useSearch({
 ```
 
 #### Universal Search
-This component renders a universal-search modal that can be opened by a custom trigger. In this initial version, it provides modal state and search term URL synchronization only. Product, content, category, and recommendation result orchestration will be added separately.
+This component renders a universal-search modal that can be opened by a custom trigger. Product search can be enabled through `useSearch({ universalSearch: { entities } })` and reuses the existing product search configuration for facets, sorting, filters, relevance modifiers, selected properties, and target overrides.
 
 ```ts
 useSearch({
-    universalSearch: {},
+    facets: {
+        product(builder) {
+            builder.addFacet(f => f.addBrandFacet(), { heading: 'Brand' });
+        },
+    },
+    sorting: sorting => sorting
+        .clear()
+        .addRelevance()
+        .addSalesPriceAscending(),
+    universalSearch: {
+        entities: {
+            products: {
+                pageSize: 16,
+            },
+        },
+    },
 });
 ```
 
@@ -770,6 +796,10 @@ useSearch({
 ```
 
 The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
+
+When the product entity is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option. Additional universal-search entities for product categories and content will be added separately.
+
+The current products tab uses load-more behavior. Additional pagination modes are not part of the initial products tab implementation.
 
 ##### Attributes
 
@@ -1641,3 +1671,4 @@ This component sends a [track brand view](https://docs.relewise.com/docs/develop
 - **brand-id**:
     
     The id of the brand that has been viewed.
+
