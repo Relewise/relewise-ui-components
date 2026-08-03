@@ -96,7 +96,7 @@ export const universalSearchStyles = [theme, css`
     }
 
     .rw-results-layout:has(.rw-facets) {
-        grid-template-columns: minmax(10em, var(--relewise-universal-search-facets-width, 14em)) minmax(0, 1fr);
+        grid-template-columns: minmax(10em, var(--relewise-universal-search-facets-width, 18em)) minmax(0, 1fr);
     }
 
     .rw-results-header {

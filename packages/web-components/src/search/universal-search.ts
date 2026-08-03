@@ -52,7 +52,7 @@ export class UniversalSearch extends RelewiseLitElement {
     private debounceTimeoutHandlerId: ReturnType<typeof setTimeout> | null = null;
     private handleWindowKeyDownBound = this.handleWindowKeyDown.bind(this);
     private handleSearchConfigurationChangedBound = this.handleSearchConfigurationChanged.bind(this);
-    private defaultProductsPageSize = 16;
+    private defaultProductsPageSize = 15;
 
     connectedCallback(): void {
         super.connectedCallback();
