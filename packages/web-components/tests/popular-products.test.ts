@@ -1,9 +1,26 @@
-import { assert, fixture, html, waitUntil } from '@open-wc/testing';
+import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
+import { ProductRecommendationRequest, ProductRecommendationResponse, ProductResult, Recommender } from '@relewise/client';
 import { PopularProducts, initializeRelewiseUI } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
-import { integrationTestRelewiseOptions } from './util/testRelewiseUIOptions';
 
 suite('relewise-popular-products', () => {
+    const originalRecommendPopularProducts = Recommender.prototype.recommendPopularProducts;
+    let recommendPopularProductsCalls: ProductRecommendationRequest[];
+
+    setup(() => {
+        recommendPopularProductsCalls = [];
+        Recommender.prototype.recommendPopularProducts = async(request: ProductRecommendationRequest) => {
+            recommendPopularProductsCalls.push(request);
+            return undefined;
+        };
+    });
+
+    teardown(() => {
+        Recommender.prototype.recommendPopularProducts = originalRecommendPopularProducts;
+        fixtureCleanup();
+        window.relewiseUIOptions = undefined!;
+    });
+
     test('is not instance of when relewise not instantiated', async() => {
         const el = await fixture(html`<relewise-popular-products></relewise-popular-products>`);
         assert.notInstanceOf(el, PopularProducts);
@@ -25,7 +42,7 @@ suite('relewise-popular-products', () => {
     test('renders nothing when useRecommendations is never called', async() => {
         const numberOfRecommendations = 10;
 
-        initializeRelewiseUI(integrationTestRelewiseOptions()).useRecommendations();
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
         const el = await fixture(html`<relewise-popular-products number-of-recommendations=${numberOfRecommendations}></relewise-popular-products>`) as PopularProducts;
         
         await el.updateComplete;
@@ -34,13 +51,39 @@ suite('relewise-popular-products', () => {
 
     test('renders numberOfRecommendations', async() => {
         const numberOfRecommendations = 3;
+        const recommendations: ProductResult[] = [
+            {
+                displayName: 'First product',
+                data: {},
+            } as ProductResult,
+            {
+                displayName: 'Second product',
+                data: {},
+            } as ProductResult,
+            {
+                displayName: 'Third product',
+                data: {},
+            } as ProductResult,
+        ];
 
-        initializeRelewiseUI(integrationTestRelewiseOptions()).useRecommendations();
+        Recommender.prototype.recommendPopularProducts = async(request: ProductRecommendationRequest) => {
+            recommendPopularProductsCalls.push(request);
+            return {
+                recommendations: recommendations.slice(0, request.settings.numberOfRecommendations),
+            } as ProductRecommendationResponse;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
         const el = await fixture(html`<relewise-popular-products number-of-recommendations=${numberOfRecommendations}></relewise-popular-products>`) as PopularProducts;
+
+        await waitUntil(() => recommendPopularProductsCalls.length > 0, 'recommendPopularProducts was never called', { timeout: 2000 });
+
+        const request = recommendPopularProductsCalls[0];
+        assert.equal(request.settings.numberOfRecommendations, numberOfRecommendations);
         
         await waitUntil(
             () => { return el.shadowRoot!.querySelectorAll('relewise-product-tile').length === numberOfRecommendations; },
-            'Never rendered any products', { timeout: 5000 },
+            'Never rendered any products', { timeout: 2000 },
         );
 
         assert.equal(el.shadowRoot!.querySelectorAll('relewise-product-tile').length, numberOfRecommendations);
