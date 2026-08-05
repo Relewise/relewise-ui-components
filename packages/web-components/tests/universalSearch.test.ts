@@ -1,6 +1,6 @@
 import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
 import { ContentResult, ProductCategoryResult, ProductResult, Searcher } from '@relewise/client';
-import { clearUrlState, UniversalSearch, initializeRelewiseUI, QueryKeys, readCurrentUrlState, updateUrlState, updateUrlStateValues, useSearch } from '../src';
+import { clearUrlState, Events, UniversalSearch, initializeRelewiseUI, QueryKeys, readCurrentUrlState, updateUrlState, updateUrlStateValues, useSearch } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 function product(productId: string): ProductResult {
@@ -483,6 +483,54 @@ suite('relewise-universal-search', () => {
         assert.equal(el.products.length, 0);
         assert.equal(el.productCategories.length, 0);
         assert.equal(el.shadowRoot!.querySelectorAll('[part="tab"]').length, 1);
+    });
+
+    test('searches only the active tab when search configuration changes', async () => {
+        const requestCounts: number[] = [];
+
+        Searcher.prototype.batch = async function(requestCollection) {
+            requestCounts.push(requestCollection.requests.length);
+
+            if (requestCollection.requests.length === 2) {
+                return {
+                    responses: [
+                        productSearchResponse([product('1')]),
+                        contentSearchResponse([content('1')]),
+                    ],
+                } as any;
+            }
+
+            return {
+                responses: [contentSearchResponse([content('2')])],
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: {
+                    products: { pageSize: 2 },
+                    content: { pageSize: 2 },
+                },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        el.setSearchTerm('shoe');
+        await waitUntil(() => el.products.length === 1 && el.content.length === 1, 'initial batched search did not complete');
+
+        el.handleSelectTab('content');
+        window.dispatchEvent(new CustomEvent(Events.applyFacet));
+
+        await waitUntil(() => el.content.length === 1 && el.content[0].contentId === '2', 'active tab search did not replace content results');
+
+        assert.deepEqual(requestCounts, [2, 1]);
+        assert.equal(el.products.length, 1);
+        assert.equal(el.products[0].productId, '1');
     });
 });
 

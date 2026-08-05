@@ -196,12 +196,15 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     handleSearchConfigurationChanged(): void {
-        if (!this.isOpen || !this.term) {
+        if (!this.isOpen || !this.term || !this.activeTab) {
             return;
         }
 
-        updateUrlState(QueryKeys.take, null);
-        this.searchEnabledTabs(true);
+        if (this.activeTab === 'products') {
+            updateUrlState(QueryKeys.take, null);
+        }
+
+        this.searchTabs([this.activeTab], true);
     }
 
     handleSelectTab(tab: UniversalSearchTab): void {
@@ -249,7 +252,7 @@ export class UniversalSearch extends RelewiseLitElement {
         this.error = null;
 
         if (shouldClearOldResult) {
-            this.resetPages(numberOfProductsToFetch);
+            this.resetPages(tabs, numberOfProductsToFetch);
             this.clearResults(tabs);
         }
 
@@ -336,10 +339,16 @@ export class UniversalSearch extends RelewiseLitElement {
         }
     }
 
-    private resetPages(numberOfProductsToFetch: number | null): void {
-        this.productPage = numberOfProductsToFetch ? numberOfProductsToFetch / this.productsPageSize : 1;
-        this.productCategoryPage = 1;
-        this.contentPage = 1;
+    private resetPages(tabs: UniversalSearchTab[], numberOfProductsToFetch: number | null): void {
+        if (tabs.includes('products')) {
+            this.productPage = numberOfProductsToFetch ? numberOfProductsToFetch / this.productsPageSize : 1;
+        }
+        if (tabs.includes('productCategories')) {
+            this.productCategoryPage = 1;
+        }
+        if (tabs.includes('content')) {
+            this.contentPage = 1;
+        }
     }
 
     private clearAllResults(): void {
