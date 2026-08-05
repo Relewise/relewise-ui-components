@@ -5,6 +5,7 @@ import { createProductCategorySearchBuilder } from '../builders';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { RelewiseLitElement } from '../relewise-lit-element';
+import { UniversalSearchTabLocalization } from '../app';
 import { buildContentSearchRequest } from './contentSearchRequestBuilder';
 import { buildProductSearchRequest } from './productSearchRequestBuilder';
 import { getSearcher } from './searcher';
@@ -12,6 +13,50 @@ import { universalSearchStyles } from './universal-search.styles';
 
 export const universalSearchTabs = ['products', 'productCategories', 'content'] as const;
 export type UniversalSearchTab = typeof universalSearchTabs[number];
+
+type UniversalSearchTabSettings = {
+    takeQueryKey: string;
+    defaultLocalization: Required<UniversalSearchTabLocalization>;
+};
+
+const universalSearchTabSettings = {
+    products: {
+        takeQueryKey: QueryKeys.productTake,
+        defaultLocalization: {
+            tab: 'Products',
+            resultsFor: 'Search results for',
+            resultsTitle: 'Products',
+            result: 'product',
+            results: 'products',
+            noResults: 'No products found.',
+            error: 'Could not load products.',
+        },
+    },
+    productCategories: {
+        takeQueryKey: QueryKeys.productCategoryTake,
+        defaultLocalization: {
+            tab: 'Categories',
+            resultsFor: 'Search results for',
+            resultsTitle: 'Categories',
+            result: 'category',
+            results: 'categories',
+            noResults: 'No categories found.',
+            error: 'Could not load categories.',
+        },
+    },
+    content: {
+        takeQueryKey: QueryKeys.contentTake,
+        defaultLocalization: {
+            tab: 'Content',
+            resultsFor: 'Search results for',
+            resultsTitle: 'Content',
+            result: 'content result',
+            results: 'content results',
+            noResults: 'No content found.',
+            error: 'Could not load content.',
+        },
+    },
+} satisfies Record<UniversalSearchTab, UniversalSearchTabSettings>;
 
 const responseTypes = {
     productSearch: 'Relewise.Client.Responses.Search.ProductSearchResponse, Relewise.Client',
@@ -356,13 +401,7 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     private getTakeQueryKey(tab: UniversalSearchTab): string {
-        if (tab === 'productCategories') {
-            return QueryKeys.productCategoryTake;
-        }
-        if (tab === 'content') {
-            return QueryKeys.contentTake;
-        }
-        return QueryKeys.productTake;
+        return universalSearchTabSettings[tab].takeQueryKey;
     }
 
     private getNumberOfResultsToFetch(queryKey: string): number | null {
@@ -777,38 +816,9 @@ export class UniversalSearch extends RelewiseLitElement {
 
     private getTabLocalization(tab: UniversalSearchTab) {
         const universalSearchLocalization = getRelewiseUISearchOptions()?.localization?.universalSearch;
-        const defaults = {
-            products: {
-                tab: 'Products',
-                resultsFor: 'Search results for',
-                resultsTitle: 'Products',
-                result: 'product',
-                results: 'products',
-                noResults: 'No products found.',
-                error: 'Could not load products.',
-            },
-            productCategories: {
-                tab: 'Categories',
-                resultsFor: 'Search results for',
-                resultsTitle: 'Categories',
-                result: 'category',
-                results: 'categories',
-                noResults: 'No categories found.',
-                error: 'Could not load categories.',
-            },
-            content: {
-                tab: 'Content',
-                resultsFor: 'Search results for',
-                resultsTitle: 'Content',
-                result: 'content result',
-                results: 'content results',
-                noResults: 'No content found.',
-                error: 'Could not load content.',
-            },
-        };
 
         return {
-            ...defaults[tab],
+            ...universalSearchTabSettings[tab].defaultLocalization,
             ...universalSearchLocalization?.[tab],
         };
     }
