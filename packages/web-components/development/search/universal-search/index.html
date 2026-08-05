@@ -10,18 +10,16 @@
 <body>
     <script type="module" src="index.ts"></script>
     <h1>Universal Search</h1>
-    <p>This page exercises the universal-search modal and the currently implemented result tabs.</p>
+    <p>This page exercises the universal-search modal with the Universal Search clothing demo dataset.</p>
 
     <ul>
         <li>Products, product categories, and content tabs are configured with page size 15.</li>
-        <li>Product facets: brand, immediate parent category, and sales price.</li>
-        <li>Content facets: immediate parent category, with a commented custom data-key facet example in <code>index.ts</code>.</li>
-        <li>Product category facets can be configured with product category data keys; see the commented example in <code>index.ts</code>.</li>
-        <li>Product sorting: relevance, price, name, brand, and popularity.</li>
-        <li>Product rendering through <code>relewise-product-tile</code> with a demo <code>templates.product</code> override.</li>
-        <li>Product category rendering through <code>relewise-category-tile</code> with <code>templates.productCategory</code> support.</li>
-        <li>Content rendering through <code>relewise-content-tile</code>.</li>
-        <li>Product images requested from <code>Image</code>, with <code>ImageUrl</code> as fallback.</li>
+        <li>Product facets: brand, category, price, color, material, fit, season, and on-sale state.</li>
+        <li>Product category facets: gender, age group, department, season, and category type.</li>
+        <li>Content facets: content category, article type, topic, audience, season, and featured state.</li>
+        <li>Product sorting: relevance, price, name, brand, popularity, and demo product data score.</li>
+        <li>Product, product category, and content rendering use template overrides to show seeded images, URLs, descriptions, and metadata.</li>
+        <li>Images are requested from the seeded <code>ImageUrl</code> data key.</li>
         <li>Load more URL state uses entity-scoped take parameters.</li>
         <li>Enabled tabs are searched together in a batched search request.</li>
         <li>Facet and sorting changes search only the active tab.</li>
