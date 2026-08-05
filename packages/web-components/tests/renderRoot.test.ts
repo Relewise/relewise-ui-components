@@ -1,6 +1,6 @@
 import { assert, fixture, html } from '@open-wc/testing';
-import { ProductResult } from '@relewise/client';
-import { Button, ChecklistStringValueFacet, Facets, initializeRelewiseUI, ProductSearchBar, ProductSearchResults, ProductTile } from '../src';
+import { ProductCategoryResult, ProductResult } from '@relewise/client';
+import { Button, CategoryTile, ChecklistStringValueFacet, Facets, initializeRelewiseUI, ProductSearchBar, ProductSearchResults, ProductTile } from '../src';
 import { clearRegisteredLightDomStylesForTesting } from '../src/lightDomStyles';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
@@ -19,6 +19,14 @@ function product(): ProductResult {
             },
         },
     } as ProductResult;
+}
+
+function productCategory(): ProductCategoryResult {
+    return {
+        categoryId: 'category-1',
+        rank: 1,
+        displayName: 'Test category',
+    } as ProductCategoryResult;
 }
 
 suite('domMode', () => {
@@ -109,6 +117,22 @@ suite('domMode', () => {
         await el.updateComplete;
 
         assert.equal(el.querySelector('.customer-product-template')?.textContent, 'Test product');
+    });
+
+    test('renders customer product category templates into queryable light DOM', async() => {
+        const options = mockRelewiseOptions();
+        options.components = {
+            domMode: 'light',
+        };
+        options.templates = {
+            productCategory: (category, { html }) => html`<article class="customer-product-category-template">${category.displayName}</article>`,
+        };
+        initializeRelewiseUI(options).useRecommendations();
+
+        const el = await fixture<CategoryTile>(html`<relewise-category-tile .category=${productCategory()}></relewise-category-tile>`);
+        await el.updateComplete;
+
+        assert.equal(el.querySelector('.customer-product-category-template')?.textContent, 'Test category');
     });
 
     test('renders button light DOM children inside the button element', async() => {

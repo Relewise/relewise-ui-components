@@ -18,13 +18,8 @@ const responseTypes = {
     contentSearch: 'Relewise.Client.Responses.Search.ContentSearchResponse, Relewise.Client',
 };
 
-type SearchResponseWithType = {
-    $type?: string;
-    '@type'?: string;
-    type?: string;
-};
-
 type SearchResponse = NonNullable<SearchResponseCollection['responses']>[number];
+type SearchResponseWithType = SearchResponse & { $type?: string };
 
 export class UniversalSearch extends RelewiseLitElement {
 
@@ -718,7 +713,8 @@ export class UniversalSearch extends RelewiseLitElement {
                     <relewise-category-tile
                         class="rw-category-tile"
                         part="category-tile"
-                        .category=${category}>
+                        .category=${category}
+                        .user=${this.user}>
                     </relewise-category-tile>
                 `)}
             </div>
@@ -833,15 +829,9 @@ export class UniversalSearch extends RelewiseLitElement {
     static styles = universalSearchStyles;
 }
 
-function isResponseWithType(response: SearchResponse, typeName: string): boolean {
-    const typedResponse = response as SearchResponseWithType;
-    const maybeType = typedResponse.$type ?? typedResponse['@type'] ?? typedResponse.type;
-    return maybeType === typeName;
-}
-
 function findResponseOfType<T>(responses: SearchResponse[] | undefined, typeName: string): T | undefined {
     if (!responses) return undefined;
-    return responses.find(r => isResponseWithType(r, typeName)) as T | undefined;
+    return responses.find(r => (r as SearchResponseWithType).$type === typeName) as T | undefined;
 }
 
 declare global {

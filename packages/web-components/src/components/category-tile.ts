@@ -1,20 +1,37 @@
 import { RelewiseLitElement } from '../relewise-lit-element';
-import { ProductCategoryResult } from '@relewise/client';
+import { ProductCategoryResult, User } from '@relewise/client';
 import { adoptStyles, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
+import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
+import { templateHelpers } from '../helpers/templateHelpers';
 import { theme } from '../theme';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
+import { until } from 'lit-html/directives/until.js';
 
 export class CategoryTile extends RelewiseLitElement {
 
     @property({ type: Object })
     category: ProductCategoryResult | null = null;
 
+    @property({ type: Object })
+    private user: User | null = null;
+
     protected createRenderRoot(): HTMLElement | DocumentFragment {
         const root = super.createRenderRoot();
 
+        let hasCustomTemplate = false;
+        try {
+            const settings = getRelewiseUIOptions();
+            hasCustomTemplate = Boolean(settings.templates?.productCategory);
+        } catch (error) {
+            console.error('Relewise: Error initializing initializeRelewiseUI. Keeping default styles, ', error);
+        }
+
         if (root instanceof ShadowRoot) {
-            adoptStyles(root, CategoryTile.defaultStyles);
-        } else {
+            if (!hasCustomTemplate) {
+                adoptStyles(root, CategoryTile.defaultStyles);
+            }
+        } else if (!hasCustomTemplate) {
             this.registerLightDomStyles(CategoryTile.defaultStyles);
         }
 
@@ -28,6 +45,25 @@ export class CategoryTile extends RelewiseLitElement {
     render() {
         if (!this.category) {
             return nothing;
+        }
+
+        const settings = getRelewiseUIOptions();
+        if (settings.templates?.productCategory) {
+            const result = settings.templates.productCategory(this.category, { html, helpers: { ...templateHelpers, unsafeHTML, nothing, user: this.user } });
+            const markup = result instanceof Promise ? html`
+                ${until(result.then(result => {
+                if (result === nothing) {
+                    this.toggleAttribute('hidden', true);
+                }
+
+                return result;
+            }))}` : result;
+
+            if (result === nothing) {
+                this.toggleAttribute('hidden', true);
+            }
+
+            return html`${markup}`;
         }
 
         const url = this.category.data?.['Url']?.value ?? null;
