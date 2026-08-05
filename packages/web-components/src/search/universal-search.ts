@@ -12,6 +12,20 @@ import { universalSearchStyles } from './universal-search.styles';
 
 export type UniversalSearchTab = 'products' | 'productCategories' | 'content';
 
+const responseTypes = {
+    productSearch: 'Relewise.Client.Responses.Search.ProductSearchResponse, Relewise.Client',
+    productCategorySearch: 'Relewise.Client.Responses.Search.ProductCategorySearchResponse, Relewise.Client',
+    contentSearch: 'Relewise.Client.Responses.Search.ContentSearchResponse, Relewise.Client',
+};
+
+type SearchResponseWithType = {
+    $type?: string;
+    '@type'?: string;
+    type?: string;
+};
+
+type SearchResponse = NonNullable<SearchResponseCollection['responses']>[number];
+
 export class UniversalSearch extends RelewiseLitElement {
 
     @property({ attribute: 'displayed-at-location' })
@@ -323,19 +337,19 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     private applySearchResponse(response: SearchResponseCollection): void {
-        const productSearchResult = findResponseOfType<ProductSearchResponse>(response.responses ?? undefined, 'ProductSearchResponse');
+        const productSearchResult = findResponseOfType<ProductSearchResponse>(response.responses ?? undefined, responseTypes.productSearch);
         if (productSearchResult) {
             this.productSearchResult = productSearchResult;
             this.products = this.products.concat(productSearchResult.results ?? []);
         }
 
-        const productCategorySearchResult = findResponseOfType<ProductCategorySearchResponse>(response.responses ?? undefined, 'ProductCategorySearchResponse');
+        const productCategorySearchResult = findResponseOfType<ProductCategorySearchResponse>(response.responses ?? undefined, responseTypes.productCategorySearch);
         if (productCategorySearchResult) {
             this.productCategorySearchResult = productCategorySearchResult;
             this.productCategories = this.productCategories.concat(productCategorySearchResult.results ?? []);
         }
 
-        const contentSearchResult = findResponseOfType<ContentSearchResponse>(response.responses ?? undefined, 'ContentSearchResponse');
+        const contentSearchResult = findResponseOfType<ContentSearchResponse>(response.responses ?? undefined, responseTypes.contentSearch);
         if (contentSearchResult) {
             this.contentSearchResult = contentSearchResult;
             this.content = this.content.concat(contentSearchResult.results ?? []);
@@ -819,13 +833,13 @@ export class UniversalSearch extends RelewiseLitElement {
     static styles = universalSearchStyles;
 }
 
-function isResponseWithType(response: any, typeName: string): boolean {
-    if (!response || typeof response !== 'object') return false;
-    const maybeType = response.$type ?? response['@type'] ?? response.type;
-    return typeof maybeType === 'string' && maybeType.includes(typeName);
+function isResponseWithType(response: SearchResponse, typeName: string): boolean {
+    const typedResponse = response as SearchResponseWithType;
+    const maybeType = typedResponse.$type ?? typedResponse['@type'] ?? typedResponse.type;
+    return maybeType === typeName;
 }
 
-function findResponseOfType<T>(responses: any[] | undefined, typeName: string): T | undefined {
+function findResponseOfType<T>(responses: SearchResponse[] | undefined, typeName: string): T | undefined {
     if (!responses) return undefined;
     return responses.find(r => isResponseWithType(r, typeName)) as T | undefined;
 }
