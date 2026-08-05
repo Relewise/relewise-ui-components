@@ -4,7 +4,6 @@ import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { RelewiseLitElement } from '../relewise-lit-element';
-import type { UniversalSearchTabLocalization } from '../app';
 import { buildContentSearchRequest } from './contentSearchRequestBuilder';
 import { buildProductCategorySearchRequest } from './productCategorySearchRequestBuilder';
 import { buildProductSearchRequest } from './productSearchRequestBuilder';
@@ -16,45 +15,17 @@ export type UniversalSearchTab = typeof universalSearchTabs[number];
 
 type UniversalSearchTabSettings = {
     takeQueryKey: string;
-    defaultLocalization: Required<UniversalSearchTabLocalization>;
 };
 
 const universalSearchTabSettings = {
     products: {
         takeQueryKey: QueryKeys.productTake,
-        defaultLocalization: {
-            tab: 'Products',
-            resultsFor: 'Search results for',
-            resultsTitle: 'Products',
-            result: 'product',
-            results: 'products',
-            noResults: 'No products found.',
-            error: 'Could not load products.',
-        },
     },
     productCategories: {
         takeQueryKey: QueryKeys.productCategoryTake,
-        defaultLocalization: {
-            tab: 'Categories',
-            resultsFor: 'Search results for',
-            resultsTitle: 'Categories',
-            result: 'category',
-            results: 'categories',
-            noResults: 'No categories found.',
-            error: 'Could not load categories.',
-        },
     },
     content: {
         takeQueryKey: QueryKeys.contentTake,
-        defaultLocalization: {
-            tab: 'Content',
-            resultsFor: 'Search results for',
-            resultsTitle: 'Content',
-            result: 'content result',
-            results: 'content results',
-            noResults: 'No content found.',
-            error: 'Could not load content.',
-        },
     },
 } satisfies Record<UniversalSearchTab, UniversalSearchTabSettings>;
 
@@ -555,14 +526,15 @@ export class UniversalSearch extends RelewiseLitElement {
         return html`
             ${this.renderResultsSummary()}
             <nav class="rw-tabs" part="tabs" aria-label=${universalSearchLocalization?.tabsLabel ?? 'Search result tabs'}>
-                ${tabs.map(tab => this.renderTab(tab))}
+                ${tabs.includes('products') ? this.renderTab('products', universalSearchLocalization?.products?.tab ?? 'Products') : nothing}
+                ${tabs.includes('productCategories') ? this.renderTab('productCategories', universalSearchLocalization?.productCategories?.tab ?? 'Categories') : nothing}
+                ${tabs.includes('content') ? this.renderTab('content', universalSearchLocalization?.content?.tab ?? 'Content') : nothing}
             </nav>
             ${this.renderActiveTab()}
         `;
     }
 
-    renderTab(tab: UniversalSearchTab) {
-        const localization = this.getTabLocalization(tab);
+    renderTab(tab: UniversalSearchTab, label: string) {
         const result = this.getTabResult(tab);
 
         return html`
@@ -572,7 +544,7 @@ export class UniversalSearch extends RelewiseLitElement {
                 type="button"
                 aria-selected=${this.activeTab === tab}
                 @click=${() => this.handleSelectTab(tab)}>
-                ${localization.tab}
+                ${label}
                 ${result ? html`<span class="rw-tab-count" part="tab-count">${result.hits}</span>` : nothing}
             </button>
         `;
@@ -591,7 +563,7 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     renderProductsTab() {
-        const productsLocalization = this.getTabLocalization('products');
+        const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.products;
 
         return html`
             <div class="rw-results-layout" part="results-layout">
@@ -609,7 +581,12 @@ export class UniversalSearch extends RelewiseLitElement {
                 ` : nothing}
                 <section class="rw-results" part="results">
                     <header class="rw-results-header" part="results-header">
-                        ${this.renderResultsHeader('products')}
+                        ${this.renderResultsHeader(
+                            'products',
+                            localization?.resultsTitle ?? 'Products',
+                            localization?.result ?? 'product',
+                            localization?.results ?? 'products',
+                        )}
                         ${this.products.length > 0 ? html`
                             <relewise-product-search-sorting
                                 class="rw-sorting"
@@ -626,6 +603,8 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     renderProductCategoriesTab() {
+        const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.productCategories;
+
         return html`
             <div class="rw-results-layout" part="results-layout">
                 ${this.productCategories.length > 0 && this.productCategorySearchResult?.facets ? html`
@@ -642,7 +621,12 @@ export class UniversalSearch extends RelewiseLitElement {
                 ` : nothing}
                 <section class="rw-results" part="results">
                     <header class="rw-results-header" part="results-header">
-                        ${this.renderResultsHeader('productCategories')}
+                        ${this.renderResultsHeader(
+                            'productCategories',
+                            localization?.resultsTitle ?? 'Categories',
+                            localization?.result ?? 'category',
+                            localization?.results ?? 'categories',
+                        )}
                     </header>
                     ${this.renderProductCategoryResults()}
                 </section>
@@ -651,6 +635,8 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     renderContentTab() {
+        const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.content;
+
         return html`
             <div class="rw-results-layout" part="results-layout">
                 ${this.content.length > 0 && this.contentSearchResult?.facets ? html`
@@ -667,7 +653,12 @@ export class UniversalSearch extends RelewiseLitElement {
                 ` : nothing}
                 <section class="rw-results" part="results">
                     <header class="rw-results-header" part="results-header">
-                        ${this.renderResultsHeader('content')}
+                        ${this.renderResultsHeader(
+                            'content',
+                            localization?.resultsTitle ?? 'Content',
+                            localization?.result ?? 'content result',
+                            localization?.results ?? 'content results',
+                        )}
                     </header>
                     ${this.renderContentResults()}
                 </section>
@@ -685,22 +676,21 @@ export class UniversalSearch extends RelewiseLitElement {
         `;
     }
 
-    renderResultsHeader(tab: UniversalSearchTab) {
-        const localization = this.getTabLocalization(tab);
+    renderResultsHeader(tab: UniversalSearchTab, resultsTitle: string, resultLabel: string, resultsLabel: string) {
         const result = this.getTabResult(tab);
 
         return html`
             <div>
-                <h2 class="rw-results-title" part="results-title">${localization.resultsTitle}</h2>
+                <h2 class="rw-results-title" part="results-title">${resultsTitle}</h2>
                 ${result ? html`
-                    <span class="rw-results-count" part="results-count">${result.hits} ${result.hits === 1 ? localization.result : localization.results}</span>
+                    <span class="rw-results-count" part="results-count">${result.hits} ${result.hits === 1 ? resultLabel : resultsLabel}</span>
                 ` : nothing}
             </div>
         `;
     }
 
     renderProductResults() {
-        const productsLocalization = this.getTabLocalization('products');
+        const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.products;
 
         if (this.error) {
             return html`<p class="rw-empty" part="error-state">${this.error}</p>`;
@@ -719,7 +709,7 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         if (this.products.length === 0) {
-            return html`<p class="rw-empty" part="zero-results">${productsLocalization.noResults}</p>`;
+            return html`<p class="rw-empty" part="zero-results">${localization?.noResults ?? 'No products found.'}</p>`;
         }
 
         return html`
@@ -733,12 +723,12 @@ export class UniversalSearch extends RelewiseLitElement {
                     </relewise-product-tile>
                 `)}
             </div>
-            ${this.renderLoadMore(this.products.length, this.productSearchResult?.hits ?? 0, productsLocalization.results)}
+            ${this.renderLoadMore(this.products.length, this.productSearchResult?.hits ?? 0, localization?.results ?? 'products')}
         `;
     }
 
     renderProductCategoryResults() {
-        const productCategoriesLocalization = this.getTabLocalization('productCategories');
+        const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.productCategories;
 
         if (this.error) {
             return html`<p class="rw-empty" part="error-state">${this.error}</p>`;
@@ -753,7 +743,7 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         if (this.productCategories.length === 0) {
-            return html`<p class="rw-empty" part="zero-results">${productCategoriesLocalization.noResults}</p>`;
+            return html`<p class="rw-empty" part="zero-results">${localization?.noResults ?? 'No categories found.'}</p>`;
         }
 
         return html`
@@ -767,12 +757,12 @@ export class UniversalSearch extends RelewiseLitElement {
                     </relewise-category-tile>
                 `)}
             </div>
-            ${this.renderLoadMore(this.productCategories.length, this.productCategorySearchResult?.hits ?? 0, productCategoriesLocalization.results)}
+            ${this.renderLoadMore(this.productCategories.length, this.productCategorySearchResult?.hits ?? 0, localization?.results ?? 'categories')}
         `;
     }
 
     renderContentResults() {
-        const contentLocalization = this.getTabLocalization('content');
+        const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.content;
 
         if (this.error) {
             return html`<p class="rw-empty" part="error-state">${this.error}</p>`;
@@ -787,7 +777,7 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         if (this.content.length === 0) {
-            return html`<p class="rw-empty" part="zero-results">${contentLocalization.noResults}</p>`;
+            return html`<p class="rw-empty" part="zero-results">${localization?.noResults ?? 'No content found.'}</p>`;
         }
 
         return html`
@@ -801,7 +791,7 @@ export class UniversalSearch extends RelewiseLitElement {
                     </relewise-content-tile>
                 `)}
             </div>
-            ${this.renderLoadMore(this.content.length, this.contentSearchResult?.hits ?? 0, contentLocalization.results)}
+            ${this.renderLoadMore(this.content.length, this.contentSearchResult?.hits ?? 0, localization?.results ?? 'content results')}
         `;
     }
 
@@ -835,15 +825,6 @@ export class UniversalSearch extends RelewiseLitElement {
         } satisfies Record<UniversalSearchTab, ProductSearchResponse | ProductCategorySearchResponse | ContentSearchResponse | null>;
 
         return results[tab];
-    }
-
-    private getTabLocalization(tab: UniversalSearchTab) {
-        const universalSearchLocalization = getRelewiseUISearchOptions()?.localization?.universalSearch;
-
-        return {
-            ...universalSearchTabSettings[tab].defaultLocalization,
-            ...universalSearchLocalization?.[tab],
-        };
     }
 
     static styles = universalSearchStyles;

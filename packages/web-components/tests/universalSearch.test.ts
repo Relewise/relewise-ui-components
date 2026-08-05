@@ -358,6 +358,40 @@ suite('relewise-universal-search', () => {
         assert.equal(el.shadowRoot!.querySelector('[part="zero-results"]')?.textContent?.trim(), 'Ingen varer fundet.');
     });
 
+    test('uses default labels for properties omitted from tab localization', async () => {
+        Searcher.prototype.batch = async function() {
+            return {
+                responses: [productSearchResponse([], 0)],
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: { entities: { products: { pageSize: 2 } } },
+            localization: {
+                universalSearch: {
+                    products: {
+                        tab: 'Items',
+                    },
+                },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        el.setSearchTerm('shoe');
+        await waitUntil(() => el.shadowRoot!.querySelector('[part="zero-results"]') !== null, 'zero-results was not rendered');
+
+        assert.include(el.shadowRoot!.querySelector('[part="tab"]')?.textContent ?? '', 'Items');
+        assert.include(el.shadowRoot!.querySelector('[part="results-summary"]')?.textContent ?? '', 'Search results for');
+        assert.equal(el.shadowRoot!.querySelector('[part="results-title"]')?.textContent?.trim(), 'Products');
+        assert.equal(el.shadowRoot!.querySelector('[part="results-count"]')?.textContent?.trim(), '0 products');
+        assert.equal(el.shadowRoot!.querySelector('[part="zero-results"]')?.textContent?.trim(), 'No products found.');
+    });
+
     test('loads more products using scoped take URL state', async () => {
         let searchCount = 0;
 
