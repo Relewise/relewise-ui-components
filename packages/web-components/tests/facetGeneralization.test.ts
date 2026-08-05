@@ -60,6 +60,50 @@ suite('facet generalization', () => {
         assert.equal(eventCount, 1);
     });
 
+    test('can render content facets with scoped URL keys', async () => {
+        const el = await fixture(html`
+            <relewise-facets
+                .facetQueryKeyPrefix=${QueryKeys.contentFacet}
+                .facetResult=${contentStringFacetResult()}
+                .labels=${['Topic']}>
+            </relewise-facets>
+        `) as Facets;
+
+        el.showFacets = true;
+        await el.updateComplete;
+
+        const facet = el.shadowRoot!.querySelector('relewise-checklist-string-value-facet')!;
+        await waitUntil(() => facet.shadowRoot?.querySelector('input'), 'facet input was not rendered');
+
+        facet.shadowRoot!.querySelector('input')!.click();
+
+        const searchParams = new URL(window.location.href).searchParams;
+        assert.deepEqual(searchParams.getAll(QueryKeys.contentFacet + 'DataTopic'), ['Guide']);
+        assert.deepEqual(searchParams.getAll(QueryKeys.facet + 'DataTopic'), []);
+    });
+
+    test('can render product facets with scoped URL keys', async () => {
+        const el = await fixture(html`
+            <relewise-facets
+                .facetQueryKeyPrefix=${QueryKeys.productFacet}
+                .facetResult=${productStringFacetResult()}
+                .labels=${['Color']}>
+            </relewise-facets>
+        `) as Facets;
+
+        el.showFacets = true;
+        await el.updateComplete;
+
+        const facet = el.shadowRoot!.querySelector('relewise-checklist-string-value-facet')!;
+        await waitUntil(() => facet.shadowRoot?.querySelector('input'), 'facet input was not rendered');
+
+        facet.shadowRoot!.querySelector('input')!.click();
+
+        const searchParams = new URL(window.location.href).searchParams;
+        assert.deepEqual(searchParams.getAll(QueryKeys.productFacet + 'DataColor'), ['Red']);
+        assert.deepEqual(searchParams.getAll(QueryKeys.facet + 'DataColor'), []);
+    });
+
     test('does not render empty facet groups', async () => {
         const el = await fixture(html`
             <relewise-facets

@@ -288,8 +288,14 @@ suite('relewise-universal-search', () => {
         };
 
         updateUrlStateValues(QueryKeys.facet + 'Brand', ['Adidas', 'Nike']);
+        updateUrlStateValues(QueryKeys.productFacet + 'Brand', ['Adidas', 'Nike']);
+        updateUrlStateValues(QueryKeys.contentFacet + 'DataTopic', ['Guide']);
         updateUrlState(QueryKeys.facetLowerbound + 'SalesPrice', '50');
         updateUrlState(QueryKeys.facetUpperbound + 'SalesPrice', '100');
+        updateUrlState(QueryKeys.productFacetLowerbound + 'SalesPrice', '50');
+        updateUrlState(QueryKeys.productFacetUpperbound + 'SalesPrice', '100');
+        updateUrlState(QueryKeys.contentFacetLowerbound + 'DataReadingTime', '5');
+        updateUrlState(QueryKeys.contentFacetUpperbound + 'DataReadingTime', '10');
         updateUrlState(QueryKeys.sortBy, 'price');
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -304,8 +310,14 @@ suite('relewise-universal-search', () => {
         await waitUntil(() => readCurrentUrlState(QueryKeys.term) === 'boot', 'term was not written to URL state');
 
         assert.deepEqual(new URL(window.location.href).searchParams.getAll(QueryKeys.facet + 'Brand'), []);
+        assert.deepEqual(new URL(window.location.href).searchParams.getAll(QueryKeys.productFacet + 'Brand'), []);
+        assert.deepEqual(new URL(window.location.href).searchParams.getAll(QueryKeys.contentFacet + 'DataTopic'), []);
         assert.isNull(readCurrentUrlState(QueryKeys.facetLowerbound + 'SalesPrice'));
         assert.isNull(readCurrentUrlState(QueryKeys.facetUpperbound + 'SalesPrice'));
+        assert.isNull(readCurrentUrlState(QueryKeys.productFacetLowerbound + 'SalesPrice'));
+        assert.isNull(readCurrentUrlState(QueryKeys.productFacetUpperbound + 'SalesPrice'));
+        assert.isNull(readCurrentUrlState(QueryKeys.contentFacetLowerbound + 'DataReadingTime'));
+        assert.isNull(readCurrentUrlState(QueryKeys.contentFacetUpperbound + 'DataReadingTime'));
         assert.equal(readCurrentUrlState(QueryKeys.sortBy), 'price');
     });
 

@@ -5,6 +5,12 @@ export enum QueryKeys {
     facet = 'rw-facet-',
     facetUpperbound = 'rw-facet-upperbound-',
     facetLowerbound = 'rw-facet-lowerbound-',
+    productFacet = 'rw-product-facet-',
+    productFacetUpperbound = 'rw-product-facet-upperbound-',
+    productFacetLowerbound = 'rw-product-facet-lowerbound-',
+    contentFacet = 'rw-content-facet-',
+    contentFacetUpperbound = 'rw-content-facet-upperbound-',
+    contentFacetLowerbound = 'rw-content-facet-lowerbound-',
 }
 
 export function updateUrlState(queryParamName: string, value: string | null) {

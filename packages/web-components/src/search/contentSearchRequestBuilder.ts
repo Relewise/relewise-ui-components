@@ -90,11 +90,11 @@ function applySelectedRangeToContentFacet(facet: Facet) {
         let lowerBound = null;
 
         if ('key' in facet) {
-            upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field + facet.key);
-            lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field + facet.key);
+            upperBound = readCurrentUrlState(QueryKeys.contentFacetUpperbound + facet.field + facet.key);
+            lowerBound = readCurrentUrlState(QueryKeys.contentFacetLowerbound + facet.field + facet.key);
         } else {
-            upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field);
-            lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field);
+            upperBound = readCurrentUrlState(QueryKeys.contentFacetUpperbound + facet.field);
+            lowerBound = readCurrentUrlState(QueryKeys.contentFacetLowerbound + facet.field);
         }
 
         facet.selected = {
@@ -108,9 +108,9 @@ function applySelectedRangesToContentFacet(facet: Facet) {
     if ('selected' in facet) {
         let queryValues = null;
         if ('key' in facet) {
-            queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key);
+            queryValues = readCurrentUrlStateValues(QueryKeys.contentFacet + facet.field + facet.key);
         } else {
-            queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field);
+            queryValues = readCurrentUrlStateValues(QueryKeys.contentFacet + facet.field);
         }
         facet.selected = queryValues.map(x => {
             const split = x.split('-');
@@ -126,9 +126,9 @@ function applySelectedStringsToContentFacet(facet: Facet) {
     if ('selected' in facet) {
         let queryValues = null;
         if ('key' in facet) {
-            queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key);
+            queryValues = readCurrentUrlStateValues(QueryKeys.contentFacet + facet.field + facet.key);
         } else {
-            queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field);
+            queryValues = readCurrentUrlStateValues(QueryKeys.contentFacet + facet.field);
         }
         facet.selected = queryValues;
     }

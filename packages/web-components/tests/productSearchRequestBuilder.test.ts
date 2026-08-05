@@ -58,6 +58,45 @@ suite('productSearchRequestBuilder', () => {
         });
     });
 
+    test('can build product facets with selected values from scoped URL state', () => {
+        useSearch({
+            facets: {
+                product(builder) {
+                    builder
+                        .addFacet(f => f.addBrandFacet(), { heading: 'Brand' })
+                        .addFacet(f => f.addSalesPriceRangeFacet('Product'), { heading: 'Price' });
+                },
+            },
+        });
+
+        updateUrlStateValues(QueryKeys.productFacet + 'Brand', ['brand-1']);
+        updateUrlState(QueryKeys.productFacetLowerbound + 'SalesPrice', '10');
+        updateUrlState(QueryKeys.productFacetUpperbound + 'SalesPrice', '100');
+
+        const result = buildProductSearchRequest({
+            term: 'shoe',
+            settings,
+            page: 1,
+            pageSize: 16,
+            productsLoaded: 0,
+            productsToFetch: null,
+            target: null,
+            facetQueryKeyPrefix: QueryKeys.productFacet,
+            facetLowerboundQueryKeyPrefix: QueryKeys.productFacetLowerbound,
+            facetUpperboundQueryKeyPrefix: QueryKeys.productFacetUpperbound,
+        });
+
+        const facets = result.request.facets?.items as any[];
+        const brandFacet = facets.find(facet => facet.field === 'Brand');
+        const priceFacet = facets.find(facet => facet.field === 'SalesPrice');
+
+        assert.deepEqual(brandFacet.selected, ['brand-1']);
+        assert.deepEqual(priceFacet.selected, {
+            lowerBoundInclusive: 10,
+            upperBoundInclusive: 100,
+        });
+    });
+
     test('uses targeted facets and sorting when target is provided', () => {
         useSearch({
             sorting: builder => builder

@@ -19,6 +19,9 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
     @property()
     label: string = '';
 
+    @property({ attribute: 'query-key-prefix' })
+    queryKeyPrefix: string = QueryKeys.facet;
+
     @state()
     selectedValues: string[] = [];
 
@@ -60,14 +63,14 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
 
     getFacetQueryKey(): string {
         if (!this.result) {
-            return QueryKeys.facet;
+            return this.queryKeyPrefix;
         }
 
         if ('key' in this.result) {
-            return QueryKeys.facet + this.result.field + this.result.key;
+            return this.queryKeyPrefix + this.result.field + this.result.key;
         }
 
-        return QueryKeys.facet + this.result.field;
+        return this.queryKeyPrefix + this.result.field;
     }
 
     render() {

@@ -129,7 +129,17 @@ export class UniversalSearch extends RelewiseLitElement {
         this.debounceTimeoutHandlerId = setTimeout(() => {
             updateUrlState(QueryKeys.term, this.term || null);
             updateUrlState(QueryKeys.take, null);
-            clearUrlStateByPrefixes([QueryKeys.facet, QueryKeys.facetUpperbound, QueryKeys.facetLowerbound]);
+            clearUrlStateByPrefixes([
+                QueryKeys.facet,
+                QueryKeys.facetUpperbound,
+                QueryKeys.facetLowerbound,
+                QueryKeys.productFacet,
+                QueryKeys.productFacetUpperbound,
+                QueryKeys.productFacetLowerbound,
+                QueryKeys.contentFacet,
+                QueryKeys.contentFacetUpperbound,
+                QueryKeys.contentFacetLowerbound,
+            ]);
             this.activeTab = this.term ? this.firstEnabledTab : null;
             if (this.isOpen) {
                 this.searchEnabledTabs(true);
@@ -274,6 +284,9 @@ export class UniversalSearch extends RelewiseLitElement {
                 productsLoaded: this.products.length,
                 productsToFetch: numberOfProductsToFetch,
                 target: this.target,
+                facetQueryKeyPrefix: QueryKeys.productFacet,
+                facetUpperboundQueryKeyPrefix: QueryKeys.productFacetUpperbound,
+                facetLowerboundQueryKeyPrefix: QueryKeys.productFacetLowerbound,
             });
             this.productFacetLabels = requestResult.facetLabels;
             requestBuilder.addRequest(requestResult.request);
@@ -486,6 +499,9 @@ export class UniversalSearch extends RelewiseLitElement {
                         part="facets"
                         exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
                         .labels=${this.productFacetLabels}
+                        .facetQueryKeyPrefix=${QueryKeys.productFacet}
+                        .facetUpperboundQueryKeyPrefix=${QueryKeys.productFacetUpperbound}
+                        .facetLowerboundQueryKeyPrefix=${QueryKeys.productFacetLowerbound}
                         .facetResult=${this.productSearchResult.facets}>
                     </relewise-facets>
                 ` : nothing}
@@ -527,6 +543,9 @@ export class UniversalSearch extends RelewiseLitElement {
                         part="facets"
                         exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
                         .labels=${this.contentFacetLabels}
+                        .facetQueryKeyPrefix=${QueryKeys.contentFacet}
+                        .facetUpperboundQueryKeyPrefix=${QueryKeys.contentFacetUpperbound}
+                        .facetLowerboundQueryKeyPrefix=${QueryKeys.contentFacetLowerbound}
                         .facetResult=${this.contentSearchResult.facets}>
                     </relewise-facets>
                 ` : nothing}
