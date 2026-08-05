@@ -60,8 +60,9 @@ export const universalSearchStyles = [theme, css`
 
     .rw-tabs {
         display: flex;
-        gap: var(--relewise-universal-search-tabs-gap, 0.5em);
+        gap: var(--relewise-universal-search-tabs-gap, 1.5em);
         border-bottom: 1px solid var(--relewise-universal-search-border-color, #ddd);
+        padding-top: var(--relewise-universal-search-tabs-padding-top, 0.5em);
         margin-bottom: var(--relewise-universal-search-tabs-margin-bottom, 1em);
     }
 

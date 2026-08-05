@@ -803,7 +803,7 @@ export class UniversalSearch extends RelewiseLitElement {
             productCategories: {
                 tab: 'Categories',
                 resultsFor: 'Search results for',
-                resultsTitle: 'Category Results',
+                resultsTitle: 'Categories',
                 result: 'category',
                 results: 'categories',
                 noResults: 'No categories found.',
@@ -812,7 +812,7 @@ export class UniversalSearch extends RelewiseLitElement {
             content: {
                 tab: 'Content',
                 resultsFor: 'Search results for',
-                resultsTitle: 'Content Results',
+                resultsTitle: 'Content',
                 result: 'content result',
                 results: 'content results',
                 noResults: 'No content found.',
