@@ -828,13 +828,13 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     private getTabResult(tab: UniversalSearchTab): ProductSearchResponse | ProductCategorySearchResponse | ContentSearchResponse | null {
-        if (tab === 'productCategories') {
-            return this.productCategorySearchResult;
-        }
-        if (tab === 'content') {
-            return this.contentSearchResult;
-        }
-        return this.productSearchResult;
+        const results = {
+            products: this.productSearchResult,
+            productCategories: this.productCategorySearchResult,
+            content: this.contentSearchResult,
+        } satisfies Record<UniversalSearchTab, ProductSearchResponse | ProductCategorySearchResponse | ContentSearchResponse | null>;
+
+        return results[tab];
     }
 
     private getTabLocalization(tab: UniversalSearchTab) {

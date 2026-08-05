@@ -652,13 +652,18 @@ useSearch({
 #### Universal Search
 This component renders a universal-search modal that can be opened by a custom trigger. Products, product categories, and content can be enabled through `useSearch({ universalSearch: { entities } })`.
 
-The products tab reuses the existing product search configuration for facets, sorting, filters, relevance modifiers, selected properties, and target overrides. Product categories and content reuse their existing filters, relevance modifiers, and selected properties. Content can also use the generalized facet configuration path.
+The products tab reuses the existing product search configuration for facets, sorting, filters, relevance modifiers, selected properties, and target overrides. Product categories and content reuse their existing filters, relevance modifiers, selected properties, and generalized facet configuration paths.
+
+Entity configuration is presence-based. Add an entity key to enable that tab and omit the key to disable it. An empty object uses the component defaults.
 
 ```ts
 useSearch({
     facets: {
         product(builder) {
             builder.addFacet(f => f.addBrandFacet(), { heading: 'Brand' });
+        },
+        productCategory(builder) {
+            builder.addFacet(f => f.addProductCategoryDataStringValueFacet('Gender'), { heading: 'Gender' });
         },
         content(builder) {
             builder.addFacet(f => f.addContentDataStringValueFacet('ContentType'), { heading: 'Content type' });
@@ -670,15 +675,11 @@ useSearch({
         .addSalesPriceAscending(),
     universalSearch: {
         entities: {
-            products: {
-                pageSize: 15,
-            },
+            products: {},
             productCategories: {
-                pageSize: 15,
+                pageSize: 12,
             },
-            content: {
-                pageSize: 15,
-            },
+            content: {},
         },
     },
 });
@@ -694,13 +695,13 @@ useSearch({
 
 The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
 
-Configured entities are searched in one batched search request. Omitted entities are not rendered and are not requested.
+Configured entities are searched in one batched search request when the search term changes. Omitted entities are not rendered and are not requested. Facet, sorting, and load-more changes only search the active tab.
 
 When the products tab is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option.
 
 When the content tab is configured, it renders content results with `relewise-content-tile`. Content rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { content } })` template option.
 
-When the product categories tab is configured, it renders product category results with `relewise-category-tile`. The default category tile reads `Url` and `ImageUrl` from selected category data and exposes CSS parts for styling.
+When the product categories tab is configured, it renders product category results with `relewise-category-tile`. Product category rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { productCategory } })` template option. The default category tile reads `Url` and `ImageUrl` from selected category data and exposes CSS parts for styling.
 
 The current tabs use load-more behavior. Additional pagination modes are not part of the initial universal-search implementation.
 
