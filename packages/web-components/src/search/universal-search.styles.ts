@@ -117,7 +117,6 @@ export const universalSearchStyles = [theme, css`
         font-size: 0.9em;
     }
 
-    .rw-product-grid,
     .rw-result-grid {
         display: grid;
         grid-template-columns: repeat(var(--relewise-universal-search-result-columns, var(--relewise-universal-search-product-columns, 5)), minmax(0, 1fr));
@@ -149,7 +148,6 @@ export const universalSearchStyles = [theme, css`
             grid-template-columns: minmax(0, 1fr);
         }
 
-        .rw-product-grid,
         .rw-result-grid {
             grid-template-columns: repeat(var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2)), minmax(0, 1fr));
         }
