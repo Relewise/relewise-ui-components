@@ -10,7 +10,8 @@ import { buildProductSearchRequest } from './productSearchRequestBuilder';
 import { getSearcher } from './searcher';
 import { universalSearchStyles } from './universal-search.styles';
 
-export type UniversalSearchTab = 'products' | 'productCategories' | 'content';
+export const universalSearchTabs = ['products', 'productCategories', 'content'] as const;
+export type UniversalSearchTab = typeof universalSearchTabs[number];
 
 const responseTypes = {
     productSearch: 'Relewise.Client.Responses.Search.ProductSearchResponse, Relewise.Client',
@@ -144,24 +145,10 @@ export class UniversalSearch extends RelewiseLitElement {
         }, getRelewiseUISearchOptions()?.debounceTimeInMs);
     }
 
-    private get productsTabEnabled(): boolean {
-        return Boolean(getRelewiseUISearchOptions()?.universalSearch?.entities?.products);
-    }
-
-    private get productCategoriesTabEnabled(): boolean {
-        return Boolean(getRelewiseUISearchOptions()?.universalSearch?.entities?.productCategories);
-    }
-
-    private get contentTabEnabled(): boolean {
-        return Boolean(getRelewiseUISearchOptions()?.universalSearch?.entities?.content);
-    }
-
     private get enabledTabs(): UniversalSearchTab[] {
-        const tabs: UniversalSearchTab[] = [];
-        if (this.productsTabEnabled) tabs.push('products');
-        if (this.productCategoriesTabEnabled) tabs.push('productCategories');
-        if (this.contentTabEnabled) tabs.push('content');
-        return tabs;
+        const entities = getRelewiseUISearchOptions()?.universalSearch?.entities;
+
+        return universalSearchTabs.filter(tab => Boolean(entities?.[tab]));
     }
 
     private get firstEnabledTab(): UniversalSearchTab | null {
@@ -432,7 +419,7 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     private clearAllResults(): void {
-        this.clearResults(['products', 'productCategories', 'content']);
+        this.clearResults([...universalSearchTabs]);
     }
 
     private clearResults(tabs: UniversalSearchTab[]): void {
