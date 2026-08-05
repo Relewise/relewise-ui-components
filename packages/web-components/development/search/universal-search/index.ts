@@ -81,6 +81,10 @@ initializeRelewiseUI(
                 // Dataset-specific example. Replace "ContentType" with a content data key from your dataset.
                 // builder.addFacet((f) => f.addContentDataStringValueFacet('ContentType'), { heading: 'Content types' });
             },
+            // Dataset-specific example. Replace "Department" with a product category data key from your dataset.
+            // productCategory(builder) {
+            //     builder.addFacet((f) => f.addProductCategoryDataStringValueFacet('Gender'), { heading: 'Gender' });
+            // },
         },
         sorting: sorting => sorting
             .clear()

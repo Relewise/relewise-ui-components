@@ -1,12 +1,12 @@
 import { ContentResult, ContentSearchResponse, ProductCategoryResult, ProductCategorySearchResponse, ProductResult, ProductSearchResponse, SearchCollectionBuilder, SearchResponseCollection, User } from '@relewise/client';
 import { html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { createProductCategorySearchBuilder } from '../builders';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { RelewiseLitElement } from '../relewise-lit-element';
-import { UniversalSearchTabLocalization } from '../app';
+import type { UniversalSearchTabLocalization } from '../app';
 import { buildContentSearchRequest } from './contentSearchRequestBuilder';
+import { buildProductCategorySearchRequest } from './productCategorySearchRequestBuilder';
 import { buildProductSearchRequest } from './productSearchRequestBuilder';
 import { getSearcher } from './searcher';
 import { universalSearchStyles } from './universal-search.styles';
@@ -119,6 +119,9 @@ export class UniversalSearch extends RelewiseLitElement {
 
     @state()
     productFacetLabels: string[] = [];
+
+    @state()
+    productCategoryFacetLabels: string[] = [];
 
     @state()
     contentFacetLabels: string[] = [];
@@ -324,11 +327,14 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         if (tabs.includes('productCategories')) {
-            requestBuilder.addRequest(createProductCategorySearchBuilder(this.term, settings)
-                .pagination(p => p
-                    .setPageSize(numberOfProductCategoriesToFetch && this.productCategories.length < 1 ? numberOfProductCategoriesToFetch : this.productCategoriesPageSize)
-                    .setPage(numberOfProductCategoriesToFetch && this.productCategories.length < 1 ? 1 : this.productCategoryPage))
-                .build());
+            const requestResult = buildProductCategorySearchRequest({
+                term: this.term,
+                settings,
+                page: numberOfProductCategoriesToFetch && this.productCategories.length < 1 ? 1 : this.productCategoryPage,
+                pageSize: numberOfProductCategoriesToFetch && this.productCategories.length < 1 ? numberOfProductCategoriesToFetch : this.productCategoriesPageSize,
+            });
+            this.productCategoryFacetLabels = requestResult.facetLabels;
+            requestBuilder.addRequest(requestResult.request);
         }
 
         if (tabs.includes('content')) {
@@ -443,6 +449,9 @@ export class UniversalSearch extends RelewiseLitElement {
             QueryKeys.productFacet,
             QueryKeys.productFacetUpperbound,
             QueryKeys.productFacetLowerbound,
+            QueryKeys.productCategoryFacet,
+            QueryKeys.productCategoryFacetUpperbound,
+            QueryKeys.productCategoryFacetLowerbound,
             QueryKeys.contentFacet,
             QueryKeys.contentFacetUpperbound,
             QueryKeys.contentFacetLowerbound,
@@ -618,12 +627,26 @@ export class UniversalSearch extends RelewiseLitElement {
 
     renderProductCategoriesTab() {
         return html`
-            <section class="rw-results" part="results">
-                <header class="rw-results-header" part="results-header">
-                    ${this.renderResultsHeader('productCategories')}
-                </header>
-                ${this.renderProductCategoryResults()}
-            </section>
+            <div class="rw-results-layout" part="results-layout">
+                ${this.productCategories.length > 0 && this.productCategorySearchResult?.facets ? html`
+                    <relewise-facets
+                        class="rw-facets"
+                        part="facets"
+                        exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
+                        .labels=${this.productCategoryFacetLabels}
+                        .facetQueryKeyPrefix=${QueryKeys.productCategoryFacet}
+                        .facetUpperboundQueryKeyPrefix=${QueryKeys.productCategoryFacetUpperbound}
+                        .facetLowerboundQueryKeyPrefix=${QueryKeys.productCategoryFacetLowerbound}
+                        .facetResult=${this.productCategorySearchResult.facets}>
+                    </relewise-facets>
+                ` : nothing}
+                <section class="rw-results" part="results">
+                    <header class="rw-results-header" part="results-header">
+                        ${this.renderResultsHeader('productCategories')}
+                    </header>
+                    ${this.renderProductCategoryResults()}
+                </section>
+            </div>
         `;
     }
 

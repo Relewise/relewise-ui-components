@@ -289,6 +289,7 @@ suite('relewise-universal-search', () => {
 
         updateUrlStateValues(QueryKeys.facet + 'Brand', ['Adidas', 'Nike']);
         updateUrlStateValues(QueryKeys.productFacet + 'Brand', ['Adidas', 'Nike']);
+        updateUrlStateValues(QueryKeys.productCategoryFacet + 'DataDepartment', ['Electronics']);
         updateUrlStateValues(QueryKeys.contentFacet + 'DataTopic', ['Guide']);
         updateUrlState(QueryKeys.productTake, '4');
         updateUrlState(QueryKeys.productCategoryTake, '4');
@@ -308,6 +309,7 @@ suite('relewise-universal-search', () => {
 
         assert.deepEqual(new URL(window.location.href).searchParams.getAll(QueryKeys.facet + 'Brand'), []);
         assert.deepEqual(new URL(window.location.href).searchParams.getAll(QueryKeys.productFacet + 'Brand'), []);
+        assert.deepEqual(new URL(window.location.href).searchParams.getAll(QueryKeys.productCategoryFacet + 'DataDepartment'), []);
         assert.deepEqual(new URL(window.location.href).searchParams.getAll(QueryKeys.contentFacet + 'DataTopic'), []);
         assert.isNull(readCurrentUrlState(QueryKeys.productTake));
         assert.isNull(readCurrentUrlState(QueryKeys.productCategoryTake));
@@ -541,6 +543,45 @@ suite('relewise-universal-search', () => {
         await el.updateComplete;
 
         assert.equal(el.shadowRoot!.querySelectorAll('relewise-content-tile').length, 1);
+    });
+
+    test('includes configured product category facets in product category requests', async () => {
+        let facetItems: any[] | undefined;
+
+        Searcher.prototype.batch = async function(requestCollection) {
+            facetItems = (requestCollection.requests[0] as any).facets?.items;
+
+            return {
+                responses: [
+                    productCategorySearchResponse([productCategory('1')]),
+                ],
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            facets: {
+                productCategory(builder) {
+                    builder.addFacet(f => f.addProductCategoryDataStringValueFacet('Department'), { heading: 'Department' });
+                },
+            },
+            universalSearch: {
+                entities: {
+                    productCategories: { pageSize: 2 },
+                },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        el.setSearchTerm('shoe');
+        await waitUntil(() => el.productCategories.length === 1, 'category result was not loaded');
+
+        assert.equal(facetItems?.[0].key, 'Department');
+        assert.deepEqual(el.productCategoryFacetLabels, ['Department']);
     });
 
     test('does not request disabled tabs', async () => {

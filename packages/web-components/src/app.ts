@@ -149,6 +149,7 @@ export interface SearchFilters {
 
 export interface SearchFacets {
     product?: (builder: RelewiseFacetBuilder) => void;
+    productCategory?: (builder: RelewiseFacetBuilder) => void;
     content?: (builder: RelewiseFacetBuilder) => void;
 }
 
