@@ -2,7 +2,7 @@ import { ContentResult, ContentSearchResponse, ProductCategoryResult, ProductCat
 import { html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { createProductCategorySearchBuilder } from '../builders';
-import { Events, QueryKeys, clearUrlStateByPrefixes, getNumberOfProductsToFetch, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../helpers';
+import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../helpers';
 import { getRelewiseContextSettings, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { RelewiseLitElement } from '../relewise-lit-element';
 import { buildContentSearchRequest } from './contentSearchRequestBuilder';
@@ -127,19 +127,7 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         this.debounceTimeoutHandlerId = setTimeout(() => {
-            updateUrlState(QueryKeys.term, this.term || null);
-            updateUrlState(QueryKeys.take, null);
-            clearUrlStateByPrefixes([
-                QueryKeys.facet,
-                QueryKeys.facetUpperbound,
-                QueryKeys.facetLowerbound,
-                QueryKeys.productFacet,
-                QueryKeys.productFacetUpperbound,
-                QueryKeys.productFacetLowerbound,
-                QueryKeys.contentFacet,
-                QueryKeys.contentFacetUpperbound,
-                QueryKeys.contentFacetLowerbound,
-            ]);
+            this.updateUrlStateForSearchTerm();
             this.activeTab = this.term ? this.firstEnabledTab : null;
             if (this.isOpen) {
                 this.searchEnabledTabs(true);
@@ -210,9 +198,7 @@ export class UniversalSearch extends RelewiseLitElement {
             return;
         }
 
-        if (this.activeTab === 'products') {
-            updateUrlState(QueryKeys.take, null);
-        }
+        updateUrlState(this.getTakeQueryKey(this.activeTab), null);
 
         this.searchTabs([this.activeTab], true);
     }
@@ -228,11 +214,13 @@ export class UniversalSearch extends RelewiseLitElement {
 
         if (this.activeTab === 'products') {
             this.productPage = this.productPage + 1;
-            updateUrlState(QueryKeys.take, (this.productsPageSize * this.productPage).toString());
+            updateUrlState(QueryKeys.productTake, (this.productsPageSize * this.productPage).toString());
         } else if (this.activeTab === 'productCategories') {
             this.productCategoryPage = this.productCategoryPage + 1;
+            updateUrlState(QueryKeys.productCategoryTake, (this.productCategoriesPageSize * this.productCategoryPage).toString());
         } else {
             this.contentPage = this.contentPage + 1;
+            updateUrlState(QueryKeys.contentTake, (this.contentPageSize * this.contentPage).toString());
         }
 
         this.searchTabs([this.activeTab], false);
@@ -257,12 +245,14 @@ export class UniversalSearch extends RelewiseLitElement {
             this.activeTab = this.firstEnabledTab;
         }
 
-        const numberOfProductsToFetch = getNumberOfProductsToFetch();
+        const numberOfProductsToFetch = this.getNumberOfResultsToFetch(QueryKeys.productTake);
+        const numberOfProductCategoriesToFetch = this.getNumberOfResultsToFetch(QueryKeys.productCategoryTake);
+        const numberOfContentToFetch = this.getNumberOfResultsToFetch(QueryKeys.contentTake);
         this.loading = true;
         this.error = null;
 
         if (shouldClearOldResult) {
-            this.resetPages(tabs, numberOfProductsToFetch);
+            this.resetPages(tabs, numberOfProductsToFetch, numberOfProductCategoriesToFetch, numberOfContentToFetch);
             this.clearResults(tabs);
         }
 
@@ -295,8 +285,8 @@ export class UniversalSearch extends RelewiseLitElement {
         if (tabs.includes('productCategories')) {
             requestBuilder.addRequest(createProductCategorySearchBuilder(this.term, settings)
                 .pagination(p => p
-                    .setPageSize(this.productCategoriesPageSize)
-                    .setPage(this.productCategoryPage))
+                    .setPageSize(numberOfProductCategoriesToFetch && this.productCategories.length < 1 ? numberOfProductCategoriesToFetch : this.productCategoriesPageSize)
+                    .setPage(numberOfProductCategoriesToFetch && this.productCategories.length < 1 ? 1 : this.productCategoryPage))
                 .build());
         }
 
@@ -304,8 +294,8 @@ export class UniversalSearch extends RelewiseLitElement {
             const requestResult = buildContentSearchRequest({
                 term: this.term,
                 settings,
-                page: this.contentPage,
-                pageSize: this.contentPageSize,
+                page: numberOfContentToFetch && this.content.length < 1 ? 1 : this.contentPage,
+                pageSize: numberOfContentToFetch && this.content.length < 1 ? numberOfContentToFetch : this.contentPageSize,
             });
             this.contentFacetLabels = requestResult.facetLabels;
             requestBuilder.addRequest(requestResult.request);
@@ -352,16 +342,84 @@ export class UniversalSearch extends RelewiseLitElement {
         }
     }
 
-    private resetPages(tabs: UniversalSearchTab[], numberOfProductsToFetch: number | null): void {
+    private resetPages(
+        tabs: UniversalSearchTab[],
+        numberOfProductsToFetch: number | null,
+        numberOfProductCategoriesToFetch: number | null,
+        numberOfContentToFetch: number | null,
+    ): void {
         if (tabs.includes('products')) {
             this.productPage = numberOfProductsToFetch ? numberOfProductsToFetch / this.productsPageSize : 1;
         }
         if (tabs.includes('productCategories')) {
-            this.productCategoryPage = 1;
+            this.productCategoryPage = numberOfProductCategoriesToFetch ? numberOfProductCategoriesToFetch / this.productCategoriesPageSize : 1;
         }
         if (tabs.includes('content')) {
-            this.contentPage = 1;
+            this.contentPage = numberOfContentToFetch ? numberOfContentToFetch / this.contentPageSize : 1;
         }
+    }
+
+    private getTakeQueryKey(tab: UniversalSearchTab): string {
+        if (tab === 'productCategories') {
+            return QueryKeys.productCategoryTake;
+        }
+        if (tab === 'content') {
+            return QueryKeys.contentTake;
+        }
+        return QueryKeys.productTake;
+    }
+
+    private getNumberOfResultsToFetch(queryKey: string): number | null {
+        const value = readCurrentUrlState(queryKey);
+
+        if (!value) {
+            return null;
+        }
+
+        const parsedValue = parseInt(value, 10);
+
+        if (isNaN(parsedValue)) {
+            return null;
+        }
+
+        return parsedValue;
+    }
+
+    private updateUrlStateForSearchTerm(): void {
+        const currentUrl = new URL(window.location.href);
+
+        if (this.term) {
+            currentUrl.searchParams.set(QueryKeys.term, this.term);
+        } else {
+            currentUrl.searchParams.delete(QueryKeys.term);
+        }
+
+        [
+            QueryKeys.take,
+            QueryKeys.productTake,
+            QueryKeys.productCategoryTake,
+            QueryKeys.contentTake,
+        ].forEach(queryKey => currentUrl.searchParams.delete(queryKey));
+
+        const prefixesToClear = [
+            QueryKeys.facet,
+            QueryKeys.facetUpperbound,
+            QueryKeys.facetLowerbound,
+            QueryKeys.productFacet,
+            QueryKeys.productFacetUpperbound,
+            QueryKeys.productFacetLowerbound,
+            QueryKeys.contentFacet,
+            QueryKeys.contentFacetUpperbound,
+            QueryKeys.contentFacetLowerbound,
+        ];
+
+        const queryParamNames = [...new Set(Array.from(currentUrl.searchParams.keys()))];
+
+        queryParamNames
+            .filter(queryParamName => prefixesToClear.some(prefix => queryParamName.startsWith(prefix)))
+            .forEach(queryParamName => currentUrl.searchParams.delete(queryParamName));
+
+        window.history.replaceState({}, document.title, currentUrl);
     }
 
     private clearAllResults(): void {

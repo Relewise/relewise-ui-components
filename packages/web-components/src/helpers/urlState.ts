@@ -1,6 +1,9 @@
 export enum QueryKeys {
     term = 'rw-term',
     take = 'rw-take',
+    productTake = 'rw-product-take',
+    productCategoryTake = 'rw-product-category-take',
+    contentTake = 'rw-content-take',
     sortBy = 'rw-sorting',
     facet = 'rw-facet-',
     facetUpperbound = 'rw-facet-upperbound-',

@@ -290,12 +290,9 @@ suite('relewise-universal-search', () => {
         updateUrlStateValues(QueryKeys.facet + 'Brand', ['Adidas', 'Nike']);
         updateUrlStateValues(QueryKeys.productFacet + 'Brand', ['Adidas', 'Nike']);
         updateUrlStateValues(QueryKeys.contentFacet + 'DataTopic', ['Guide']);
-        updateUrlState(QueryKeys.facetLowerbound + 'SalesPrice', '50');
-        updateUrlState(QueryKeys.facetUpperbound + 'SalesPrice', '100');
-        updateUrlState(QueryKeys.productFacetLowerbound + 'SalesPrice', '50');
-        updateUrlState(QueryKeys.productFacetUpperbound + 'SalesPrice', '100');
-        updateUrlState(QueryKeys.contentFacetLowerbound + 'DataReadingTime', '5');
-        updateUrlState(QueryKeys.contentFacetUpperbound + 'DataReadingTime', '10');
+        updateUrlState(QueryKeys.productTake, '4');
+        updateUrlState(QueryKeys.productCategoryTake, '4');
+        updateUrlState(QueryKeys.contentTake, '4');
         updateUrlState(QueryKeys.sortBy, 'price');
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -312,12 +309,9 @@ suite('relewise-universal-search', () => {
         assert.deepEqual(new URL(window.location.href).searchParams.getAll(QueryKeys.facet + 'Brand'), []);
         assert.deepEqual(new URL(window.location.href).searchParams.getAll(QueryKeys.productFacet + 'Brand'), []);
         assert.deepEqual(new URL(window.location.href).searchParams.getAll(QueryKeys.contentFacet + 'DataTopic'), []);
-        assert.isNull(readCurrentUrlState(QueryKeys.facetLowerbound + 'SalesPrice'));
-        assert.isNull(readCurrentUrlState(QueryKeys.facetUpperbound + 'SalesPrice'));
-        assert.isNull(readCurrentUrlState(QueryKeys.productFacetLowerbound + 'SalesPrice'));
-        assert.isNull(readCurrentUrlState(QueryKeys.productFacetUpperbound + 'SalesPrice'));
-        assert.isNull(readCurrentUrlState(QueryKeys.contentFacetLowerbound + 'DataReadingTime'));
-        assert.isNull(readCurrentUrlState(QueryKeys.contentFacetUpperbound + 'DataReadingTime'));
+        assert.isNull(readCurrentUrlState(QueryKeys.productTake));
+        assert.isNull(readCurrentUrlState(QueryKeys.productCategoryTake));
+        assert.isNull(readCurrentUrlState(QueryKeys.contentTake));
         assert.equal(readCurrentUrlState(QueryKeys.sortBy), 'price');
     });
 
@@ -362,7 +356,7 @@ suite('relewise-universal-search', () => {
         assert.equal(el.shadowRoot!.querySelector('[part="zero-results"]')?.textContent?.trim(), 'Ingen varer fundet.');
     });
 
-    test('loads more products using existing take URL state', async () => {
+    test('loads more products using scoped take URL state', async () => {
         let searchCount = 0;
 
         Searcher.prototype.batch = async function() {
@@ -386,11 +380,12 @@ suite('relewise-universal-search', () => {
         el.handleLoadMoreActiveTab();
         await waitUntil(() => el.products.length === 3, 'more products were not appended');
 
-        assert.equal(readCurrentUrlState(QueryKeys.take), '4');
+        assert.equal(readCurrentUrlState(QueryKeys.productTake), '4');
+        assert.isNull(readCurrentUrlState(QueryKeys.take));
         assert.equal(el.shadowRoot!.querySelectorAll('relewise-product-tile').length, 3);
     });
 
-    test('continues load more from an existing take URL state', async () => {
+    test('continues product load more from an existing scoped take URL state', async () => {
         let searchCount = 0;
 
         Searcher.prototype.batch = async function() {
@@ -404,7 +399,7 @@ suite('relewise-universal-search', () => {
         };
 
         updateUrlState(QueryKeys.term, 'shoe');
-        updateUrlState(QueryKeys.take, '4');
+        updateUrlState(QueryKeys.productTake, '4');
 
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: { pageSize: 2 } } } });
@@ -418,7 +413,92 @@ suite('relewise-universal-search', () => {
         el.handleLoadMoreActiveTab();
         await waitUntil(() => el.products.length === 6, 'more products were not appended after URL take');
 
-        assert.equal(readCurrentUrlState(QueryKeys.take), '6');
+        assert.equal(readCurrentUrlState(QueryKeys.productTake), '6');
+    });
+
+    test('loads more content using scoped take URL state', async () => {
+        let searchCount = 0;
+
+        Searcher.prototype.batch = async function() {
+            searchCount++;
+
+            return {
+                responses: [contentSearchResponse(searchCount === 1 ? [content('1'), content('2')] : [content('3')], 3)],
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { content: { pageSize: 2 } } } });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        el.setSearchTerm('guide');
+        await waitUntil(() => el.content.length === 2, 'initial content was not rendered');
+
+        el.handleLoadMoreActiveTab();
+        await waitUntil(() => el.content.length === 3, 'more content was not appended');
+
+        assert.equal(readCurrentUrlState(QueryKeys.contentTake), '4');
+    });
+
+    test('continues content load more from an existing scoped take URL state', async () => {
+        let searchCount = 0;
+
+        Searcher.prototype.batch = async function() {
+            searchCount++;
+
+            return {
+                responses: [contentSearchResponse(searchCount === 1
+                    ? [content('1'), content('2'), content('3'), content('4')]
+                    : [content('5'), content('6')], 6)],
+            } as any;
+        };
+
+        updateUrlState(QueryKeys.term, 'guide');
+        updateUrlState(QueryKeys.contentTake, '4');
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { content: { pageSize: 2 } } } });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        await waitUntil(() => el.content.length === 4, 'initial content URL take was not loaded');
+
+        el.handleLoadMoreActiveTab();
+        await waitUntil(() => el.content.length === 6, 'more content was not appended after URL take');
+
+        assert.equal(readCurrentUrlState(QueryKeys.contentTake), '6');
+    });
+
+    test('loads more product categories using scoped take URL state', async () => {
+        let searchCount = 0;
+
+        Searcher.prototype.batch = async function() {
+            searchCount++;
+
+            return {
+                responses: [productCategorySearchResponse(searchCount === 1 ? [productCategory('1'), productCategory('2')] : [productCategory('3')], 3)],
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { productCategories: { pageSize: 2 } } } });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        el.setSearchTerm('shoe');
+        await waitUntil(() => el.productCategories.length === 2, 'initial product categories were not rendered');
+
+        el.handleLoadMoreActiveTab();
+        await waitUntil(() => el.productCategories.length === 3, 'more product categories were not appended');
+
+        assert.equal(readCurrentUrlState(QueryKeys.productCategoryTake), '4');
     });
 
     test('batches enabled product category and content tabs', async () => {
