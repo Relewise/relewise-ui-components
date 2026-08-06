@@ -151,7 +151,7 @@ suite('relewise-universal-search', () => {
     test('uses universal-search localization', async () => {
         useSearch({
             debounceTimeInMs: 0,
-            universalSearch: {},
+            universalSearch: { entities: {} },
             localization: {
                 universalSearch: {
                     close: 'Luk',
@@ -205,6 +205,60 @@ suite('relewise-universal-search', () => {
 
         assert.isNull(el.shadowRoot!.querySelector('[part="tabs"]'));
         assert.include(el.shadowRoot!.textContent ?? '', 'Start typing to search.');
+    });
+
+    test('searches products by default when entities are omitted', async () => {
+        let productSearchCount = 0;
+        let productCategorySearchCount = 0;
+        let contentSearchCount = 0;
+        let batchSearchCount = 0;
+
+        Searcher.prototype.searchProducts = async function() {
+            productSearchCount++;
+
+            return productSearchResponse([product('1')]);
+        };
+
+        Searcher.prototype.searchProductCategories = async function() {
+            productCategorySearchCount++;
+
+            return productCategorySearchResponse([productCategory('1')]);
+        };
+
+        Searcher.prototype.searchContents = async function() {
+            contentSearchCount++;
+
+            return contentSearchResponse([content('1')]);
+        };
+
+        Searcher.prototype.batch = async function() {
+            batchSearchCount++;
+
+            return {
+                responses: [
+                    productSearchResponse([product('1')]),
+                    productCategorySearchResponse([productCategory('1')]),
+                    contentSearchResponse([content('1')]),
+                ],
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: {} });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        el.setSearchTerm('shoe');
+        await waitUntil(() => el.products.length === 1, 'default product results were not loaded');
+
+        assert.equal(productSearchCount, 1);
+        assert.equal(productCategorySearchCount, 0);
+        assert.equal(contentSearchCount, 0);
+        assert.equal(batchSearchCount, 0);
+        assert.equal(el.shadowRoot!.querySelectorAll('[part="tab"]').length, 1);
+        assert.include(el.shadowRoot!.querySelector('[part="tab"]')?.textContent ?? '', 'Products');
     });
 
     test('searches and renders products when products tab is configured', async () => {

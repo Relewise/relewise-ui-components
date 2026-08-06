@@ -4,6 +4,10 @@ import { UniversalSearchTab, universalSearchTabs } from './universal-search.type
 export function getEnabledUniversalSearchTabs(): UniversalSearchTab[] {
     const entities = getRelewiseUISearchOptions()?.universalSearch?.entities;
 
+    if (!entities) {
+        return ['products'];
+    }
+
     return universalSearchTabs.filter(tab => Boolean(entities?.[tab]));
 }
 

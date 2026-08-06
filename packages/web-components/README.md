@@ -650,11 +650,11 @@ useSearch({
 ```
 
 #### Universal Search
-This component renders a universal-search modal that can be opened by a custom trigger. Products, product categories, and content can be enabled through `useSearch({ universalSearch: { entities } })`.
+This component renders a universal-search modal that can be opened by a custom trigger. Products, product categories, and content can be included through `useSearch({ universalSearch: { entities } })`.
 
 The products tab reuses the existing product search configuration for facets, sorting, filters, relevance modifiers, selected properties, and target overrides. Product categories and content reuse their existing filters, relevance modifiers, selected properties, and generalized facet configuration paths.
 
-Entity configuration is presence-based. Add an entity key to enable that tab and omit the key to disable it. An empty object uses the component defaults.
+When `universalSearch` is provided without `entities`, the products tab is included with its defaults. When `entities` is provided, its keys are the exact result types to include: add an entity key to include its tab and omit the key to exclude it. An empty entity option such as `products: {}` uses that entity's defaults. An explicitly empty `entities: {}` configuration renders no result tabs.
 
 ```ts
 useSearch({

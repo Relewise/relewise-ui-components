@@ -1,6 +1,6 @@
 # Universal Search UI Components Plan
 
-Last updated: 2026-07-01
+Last updated: 2026-08-06
 
 ## Purpose
 
@@ -530,7 +530,8 @@ export interface UniversalSearchEntityOptions {
 
 Notes:
 
-- Providing an entity option enables that result type. Omit an entity to disable it.
+- Omitting `entities` includes the products result type with its defaults. When `entities` is provided, its keys are the exact result types to include; an explicitly empty object includes no result types.
+- Providing an empty entity option includes that result type with its defaults.
 - Product tab uses existing `facets.product` and existing `sorting`.
 - Content facets can use `facets.content` once added.
 - Content/category sorting needs separate config if included.
