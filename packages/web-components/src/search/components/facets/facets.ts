@@ -13,6 +13,9 @@ export class Facets extends RelewiseLitElement {
     @property({ type: Array, attribute: 'labels' })
     labels: string[] = [];
 
+    @property({ attribute: false })
+    applyFacet = () => window.dispatchEvent(new CustomEvent(Events.applyFacet));
+
     @property({ attribute: 'facet-query-key-prefix' })
     facetQueryKeyPrefix: string = QueryKeys.facet;
 
@@ -79,6 +82,7 @@ export class Facets extends RelewiseLitElement {
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .label=${label}
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
                     .queryKeyPrefix=${this.facetQueryKeyPrefix}
                     class=${styling}>
                 </relewise-checklist-ranges-object-value-facet>
@@ -99,6 +103,7 @@ export class Facets extends RelewiseLitElement {
                     exportparts="title, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
                     .queryKeyPrefix=${this.facetQueryKeyPrefix}
                     class=${styling}>
                 </relewise-checklist-number-value-facet>
@@ -114,6 +119,7 @@ export class Facets extends RelewiseLitElement {
                     exportparts="title, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
                     .queryKeyPrefix=${this.facetQueryKeyPrefix}
                     class=${styling}>
                 </relewise-checklist-object-value-facet>
@@ -130,6 +136,7 @@ export class Facets extends RelewiseLitElement {
                     exportparts="title, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
                     .queryKeyPrefix=${this.facetQueryKeyPrefix}
                     class=${styling}>
                 </relewise-checklist-boolean-value-facet>
@@ -146,6 +153,7 @@ export class Facets extends RelewiseLitElement {
                     exportparts="title, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
                     .queryKeyPrefix=${this.facetQueryKeyPrefix}
                     class=${styling}>
                 </relewise-checklist-string-value-facet>
@@ -162,6 +170,7 @@ export class Facets extends RelewiseLitElement {
                     part="container"
                     exportparts="title, input"
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
                     .upperboundQueryKeyPrefix=${this.facetUpperboundQueryKeyPrefix}
                     .lowerboundQueryKeyPrefix=${this.facetLowerboundQueryKeyPrefix}
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"

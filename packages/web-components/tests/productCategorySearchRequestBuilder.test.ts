@@ -43,6 +43,7 @@ suite('productCategorySearchRequestBuilder', () => {
         });
 
         assert.deepEqual(result.facetLabels, ['Department', 'Priority']);
+        assert.include(result.request.settings?.selectedCategoryProperties?.dataKeys ?? [], 'ImageUrl');
 
         const facets = result.request.facets?.items as any[];
         const departmentFacet = facets.find(facet => facet.key === 'Department');

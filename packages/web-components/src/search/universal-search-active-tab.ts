@@ -28,6 +28,7 @@ export type UniversalSearchActiveTabOptions = {
     user: User | null;
     target: string | null;
     onLoadMore: () => void;
+    onSearchOptionsChanged: () => void;
 };
 
 export function renderUniversalSearchActiveTab(options: UniversalSearchActiveTabOptions) {
@@ -40,6 +41,7 @@ export function renderUniversalSearchActiveTab(options: UniversalSearchActiveTab
             error: options.error,
             user: options.user,
             onLoadMore: options.onLoadMore,
+            onSearchOptionsChanged: options.onSearchOptionsChanged,
         });
     }
 
@@ -52,6 +54,7 @@ export function renderUniversalSearchActiveTab(options: UniversalSearchActiveTab
             error: options.error,
             user: options.user,
             onLoadMore: options.onLoadMore,
+            onSearchOptionsChanged: options.onSearchOptionsChanged,
         });
     }
 
@@ -64,5 +67,6 @@ export function renderUniversalSearchActiveTab(options: UniversalSearchActiveTab
         user: options.user,
         target: options.target,
         onLoadMore: options.onLoadMore,
+        onSearchOptionsChanged: options.onSearchOptionsChanged,
     });
 }

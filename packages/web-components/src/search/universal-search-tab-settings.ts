@@ -3,6 +3,7 @@ import { UniversalSearchTab, universalSearchTabs } from './universal-search.type
 
 export type UniversalSearchTabSettings = {
     takeQueryKey: string;
+    sortingQueryKey?: string;
     facetQueryKeyPrefix: string;
     facetUpperboundQueryKeyPrefix: string;
     facetLowerboundQueryKeyPrefix: string;
@@ -11,6 +12,7 @@ export type UniversalSearchTabSettings = {
 export const universalSearchTabSettings = {
     products: {
         takeQueryKey: QueryKeys.productTake,
+        sortingQueryKey: QueryKeys.productSorting,
         facetQueryKeyPrefix: QueryKeys.productFacet,
         facetUpperboundQueryKeyPrefix: QueryKeys.productFacetUpperbound,
         facetLowerboundQueryKeyPrefix: QueryKeys.productFacetLowerbound,
@@ -32,6 +34,10 @@ export const universalSearchTabSettings = {
 export const universalSearchTakeQueryKeys = [
     QueryKeys.take,
     ...universalSearchTabs.map(tab => universalSearchTabSettings[tab].takeQueryKey),
+];
+
+export const universalSearchSortingQueryKeys = [
+    universalSearchTabSettings.products.sortingQueryKey,
 ];
 
 export const universalSearchFacetQueryKeyPrefixes = [

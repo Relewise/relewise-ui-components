@@ -17,6 +17,7 @@ export type ProductSearchRequestOptions = {
     facetQueryKeyPrefix?: string;
     facetUpperboundQueryKeyPrefix?: string;
     facetLowerboundQueryKeyPrefix?: string;
+    sortingQueryKey?: string;
 };
 
 export type ProductSearchRequestResult = {
@@ -41,7 +42,7 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
             }
         })
         .sorting(builder => {
-            const sorting = getSearchSortingSelection(sortingOptions, readCurrentUrlState(QueryKeys.sortBy));
+            const sorting = getSearchSortingSelection(sortingOptions, readCurrentUrlState(options.sortingQueryKey ?? QueryKeys.sortBy));
 
             if (sorting) {
                 sorting.apply(builder);
@@ -52,7 +53,7 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
         });
 
     if (options.target) {
-        const overwrittenConfigSettings = getRelewiseSearchTargetedConfigurations().handle(options.target, requestBuilder);
+        const overwrittenConfigSettings = getRelewiseSearchTargetedConfigurations().handle(options.target, requestBuilder, options.sortingQueryKey);
         if (overwrittenConfigSettings.facetLabels) {
             facetLabels = overwrittenConfigSettings.facetLabels;
         }

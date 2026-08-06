@@ -50,6 +50,7 @@ export function buildUniversalSearchRequests(options: UniversalSearchRequestBuil
             facetQueryKeyPrefix: tabSettings.facetQueryKeyPrefix,
             facetUpperboundQueryKeyPrefix: tabSettings.facetUpperboundQueryKeyPrefix,
             facetLowerboundQueryKeyPrefix: tabSettings.facetLowerboundQueryKeyPrefix,
+            sortingQueryKey: tabSettings.sortingQueryKey,
         });
         productFacetLabels = requestResult.facetLabels;
         requests.push({ tab: 'products', request: requestResult.request });

@@ -13,6 +13,9 @@ export class NumberRangeFacet extends RelewiseLitElement {
     @property()
     label: string = '';
 
+    @property({ attribute: false })
+    applyFacet = () => window.dispatchEvent(new CustomEvent(Events.applyFacet));
+
     @property({ attribute: 'upperbound-query-key-prefix' })
     upperboundQueryKeyPrefix: string = QueryKeys.facetUpperbound;
 
@@ -90,7 +93,7 @@ export class NumberRangeFacet extends RelewiseLitElement {
         updateUrlState(this.getFacetUpperBoundQueryKey(), upperBound?.toString() ?? '');
         updateUrlState(this.getFacetLowerBoundQueryKey(), lowerBound?.toString() ?? '');
 
-        window.dispatchEvent(new CustomEvent(Events.applyFacet));
+        this.applyFacet();
     }
 
     getFacetUpperBoundQueryKey(): string {

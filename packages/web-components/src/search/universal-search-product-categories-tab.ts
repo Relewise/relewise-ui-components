@@ -12,6 +12,7 @@ export type UniversalSearchProductCategoriesTabOptions = {
     error: string | null;
     user: User | null;
     onLoadMore: () => void;
+    onSearchOptionsChanged: () => void;
 };
 
 export function renderUniversalSearchProductCategoriesTab(options: UniversalSearchProductCategoriesTabOptions) {
@@ -19,7 +20,7 @@ export function renderUniversalSearchProductCategoriesTab(options: UniversalSear
 
     return html`
         <div class="rw-results-layout" part="results-layout">
-            ${options.productCategories.length > 0 && options.result?.facets ? html`
+            ${options.result?.facets ? html`
                 <relewise-facets
                     class="rw-facets"
                     part="facets"
@@ -28,6 +29,7 @@ export function renderUniversalSearchProductCategoriesTab(options: UniversalSear
                     .facetQueryKeyPrefix=${universalSearchTabSettings.productCategories.facetQueryKeyPrefix}
                     .facetUpperboundQueryKeyPrefix=${universalSearchTabSettings.productCategories.facetUpperboundQueryKeyPrefix}
                     .facetLowerboundQueryKeyPrefix=${universalSearchTabSettings.productCategories.facetLowerboundQueryKeyPrefix}
+                    .applyFacet=${options.onSearchOptionsChanged}
                     .facetResult=${options.result.facets}>
                 </relewise-facets>
             ` : nothing}

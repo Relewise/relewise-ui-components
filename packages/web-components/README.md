@@ -695,7 +695,7 @@ useSearch({
 
 The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
 
-Configured entities are searched in one batched search request when the search term changes. Omitted entities are not rendered and are not requested. Facet, sorting, and load-more changes only search the active tab.
+When multiple entities are configured, they are searched together in one batched request when the search term changes. A single configured entity uses its direct search endpoint. Omitted entities are not rendered and are not requested. Facet, sorting, and load-more changes only search the active tab.
 
 When the products tab is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option.
 
@@ -710,6 +710,10 @@ The current tabs use load-more behavior. Additional pagination modes are not par
 - **displayed-at-location** :
 
     Where the universal-search component is being shown.
+
+- **target** (Optional):
+
+    Applies matching targeted product-search facets and sorting to the products tab.
 
 - **open** (Optional, true/false):
 

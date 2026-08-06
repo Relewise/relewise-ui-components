@@ -10,10 +10,12 @@ export type UniversalSearchViewOptions = {
     activeTab: UniversalSearchTab | null;
     tabResults: Record<UniversalSearchTab, UniversalSearchResult | null>;
     activeTabContent: TemplateResult | typeof nothing;
+    accessibilityId: string;
     setSearchTerm: (term: string) => void;
     handleKeyEvent: (event: KeyboardEvent) => void;
     close: () => void;
     closeWhenClickingOutsideDialog: (event: MouseEvent) => void;
+    handleDialogKeyDown: (event: KeyboardEvent) => void;
     selectTab: (tab: UniversalSearchTab) => void;
 };
 
@@ -29,6 +31,8 @@ export function renderUniversalSearchView(options: UniversalSearchViewOptions) {
                 part="dialog"
                 role="dialog"
                 aria-modal="true"
+                tabindex="-1"
+                @keydown=${options.handleDialogKeyDown}
                 aria-label=${searchBarLocalization?.search ?? 'Search'}>
                 <header class="rw-header" part="header">
                     <relewise-search-bar
@@ -70,12 +74,20 @@ function renderUniversalSearchDefaultView(options: UniversalSearchViewOptions) {
 
     return html`
         ${renderUniversalSearchResultsSummary(options)}
-        <nav class="rw-tabs" part="tabs" aria-label=${universalSearchLocalization?.tabsLabel ?? 'Search result tabs'}>
+        <nav class="rw-tabs" part="tabs" role="tablist" aria-label=${universalSearchLocalization?.tabsLabel ?? 'Search result tabs'}>
             ${options.tabs.includes('products') ? renderUniversalSearchTab(options, 'products', universalSearchLocalization?.products?.tab ?? 'Products') : nothing}
             ${options.tabs.includes('productCategories') ? renderUniversalSearchTab(options, 'productCategories', universalSearchLocalization?.productCategories?.tab ?? 'Categories') : nothing}
             ${options.tabs.includes('content') ? renderUniversalSearchTab(options, 'content', universalSearchLocalization?.content?.tab ?? 'Content') : nothing}
         </nav>
-        ${options.activeTabContent}
+        ${options.activeTab ? html`
+            <div
+                id=${getPanelId(options, options.activeTab)}
+                role="tabpanel"
+                aria-labelledby=${getTabId(options, options.activeTab)}
+                tabindex="0">
+                ${options.activeTabContent}
+            </div>
+        ` : nothing}
     `;
 }
 
@@ -87,12 +99,50 @@ function renderUniversalSearchTab(options: UniversalSearchViewOptions, tab: Univ
             class="rw-tab"
             part="tab"
             type="button"
+            id=${getTabId(options, tab)}
+            role="tab"
+            aria-controls=${getPanelId(options, tab)}
             aria-selected=${options.activeTab === tab}
+            tabindex=${options.activeTab === tab ? 0 : -1}
+            @keydown=${(event: KeyboardEvent) => handleTabKeyDown(event, options, tab)}
             @click=${() => options.selectTab(tab)}>
             ${label}
             ${result ? html`<span class="rw-tab-count" part="tab-count">${result.hits}</span>` : nothing}
         </button>
     `;
+}
+
+function handleTabKeyDown(event: KeyboardEvent, options: UniversalSearchViewOptions, tab: UniversalSearchTab): void {
+    const currentIndex = options.tabs.indexOf(tab);
+    let nextIndex: number | null = null;
+
+    if (event.key === 'ArrowRight') {
+        nextIndex = (currentIndex + 1) % options.tabs.length;
+    } else if (event.key === 'ArrowLeft') {
+        nextIndex = (currentIndex - 1 + options.tabs.length) % options.tabs.length;
+    } else if (event.key === 'Home') {
+        nextIndex = 0;
+    } else if (event.key === 'End') {
+        nextIndex = options.tabs.length - 1;
+    }
+
+    if (nextIndex === null) {
+        return;
+    }
+
+    event.preventDefault();
+    const nextTab = options.tabs[nextIndex];
+    options.selectTab(nextTab);
+    const tabList = (event.currentTarget as HTMLElement).parentElement;
+    tabList?.querySelector<HTMLElement>(`#${getTabId(options, nextTab)}`)?.focus();
+}
+
+function getTabId(options: UniversalSearchViewOptions, tab: UniversalSearchTab): string {
+    return `${options.accessibilityId}-tab-${tab}`;
+}
+
+function getPanelId(options: UniversalSearchViewOptions, tab: UniversalSearchTab): string {
+    return `${options.accessibilityId}-panel-${tab}`;
 }
 
 function renderUniversalSearchResultsSummary(options: UniversalSearchViewOptions) {

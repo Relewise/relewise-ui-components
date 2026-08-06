@@ -3,6 +3,7 @@ export * from './enums';
 export * from './universal-search';
 export * from './product-search-overlay';
 export * from './product-search';
+export * from './contentSearchRequestBuilder';
 export * from './productCategorySearchRequestBuilder';
 export * from './productSearchRequestBuilder';
 export * from './searchSortingBuilder';

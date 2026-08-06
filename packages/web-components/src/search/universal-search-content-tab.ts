@@ -12,6 +12,7 @@ export type UniversalSearchContentTabOptions = {
     error: string | null;
     user: User | null;
     onLoadMore: () => void;
+    onSearchOptionsChanged: () => void;
 };
 
 export function renderUniversalSearchContentTab(options: UniversalSearchContentTabOptions) {
@@ -19,7 +20,7 @@ export function renderUniversalSearchContentTab(options: UniversalSearchContentT
 
     return html`
         <div class="rw-results-layout" part="results-layout">
-            ${options.content.length > 0 && options.result?.facets ? html`
+            ${options.result?.facets ? html`
                 <relewise-facets
                     class="rw-facets"
                     part="facets"
@@ -28,6 +29,7 @@ export function renderUniversalSearchContentTab(options: UniversalSearchContentT
                     .facetQueryKeyPrefix=${universalSearchTabSettings.content.facetQueryKeyPrefix}
                     .facetUpperboundQueryKeyPrefix=${universalSearchTabSettings.content.facetUpperboundQueryKeyPrefix}
                     .facetLowerboundQueryKeyPrefix=${universalSearchTabSettings.content.facetLowerboundQueryKeyPrefix}
+                    .applyFacet=${options.onSearchOptionsChanged}
                     .facetResult=${options.result.facets}>
                 </relewise-facets>
             ` : nothing}

@@ -5,6 +5,7 @@ export enum QueryKeys {
     productCategoryTake = 'rw-product-category-take',
     contentTake = 'rw-content-take',
     sortBy = 'rw-sorting',
+    productSorting = 'rw-product-sorting',
     facet = 'rw-facet-',
     facetUpperbound = 'rw-facet-upperbound-',
     facetLowerbound = 'rw-facet-lowerbound-',
@@ -34,6 +35,9 @@ export function updateUrlState(queryParamName: string, value: string | null) {
 
 export function clearUrlState() {
     const currentUrl = new URL(window.location.href);
+    if (!currentUrl.search) {
+        return;
+    }
     currentUrl.search = '';
     window.history.replaceState({}, document.title, currentUrl);
 }

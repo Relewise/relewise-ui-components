@@ -1,6 +1,6 @@
 import { QueryKeys, readCurrentUrlState } from '../helpers';
 import { UniversalSearchTab } from './universal-search.types';
-import { universalSearchFacetQueryKeyPrefixes, universalSearchTabSettings, universalSearchTakeQueryKeys } from './universal-search-tab-settings';
+import { universalSearchFacetQueryKeyPrefixes, universalSearchSortingQueryKeys, universalSearchTabSettings, universalSearchTakeQueryKeys } from './universal-search-tab-settings';
 
 export function getNumberOfUniversalSearchResultsToFetch(tab: UniversalSearchTab): number | null {
     const value = readCurrentUrlState(universalSearchTabSettings[tab].takeQueryKey);
@@ -28,6 +28,7 @@ export function updateUrlStateForUniversalSearchTerm(term: string): void {
     }
 
     universalSearchTakeQueryKeys.forEach(queryKey => currentUrl.searchParams.delete(queryKey));
+    universalSearchSortingQueryKeys.forEach(queryKey => currentUrl.searchParams.delete(queryKey));
 
     const queryParamNames = [...new Set(Array.from(currentUrl.searchParams.keys()))];
 

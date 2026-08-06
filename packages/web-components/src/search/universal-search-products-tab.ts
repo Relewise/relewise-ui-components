@@ -13,6 +13,7 @@ export type UniversalSearchProductsTabOptions = {
     user: User | null;
     target: string | null;
     onLoadMore: () => void;
+    onSearchOptionsChanged: () => void;
 };
 
 export function renderUniversalSearchProductsTab(options: UniversalSearchProductsTabOptions) {
@@ -20,7 +21,7 @@ export function renderUniversalSearchProductsTab(options: UniversalSearchProduct
 
     return html`
         <div class="rw-results-layout" part="results-layout">
-            ${options.products.length > 0 && options.result?.facets ? html`
+            ${options.result?.facets ? html`
                 <relewise-facets
                     class="rw-facets"
                     part="facets"
@@ -29,6 +30,7 @@ export function renderUniversalSearchProductsTab(options: UniversalSearchProduct
                     .facetQueryKeyPrefix=${universalSearchTabSettings.products.facetQueryKeyPrefix}
                     .facetUpperboundQueryKeyPrefix=${universalSearchTabSettings.products.facetUpperboundQueryKeyPrefix}
                     .facetLowerboundQueryKeyPrefix=${universalSearchTabSettings.products.facetLowerboundQueryKeyPrefix}
+                    .applyFacet=${options.onSearchOptionsChanged}
                     .facetResult=${options.result.facets}>
                 </relewise-facets>
             ` : nothing}
@@ -45,6 +47,8 @@ export function renderUniversalSearchProductsTab(options: UniversalSearchProduct
                             class="rw-sorting"
                             part="sorting"
                             .target=${options.target}
+                            .sortingQueryKey=${universalSearchTabSettings.products.sortingQueryKey}
+                            .applySorting=${options.onSearchOptionsChanged}
                             exportparts="select: sorting-select, label: sorting-label">
                         </relewise-product-search-sorting>
                     ` : nothing}

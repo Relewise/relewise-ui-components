@@ -1,9 +1,10 @@
 import { ContentResult, ContentSearchResponse, ProductCategoryResult, ProductCategorySearchResponse, ProductResult, ProductSearchResponse, User } from '@relewise/client';
 import { nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../helpers';
+import { QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../helpers';
 import { RelewiseLitElement } from '../relewise-lit-element';
 import { renderUniversalSearchActiveTab } from './universal-search-active-tab';
+import { trapFocusInDialog } from './universal-search-focus';
 import { getUniversalSearchTabLocalization } from './universal-search-localization';
 import { getEnabledUniversalSearchTabs, getUniversalSearchPageSize } from './universal-search-options';
 import { searchUniversalSearchTabs } from './universal-search-service';
@@ -16,6 +17,8 @@ import type { UniversalSearchServiceResult } from './universal-search-service';
 
 export { universalSearchTabs };
 export type { UniversalSearchTab };
+
+let universalSearchInstanceId = 0;
 
 export class UniversalSearch extends RelewiseLitElement {
 
@@ -65,7 +68,13 @@ export class UniversalSearch extends RelewiseLitElement {
     loading: boolean = false;
 
     @state()
-    error: string | null = null;
+    productError: string | null = null;
+
+    @state()
+    productCategoryError: string | null = null;
+
+    @state()
+    contentError: string | null = null;
 
     @state()
     productFacetLabels: string[] = [];
@@ -84,16 +93,15 @@ export class UniversalSearch extends RelewiseLitElement {
 
     private debounceTimeoutHandlerId: ReturnType<typeof setTimeout> | null = null;
     private handleWindowKeyDownBound = this.handleWindowKeyDown.bind(this);
-    private onSearchOptionsChangedBound = this.onSearchOptionsChanged.bind(this);
     private defaultPageSize = 15;
+    private readonly accessibilityId = `relewise-universal-search-${universalSearchInstanceId++}`;
+    private previouslyFocusedElement: HTMLElement | null = null;
 
     connectedCallback(): void {
         super.connectedCallback();
         this.term = readCurrentUrlState(QueryKeys.term) ?? '';
         this.activeTab = this.term ? this.firstEnabledTab : null;
         window.addEventListener('keydown', this.handleWindowKeyDownBound);
-        window.addEventListener(Events.applyFacet, this.onSearchOptionsChangedBound);
-        window.addEventListener(Events.applySorting, this.onSearchOptionsChangedBound);
 
         if (this.isOpen) {
             this.searchEnabledTabs(true);
@@ -102,12 +110,18 @@ export class UniversalSearch extends RelewiseLitElement {
 
     disconnectedCallback(): void {
         window.removeEventListener('keydown', this.handleWindowKeyDownBound);
-        window.removeEventListener(Events.applyFacet, this.onSearchOptionsChangedBound);
-        window.removeEventListener(Events.applySorting, this.onSearchOptionsChangedBound);
+        if (this.debounceTimeoutHandlerId) {
+            clearTimeout(this.debounceTimeoutHandlerId);
+            this.debounceTimeoutHandlerId = null;
+        }
+        this.abortController.abort();
         super.disconnectedCallback();
     }
 
     open(): void {
+        if (!this.isOpen) {
+            this.previouslyFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        }
         this.isOpen = true;
         this.searchEnabledTabs(true);
     }
@@ -116,6 +130,8 @@ export class UniversalSearch extends RelewiseLitElement {
         this.abortController.abort();
         this.loading = false;
         this.isOpen = false;
+        this.previouslyFocusedElement?.focus();
+        this.previouslyFocusedElement = null;
     }
 
     setSearchTerm(term: string): void {
@@ -127,7 +143,7 @@ export class UniversalSearch extends RelewiseLitElement {
         this.abortController.abort();
         this.activeTab = this.term ? this.firstEnabledTab : null;
         this.clearAllResults();
-        this.error = null;
+        this.clearErrors([...universalSearchTabs]);
         this.loading = Boolean(this.isOpen && this.term && this.enabledTabs.length > 0);
 
         if (this.debounceTimeoutHandlerId) {
@@ -135,6 +151,7 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         this.debounceTimeoutHandlerId = setTimeout(() => {
+            this.debounceTimeoutHandlerId = null;
             updateUrlStateForUniversalSearchTerm(this.term);
             this.activeTab = this.term ? this.firstEnabledTab : null;
             if (this.isOpen) {
@@ -179,6 +196,14 @@ export class UniversalSearch extends RelewiseLitElement {
         this.close();
     }
 
+    handleDialogKeyDown(event: KeyboardEvent): void {
+        const dialog = this.renderRoot.querySelector<HTMLElement>('.rw-dialog');
+        if (!dialog) {
+            return;
+        }
+        trapFocusInDialog(event, dialog);
+    }
+
     closeWhenClickingOutsideDialog(event: MouseEvent): void {
         if (event.target === event.currentTarget) {
             this.close();
@@ -199,38 +224,42 @@ export class UniversalSearch extends RelewiseLitElement {
         this.activeTab = tab;
     }
 
-    handleLoadMoreActiveTab(): void {
-        if (!this.activeTab) {
+    async handleLoadMoreActiveTab(): Promise<void> {
+        if (!this.activeTab || this.loading) {
             return;
         }
 
-        if (this.activeTab === 'products') {
-            this.productPage = this.productPage + 1;
-            updateUrlState(QueryKeys.productTake, (this.productsPageSize * this.productPage).toString());
-        } else if (this.activeTab === 'productCategories') {
-            this.productCategoryPage = this.productCategoryPage + 1;
-            updateUrlState(QueryKeys.productCategoryTake, (this.productCategoriesPageSize * this.productCategoryPage).toString());
-        } else {
-            this.contentPage = this.contentPage + 1;
-            updateUrlState(QueryKeys.contentTake, (this.contentPageSize * this.contentPage).toString());
+        const tab = this.activeTab;
+        const previousPage = this.getPage(tab);
+        const requestedPage = previousPage + 1;
+        this.setPage(tab, requestedPage);
+
+        const succeeded = await this.searchTabs([tab], false);
+        if (!succeeded) {
+            if (this.getPage(tab) === requestedPage) {
+                this.setPage(tab, previousPage);
+            }
+            return;
         }
 
-        this.searchTabs([this.activeTab], false);
+        if (this.getPage(tab) === requestedPage) {
+            updateUrlState(universalSearchTabSettings[tab].takeQueryKey, (this.getPageSize(tab) * requestedPage).toString());
+        }
     }
 
-    searchEnabledTabs(shouldClearOldResult: boolean): Promise<void> {
-        return this.searchTabs(this.enabledTabs, shouldClearOldResult);
+    async searchEnabledTabs(shouldClearOldResult: boolean): Promise<void> {
+        await this.searchTabs(this.enabledTabs, shouldClearOldResult);
     }
 
-    async searchTabs(tabs: UniversalSearchTab[], shouldClearOldResult: boolean): Promise<void> {
+    async searchTabs(tabs: UniversalSearchTab[], shouldClearOldResult: boolean): Promise<boolean> {
         this.abortController.abort();
 
         if (!this.term || tabs.length === 0) {
             this.activeTab = null;
             this.clearAllResults();
-            this.error = null;
+            this.clearErrors([...universalSearchTabs]);
             this.loading = false;
-            return;
+            return false;
         }
 
         if (!this.activeTab || !this.enabledTabs.includes(this.activeTab)) {
@@ -241,7 +270,7 @@ export class UniversalSearch extends RelewiseLitElement {
         const productCategoriesToFetch = getNumberOfUniversalSearchResultsToFetch('productCategories');
         const contentToFetch = getNumberOfUniversalSearchResultsToFetch('content');
         this.loading = true;
-        this.error = null;
+        this.clearErrors(tabs);
 
         if (shouldClearOldResult) {
             this.resetPages(tabs, productsToFetch, productCategoriesToFetch, contentToFetch);
@@ -275,10 +304,12 @@ export class UniversalSearch extends RelewiseLitElement {
             this.user = searchResult.user;
             this.applyFacetLabels(tabs, searchResult);
             this.applySearchResponses(searchResult.responses);
-        } catch (error) {
+            return true;
+        } catch {
             if (!abortController.signal.aborted) {
-                this.error = error instanceof Error ? error.message : this.activeLocalization?.error ?? 'Could not load results.';
+                this.setErrors(tabs);
             }
+            return false;
         } finally {
             if (!abortController.signal.aborted) {
                 this.loading = false;
@@ -351,6 +382,60 @@ export class UniversalSearch extends RelewiseLitElement {
         }
     }
 
+    private clearErrors(tabs: UniversalSearchTab[]): void {
+        if (tabs.includes('products')) {
+            this.productError = null;
+        }
+        if (tabs.includes('productCategories')) {
+            this.productCategoryError = null;
+        }
+        if (tabs.includes('content')) {
+            this.contentError = null;
+        }
+    }
+
+    private getPage(tab: UniversalSearchTab): number {
+        if (tab === 'products') {
+            return this.productPage;
+        }
+        if (tab === 'productCategories') {
+            return this.productCategoryPage;
+        }
+        return this.contentPage;
+    }
+
+    private setPage(tab: UniversalSearchTab, page: number): void {
+        if (tab === 'products') {
+            this.productPage = page;
+        } else if (tab === 'productCategories') {
+            this.productCategoryPage = page;
+        } else {
+            this.contentPage = page;
+        }
+    }
+
+    private getPageSize(tab: UniversalSearchTab): number {
+        if (tab === 'products') {
+            return this.productsPageSize;
+        }
+        if (tab === 'productCategories') {
+            return this.productCategoriesPageSize;
+        }
+        return this.contentPageSize;
+    }
+
+    private setErrors(tabs: UniversalSearchTab[]): void {
+        if (tabs.includes('products')) {
+            this.productError = getUniversalSearchTabLocalization('products')?.error ?? 'Could not load products.';
+        }
+        if (tabs.includes('productCategories')) {
+            this.productCategoryError = getUniversalSearchTabLocalization('productCategories')?.error ?? 'Could not load categories.';
+        }
+        if (tabs.includes('content')) {
+            this.contentError = getUniversalSearchTabLocalization('content')?.error ?? 'Could not load content.';
+        }
+    }
+
     render() {
         if (!this.isOpen) {
             return nothing;
@@ -370,10 +455,11 @@ export class UniversalSearch extends RelewiseLitElement {
                 productCategoryFacetLabels: this.productCategoryFacetLabels,
                 contentFacetLabels: this.contentFacetLabels,
                 loading: this.loading,
-                error: this.error,
+                error: this.activeError,
                 user: this.user,
                 target: this.target,
                 onLoadMore: () => this.handleLoadMoreActiveTab(),
+                onSearchOptionsChanged: () => this.onSearchOptionsChanged(),
             })
             : nothing;
 
@@ -383,10 +469,12 @@ export class UniversalSearch extends RelewiseLitElement {
             activeTab: this.activeTab,
             tabResults: this.tabResults,
             activeTabContent,
+            accessibilityId: this.accessibilityId,
             setSearchTerm: (term: string) => this.setSearchTerm(term),
             handleKeyEvent: (event: KeyboardEvent) => this.handleKeyEvent(event),
             close: () => this.close(),
             closeWhenClickingOutsideDialog: (event: MouseEvent) => this.closeWhenClickingOutsideDialog(event),
+            handleDialogKeyDown: (event: KeyboardEvent) => this.handleDialogKeyDown(event),
             selectTab: (tab: UniversalSearchTab) => this.handleSelectTab(tab),
         });
     }
@@ -399,8 +487,18 @@ export class UniversalSearch extends RelewiseLitElement {
         };
     }
 
-    private get activeLocalization() {
-        return getUniversalSearchTabLocalization(this.activeTab);
+    private get activeError(): string | null {
+        if (this.activeTab === 'products') {
+            return this.productError;
+        }
+        if (this.activeTab === 'productCategories') {
+            return this.productCategoryError;
+        }
+        if (this.activeTab === 'content') {
+            return this.contentError;
+        }
+
+        return null;
     }
 
     static styles = universalSearchStyles;

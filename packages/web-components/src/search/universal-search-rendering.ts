@@ -31,7 +31,7 @@ export function renderUniversalSearchLoadMore(loaded: number, total: number, res
 
     return html`
         ${loading ? renderUniversalSearchLoadingState() : nothing}
-        ${loaded < total ? html`
+        ${!loading && loaded < total ? html`
             <div class="rw-load-more" part="load-more">
                 <span class="rw-results-shown">
                     ${localization?.showing ?? 'Showing'} ${loaded} ${localization?.outOf ?? 'out of'} ${total} ${resultLabel}
