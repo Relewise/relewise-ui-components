@@ -259,6 +259,14 @@ suite('relewise-universal-search', () => {
         assert.equal(batchSearchCount, 0);
         assert.equal(el.shadowRoot!.querySelectorAll('[part="tab"]').length, 1);
         assert.include(el.shadowRoot!.querySelector('[part="tab"]')?.textContent ?? '', 'Products');
+        assert.equal(
+            getComputedStyle(el.shadowRoot!.querySelector<HTMLElement>('[part="header"]')!).borderBottomColor,
+            'rgb(238, 238, 238)',
+        );
+        assert.equal(
+            getComputedStyle(el.shadowRoot!.querySelector<HTMLElement>('[part="tabs"]')!).borderBottomColor,
+            'rgb(238, 238, 238)',
+        );
     });
 
     test('searches and renders products when products tab is configured', async () => {

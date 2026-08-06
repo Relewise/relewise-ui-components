@@ -32,7 +32,7 @@ export const universalSearchStyles = [theme, css`
         gap: var(--relewise-universal-search-header-gap, 1em);
         align-items: center;
         padding: var(--relewise-universal-search-header-padding, 1em);
-        border-bottom: 1px solid var(--relewise-universal-search-border-color, #ddd);
+        border-bottom: 1px solid var(--relewise-universal-search-border-color, var(--relewise-checklist-facet-border-color, #eee));
     }
 
     relewise-search-bar {
@@ -61,7 +61,7 @@ export const universalSearchStyles = [theme, css`
     .rw-tabs {
         display: flex;
         gap: var(--relewise-universal-search-tabs-gap, 1.5em);
-        border-bottom: 1px solid var(--relewise-universal-search-border-color, #ddd);
+        border-bottom: 1px solid var(--relewise-universal-search-border-color, var(--relewise-checklist-facet-border-color, #eee));
         padding-top: var(--relewise-universal-search-tabs-padding-top, 0.5em);
         margin-bottom: var(--relewise-universal-search-tabs-margin-bottom, 1em);
     }

@@ -11,6 +11,11 @@
     <script type="module" src="index.ts"></script>
     <h1>Universal Search</h1>
     <p>This page exercises the universal-search modal with the Universal Search clothing demo dataset.</p>
+    <p id="template-mode"></p>
+    <nav aria-label="Template variants">
+        <a href="index.html">Default templates</a>
+        <a href="index.html?templates=custom">Custom templates</a>
+    </nav>
 
     <ul>
         <li>Products, product categories, and content tabs are configured with page size 15.</li>
@@ -18,8 +23,8 @@
         <li>Product category facets: gender, age group, department, season, and category type.</li>
         <li>Content facets: content category, article type, topic, audience, season, and featured state.</li>
         <li>Product sorting: relevance, price, name, brand, popularity, and demo product data score.</li>
-        <li>Product, product category, and content rendering use template overrides to show seeded images, URLs, descriptions, and metadata.</li>
-        <li>Images are requested from the seeded <code>ImageUrl</code> data key.</li>
+        <li>The default variant exposes the component's raw entity rendering for visual review.</li>
+        <li>The custom variant demonstrates template overrides using seeded images, URLs, descriptions, and metadata.</li>
         <li>Load more URL state uses entity-scoped take parameters.</li>
         <li>Enabled tabs are searched together in a batched search request.</li>
         <li>Facet and sorting changes search only the active tab.</li>
