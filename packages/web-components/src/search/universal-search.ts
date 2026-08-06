@@ -1,4 +1,4 @@
-import { ContentResult, ContentSearchResponse, ProductCategoryResult, ProductCategorySearchResponse, ProductResult, ProductSearchResponse, SearchCollectionBuilder, SearchResponseCollection, User } from '@relewise/client';
+import { ContentResult, ContentSearchRequest, ContentSearchResponse, ProductCategoryResult, ProductCategorySearchRequest, ProductCategorySearchResponse, ProductResult, ProductSearchRequest, ProductSearchResponse, SearchCollectionBuilder, SearchResponseCollection, User } from '@relewise/client';
 import { html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../helpers';
@@ -15,19 +15,47 @@ export type UniversalSearchTab = typeof universalSearchTabs[number];
 
 type UniversalSearchTabSettings = {
     takeQueryKey: string;
+    facetQueryKeyPrefix: string;
+    facetUpperboundQueryKeyPrefix: string;
+    facetLowerboundQueryKeyPrefix: string;
 };
 
 const universalSearchTabSettings = {
     products: {
         takeQueryKey: QueryKeys.productTake,
+        facetQueryKeyPrefix: QueryKeys.productFacet,
+        facetUpperboundQueryKeyPrefix: QueryKeys.productFacetUpperbound,
+        facetLowerboundQueryKeyPrefix: QueryKeys.productFacetLowerbound,
     },
     productCategories: {
         takeQueryKey: QueryKeys.productCategoryTake,
+        facetQueryKeyPrefix: QueryKeys.productCategoryFacet,
+        facetUpperboundQueryKeyPrefix: QueryKeys.productCategoryFacetUpperbound,
+        facetLowerboundQueryKeyPrefix: QueryKeys.productCategoryFacetLowerbound,
     },
     content: {
         takeQueryKey: QueryKeys.contentTake,
+        facetQueryKeyPrefix: QueryKeys.contentFacet,
+        facetUpperboundQueryKeyPrefix: QueryKeys.contentFacetUpperbound,
+        facetLowerboundQueryKeyPrefix: QueryKeys.contentFacetLowerbound,
     },
 } satisfies Record<UniversalSearchTab, UniversalSearchTabSettings>;
+
+const universalSearchTakeQueryKeys = [
+    QueryKeys.take,
+    ...universalSearchTabs.map(tab => universalSearchTabSettings[tab].takeQueryKey),
+];
+
+const universalSearchFacetQueryKeyPrefixes = [
+    QueryKeys.facet,
+    QueryKeys.facetUpperbound,
+    QueryKeys.facetLowerbound,
+    ...universalSearchTabs.flatMap(tab => [
+        universalSearchTabSettings[tab].facetQueryKeyPrefix,
+        universalSearchTabSettings[tab].facetUpperboundQueryKeyPrefix,
+        universalSearchTabSettings[tab].facetLowerboundQueryKeyPrefix,
+    ]),
+];
 
 const responseTypes = {
     productSearch: 'Relewise.Client.Responses.Search.ProductSearchResponse, Relewise.Client',
@@ -37,6 +65,10 @@ const responseTypes = {
 
 type SearchResponse = NonNullable<SearchResponseCollection['responses']>[number];
 type SearchResponseWithType = SearchResponse & { $type?: string };
+type UniversalSearchRequest =
+    | { tab: 'products'; request: ProductSearchRequest }
+    | { tab: 'productCategories'; request: ProductCategorySearchRequest }
+    | { tab: 'content'; request: ContentSearchRequest };
 
 export class UniversalSearch extends RelewiseLitElement {
 
@@ -105,7 +137,7 @@ export class UniversalSearch extends RelewiseLitElement {
 
     private debounceTimeoutHandlerId: ReturnType<typeof setTimeout> | null = null;
     private handleWindowKeyDownBound = this.handleWindowKeyDown.bind(this);
-    private handleSearchConfigurationChangedBound = this.handleSearchConfigurationChanged.bind(this);
+    private onSearchOptionsChangedBound = this.onSearchOptionsChanged.bind(this);
     private defaultPageSize = 15;
 
     connectedCallback(): void {
@@ -113,8 +145,8 @@ export class UniversalSearch extends RelewiseLitElement {
         this.term = readCurrentUrlState(QueryKeys.term) ?? '';
         this.activeTab = this.term ? this.firstEnabledTab : null;
         window.addEventListener('keydown', this.handleWindowKeyDownBound);
-        window.addEventListener(Events.applyFacet, this.handleSearchConfigurationChangedBound);
-        window.addEventListener(Events.applySorting, this.handleSearchConfigurationChangedBound);
+        window.addEventListener(Events.applyFacet, this.onSearchOptionsChangedBound);
+        window.addEventListener(Events.applySorting, this.onSearchOptionsChangedBound);
 
         if (this.isOpen) {
             this.searchEnabledTabs(true);
@@ -123,8 +155,8 @@ export class UniversalSearch extends RelewiseLitElement {
 
     disconnectedCallback(): void {
         window.removeEventListener('keydown', this.handleWindowKeyDownBound);
-        window.removeEventListener(Events.applyFacet, this.handleSearchConfigurationChangedBound);
-        window.removeEventListener(Events.applySorting, this.handleSearchConfigurationChangedBound);
+        window.removeEventListener(Events.applyFacet, this.onSearchOptionsChangedBound);
+        window.removeEventListener(Events.applySorting, this.onSearchOptionsChangedBound);
         super.disconnectedCallback();
     }
 
@@ -208,7 +240,7 @@ export class UniversalSearch extends RelewiseLitElement {
         }
     }
 
-    handleSearchConfigurationChanged(): void {
+    onSearchOptionsChanged(): void {
         if (!this.isOpen || !this.term || !this.activeTab) {
             return;
         }
@@ -278,9 +310,10 @@ export class UniversalSearch extends RelewiseLitElement {
         const settings = await getRelewiseContextSettings(this.displayedAtLocation ?? 'Relewise Universal Search');
         this.user = settings.user;
 
-        const requestBuilder = new SearchCollectionBuilder();
+        const requests: UniversalSearchRequest[] = [];
 
         if (tabs.includes('products')) {
+            const tabSettings = universalSearchTabSettings.products;
             const requestResult = buildProductSearchRequest({
                 term: this.term,
                 settings,
@@ -289,12 +322,12 @@ export class UniversalSearch extends RelewiseLitElement {
                 productsLoaded: this.products.length,
                 productsToFetch: numberOfProductsToFetch,
                 target: this.target,
-                facetQueryKeyPrefix: QueryKeys.productFacet,
-                facetUpperboundQueryKeyPrefix: QueryKeys.productFacetUpperbound,
-                facetLowerboundQueryKeyPrefix: QueryKeys.productFacetLowerbound,
+                facetQueryKeyPrefix: tabSettings.facetQueryKeyPrefix,
+                facetUpperboundQueryKeyPrefix: tabSettings.facetUpperboundQueryKeyPrefix,
+                facetLowerboundQueryKeyPrefix: tabSettings.facetLowerboundQueryKeyPrefix,
             });
             this.productFacetLabels = requestResult.facetLabels;
-            requestBuilder.addRequest(requestResult.request);
+            requests.push({ tab: 'products', request: requestResult.request });
         }
 
         if (tabs.includes('productCategories')) {
@@ -305,7 +338,7 @@ export class UniversalSearch extends RelewiseLitElement {
                 pageSize: numberOfProductCategoriesToFetch && this.productCategories.length < 1 ? numberOfProductCategoriesToFetch : this.productCategoriesPageSize,
             });
             this.productCategoryFacetLabels = requestResult.facetLabels;
-            requestBuilder.addRequest(requestResult.request);
+            requests.push({ tab: 'productCategories', request: requestResult.request });
         }
 
         if (tabs.includes('content')) {
@@ -316,19 +349,14 @@ export class UniversalSearch extends RelewiseLitElement {
                 pageSize: numberOfContentToFetch && this.content.length < 1 ? numberOfContentToFetch : this.contentPageSize,
             });
             this.contentFacetLabels = requestResult.facetLabels;
-            requestBuilder.addRequest(requestResult.request);
+            requests.push({ tab: 'content', request: requestResult.request });
         }
 
         const abortController = new AbortController();
         this.abortController = abortController;
 
         try {
-            const response = await searcher.batch(requestBuilder.build(), { abortSignal: abortController.signal });
-            if (!response) {
-                return;
-            }
-
-            this.applySearchResponse(response);
+            await this.executeSearchRequests(searcher, requests, abortController.signal);
         } catch (error) {
             if (!abortController.signal.aborted) {
                 this.error = error instanceof Error ? error.message : this.activeLocalization?.error ?? 'Could not load results.';
@@ -340,24 +368,74 @@ export class UniversalSearch extends RelewiseLitElement {
         }
     }
 
+    private async executeSearchRequests(searcher: ReturnType<typeof getSearcher>, requests: UniversalSearchRequest[], abortSignal: AbortSignal): Promise<void> {
+        if (requests.length === 1) {
+            await this.executeSingleSearchRequest(searcher, requests[0], abortSignal);
+            return;
+        }
+
+        const requestBuilder = new SearchCollectionBuilder();
+        requests.forEach(request => requestBuilder.addRequest(request.request));
+
+        const response = await searcher.batch(requestBuilder.build(), { abortSignal });
+        if (response) {
+            this.applySearchResponse(response);
+        }
+    }
+
+    private async executeSingleSearchRequest(searcher: ReturnType<typeof getSearcher>, request: UniversalSearchRequest, abortSignal: AbortSignal): Promise<void> {
+        if (request.tab === 'products') {
+            const response = await searcher.searchProducts(request.request, { abortSignal });
+            if (response) {
+                this.applyProductSearchResponse(response);
+            }
+            return;
+        }
+
+        if (request.tab === 'productCategories') {
+            const response = await searcher.searchProductCategories(request.request, { abortSignal });
+            if (response) {
+                this.applyProductCategorySearchResponse(response);
+            }
+            return;
+        }
+
+        const response = await searcher.searchContents(request.request, { abortSignal });
+        if (response) {
+            this.applyContentSearchResponse(response);
+        }
+    }
+
     private applySearchResponse(response: SearchResponseCollection): void {
         const productSearchResult = findResponseOfType<ProductSearchResponse>(response.responses ?? undefined, responseTypes.productSearch);
         if (productSearchResult) {
-            this.productSearchResult = productSearchResult;
-            this.products = this.products.concat(productSearchResult.results ?? []);
+            this.applyProductSearchResponse(productSearchResult);
         }
 
         const productCategorySearchResult = findResponseOfType<ProductCategorySearchResponse>(response.responses ?? undefined, responseTypes.productCategorySearch);
         if (productCategorySearchResult) {
-            this.productCategorySearchResult = productCategorySearchResult;
-            this.productCategories = this.productCategories.concat(productCategorySearchResult.results ?? []);
+            this.applyProductCategorySearchResponse(productCategorySearchResult);
         }
 
         const contentSearchResult = findResponseOfType<ContentSearchResponse>(response.responses ?? undefined, responseTypes.contentSearch);
         if (contentSearchResult) {
-            this.contentSearchResult = contentSearchResult;
-            this.content = this.content.concat(contentSearchResult.results ?? []);
+            this.applyContentSearchResponse(contentSearchResult);
         }
+    }
+
+    private applyProductSearchResponse(response: ProductSearchResponse): void {
+        this.productSearchResult = response;
+        this.products = this.products.concat(response.results ?? []);
+    }
+
+    private applyProductCategorySearchResponse(response: ProductCategorySearchResponse): void {
+        this.productCategorySearchResult = response;
+        this.productCategories = this.productCategories.concat(response.results ?? []);
+    }
+
+    private applyContentSearchResponse(response: ContentSearchResponse): void {
+        this.contentSearchResult = response;
+        this.content = this.content.concat(response.results ?? []);
     }
 
     private resetPages(
@@ -406,32 +484,12 @@ export class UniversalSearch extends RelewiseLitElement {
             currentUrl.searchParams.delete(QueryKeys.term);
         }
 
-        [
-            QueryKeys.take,
-            QueryKeys.productTake,
-            QueryKeys.productCategoryTake,
-            QueryKeys.contentTake,
-        ].forEach(queryKey => currentUrl.searchParams.delete(queryKey));
-
-        const prefixesToClear = [
-            QueryKeys.facet,
-            QueryKeys.facetUpperbound,
-            QueryKeys.facetLowerbound,
-            QueryKeys.productFacet,
-            QueryKeys.productFacetUpperbound,
-            QueryKeys.productFacetLowerbound,
-            QueryKeys.productCategoryFacet,
-            QueryKeys.productCategoryFacetUpperbound,
-            QueryKeys.productCategoryFacetLowerbound,
-            QueryKeys.contentFacet,
-            QueryKeys.contentFacetUpperbound,
-            QueryKeys.contentFacetLowerbound,
-        ];
+        universalSearchTakeQueryKeys.forEach(queryKey => currentUrl.searchParams.delete(queryKey));
 
         const queryParamNames = [...new Set(Array.from(currentUrl.searchParams.keys()))];
 
         queryParamNames
-            .filter(queryParamName => prefixesToClear.some(prefix => queryParamName.startsWith(prefix)))
+            .filter(queryParamName => universalSearchFacetQueryKeyPrefixes.some(prefix => queryParamName.startsWith(prefix)))
             .forEach(queryParamName => currentUrl.searchParams.delete(queryParamName));
 
         window.history.replaceState({}, document.title, currentUrl);
@@ -573,9 +631,9 @@ export class UniversalSearch extends RelewiseLitElement {
                         part="facets"
                         exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
                         .labels=${this.productFacetLabels}
-                        .facetQueryKeyPrefix=${QueryKeys.productFacet}
-                        .facetUpperboundQueryKeyPrefix=${QueryKeys.productFacetUpperbound}
-                        .facetLowerboundQueryKeyPrefix=${QueryKeys.productFacetLowerbound}
+                        .facetQueryKeyPrefix=${universalSearchTabSettings.products.facetQueryKeyPrefix}
+                        .facetUpperboundQueryKeyPrefix=${universalSearchTabSettings.products.facetUpperboundQueryKeyPrefix}
+                        .facetLowerboundQueryKeyPrefix=${universalSearchTabSettings.products.facetLowerboundQueryKeyPrefix}
                         .facetResult=${this.productSearchResult.facets}>
                     </relewise-facets>
                 ` : nothing}
@@ -584,8 +642,8 @@ export class UniversalSearch extends RelewiseLitElement {
                         ${this.renderResultsHeader(
                             'products',
                             localization?.resultsTitle ?? 'Products',
-                            localization?.result ?? 'product',
-                            localization?.results ?? 'products',
+                            localization?.result ?? 'Result',
+                            localization?.results ?? 'Results',
                         )}
                         ${this.products.length > 0 ? html`
                             <relewise-product-search-sorting
@@ -613,9 +671,9 @@ export class UniversalSearch extends RelewiseLitElement {
                         part="facets"
                         exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
                         .labels=${this.productCategoryFacetLabels}
-                        .facetQueryKeyPrefix=${QueryKeys.productCategoryFacet}
-                        .facetUpperboundQueryKeyPrefix=${QueryKeys.productCategoryFacetUpperbound}
-                        .facetLowerboundQueryKeyPrefix=${QueryKeys.productCategoryFacetLowerbound}
+                        .facetQueryKeyPrefix=${universalSearchTabSettings.productCategories.facetQueryKeyPrefix}
+                        .facetUpperboundQueryKeyPrefix=${universalSearchTabSettings.productCategories.facetUpperboundQueryKeyPrefix}
+                        .facetLowerboundQueryKeyPrefix=${universalSearchTabSettings.productCategories.facetLowerboundQueryKeyPrefix}
                         .facetResult=${this.productCategorySearchResult.facets}>
                     </relewise-facets>
                 ` : nothing}
@@ -624,8 +682,8 @@ export class UniversalSearch extends RelewiseLitElement {
                         ${this.renderResultsHeader(
                             'productCategories',
                             localization?.resultsTitle ?? 'Categories',
-                            localization?.result ?? 'category',
-                            localization?.results ?? 'categories',
+                            localization?.result ?? 'Result',
+                            localization?.results ?? 'Results',
                         )}
                     </header>
                     ${this.renderProductCategoryResults()}
@@ -645,9 +703,9 @@ export class UniversalSearch extends RelewiseLitElement {
                         part="facets"
                         exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
                         .labels=${this.contentFacetLabels}
-                        .facetQueryKeyPrefix=${QueryKeys.contentFacet}
-                        .facetUpperboundQueryKeyPrefix=${QueryKeys.contentFacetUpperbound}
-                        .facetLowerboundQueryKeyPrefix=${QueryKeys.contentFacetLowerbound}
+                        .facetQueryKeyPrefix=${universalSearchTabSettings.content.facetQueryKeyPrefix}
+                        .facetUpperboundQueryKeyPrefix=${universalSearchTabSettings.content.facetUpperboundQueryKeyPrefix}
+                        .facetLowerboundQueryKeyPrefix=${universalSearchTabSettings.content.facetLowerboundQueryKeyPrefix}
                         .facetResult=${this.contentSearchResult.facets}>
                     </relewise-facets>
                 ` : nothing}
@@ -656,8 +714,8 @@ export class UniversalSearch extends RelewiseLitElement {
                         ${this.renderResultsHeader(
                             'content',
                             localization?.resultsTitle ?? 'Content',
-                            localization?.result ?? 'content result',
-                            localization?.results ?? 'content results',
+                            localization?.result ?? 'Result',
+                            localization?.results ?? 'Results',
                         )}
                     </header>
                     ${this.renderContentResults()}

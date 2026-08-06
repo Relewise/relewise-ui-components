@@ -79,11 +79,15 @@ function contentSearchResponse(results: ContentResult[], hits = results.length) 
 
 suite('relewise-universal-search', () => {
     const originalSearchProducts = Searcher.prototype.searchProducts;
+    const originalSearchProductCategories = Searcher.prototype.searchProductCategories;
+    const originalSearchContents = Searcher.prototype.searchContents;
     const originalBatch = Searcher.prototype.batch;
 
     setup(() => {
         clearUrlState();
         Searcher.prototype.searchProducts = originalSearchProducts;
+        Searcher.prototype.searchProductCategories = originalSearchProductCategories;
+        Searcher.prototype.searchContents = originalSearchContents;
         Searcher.prototype.batch = originalBatch;
         useSearch({ debounceTimeInMs: 0, universalSearch: {} });
     });
@@ -94,6 +98,8 @@ suite('relewise-universal-search', () => {
         window.relewiseUISearchOptions = undefined!;
         window.relewiseUIOptions = undefined!;
         Searcher.prototype.searchProducts = originalSearchProducts;
+        Searcher.prototype.searchProductCategories = originalSearchProductCategories;
+        Searcher.prototype.searchContents = originalSearchContents;
         Searcher.prototype.batch = originalBatch;
     });
 
@@ -204,12 +210,10 @@ suite('relewise-universal-search', () => {
     test('searches and renders products when products tab is configured', async () => {
         let capturedTerm: string | null = null;
 
-        Searcher.prototype.batch = async function(requestCollection) {
-            capturedTerm = (requestCollection.requests[0] as any).term ?? null;
+        Searcher.prototype.searchProducts = async function(request) {
+            capturedTerm = request.term ?? null;
 
-            return {
-                responses: [productSearchResponse([product('1')])],
-            } as any;
+            return productSearchResponse([product('1')]);
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -229,10 +233,8 @@ suite('relewise-universal-search', () => {
     });
 
     test('does not render zero results before product search responds', async () => {
-        Searcher.prototype.batch = async function() {
-            return {
-                responses: [productSearchResponse([], 0)],
-            } as any;
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([], 0);
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -252,12 +254,10 @@ suite('relewise-universal-search', () => {
     });
 
     test('clears previous products when the search term changes', async () => {
-        Searcher.prototype.batch = async function(requestCollection) {
-            const term = (requestCollection.requests[0] as any).term ?? 'missing';
+        Searcher.prototype.searchProducts = async function(request) {
+            const term = request.term ?? 'missing';
 
-            return {
-                responses: [productSearchResponse([product(term)])],
-            } as any;
+            return productSearchResponse([product(term)]);
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -281,10 +281,8 @@ suite('relewise-universal-search', () => {
     });
 
     test('clears facet URL state when the search term changes', async () => {
-        Searcher.prototype.batch = async function() {
-            return {
-                responses: [productSearchResponse([], 0)],
-            } as any;
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([], 0);
         };
 
         updateUrlStateValues(QueryKeys.facet + 'Brand', ['Adidas', 'Nike']);
@@ -318,10 +316,8 @@ suite('relewise-universal-search', () => {
     });
 
     test('uses products tab localization', async () => {
-        Searcher.prototype.batch = async function() {
-            return {
-                responses: [productSearchResponse([], 0)],
-            } as any;
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([], 0);
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -359,10 +355,8 @@ suite('relewise-universal-search', () => {
     });
 
     test('uses default labels for properties omitted from tab localization', async () => {
-        Searcher.prototype.batch = async function() {
-            return {
-                responses: [productSearchResponse([], 0)],
-            } as any;
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([], 0);
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -388,19 +382,17 @@ suite('relewise-universal-search', () => {
         assert.include(el.shadowRoot!.querySelector('[part="tab"]')?.textContent ?? '', 'Items');
         assert.include(el.shadowRoot!.querySelector('[part="results-summary"]')?.textContent ?? '', 'Search results for');
         assert.equal(el.shadowRoot!.querySelector('[part="results-title"]')?.textContent?.trim(), 'Products');
-        assert.equal(el.shadowRoot!.querySelector('[part="results-count"]')?.textContent?.trim(), '0 products');
+        assert.equal(el.shadowRoot!.querySelector('[part="results-count"]')?.textContent?.trim(), '0 Results');
         assert.equal(el.shadowRoot!.querySelector('[part="zero-results"]')?.textContent?.trim(), 'No products found.');
     });
 
     test('loads more products using scoped take URL state', async () => {
         let searchCount = 0;
 
-        Searcher.prototype.batch = async function() {
+        Searcher.prototype.searchProducts = async function() {
             searchCount++;
 
-            return {
-                responses: [productSearchResponse(searchCount === 1 ? [product('1'), product('2')] : [product('3')], 3)],
-            } as any;
+            return productSearchResponse(searchCount === 1 ? [product('1'), product('2')] : [product('3')], 3);
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -424,14 +416,12 @@ suite('relewise-universal-search', () => {
     test('continues product load more from an existing scoped take URL state', async () => {
         let searchCount = 0;
 
-        Searcher.prototype.batch = async function() {
+        Searcher.prototype.searchProducts = async function() {
             searchCount++;
 
-            return {
-                responses: [productSearchResponse(searchCount === 1
-                    ? [product('1'), product('2'), product('3'), product('4')]
-                    : [product('5'), product('6')], 6)],
-            } as any;
+            return productSearchResponse(searchCount === 1
+                ? [product('1'), product('2'), product('3'), product('4')]
+                : [product('5'), product('6')], 6);
         };
 
         updateUrlState(QueryKeys.term, 'shoe');
@@ -455,12 +445,10 @@ suite('relewise-universal-search', () => {
     test('loads more content using scoped take URL state', async () => {
         let searchCount = 0;
 
-        Searcher.prototype.batch = async function() {
+        Searcher.prototype.searchContents = async function() {
             searchCount++;
 
-            return {
-                responses: [contentSearchResponse(searchCount === 1 ? [content('1'), content('2')] : [content('3')], 3)],
-            } as any;
+            return contentSearchResponse(searchCount === 1 ? [content('1'), content('2')] : [content('3')], 3);
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -482,14 +470,12 @@ suite('relewise-universal-search', () => {
     test('continues content load more from an existing scoped take URL state', async () => {
         let searchCount = 0;
 
-        Searcher.prototype.batch = async function() {
+        Searcher.prototype.searchContents = async function() {
             searchCount++;
 
-            return {
-                responses: [contentSearchResponse(searchCount === 1
-                    ? [content('1'), content('2'), content('3'), content('4')]
-                    : [content('5'), content('6')], 6)],
-            } as any;
+            return contentSearchResponse(searchCount === 1
+                ? [content('1'), content('2'), content('3'), content('4')]
+                : [content('5'), content('6')], 6);
         };
 
         updateUrlState(QueryKeys.term, 'guide');
@@ -513,12 +499,10 @@ suite('relewise-universal-search', () => {
     test('loads more product categories using scoped take URL state', async () => {
         let searchCount = 0;
 
-        Searcher.prototype.batch = async function() {
+        Searcher.prototype.searchProductCategories = async function() {
             searchCount++;
 
-            return {
-                responses: [productCategorySearchResponse(searchCount === 1 ? [productCategory('1'), productCategory('2')] : [productCategory('3')], 3)],
-            } as any;
+            return productCategorySearchResponse(searchCount === 1 ? [productCategory('1'), productCategory('2')] : [productCategory('3')], 3);
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -582,14 +566,10 @@ suite('relewise-universal-search', () => {
     test('includes configured product category facets in product category requests', async () => {
         let facetItems: any[] | undefined;
 
-        Searcher.prototype.batch = async function(requestCollection) {
-            facetItems = (requestCollection.requests[0] as any).facets?.items;
+        Searcher.prototype.searchProductCategories = async function(request) {
+            facetItems = (request as any).facets?.items;
 
-            return {
-                responses: [
-                    productCategorySearchResponse([productCategory('1')]),
-                ],
-            } as any;
+            return productCategorySearchResponse([productCategory('1')]);
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -619,14 +599,21 @@ suite('relewise-universal-search', () => {
     });
 
     test('does not request disabled tabs', async () => {
-        let requestCount = 0;
+        let batchRequestCount = 0;
+        let contentRequestCount = 0;
 
         Searcher.prototype.batch = async function(requestCollection) {
-            requestCount = requestCollection.requests.length;
+            batchRequestCount = requestCollection.requests.length;
 
             return {
-                responses: [contentSearchResponse([content('1')])],
+                responses: [],
             } as any;
+        };
+
+        Searcher.prototype.searchContents = async function() {
+            contentRequestCount++;
+
+            return contentSearchResponse([content('1')]);
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -646,7 +633,8 @@ suite('relewise-universal-search', () => {
         el.setSearchTerm('shoe');
         await waitUntil(() => el.content.length === 1, 'content result was not loaded');
 
-        assert.equal(requestCount, 1);
+        assert.equal(batchRequestCount, 0);
+        assert.equal(contentRequestCount, 1);
         assert.equal(el.products.length, 0);
         assert.equal(el.productCategories.length, 0);
         assert.equal(el.shadowRoot!.querySelectorAll('[part="tab"]').length, 1);
@@ -654,22 +642,23 @@ suite('relewise-universal-search', () => {
 
     test('searches only the active tab when search configuration changes', async () => {
         const requestCounts: number[] = [];
+        let contentSearchCount = 0;
 
         Searcher.prototype.batch = async function(requestCollection) {
             requestCounts.push(requestCollection.requests.length);
 
-            if (requestCollection.requests.length === 2) {
-                return {
-                    responses: [
-                        productSearchResponse([product('1')]),
-                        contentSearchResponse([content('1')]),
-                    ],
-                } as any;
-            }
-
             return {
-                responses: [contentSearchResponse([content('2')])],
+                responses: [
+                    productSearchResponse([product('1')]),
+                    contentSearchResponse([content('1')]),
+                ],
             } as any;
+        };
+
+        Searcher.prototype.searchContents = async function() {
+            contentSearchCount++;
+
+            return contentSearchResponse([content('2')]);
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -695,7 +684,8 @@ suite('relewise-universal-search', () => {
 
         await waitUntil(() => el.content.length === 1 && el.content[0].contentId === '2', 'active tab search did not replace content results');
 
-        assert.deepEqual(requestCounts, [2, 1]);
+        assert.deepEqual(requestCounts, [2]);
+        assert.equal(contentSearchCount, 1);
         assert.equal(el.products.length, 1);
         assert.equal(el.products[0].productId, '1');
     });
