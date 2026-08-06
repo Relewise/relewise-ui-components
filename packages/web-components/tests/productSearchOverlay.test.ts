@@ -100,4 +100,31 @@ suite('product search overlay', () => {
         assert.equal(blurCalls, 1);
         assert.exists(el.shadowRoot!.querySelector('relewise-product-search-overlay-results'));
     });
+
+    test('closes the search keyboard when touching and scrolling light DOM results', async() => {
+        const options = mockRelewiseOptions();
+        options.components = {
+            domMode: 'light',
+        };
+        initializeRelewiseUI(options).useSearch();
+        const el = await fixture<ProductSearchOverlay>(html`<relewise-product-search-overlay></relewise-product-search-overlay>`);
+
+        el.term = 'shoe';
+        el.hasCompletedSearchRequest = true;
+        el.results = [{ searchTermPrediction: { term: 'shoes' } as any }];
+        el.searchBarInFocus = true;
+        await el.updateComplete;
+
+        const searchBar = el.querySelector('relewise-search-bar')!;
+        let blurCalls = 0;
+        searchBar.blurSearchInput = () => blurCalls++;
+
+        const results = el.querySelector('relewise-product-search-overlay-results')!;
+        await (results as HTMLElement & { updateComplete: Promise<boolean> }).updateComplete;
+        results.querySelector('.rw-result-container')!.dispatchEvent(new Event('touchmove', { bubbles: true, composed: true }));
+        await el.updateComplete;
+
+        assert.equal(blurCalls, 1);
+        assert.exists(el.querySelector('relewise-product-search-overlay-results'));
+    });
 });

@@ -166,7 +166,7 @@ export class ProductSearchOverlay extends RelewiseLitElement {
 
     closeSearchKeyboard() {
         this.resultBoxIsHovered = true;
-        const searchBar = this.shadowRoot?.querySelector('relewise-search-bar');
+        const searchBar = this.renderRoot.querySelector('relewise-search-bar');
         searchBar?.blurSearchInput();
     }
 
