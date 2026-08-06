@@ -29,6 +29,9 @@ export class ProductSearchOverlayResults extends RelewiseLitElement {
     @property()
     setResultOverlayHovered = (hovered: boolean) => { };
 
+    @property()
+    closeSearchKeyboard = () => { };
+
     @property({ type: Object })
     user: User | null = null;
 
@@ -56,6 +59,9 @@ export class ProductSearchOverlayResults extends RelewiseLitElement {
 
         return html`
             <div class="rw-result-container rw-border" part="overlay"
+                @pointerdown=${() => this.setResultOverlayHovered(true)}
+                @touchstart=${() => this.setResultOverlayHovered(true)}
+                @touchmove=${() => this.closeSearchKeyboard()}
                 @mouseover=${() => this.setResultOverlayHovered(true)}
                 @mouseleave=${() => this.setResultOverlayHovered(false)}>
                 ${(!this.results ||
