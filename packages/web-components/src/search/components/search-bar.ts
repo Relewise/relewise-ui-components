@@ -34,16 +34,9 @@ export class SearchBar extends RelewiseLitElement {
     }
 
     focusSearchInput() {
-        const searchInput = this.renderRoot.querySelector<HTMLInputElement>('#search-input');
+        const searchInput = this.shadowRoot?.getElementById('search-input');
         if (searchInput) {
             searchInput.focus();
-        }
-    }
-
-    blurSearchInput() {
-        const searchInput = this.renderRoot.querySelector<HTMLInputElement>('#search-input');
-        if (searchInput) {
-            searchInput.blur();
         }
     }
 
