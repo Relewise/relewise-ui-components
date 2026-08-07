@@ -96,6 +96,12 @@ export class ProductSearchOverlay extends RelewiseLitElement {
     }
 
     handleKeyDown(event: KeyboardEvent): void {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            this.closeOverlay();
+            return;
+        }
+
         if (!this.results) {
             return;
         }
@@ -123,6 +129,12 @@ export class ProductSearchOverlay extends RelewiseLitElement {
                 this.handleActionOnResult(this.results[this.selectedIndex]);
                 break;
         }
+    }
+
+    closeOverlay() {
+        this.searchBarInFocus = false;
+        this.resultBoxIsHovered = false;
+        this.renderRoot.querySelector('relewise-search-bar')?.blurSearchInput();
     }
 
     redirectToSearchPage(termOverride?: string): boolean {
