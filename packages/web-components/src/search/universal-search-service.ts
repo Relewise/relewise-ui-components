@@ -1,40 +1,48 @@
-import { User } from '@relewise/client';
+import { SearchCollectionBuilder, User } from '@relewise/client';
 import { getRelewiseContextSettings, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getSearcher } from './searcher';
-import { buildUniversalSearchRequests } from './universal-search-request-builder';
-import { executeUniversalSearchRequests } from './universal-search-request-executor';
-import type { UniversalSearchRequestBuilderOptions } from './universal-search-request-builder';
-import type { UniversalSearchResponses } from './universal-search.types';
+import type { UniversalSearchEntity, UniversalSearchPreparedRequest } from './universal-search-entity-registry';
 
-export type UniversalSearchServiceOptions = Omit<UniversalSearchRequestBuilderOptions, 'settings'> & {
+export type UniversalSearchServiceOptions = {
+    entities: UniversalSearchEntity[];
+    term: string;
+    target: string | null;
     displayedAtLocation?: string;
     abortSignal: AbortSignal;
 };
 
 export type UniversalSearchServiceResult = {
-    responses: UniversalSearchResponses;
     user: User | null;
-    productFacetLabels: string[];
-    productCategoryFacetLabels: string[];
-    contentFacetLabels: string[];
 };
 
-export async function searchUniversalSearchTabs(options: UniversalSearchServiceOptions): Promise<UniversalSearchServiceResult> {
+export async function searchUniversalSearchEntities(options: UniversalSearchServiceOptions): Promise<UniversalSearchServiceResult> {
     const relewiseUIOptions = getRelewiseUIOptions();
     const searcher = getSearcher(relewiseUIOptions);
 
     await new Promise(r => setTimeout(r, 0));
     const settings = await getRelewiseContextSettings(options.displayedAtLocation ?? 'Relewise Universal Search');
-    const requestResult = buildUniversalSearchRequests({
-        ...options,
-        settings,
-    });
+    const requests = options.entities.map(entity => entity.prepareRequest(options.term, settings, options.target));
 
-    return {
-        responses: await executeUniversalSearchRequests(searcher, requestResult.requests, options.abortSignal),
-        user: settings.user,
-        productFacetLabels: requestResult.productFacetLabels,
-        productCategoryFacetLabels: requestResult.productCategoryFacetLabels,
-        contentFacetLabels: requestResult.contentFacetLabels,
-    };
+    await executeUniversalSearchRequests(searcher, requests, options.abortSignal);
+
+    return { user: settings.user };
+}
+
+async function executeUniversalSearchRequests(
+    searcher: ReturnType<typeof getSearcher>,
+    requests: UniversalSearchPreparedRequest[],
+    abortSignal: AbortSignal,
+): Promise<void> {
+    if (requests.length === 1) {
+        await requests[0].executeSingle(searcher, abortSignal);
+        return;
+    }
+
+    const requestBuilder = new SearchCollectionBuilder();
+    requests.forEach(request => requestBuilder.addRequest(request.request));
+    const response = await searcher.batch(requestBuilder.build(), { abortSignal });
+
+    if (!abortSignal.aborted && response) {
+        requests.forEach(request => request.applyBatchResponse(response));
+    }
 }

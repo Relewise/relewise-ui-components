@@ -1331,7 +1331,7 @@ The builder is a type exposed from the [relewise-sdk-javascript](https://github.
 For more examples and information about relevance modifiers visit the official [docs](https://docs.relewise.com/).
 
 ## Template overwriting
-It is possible to overwrite the template used for rendering products and/or content. This is done using [lit templating](https://lit.dev/docs/templates/overview/).
+It is possible to overwrite the templates used for rendering products, product categories, and content. This is done using [lit templating](https://lit.dev/docs/templates/overview/).
 When the template is overwritten, the corresponding tile skips attaching default CSS styles on the tile, so your template has full control over layout and presentation.
 If no custom template is provided, it will render using the default template.
 
@@ -1393,6 +1393,26 @@ initializeRelewiseUI({
                             : helpers.nothing}
                     </div>
                 </div>`;
+        },
+    },
+});
+```
+
+### Product category template
+You can also override the product category template. The same template is used by every `relewise-category-tile`, including product category results in Universal Search.
+
+```ts
+initializeRelewiseUI({
+    ...
+    templates: {
+        productCategory: (category, { html, helpers }) => {
+            return html`
+                <a href=${category.data?.Url?.value ?? ''}>
+                    ${category.data?.ImageUrl?.value
+                        ? html`<img src=${category.data.ImageUrl.value} alt=${category.displayName ?? ''} />`
+                        : helpers.nothing}
+                    <span>${category.displayName}</span>
+                </a>`;
         },
     },
 });

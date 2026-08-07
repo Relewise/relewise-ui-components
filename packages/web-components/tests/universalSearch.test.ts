@@ -1,6 +1,8 @@
 import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
 import { ContentResult, ProductCategoryResult, ProductResult, Searcher } from '@relewise/client';
-import { Button, clearUrlState, UniversalSearch, initializeRelewiseUI, QueryKeys, readCurrentUrlState, updateUrlState, updateUrlStateValues, useSearch } from '../src';
+import { Button, clearUrlState, UniversalSearch, UniversalSearchTab, initializeRelewiseUI, QueryKeys, readCurrentUrlState, universalSearchTabs, updateUrlState, updateUrlStateValues, useSearch } from '../src';
+import type { UniversalSearchEntity } from '../src/search/universal-search-entity-registry';
+import { UniversalSearchTabId } from '../src/search/universal-search-tab-settings';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 function product(productId: string): ProductResult {
@@ -77,6 +79,35 @@ function contentSearchResponse(results: ContentResult[], hits = results.length, 
     };
 }
 
+type UniversalSearchTestApi = {
+    term: string;
+    activeTab: UniversalSearchTab | null;
+    setSearchTerm: (term: string) => void;
+    handleSelectTab: (tab: UniversalSearchTab) => void;
+    handleLoadMoreActiveTab: () => Promise<void>;
+    onSearchOptionsChanged: () => void;
+};
+
+function internals(element: UniversalSearch): UniversalSearchTestApi {
+    return element as unknown as UniversalSearchTestApi;
+}
+
+function entityState(element: UniversalSearch, tab: UniversalSearchTab): UniversalSearchEntity {
+    return (element as unknown as { entities: Record<UniversalSearchTab, UniversalSearchEntity> }).entities[tab];
+}
+
+function products(element: UniversalSearch): ProductResult[] {
+    return entityState(element, UniversalSearchTabId.products).results as ProductResult[];
+}
+
+function productCategories(element: UniversalSearch): ProductCategoryResult[] {
+    return entityState(element, UniversalSearchTabId.productCategories).results as ProductCategoryResult[];
+}
+
+function contentResults(element: UniversalSearch): ContentResult[] {
+    return entityState(element, UniversalSearchTabId.content).results as ContentResult[];
+}
+
 suite('relewise-universal-search', () => {
     const originalSearchProducts = Searcher.prototype.searchProducts;
     const originalSearchProductCategories = Searcher.prototype.searchProductCategories;
@@ -103,6 +134,14 @@ suite('relewise-universal-search', () => {
         Searcher.prototype.batch = originalBatch;
     });
 
+    test('derives the ordered tabs from the supported entity ids', () => {
+        assert.deepEqual(universalSearchTabs, [
+            UniversalSearchTabId.products,
+            UniversalSearchTabId.productCategories,
+            UniversalSearchTabId.content,
+        ]);
+    });
+
     test('is registered through useSearch', () => {
         assert.isDefined(customElements.get('relewise-universal-search'));
     });
@@ -114,7 +153,7 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search"></relewise-universal-search>
         `) as UniversalSearch;
 
-        assert.equal(el.term, 'shoe');
+        assert.equal(internals(el).term, 'shoe');
         assert.isFalse(el.isOpen);
         assert.isFalse(el.hasAttribute('open'));
     });
@@ -196,7 +235,7 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search"></relewise-universal-search>
         `) as UniversalSearch;
 
-        debouncingElement.setSearchTerm('boot');
+        internals(debouncingElement).setSearchTerm('boot');
         debouncingElement.remove();
         await new Promise(resolve => setTimeout(resolve, 30));
 
@@ -210,6 +249,40 @@ suite('relewise-universal-search', () => {
 
         assert.isTrue(el.isOpen);
         assert.isNotNull(el.shadowRoot!.querySelector('[role="dialog"]'));
+    });
+
+    test('runs open and close lifecycle when the open attribute changes', async () => {
+        let searchCount = 0;
+        let abortSignal: AbortSignal | null = null;
+
+        Searcher.prototype.searchProducts = async function(_request, options) {
+            searchCount++;
+            abortSignal = options?.abortSignal ?? null;
+            return productSearchResponse([product('1')]);
+        };
+
+        updateUrlState(QueryKeys.term, 'shoe');
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: {} } } });
+
+        const opener = await fixture<HTMLButtonElement>(html`<button type="button">Open search</button>`);
+        opener.focus();
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search"></relewise-universal-search>
+        `) as UniversalSearch;
+
+        el.setAttribute('open', '');
+        await waitUntil(() => searchCount === 1, 'search was not started after adding the open attribute');
+
+        assert.isTrue(el.isOpen);
+        assert.isNotNull(el.shadowRoot!.querySelector('[role="dialog"]'));
+
+        el.removeAttribute('open');
+        await el.updateComplete;
+
+        assert.isFalse(el.isOpen);
+        assert.isTrue(abortSignal!.aborted);
+        assert.equal(document.activeElement, opener);
     });
 
     test('uses universal-search localization', async () => {
@@ -235,7 +308,7 @@ suite('relewise-universal-search', () => {
         assert.equal(closeButton?.getAttribute('button-text'), 'Luk');
         assert.equal(emptyState?.textContent?.trim(), 'Begynd at søge.');
 
-        el.setSearchTerm('sko');
+        internals(el).setSearchTerm('sko');
         await waitUntil(() => el.shadowRoot!.textContent?.includes('Ingen faner konfigureret.'), 'no tabs text was not localized');
     });
 
@@ -255,7 +328,7 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
+        internals(el).setSearchTerm('shoe');
 
         await waitUntil(() => readCurrentUrlState(QueryKeys.term) === 'shoe', 'term was not written to URL state');
     });
@@ -314,8 +387,8 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
-        await waitUntil(() => el.products.length === 1, 'default product results were not loaded');
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el).length === 1, 'default product results were not loaded');
 
         assert.equal(productSearchCount, 1);
         assert.equal(productCategorySearchCount, 0);
@@ -349,9 +422,9 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
+        internals(el).setSearchTerm('shoe');
 
-        await waitUntil(() => el.products.length === 1, 'products were not rendered');
+        await waitUntil(() => products(el).length === 1, 'products were not rendered');
 
         assert.equal(capturedTerm, 'shoe');
         assert.isNotNull(el.shadowRoot!.querySelector('[part="tabs"]'));
@@ -370,7 +443,7 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
+        internals(el).setSearchTerm('shoe');
         await el.updateComplete;
 
         assert.isNull(el.shadowRoot!.querySelector('[part="zero-results"]'));
@@ -393,17 +466,75 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
-        await waitUntil(() => el.products.length === 1, 'initial products were not rendered');
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el).length === 1, 'initial products were not rendered');
 
-        el.setSearchTerm('boot');
+        internals(el).setSearchTerm('boot');
         await el.updateComplete;
 
-        assert.equal(el.products.length, 0);
+        assert.equal(products(el).length, 0);
         assert.equal(el.shadowRoot!.querySelectorAll('relewise-product-tile').length, 0);
 
-        await waitUntil(() => el.products.length === 1, 'new products were not rendered');
-        assert.equal(el.products[0].productId, 'boot');
+        await waitUntil(() => products(el).length === 1, 'new products were not rendered');
+        assert.equal(products(el)[0].productId, 'boot');
+    });
+
+    test('ignores an aborted response that resolves after a newer search', async () => {
+        const pendingResponses = new Map<string, (response: ReturnType<typeof productSearchResponse>) => void>();
+
+        Searcher.prototype.searchProducts = function(request) {
+            return new Promise(resolve => pendingResponses.set(request.term ?? '', resolve));
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: {} } } });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => pendingResponses.has('shoe'), 'first search was not started');
+
+        internals(el).setSearchTerm('boot');
+        await waitUntil(() => pendingResponses.has('boot'), 'second search was not started');
+
+        pendingResponses.get('shoe')!(productSearchResponse([product('stale')]));
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        assert.equal(products(el).length, 0);
+
+        pendingResponses.get('boot')!(productSearchResponse([product('current')]));
+        await waitUntil(() => products(el).length === 1, 'current search response was not applied');
+
+        assert.equal(products(el)[0].productId, 'current');
+    });
+
+    test('recreates facet and sorting controls when the search term changes', async () => {
+        Searcher.prototype.searchProducts = async function(request) {
+            return productSearchResponse([product(request.term ?? 'missing')], 1, { items: [] });
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: {} } } });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el)[0]?.productId === 'shoe', 'initial controls were not rendered');
+
+        const initialFacets = el.shadowRoot!.querySelector('relewise-facets');
+        const initialSorting = el.shadowRoot!.querySelector('relewise-product-search-sorting');
+        assert.isNotNull(initialFacets);
+        assert.isNotNull(initialSorting);
+
+        internals(el).setSearchTerm('boot');
+        await waitUntil(() => products(el)[0]?.productId === 'boot', 'updated controls were not rendered');
+
+        assert.notEqual(el.shadowRoot!.querySelector('relewise-facets'), initialFacets);
+        assert.notEqual(el.shadowRoot!.querySelector('relewise-product-search-sorting'), initialSorting);
     });
 
     test('clears facet URL state when the search term changes', async () => {
@@ -428,7 +559,7 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('boot');
+        internals(el).setSearchTerm('boot');
 
         await waitUntil(() => readCurrentUrlState(QueryKeys.term) === 'boot', 'term was not written to URL state');
 
@@ -471,7 +602,7 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('sko');
+        internals(el).setSearchTerm('sko');
         await waitUntil(() => el.shadowRoot!.querySelector('[part="zero-results"]') !== null, 'zero-results was not rendered');
 
         assert.equal(el.shadowRoot!.querySelector('[part="tabs"]')?.getAttribute('aria-label'), 'Søgeresultatfaner');
@@ -504,7 +635,7 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
+        internals(el).setSearchTerm('shoe');
         await waitUntil(() => el.shadowRoot!.querySelector('[part="zero-results"]') !== null, 'zero-results was not rendered');
 
         assert.include(el.shadowRoot!.querySelector('[part="tab"]')?.textContent ?? '', 'Items');
@@ -543,19 +674,19 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
+        internals(el).setSearchTerm('shoe');
         await waitUntil(
-            () => el.productSearchResult !== null && el.productCategorySearchResult !== null && el.contentSearchResult !== null,
+            () => universalSearchTabs.every(tab => entityState(el, tab).response !== null),
             'zero-result searches did not complete',
         );
 
         assert.isNotNull(el.shadowRoot!.querySelector('relewise-facets'));
 
-        el.handleSelectTab('productCategories');
+        internals(el).handleSelectTab('productCategories');
         await el.updateComplete;
         assert.isNotNull(el.shadowRoot!.querySelector('relewise-facets'));
 
-        el.handleSelectTab('content');
+        internals(el).handleSelectTab('content');
         await el.updateComplete;
         assert.isNotNull(el.shadowRoot!.querySelector('relewise-facets'));
     });
@@ -576,11 +707,11 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
-        await waitUntil(() => el.products.length === 2, 'initial products were not rendered');
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el).length === 2, 'initial products were not rendered');
 
-        el.handleLoadMoreActiveTab();
-        await waitUntil(() => el.products.length === 3, 'more products were not appended');
+        internals(el).handleLoadMoreActiveTab();
+        await waitUntil(() => products(el).length === 3, 'more products were not appended');
 
         assert.equal(readCurrentUrlState(QueryKeys.productTake), '4');
         assert.isNull(readCurrentUrlState(QueryKeys.take));
@@ -608,21 +739,21 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
-        await waitUntil(() => el.products.length === 2, 'initial products were not rendered');
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el).length === 2, 'initial products were not rendered');
 
-        el.handleLoadMoreActiveTab();
-        el.handleLoadMoreActiveTab();
+        internals(el).handleLoadMoreActiveTab();
+        internals(el).handleLoadMoreActiveTab();
         await waitUntil(() => searchCount === 2, 'load-more request was not started');
         await el.updateComplete;
 
         assert.equal(searchCount, 2);
-        assert.equal(el.productPage, 2);
+        assert.equal(entityState(el, UniversalSearchTabId.products).page, 2);
         assert.isNull(readCurrentUrlState(QueryKeys.productTake));
         assert.isNull(el.shadowRoot!.querySelector('[part="load-more"]'));
 
         resolveLoadMore(productSearchResponse([product('3'), product('4')], 6));
-        await waitUntil(() => el.products.length === 4, 'load-more products were not rendered');
+        await waitUntil(() => products(el).length === 4, 'load-more products were not rendered');
         assert.equal(readCurrentUrlState(QueryKeys.productTake), '4');
     });
 
@@ -650,20 +781,20 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
-        await waitUntil(() => el.products.length === 2, 'initial products were not rendered');
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el).length === 2, 'initial products were not rendered');
 
-        await el.handleLoadMoreActiveTab();
+        await internals(el).handleLoadMoreActiveTab();
 
-        assert.equal(el.productPage, 1);
+        assert.equal(entityState(el, UniversalSearchTabId.products).page, 1);
         assert.isNull(readCurrentUrlState(QueryKeys.productTake));
 
-        await el.handleLoadMoreActiveTab();
+        await internals(el).handleLoadMoreActiveTab();
 
         assert.deepEqual(requestedPages, [1, 2, 2]);
-        assert.equal(el.productPage, 2);
+        assert.equal(entityState(el, UniversalSearchTabId.products).page, 2);
         assert.equal(readCurrentUrlState(QueryKeys.productTake), '4');
-        assert.deepEqual(el.products.map(result => result.productId), ['1', '2', '3', '4']);
+        assert.deepEqual(products(el).map(result => result.productId), ['1', '2', '3', '4']);
     });
 
     test('continues product load more from an existing scoped take URL state', async () => {
@@ -687,10 +818,10 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        await waitUntil(() => el.products.length === 4, 'initial URL take was not loaded');
+        await waitUntil(() => products(el).length === 4, 'initial URL take was not loaded');
 
-        el.handleLoadMoreActiveTab();
-        await waitUntil(() => el.products.length === 6, 'more products were not appended after URL take');
+        internals(el).handleLoadMoreActiveTab();
+        await waitUntil(() => products(el).length === 6, 'more products were not appended after URL take');
 
         assert.equal(readCurrentUrlState(QueryKeys.productTake), '6');
     });
@@ -711,11 +842,11 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('guide');
-        await waitUntil(() => el.content.length === 2, 'initial content was not rendered');
+        internals(el).setSearchTerm('guide');
+        await waitUntil(() => contentResults(el).length === 2, 'initial content was not rendered');
 
-        el.handleLoadMoreActiveTab();
-        await waitUntil(() => el.content.length === 3, 'more content was not appended');
+        internals(el).handleLoadMoreActiveTab();
+        await waitUntil(() => contentResults(el).length === 3, 'more content was not appended');
 
         assert.equal(readCurrentUrlState(QueryKeys.contentTake), '4');
     });
@@ -741,10 +872,10 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        await waitUntil(() => el.content.length === 4, 'initial content URL take was not loaded');
+        await waitUntil(() => contentResults(el).length === 4, 'initial content URL take was not loaded');
 
-        el.handleLoadMoreActiveTab();
-        await waitUntil(() => el.content.length === 6, 'more content was not appended after URL take');
+        internals(el).handleLoadMoreActiveTab();
+        await waitUntil(() => contentResults(el).length === 6, 'more content was not appended after URL take');
 
         assert.equal(readCurrentUrlState(QueryKeys.contentTake), '6');
     });
@@ -765,11 +896,11 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
-        await waitUntil(() => el.productCategories.length === 2, 'initial product categories were not rendered');
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => productCategories(el).length === 2, 'initial product categories were not rendered');
 
-        el.handleLoadMoreActiveTab();
-        await waitUntil(() => el.productCategories.length === 3, 'more product categories were not appended');
+        internals(el).handleLoadMoreActiveTab();
+        await waitUntil(() => productCategories(el).length === 3, 'more product categories were not appended');
 
         assert.equal(readCurrentUrlState(QueryKeys.productCategoryTake), '4');
     });
@@ -803,8 +934,8 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
-        await waitUntil(() => el.productCategories.length === 1 && el.content.length === 1, 'category and content results were not loaded');
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => productCategories(el).length === 1 && contentResults(el).length === 1, 'category and content results were not loaded');
 
         assert.equal(requestCount, 2);
         const tabs = [...el.shadowRoot!.querySelectorAll<HTMLElement>('[part="tab"]')];
@@ -821,12 +952,46 @@ suite('relewise-universal-search', () => {
 
         const selectedTab = el.shadowRoot!.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')!;
         const panel = el.shadowRoot!.querySelector<HTMLElement>('[role="tabpanel"]')!;
-        assert.equal(el.activeTab, 'content');
+        assert.equal(internals(el).activeTab, 'content');
         assert.equal(el.shadowRoot!.activeElement, selectedTab);
         assert.equal(selectedTab.tabIndex, 0);
         assert.equal(panel.getAttribute('aria-labelledby'), selectedTab.id);
         assert.equal(selectedTab.getAttribute('aria-controls'), panel.id);
         assert.equal(el.shadowRoot!.querySelectorAll('relewise-content-tile').length, 1);
+    });
+
+    test('renders enabled tabs in configuration order', async () => {
+        Searcher.prototype.batch = async function() {
+            return {
+                responses: [
+                    contentSearchResponse([content('1')]),
+                    productSearchResponse([product('1')]),
+                ],
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: {
+                    content: {},
+                    products: {},
+                },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => contentResults(el).length === 1 && products(el).length === 1, 'tab results were not loaded');
+
+        const tabs = [...el.shadowRoot!.querySelectorAll<HTMLElement>('[part="tab"]')];
+        assert.include(tabs[0].textContent ?? '', 'Content');
+        assert.include(tabs[1].textContent ?? '', 'Products');
+        assert.equal(internals(el).activeTab, UniversalSearchTabId.content);
     });
 
     test('includes configured product category facets in product category requests', async () => {
@@ -857,11 +1022,11 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
-        await waitUntil(() => el.productCategories.length === 1, 'category result was not loaded');
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => productCategories(el).length === 1, 'category result was not loaded');
 
         assert.equal(facetItems?.[0].key, 'Department');
-        assert.deepEqual(el.productCategoryFacetLabels, ['Department']);
+        assert.deepEqual(entityState(el, UniversalSearchTabId.productCategories).facetLabels, ['Department']);
     });
 
     test('does not request disabled tabs', async () => {
@@ -896,13 +1061,13 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
-        await waitUntil(() => el.content.length === 1, 'content result was not loaded');
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => contentResults(el).length === 1, 'content result was not loaded');
 
         assert.equal(batchRequestCount, 0);
         assert.equal(contentRequestCount, 1);
-        assert.equal(el.products.length, 0);
-        assert.equal(el.productCategories.length, 0);
+        assert.equal(products(el).length, 0);
+        assert.equal(productCategories(el).length, 0);
         assert.equal(el.shadowRoot!.querySelectorAll('[part="tab"]').length, 1);
     });
 
@@ -942,19 +1107,19 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
-        await waitUntil(() => el.products.length === 1 && el.content.length === 1, 'initial batched search did not complete');
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el).length === 1 && contentResults(el).length === 1, 'initial batched search did not complete');
 
-        el.handleSelectTab('content');
+        internals(el).handleSelectTab('content');
         await el.updateComplete;
         el.shadowRoot!.querySelector<any>('relewise-facets')!.applyFacet();
 
-        await waitUntil(() => el.content.length === 1 && el.content[0].contentId === '2', 'active tab search did not replace content results');
+        await waitUntil(() => contentResults(el).length === 1 && contentResults(el)[0].contentId === '2', 'active tab search did not replace content results');
 
         assert.deepEqual(requestCounts, [2]);
         assert.equal(contentSearchCount, 1);
-        assert.equal(el.products.length, 1);
-        assert.equal(el.products[0].productId, '1');
+        assert.equal(products(el).length, 1);
+        assert.equal(products(el)[0].productId, '1');
     });
 
     test('uses localized errors without hiding successful tabs', async () => {
@@ -993,20 +1158,19 @@ suite('relewise-universal-search', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        el.setSearchTerm('shoe');
-        await waitUntil(() => el.products.length === 1 && el.content.length === 1, 'initial results did not load');
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el).length === 1 && contentResults(el).length === 1, 'initial results did not load');
 
-        el.handleSelectTab('content');
-        el.onSearchOptionsChanged();
+        internals(el).handleSelectTab('content');
+        internals(el).onSearchOptionsChanged();
         await waitUntil(() => el.shadowRoot!.querySelector('[part="error-state"]') !== null, 'localized error was not rendered');
 
         assert.equal(el.shadowRoot!.querySelector('[part="error-state"]')?.textContent, 'Could not refresh content.');
 
-        el.handleSelectTab('products');
+        internals(el).handleSelectTab('products');
         await el.updateComplete;
 
         assert.isNull(el.shadowRoot!.querySelector('[part="error-state"]'));
         assert.equal(el.shadowRoot!.querySelectorAll('relewise-product-tile').length, 1);
     });
 });
-
