@@ -1,5 +1,12 @@
 import { QueryKeys } from '../helpers';
-import { UniversalSearchTab, universalSearchTabs } from './universal-search.types';
+
+export type UniversalSearchTab = 'products' | 'productCategories' | 'content';
+export const UniversalSearchTabId = {
+    products: 'products',
+    productCategories: 'productCategories',
+    content: 'content',
+} as const satisfies { [Tab in UniversalSearchTab]: Tab };
+export const universalSearchTabs: UniversalSearchTab[] = Object.values(UniversalSearchTabId);
 
 export type UniversalSearchTabSettings = {
     takeQueryKey: string;
@@ -10,20 +17,20 @@ export type UniversalSearchTabSettings = {
 };
 
 export const universalSearchTabSettings = {
-    products: {
+    [UniversalSearchTabId.products]: {
         takeQueryKey: QueryKeys.productTake,
         sortingQueryKey: QueryKeys.productSorting,
         facetQueryKeyPrefix: QueryKeys.productFacet,
         facetUpperboundQueryKeyPrefix: QueryKeys.productFacetUpperbound,
         facetLowerboundQueryKeyPrefix: QueryKeys.productFacetLowerbound,
     },
-    productCategories: {
+    [UniversalSearchTabId.productCategories]: {
         takeQueryKey: QueryKeys.productCategoryTake,
         facetQueryKeyPrefix: QueryKeys.productCategoryFacet,
         facetUpperboundQueryKeyPrefix: QueryKeys.productCategoryFacetUpperbound,
         facetLowerboundQueryKeyPrefix: QueryKeys.productCategoryFacetLowerbound,
     },
-    content: {
+    [UniversalSearchTabId.content]: {
         takeQueryKey: QueryKeys.contentTake,
         facetQueryKeyPrefix: QueryKeys.contentFacet,
         facetUpperboundQueryKeyPrefix: QueryKeys.contentFacetUpperbound,
@@ -36,9 +43,10 @@ export const universalSearchTakeQueryKeys = [
     ...universalSearchTabs.map(tab => universalSearchTabSettings[tab].takeQueryKey),
 ];
 
-export const universalSearchSortingQueryKeys = [
-    universalSearchTabSettings.products.sortingQueryKey,
-];
+export const universalSearchSortingQueryKeys = universalSearchTabs.flatMap(tab => {
+    const settings = universalSearchTabSettings[tab];
+    return 'sortingQueryKey' in settings ? [settings.sortingQueryKey] : [];
+});
 
 export const universalSearchFacetQueryKeyPrefixes = [
     QueryKeys.facet,

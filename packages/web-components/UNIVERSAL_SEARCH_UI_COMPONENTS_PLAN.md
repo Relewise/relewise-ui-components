@@ -41,7 +41,7 @@ Rules:
 - Keep request/result transformation minimal and local. Prefer passing Relewise results directly into existing tiles, facets, and sorting helpers.
 - Do not add generic utility abstractions for one caller.
 - For search input, follow the existing `relewise-search-bar` and `relewise-product-search-bar` behavior as closely as possible. Minimal user-input cleanup such as trimming leading/trailing whitespace is acceptable only when it is clearly tied to search term handling, URL state, or duplicate request prevention.
-- Prefer straightforward Lit component state over custom state managers, controllers, or orchestration classes unless the same pattern already exists in this package.
+- Prefer straightforward Lit component state. When repeated entity orchestration requires shared state, keep it in small typed entity state classes with explicit host update callbacks; avoid generic state frameworks.
 
 ## Direction
 
@@ -965,4 +965,3 @@ Test coverage by phase:
 - Add responsive styling and CSS variables.
 - Add README documentation.
 - Shopify integration planning after UI Components completion.
-

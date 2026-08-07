@@ -1,15 +1,16 @@
 import { html, nothing } from 'lit';
+import { keyed } from 'lit/directives/keyed.js';
 import { getRelewiseUISearchOptions } from '../helpers';
-import { getUniversalSearchTabLocalization } from './universal-search-localization';
 import type { TemplateResult } from 'lit';
-import type { UniversalSearchResult, UniversalSearchTab } from './universal-search.types';
+import type { UniversalSearchEntity } from './universal-search-entity-registry';
+import type { UniversalSearchTab } from './universal-search.types';
 
 export type UniversalSearchViewOptions = {
     term: string;
-    tabs: UniversalSearchTab[];
+    entities: UniversalSearchEntity[];
     activeTab: UniversalSearchTab | null;
-    tabResults: Record<UniversalSearchTab, UniversalSearchResult | null>;
     activeTabContent: TemplateResult | typeof nothing;
+    activeTabContentKey: string;
     accessibilityId: string;
     setSearchTerm: (term: string) => void;
     handleKeyEvent: (event: KeyboardEvent) => void;
@@ -52,9 +53,7 @@ export function renderUniversalSearchView(options: UniversalSearchViewOptions) {
                     </relewise-button>
                 </header>
                 <div class="rw-body" part="body">
-                    <slot>
-                        ${renderUniversalSearchDefaultView(options)}
-                    </slot>
+                    ${renderUniversalSearchDefaultView(options)}
                 </div>
             </section>
         </div>
@@ -68,16 +67,14 @@ function renderUniversalSearchDefaultView(options: UniversalSearchViewOptions) {
         return html`<p class="rw-empty" part="empty-state">${universalSearchLocalization?.emptyState ?? 'Start typing to search.'}</p>`;
     }
 
-    if (options.tabs.length === 0) {
+    if (options.entities.length === 0) {
         return html`<p class="rw-empty" part="empty-state">${universalSearchLocalization?.noEntitiesConfigured ?? 'No universal-search entities configured.'}</p>`;
     }
 
     return html`
         ${renderUniversalSearchResultsSummary(options)}
         <nav class="rw-tabs" part="tabs" role="tablist" aria-label=${universalSearchLocalization?.tabsLabel ?? 'Search result tabs'}>
-            ${options.tabs.includes('products') ? renderUniversalSearchTab(options, 'products', universalSearchLocalization?.products?.tab ?? 'Products') : nothing}
-            ${options.tabs.includes('productCategories') ? renderUniversalSearchTab(options, 'productCategories', universalSearchLocalization?.productCategories?.tab ?? 'Categories') : nothing}
-            ${options.tabs.includes('content') ? renderUniversalSearchTab(options, 'content', universalSearchLocalization?.content?.tab ?? 'Content') : nothing}
+            ${options.entities.map(entity => renderUniversalSearchTab(options, entity))}
         </nav>
         ${options.activeTab ? html`
             <div
@@ -85,45 +82,44 @@ function renderUniversalSearchDefaultView(options: UniversalSearchViewOptions) {
                 role="tabpanel"
                 aria-labelledby=${getTabId(options, options.activeTab)}
                 tabindex="0">
-                ${options.activeTabContent}
+                ${keyed(options.activeTabContentKey, options.activeTabContent)}
             </div>
         ` : nothing}
     `;
 }
 
-function renderUniversalSearchTab(options: UniversalSearchViewOptions, tab: UniversalSearchTab, label: string) {
-    const result = options.tabResults[tab];
-
+function renderUniversalSearchTab(options: UniversalSearchViewOptions, entity: UniversalSearchEntity) {
     return html`
         <button
             class="rw-tab"
             part="tab"
             type="button"
-            id=${getTabId(options, tab)}
+            id=${getTabId(options, entity.id)}
             role="tab"
-            aria-controls=${getPanelId(options, tab)}
-            aria-selected=${options.activeTab === tab}
-            tabindex=${options.activeTab === tab ? 0 : -1}
-            @keydown=${(event: KeyboardEvent) => handleTabKeyDown(event, options, tab)}
-            @click=${() => options.selectTab(tab)}>
-            ${label}
-            ${result ? html`<span class="rw-tab-count" part="tab-count">${result.hits}</span>` : nothing}
+            aria-controls=${getPanelId(options, entity.id)}
+            aria-selected=${options.activeTab === entity.id}
+            tabindex=${options.activeTab === entity.id ? 0 : -1}
+            @keydown=${(event: KeyboardEvent) => handleTabKeyDown(event, options, entity.id)}
+            @click=${() => options.selectTab(entity.id)}>
+            ${entity.tabLabel}
+            ${entity.response ? html`<span class="rw-tab-count" part="tab-count">${entity.response.hits}</span>` : nothing}
         </button>
     `;
 }
 
 function handleTabKeyDown(event: KeyboardEvent, options: UniversalSearchViewOptions, tab: UniversalSearchTab): void {
-    const currentIndex = options.tabs.indexOf(tab);
+    const tabs = options.entities.map(entity => entity.id);
+    const currentIndex = tabs.indexOf(tab);
     let nextIndex: number | null = null;
 
     if (event.key === 'ArrowRight') {
-        nextIndex = (currentIndex + 1) % options.tabs.length;
+        nextIndex = (currentIndex + 1) % tabs.length;
     } else if (event.key === 'ArrowLeft') {
-        nextIndex = (currentIndex - 1 + options.tabs.length) % options.tabs.length;
+        nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
     } else if (event.key === 'Home') {
         nextIndex = 0;
     } else if (event.key === 'End') {
-        nextIndex = options.tabs.length - 1;
+        nextIndex = tabs.length - 1;
     }
 
     if (nextIndex === null) {
@@ -131,7 +127,7 @@ function handleTabKeyDown(event: KeyboardEvent, options: UniversalSearchViewOpti
     }
 
     event.preventDefault();
-    const nextTab = options.tabs[nextIndex];
+    const nextTab = tabs[nextIndex];
     options.selectTab(nextTab);
     const tabList = (event.currentTarget as HTMLElement).parentElement;
     tabList?.querySelector<HTMLElement>(`#${getTabId(options, nextTab)}`)?.focus();
@@ -146,11 +142,11 @@ function getPanelId(options: UniversalSearchViewOptions, tab: UniversalSearchTab
 }
 
 function renderUniversalSearchResultsSummary(options: UniversalSearchViewOptions) {
-    const localization = getUniversalSearchTabLocalization(options.activeTab);
+    const activeEntity = options.entities.find(entity => entity.id === options.activeTab);
 
     return html`
         <div class="rw-results-summary" part="results-summary">
-            ${localization?.resultsFor ?? 'Search results for'} <strong>${options.term}</strong>
+            ${activeEntity?.resultsForLabel ?? 'Search results for'} <strong>${options.term}</strong>
         </div>
     `;
 }

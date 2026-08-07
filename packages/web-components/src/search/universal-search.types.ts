@@ -1,24 +1,19 @@
 import type {
     ContentSearchRequest,
     ContentSearchResponse,
+    ContentResult,
     ProductCategorySearchRequest,
     ProductCategorySearchResponse,
+    ProductCategoryResult,
     ProductSearchRequest,
     ProductSearchResponse,
+    ProductResult,
 } from '@relewise/client';
+import { UniversalSearchTab, universalSearchTabs } from './universal-search-tab-settings';
 
-export const universalSearchTabs = ['products', 'productCategories', 'content'] as const;
-export type UniversalSearchTab = typeof universalSearchTabs[number];
+export { universalSearchTabs };
+export type { UniversalSearchTab };
 
-export type UniversalSearchRequest =
-    | { tab: 'products'; request: ProductSearchRequest }
-    | { tab: 'productCategories'; request: ProductCategorySearchRequest }
-    | { tab: 'content'; request: ContentSearchRequest };
-
-export type UniversalSearchResponses = Partial<{
-    products: ProductSearchResponse;
-    productCategories: ProductCategorySearchResponse;
-    content: ContentSearchResponse;
-}>;
-
+export type UniversalSearchRequest = ProductSearchRequest | ProductCategorySearchRequest | ContentSearchRequest;
 export type UniversalSearchResult = ProductSearchResponse | ProductCategorySearchResponse | ContentSearchResponse;
+export type UniversalSearchResultItem = ProductResult | ProductCategoryResult | ContentResult;
