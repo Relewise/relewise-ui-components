@@ -1,12 +1,12 @@
 # Universal Search UI Components Plan
 
-Last updated: 2026-06-30
+Last updated: 2026-08-06
 
 ## Purpose
 
 Build the universal search experience in `packages/web-components` first. The Shopify web-components extension is the end goal, but it is explicitly a second iteration and should not be implemented until the UI Components work is complete, documented, tested, and stable.
 
-This plan supersedes the earlier POC-driven implementation direction where it conflicts with existing UI Components architecture. The POC remains useful as behavioral research, but its standalone `MerchantConfig`, custom card rendering, custom facet rendering, and custom URL state should not become the final public contract.
+This plan supersedes the POC-driven implementation direction from `UNIVERSAL_SEARCH_PLAN.md` where it conflicts with existing UI Components architecture. The POC remains useful as behavioral research, but its standalone `MerchantConfig`, custom card rendering, custom facet rendering, and custom URL state should not become the final public contract.
 
 ## Working Rules
 
@@ -41,7 +41,7 @@ Rules:
 - Keep request/result transformation minimal and local. Prefer passing Relewise results directly into existing tiles, facets, and sorting helpers.
 - Do not add generic utility abstractions for one caller.
 - For search input, follow the existing `relewise-search-bar` and `relewise-product-search-bar` behavior as closely as possible. Minimal user-input cleanup such as trimming leading/trailing whitespace is acceptable only when it is clearly tied to search term handling, URL state, or duplicate request prevention.
-- Prefer straightforward Lit component state over custom state managers, controllers, or orchestration classes unless the same pattern already exists in this package.
+- Prefer straightforward Lit component state. When repeated entity orchestration requires shared state, keep it in small typed entity state classes with explicit host update callbacks; avoid generic state frameworks.
 
 ## Direction
 
@@ -345,12 +345,12 @@ Current behavior:
 Reuse decision:
 
 - Add a small reusable category tile for universal-search category surfaces.
-- The tile should support both product categories and content categories if the result shapes allow it.
+- The first category tile supports product category search results.
 - It should support:
-  - `image-data-key`
-  - `image-base-url`
-  - `url-data-key`
-  - `display-name-data-key`
+  - selected category `displayName`
+  - selected data key `Url`
+  - selected data key `ImageUrl`
+  - CSS parts for layout/styling
 - It should expose parts and CSS variables but remain simpler than product/content tiles.
 
 Potential component:
@@ -361,6 +361,7 @@ Open decision:
 
 - Whether category templates belong in `initializeRelewiseUI({ templates })`.
 - If added, prefer general names such as `productCategory` and `contentCategory`, not universal-search-only names.
+- Do not add category field-mapping attributes unless a concrete consumer need appears. Selected properties and templates are the established extension model for entity data.
 
 ### Search Input And Input Assist
 
@@ -517,19 +518,20 @@ Keep styling primarily in CSS variables and parts, not JavaScript configuration.
 
 ```ts
 export interface UniversalSearchEntitiesOptions {
-    products?: UniversalSearchTabOptions;
-    productCategories?: UniversalSearchTabOptions;
-    content?: UniversalSearchTabOptions;
+    products?: UniversalSearchEntityOptions;
+    productCategories?: UniversalSearchEntityOptions;
+    content?: UniversalSearchEntityOptions;
 }
 
-export interface UniversalSearchTabOptions {
+export interface UniversalSearchEntityOptions {
     pageSize?: number;
 }
 ```
 
 Notes:
 
-- Providing an entity option enables that result type. Omit an entity to disable it.
+- Omitting `entities` includes the products result type with its defaults. When `entities` is provided, its keys are the exact result types to include; an explicitly empty object includes no result types.
+- Providing an empty entity option includes that result type with its defaults.
 - Product tab uses existing `facets.product` and existing `sorting`.
 - Content facets can use `facets.content` once added.
 - Content/category sorting needs separate config if included.
@@ -618,7 +620,7 @@ Providing a recommendation block enables it. Omit the block to disable it.
 Recommended components:
 
 - `relewise-universal-search`
-  - Owns modal state, term state, active tab, batched requests, URL sync, input assist, empty states, no-result states, and mobile drawer state.
+  - Owns modal state, term state, active tab, request orchestration, URL sync, input assist, empty states, no-result states, and mobile drawer state.
 - `relewise-universal-search-tabs`
   - Renders enabled tabs, active tab, counts, disabled/zero-hit state.
 - `relewise-universal-search-facet-panel`
@@ -634,7 +636,7 @@ Avoid adding components that simply duplicate current tiles/facets/sorting with 
 
 | Existing piece | Reuse | Notes |
 | --- | --- | --- |
-| `relewise-search-bar` | Direct reuse | Universal Search controls URL/state itself. |
+| `relewise-search-bar` | Direct reuse | Full-search controls URL/state itself. |
 | `relewise-product-tile` | Direct reuse | Custom product rendering uses existing `templates.product`. |
 | `relewise-content-tile` | Direct reuse | Custom content rendering uses existing `templates.content`. |
 | `relewise-facets` | Reuse after generalization | Must support content-compatible facet result shapes; scoped URL state belongs with the universal-search orchestrator if needed. |
@@ -963,4 +965,3 @@ Test coverage by phase:
 - Add responsive styling and CSS variables.
 - Add README documentation.
 - Shopify integration planning after UI Components completion.
-

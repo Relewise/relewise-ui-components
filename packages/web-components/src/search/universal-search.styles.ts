@@ -32,7 +32,7 @@ export const universalSearchStyles = [theme, css`
         gap: var(--relewise-universal-search-header-gap, 1em);
         align-items: center;
         padding: var(--relewise-universal-search-header-padding, 1em);
-        border-bottom: 1px solid var(--relewise-universal-search-border-color, #ddd);
+        border-bottom: 1px solid var(--relewise-universal-search-border-color, var(--relewise-checklist-facet-border-color, #eee));
     }
 
     relewise-search-bar {
@@ -60,8 +60,9 @@ export const universalSearchStyles = [theme, css`
 
     .rw-tabs {
         display: flex;
-        gap: var(--relewise-universal-search-tabs-gap, 0.5em);
-        border-bottom: 1px solid var(--relewise-universal-search-border-color, #ddd);
+        gap: var(--relewise-universal-search-tabs-gap, 1.5em);
+        border-bottom: 1px solid var(--relewise-universal-search-border-color, var(--relewise-checklist-facet-border-color, #eee));
+        padding-top: var(--relewise-universal-search-tabs-padding-top, 0.5em);
         margin-bottom: var(--relewise-universal-search-tabs-margin-bottom, 1em);
     }
 
@@ -116,10 +117,10 @@ export const universalSearchStyles = [theme, css`
         font-size: 0.9em;
     }
 
-    .rw-product-grid {
+    .rw-result-grid {
         display: grid;
-        grid-template-columns: repeat(var(--relewise-universal-search-product-columns, 5), minmax(0, 1fr));
-        gap: var(--relewise-universal-search-product-grid-gap, 1em);
+        grid-template-columns: repeat(var(--relewise-universal-search-result-columns, var(--relewise-universal-search-product-columns, 5)), minmax(0, 1fr));
+        gap: var(--relewise-universal-search-result-grid-gap, var(--relewise-universal-search-product-grid-gap, 1em));
     }
 
     .rw-loading {
@@ -147,8 +148,8 @@ export const universalSearchStyles = [theme, css`
             grid-template-columns: minmax(0, 1fr);
         }
 
-        .rw-product-grid {
-            grid-template-columns: repeat(var(--relewise-universal-search-mobile-product-columns, 2), minmax(0, 1fr));
+        .rw-result-grid {
+            grid-template-columns: repeat(var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2)), minmax(0, 1fr));
         }
     }
 `];

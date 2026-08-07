@@ -58,6 +58,45 @@ suite('productSearchRequestBuilder', () => {
         });
     });
 
+    test('can build product facets with selected values from scoped URL state', () => {
+        useSearch({
+            facets: {
+                product(builder) {
+                    builder
+                        .addFacet(f => f.addBrandFacet(), { heading: 'Brand' })
+                        .addFacet(f => f.addSalesPriceRangeFacet('Product'), { heading: 'Price' });
+                },
+            },
+        });
+
+        updateUrlStateValues(QueryKeys.productFacet + 'Brand', ['brand-1']);
+        updateUrlState(QueryKeys.productFacetLowerbound + 'SalesPrice', '10');
+        updateUrlState(QueryKeys.productFacetUpperbound + 'SalesPrice', '100');
+
+        const result = buildProductSearchRequest({
+            term: 'shoe',
+            settings,
+            page: 1,
+            pageSize: 16,
+            productsLoaded: 0,
+            productsToFetch: null,
+            target: null,
+            facetQueryKeyPrefix: QueryKeys.productFacet,
+            facetLowerboundQueryKeyPrefix: QueryKeys.productFacetLowerbound,
+            facetUpperboundQueryKeyPrefix: QueryKeys.productFacetUpperbound,
+        });
+
+        const facets = result.request.facets?.items as any[];
+        const brandFacet = facets.find(facet => facet.field === 'Brand');
+        const priceFacet = facets.find(facet => facet.field === 'SalesPrice');
+
+        assert.deepEqual(brandFacet.selected, ['brand-1']);
+        assert.deepEqual(priceFacet.selected, {
+            lowerBoundInclusive: 10,
+            upperBoundInclusive: 100,
+        });
+    });
+
     test('uses targeted facets and sorting when target is provided', () => {
         useSearch({
             sorting: builder => builder
@@ -91,6 +130,34 @@ suite('productSearchRequestBuilder', () => {
         assert.deepEqual(result.facetLabels, ['Campaign categories']);
         assert.deepEqual(result.request.sorting, expectedSorting.build());
         assert.equal(result.request.facets?.items[0].field, 'Category');
+    });
+
+    test('uses scoped sorting URL state for targeted searches', () => {
+        useSearch();
+        registerSearchTarget('campaign', {
+            overwriteSorting: builder => builder
+                .clear()
+                .addRelevance()
+                .addPopularityDescending(),
+        });
+        updateUrlState(QueryKeys.sortBy, SortingEnum.Relevance);
+        updateUrlState(QueryKeys.productSorting, SortingEnum.PopularityDesc);
+
+        const result = buildProductSearchRequest({
+            term: 'shoe',
+            settings,
+            page: 1,
+            pageSize: 16,
+            productsLoaded: 0,
+            productsToFetch: null,
+            target: 'campaign',
+            sortingQueryKey: QueryKeys.productSorting,
+        });
+
+        const expectedSorting = new ProductSortingBuilder();
+        expectedSorting.sortByProductPopularity('Descending', thenBy => thenBy.sortByProductRelevance());
+
+        assert.deepEqual(result.request.sorting, expectedSorting.build());
     });
 
     test('uses requested product count for initial load when rw-take is present', () => {

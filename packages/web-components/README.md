@@ -598,10 +598,28 @@ useSearch({
                 tab: 'Products',
                 resultsFor: 'Search results for',
                 resultsTitle: 'Products',
-                result: 'product',
-                results: 'products',
+                result: 'Result',
+                results: 'Results',
                 noResults: 'No products found.',
                 error: 'Could not load products.',
+            },
+            productCategories: {
+                tab: 'Categories',
+                resultsFor: 'Search results for',
+                resultsTitle: 'Categories',
+                result: 'Result',
+                results: 'Results',
+                noResults: 'No categories found.',
+                error: 'Could not load categories.',
+            },
+            content: {
+                tab: 'Content',
+                resultsFor: 'Search results for',
+                resultsTitle: 'Content',
+                result: 'Result',
+                results: 'Results',
+                noResults: 'No content found.',
+                error: 'Could not load content.',
             },
         },
         searchBar: {
@@ -632,13 +650,23 @@ useSearch({
 ```
 
 #### Universal Search
-This component renders a universal-search modal that can be opened by a custom trigger. Product search can be enabled through `useSearch({ universalSearch: { entities } })` and reuses the existing product search configuration for facets, sorting, filters, relevance modifiers, selected properties, and target overrides.
+This component renders a universal-search modal that can be opened by a custom trigger. Products, product categories, and content can be included through `useSearch({ universalSearch: { entities } })`.
+
+The products tab reuses the existing product search configuration for facets, sorting, filters, relevance modifiers, selected properties, and target overrides. Product categories and content reuse their existing filters, relevance modifiers, selected properties, and generalized facet configuration paths.
+
+When `universalSearch` is provided without `entities`, the products tab is included with its defaults. When `entities` is provided, its keys are the exact result types to include: add an entity key to include its tab and omit the key to exclude it. An empty entity option such as `products: {}` uses that entity's defaults. An explicitly empty `entities: {}` configuration renders no result tabs.
 
 ```ts
 useSearch({
     facets: {
         product(builder) {
             builder.addFacet(f => f.addBrandFacet(), { heading: 'Brand' });
+        },
+        productCategory(builder) {
+            builder.addFacet(f => f.addProductCategoryDataStringValueFacet('Gender'), { heading: 'Gender' });
+        },
+        content(builder) {
+            builder.addFacet(f => f.addContentDataStringValueFacet('ContentType'), { heading: 'Content type' });
         },
     },
     sorting: sorting => sorting
@@ -647,9 +675,11 @@ useSearch({
         .addSalesPriceAscending(),
     universalSearch: {
         entities: {
-            products: {
-                pageSize: 16,
+            products: {},
+            productCategories: {
+                pageSize: 12,
             },
+            content: {},
         },
     },
 });
@@ -665,15 +695,25 @@ useSearch({
 
 The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
 
-When the product entity is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option. Additional universal-search entities for product categories and content will be added separately.
+When multiple entities are configured, they are searched together in one batched request when the search term changes. A single configured entity uses its direct search endpoint. Omitted entities are not rendered and are not requested. Facet, sorting, and load-more changes only search the active tab.
 
-The current products tab uses load-more behavior. Additional pagination modes are not part of the initial products tab implementation.
+When the products tab is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option.
+
+When the content tab is configured, it renders content results with `relewise-content-tile`. Content rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { content } })` template option.
+
+When the product categories tab is configured, it renders product category results with `relewise-category-tile`. Product category rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { productCategory } })` template option. The default category tile reads `Url` and `ImageUrl` from selected category data and exposes CSS parts for styling.
+
+The current tabs use load-more behavior. Additional pagination modes are not part of the initial universal-search implementation.
 
 ##### Attributes
 
 - **displayed-at-location** :
 
     Where the universal-search component is being shown.
+
+- **target** (Optional):
+
+    Applies matching targeted product-search facets and sorting to the products tab.
 
 - **open** (Optional, true/false):
 
@@ -1291,7 +1331,7 @@ The builder is a type exposed from the [relewise-sdk-javascript](https://github.
 For more examples and information about relevance modifiers visit the official [docs](https://docs.relewise.com/).
 
 ## Template overwriting
-It is possible to overwrite the template used for rendering products and/or content. This is done using [lit templating](https://lit.dev/docs/templates/overview/).
+It is possible to overwrite the templates used for rendering products, product categories, and content. This is done using [lit templating](https://lit.dev/docs/templates/overview/).
 When the template is overwritten, the corresponding tile skips attaching default CSS styles on the tile, so your template has full control over layout and presentation.
 If no custom template is provided, it will render using the default template.
 
@@ -1353,6 +1393,26 @@ initializeRelewiseUI({
                             : helpers.nothing}
                     </div>
                 </div>`;
+        },
+    },
+});
+```
+
+### Product category template
+You can also override the product category template. The same template is used by every `relewise-category-tile`, including product category results in Universal Search.
+
+```ts
+initializeRelewiseUI({
+    ...
+    templates: {
+        productCategory: (category, { html, helpers }) => {
+            return html`
+                <a href=${category.data?.Url?.value ?? ''}>
+                    ${category.data?.ImageUrl?.value
+                        ? html`<img src=${category.data.ImageUrl.value} alt=${category.displayName ?? ''} />`
+                        : helpers.nothing}
+                    <span>${category.displayName}</span>
+                </a>`;
         },
     },
 });
