@@ -161,6 +161,25 @@ suite('product search overlay', () => {
         assert.exists(el.shadowRoot!.querySelector('relewise-product-search-overlay-results'));
     });
 
+    test('does not reopen no-results overlay from stale hover after Escape', async() => {
+        const el = await fixture<ProductSearchOverlay>(html`<relewise-product-search-overlay></relewise-product-search-overlay>`);
+
+        el.term = 'shoe';
+        el.hasCompletedSearchRequest = true;
+        el.results = [{ searchTermPrediction: { term: 'shoes' } as any }];
+        el.searchBarInFocus = true;
+        await el.updateComplete;
+
+        el.handleKeyDown(new KeyboardEvent('keydown', { key: 'Escape', cancelable: true }));
+        await el.updateComplete;
+
+        el.results = null;
+        el.resultBoxIsHovered = true;
+        await el.updateComplete;
+
+        assert.notExists(el.shadowRoot!.querySelector('relewise-product-search-overlay-results'));
+    });
+
     test('closes the search keyboard when touching and scrolling light DOM results', async() => {
         const options = mockRelewiseOptions();
         options.components = {

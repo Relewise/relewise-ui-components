@@ -58,6 +58,9 @@ export class ProductSearchOverlay extends RelewiseLitElement {
     resultBoxIsHovered: boolean = false;
 
     @state()
+    overlayIsClosed: boolean = false;
+
+    @state()
     hasCompletedSearchRequest: boolean = false;
 
     @state()
@@ -104,8 +107,11 @@ export class ProductSearchOverlay extends RelewiseLitElement {
         if (!term) {
             this.results = null;
             this.hasCompletedSearchRequest = false;
+            this.overlayIsClosed = false;
             return;
         }
+
+        this.overlayIsClosed = false;
 
         if (this.debounceTimeoutHandlerId) {
             clearTimeout(this.debounceTimeoutHandlerId);
@@ -155,6 +161,7 @@ export class ProductSearchOverlay extends RelewiseLitElement {
     closeOverlay() {
         this.searchBarInFocus = false;
         this.resultBoxIsHovered = false;
+        this.overlayIsClosed = true;
         this.renderRoot.querySelector('relewise-search-bar')?.blurSearchInput();
     }
 
@@ -164,6 +171,7 @@ export class ProductSearchOverlay extends RelewiseLitElement {
                 clearTimeout(this.blurTimeoutHandlerId);
                 this.blurTimeoutHandlerId = null;
             }
+            this.overlayIsClosed = false;
             this.searchBarInFocus = true;
             return;
         }
@@ -326,6 +334,11 @@ export class ProductSearchOverlay extends RelewiseLitElement {
 
     render() {
         const localization = getRelewiseUISearchOptions()?.localization;
+        const shouldShowOverlay = !this.overlayIsClosed &&
+            this.hasCompletedSearchRequest &&
+            this.term &&
+            (this.searchBarInFocus || this.resultBoxIsHovered);
+
         return html`
             <relewise-search-bar 
                 part="searchbar"
@@ -337,10 +350,7 @@ export class ProductSearchOverlay extends RelewiseLitElement {
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
                 .autofocus="${this.autofocus}"
                 ></relewise-search-bar>    
-            ${(this.searchBarInFocus &&
-                this.hasCompletedSearchRequest &&
-                this.term) ||
-                this.resultBoxIsHovered ?
+            ${shouldShowOverlay ?
                 html`<relewise-product-search-overlay-results
                     part="overlay"
                     exportparts="overlay: overlay-container, title: overlay-title"
