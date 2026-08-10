@@ -1,79 +1,89 @@
 import { ContentResult, ContentSearchResponse, User } from '@relewise/client';
 import { html, nothing } from 'lit';
+import { property } from 'lit/decorators.js';
 import { getRelewiseUISearchOptions } from '../helpers';
-import { universalSearchTabSettings } from './universal-search-tab-settings';
-import { renderUniversalSearchLoadMore, renderUniversalSearchLoadingState, renderUniversalSearchResultsHeader } from './universal-search-rendering';
+import { RelewiseLitElement } from '../relewise-lit-element';
+import { universalSearchTabStyles } from './universal-search-tab.styles';
+import { UniversalSearchTabId, getUniversalSearchTabQueryKeys } from './universal-search-tab-settings';
 
-export type UniversalSearchContentTabOptions = {
-    result: ContentSearchResponse | null;
-    content: ContentResult[];
-    facetLabels: string[];
-    loading: boolean;
-    error: string | null;
-    user: User | null;
-    onLoadMore: () => void;
-    onSearchOptionsChanged: () => void;
-};
+const queryKeys = getUniversalSearchTabQueryKeys(UniversalSearchTabId.content);
 
-export function renderUniversalSearchContentTab(options: UniversalSearchContentTabOptions) {
-    const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.content;
+export class UniversalSearchContentTab extends RelewiseLitElement {
+    @property({ attribute: false }) result: ContentSearchResponse | null = null;
+    @property({ attribute: false }) content: ContentResult[] = [];
+    @property({ attribute: false }) facetLabels: string[] = [];
+    @property({ type: Boolean }) loading = false;
+    @property({ attribute: false }) error: string | null = null;
+    @property({ attribute: false }) user: User | null = null;
 
-    return html`
-        <div class="rw-results-layout" part="results-layout">
-            ${options.result?.facets ? html`
-                <relewise-facets
-                    class="rw-facets"
-                    part="facets"
-                    exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
-                    .labels=${options.facetLabels}
-                    .facetQueryKeyPrefix=${universalSearchTabSettings.content.facetQueryKeyPrefix}
-                    .facetUpperboundQueryKeyPrefix=${universalSearchTabSettings.content.facetUpperboundQueryKeyPrefix}
-                    .facetLowerboundQueryKeyPrefix=${universalSearchTabSettings.content.facetLowerboundQueryKeyPrefix}
-                    .applyFacet=${options.onSearchOptionsChanged}
-                    .facetResult=${options.result.facets}>
-                </relewise-facets>
-            ` : nothing}
-            <section class="rw-results" part="results">
-                <header class="rw-results-header" part="results-header">
-                    ${renderUniversalSearchResultsHeader(
-                        options.result,
-                        localization?.resultsTitle ?? 'Content',
-                        localization?.result ?? 'Result',
-                        localization?.results ?? 'Results',
-                    )}
-                </header>
-                ${renderContentResults(options)}
-            </section>
-        </div>
-    `;
+    private readonly searchOptionsChanged = () => this.dispatchEvent(new Event('universal-search-options-changed', { bubbles: true, composed: true }));
+
+    render() {
+        const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.content;
+
+        return html`
+            <div class="rw-results-layout" part="results-layout">
+                ${this.result?.facets ? html`
+                    <relewise-facets
+                        class="rw-facets"
+                        part="facets"
+                        exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
+                        .labels=${this.facetLabels}
+                        .facetQueryKeyPrefix=${queryKeys.facet}
+                        .facetUpperboundQueryKeyPrefix=${queryKeys.facetUpperbound}
+                        .facetLowerboundQueryKeyPrefix=${queryKeys.facetLowerbound}
+                        .applyFacet=${this.searchOptionsChanged}
+                        .facetResult=${this.result.facets}>
+                    </relewise-facets>
+                ` : nothing}
+                <section class="rw-results" part="results">
+                    <header class="rw-results-header" part="results-header">
+                        <div>
+                            <h2 class="rw-results-title" part="results-title">${localization?.resultsTitle ?? 'Content'}</h2>
+                            ${this.result ? html`
+                                <span class="rw-results-count" part="results-count">
+                                    ${this.result.hits} ${this.result.hits === 1 ? localization?.result ?? 'Result' : localization?.results ?? 'Results'}
+                                </span>
+                            ` : nothing}
+                        </div>
+                    </header>
+                    ${this.error ? html`
+                        <p class="rw-empty" part="error-state">${this.error}</p>
+                    ` : this.loading && this.content.length === 0 ? html`
+                        <div class="rw-loading" part="loading-state">
+                            <relewise-loading-spinner></relewise-loading-spinner>
+                        </div>
+                    ` : this.content.length === 0 ? html`
+                        <p class="rw-empty" part="zero-results">${localization?.noResults ?? 'No content found.'}</p>
+                    ` : html`
+                        <div class="rw-result-grid" part="content-grid">
+                            ${this.content.map(content => html`
+                                <relewise-content-tile
+                                    class="rw-content-tile"
+                                    part="content-tile"
+                                    .content=${content}
+                                    .user=${this.user}>
+                                </relewise-content-tile>
+                            `)}
+                        </div>
+                        <relewise-universal-search-load-more
+                            exportparts="loading-state, load-more"
+                            .loaded=${this.content.length}
+                            .total=${this.result?.hits ?? 0}
+                            resultLabel=${localization?.results ?? 'content results'}
+                            .loading=${this.loading}>
+                        </relewise-universal-search-load-more>
+                    `}
+                </section>
+            </div>
+        `;
+    }
+
+    static styles = universalSearchTabStyles;
 }
 
-function renderContentResults(options: UniversalSearchContentTabOptions) {
-    const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.content;
-
-    if (options.error) {
-        return html`<p class="rw-empty" part="error-state">${options.error}</p>`;
+declare global {
+    interface HTMLElementTagNameMap {
+        'relewise-universal-search-content-tab': UniversalSearchContentTab;
     }
-
-    if (options.loading && options.content.length === 0) {
-        return renderUniversalSearchLoadingState();
-    }
-
-    if (options.content.length === 0) {
-        return html`<p class="rw-empty" part="zero-results">${localization?.noResults ?? 'No content found.'}</p>`;
-    }
-
-    return html`
-        <div class="rw-result-grid" part="content-grid">
-            ${options.content.map(content => html`
-                <relewise-content-tile
-                    class="rw-content-tile"
-                    part="content-tile"
-                    .content=${content}
-                    .user=${options.user}>
-                </relewise-content-tile>
-            `)}
-        </div>
-        ${renderUniversalSearchLoadMore(options.content.length, options.result?.hits ?? 0, localization?.results ?? 'content results', options.loading, options.onLoadMore)}
-    `;
 }

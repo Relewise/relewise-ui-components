@@ -1,9 +1,9 @@
 import { SearchCollectionBuilder, User } from '@relewise/client';
 import { getRelewiseContextSettings, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { getSearcher } from './searcher';
-import type { UniversalSearchEntity, UniversalSearchPreparedRequest } from './universal-search-entity-registry';
+import type { UniversalSearchEntity, UniversalSearchPreparedRequest } from './universal-search-entity';
 
-export type UniversalSearchServiceOptions = {
+type UniversalSearchServiceOptions = {
     entities: UniversalSearchEntity[];
     term: string;
     target: string | null;
@@ -11,21 +11,18 @@ export type UniversalSearchServiceOptions = {
     abortSignal: AbortSignal;
 };
 
-export type UniversalSearchServiceResult = {
-    user: User | null;
-};
-
-export async function searchUniversalSearchEntities(options: UniversalSearchServiceOptions): Promise<UniversalSearchServiceResult> {
+export async function searchUniversalSearchEntities(options: UniversalSearchServiceOptions): Promise<User | null> {
     const relewiseUIOptions = getRelewiseUIOptions();
     const searcher = getSearcher(relewiseUIOptions);
 
+    // await here to ensure targets can be handled before making api requests
     await new Promise(r => setTimeout(r, 0));
     const settings = await getRelewiseContextSettings(options.displayedAtLocation ?? 'Relewise Universal Search');
     const requests = options.entities.map(entity => entity.prepareRequest(options.term, settings, options.target));
 
     await executeUniversalSearchRequests(searcher, requests, options.abortSignal);
 
-    return { user: settings.user };
+    return settings.user;
 }
 
 async function executeUniversalSearchRequests(

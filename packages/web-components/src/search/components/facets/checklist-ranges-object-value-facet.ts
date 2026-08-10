@@ -8,7 +8,7 @@ export class ChecklistRangesObjectValueFacet extends ChecklistFacetBase {
     result: PriceRangesFacetResult | ProductDataDoubleRangesFacetResult | ContentDataDoubleRangesFacetResult | ProductCategoryDataDoubleRangesFacetResult | null = null;
 
     handleChange(e: Event, item: DecimalNullableChainableRangeAvailableFacetValue) {
-        const checkbox = e.target as HTMLInputElement;
+        const checkbox = e.currentTarget as HTMLInputElement;
         if (!item.value ||
             item.value.lowerBoundInclusive === undefined ||
             item.value.lowerBoundInclusive === undefined ||
