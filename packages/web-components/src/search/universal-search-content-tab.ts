@@ -1,22 +1,195 @@
-import { ContentResult, ContentSearchResponse, User } from '@relewise/client';
+import { ContentResult, ContentSearchResponse, SearchResponseCollection, Settings, User } from '@relewise/client';
 import { html, nothing } from 'lit';
-import { property } from 'lit/decorators.js';
-import { getRelewiseUISearchOptions } from '../helpers';
+import type { PropertyValues } from 'lit';
+import { property, state } from 'lit/decorators.js';
+import {
+    QueryKeys,
+    getRelewiseContextSettings,
+    getRelewiseUIOptions,
+    getRelewiseUISearchOptions,
+    readCurrentUrlState,
+    updateUrlState,
+} from '../helpers';
 import { RelewiseLitElement } from '../relewise-lit-element';
+import { buildContentSearchRequest } from './contentSearchRequestBuilder';
+import { getSearcher } from './searcher';
 import { universalSearchTabStyles } from './universal-search-tab.styles';
-import { UniversalSearchTabId, getUniversalSearchTabQueryKeys } from './universal-search-tab-settings';
+import type { UniversalSearchBatchSearch } from './universal-search.types';
 
-const queryKeys = getUniversalSearchTabQueryKeys(UniversalSearchTabId.content);
+const defaultPageSize = 15;
+const tab = 'content';
 
 export class UniversalSearchContentTab extends RelewiseLitElement {
-    @property({ attribute: false }) result: ContentSearchResponse | null = null;
-    @property({ attribute: false }) content: ContentResult[] = [];
-    @property({ attribute: false }) facetLabels: string[] = [];
-    @property({ type: Boolean }) loading = false;
-    @property({ attribute: false }) error: string | null = null;
-    @property({ attribute: false }) user: User | null = null;
+    @property() term = '';
+    @property({ attribute: 'displayed-at-location' }) displayedAtLocation?: string;
 
-    private readonly searchOptionsChanged = () => this.dispatchEvent(new Event('universal-search-options-changed', { bubbles: true, composed: true }));
+    @state() private result: ContentSearchResponse | null = null;
+    @state() private content: ContentResult[] = [];
+    @state() private facetLabels: string[] = [];
+    @state() private loading = false;
+    @state() private error: string | null = null;
+    @state() private user: User | null = null;
+
+    private page = 1;
+    private abortController = new AbortController();
+
+    private get pageSize(): number {
+        return getRelewiseUISearchOptions()?.universalSearch?.entities?.content?.pageSize ?? defaultPageSize;
+    }
+
+    protected willUpdate(changedProperties: PropertyValues<this>): void {
+        if (changedProperties.has('term') && !this.term) {
+            this.clear();
+        }
+    }
+
+    disconnectedCallback(): void {
+        this.abortController.abort();
+        super.disconnectedCallback();
+    }
+
+    private readonly searchOptionsChanged = (): void => {
+        updateUrlState(QueryKeys.contentTake, null);
+        void this.search(true);
+    };
+
+    private async loadMore(): Promise<void> {
+        if (this.loading) {
+            return;
+        }
+
+        const previousPage = this.page;
+        this.page++;
+
+        if (!await this.search(false)) {
+            this.page = previousPage;
+            return;
+        }
+
+        updateUrlState(QueryKeys.contentTake, (this.pageSize * this.page).toString());
+    }
+
+    prepareBatchSearch(settings: Settings): UniversalSearchBatchSearch {
+        this.abortController.abort();
+        this.resetForSearch();
+        const requestResult = this.buildRequest(settings, true);
+        this.loading = true;
+        this.user = settings.user;
+
+        return {
+            request: requestResult.request,
+            applyResponse: response => this.applyBatchResponse(response, requestResult.facetLabels),
+            setError: () => this.setError(),
+        };
+    }
+
+    private async search(reset: boolean): Promise<boolean> {
+        this.abortController.abort();
+
+        if (!this.term) {
+            this.clear();
+            return false;
+        }
+
+        if (reset) {
+            this.resetForSearch();
+        } else {
+            this.error = null;
+        }
+
+        this.loading = true;
+        const abortController = new AbortController();
+        this.abortController = abortController;
+
+        try {
+            // Let runtime configuration register before the automatic search starts.
+            await new Promise(resolve => setTimeout(resolve, 0));
+            const settings = await getRelewiseContextSettings(this.displayedAtLocation ?? 'Relewise Universal Search');
+            const requestResult = this.buildRequest(settings, reset);
+            const response = await getSearcher(getRelewiseUIOptions()).searchContents(requestResult.request, { abortSignal: abortController.signal });
+
+            if (abortController.signal.aborted) {
+                return false;
+            }
+
+            this.user = settings.user;
+            this.applyResponse(response ?? null, requestResult.facetLabels, reset);
+            return true;
+        } catch {
+            if (!abortController.signal.aborted) {
+                this.setError();
+            }
+            return false;
+        } finally {
+            if (!abortController.signal.aborted) {
+                this.loading = false;
+            }
+        }
+    }
+
+    private buildRequest(settings: Settings, reset: boolean) {
+        const resultsToFetch = this.getResultsToFetch();
+        return buildContentSearchRequest({
+            term: this.term,
+            settings,
+            page: reset && resultsToFetch ? 1 : this.page,
+            pageSize: reset && resultsToFetch ? resultsToFetch : this.pageSize,
+        });
+    }
+
+    private resetForSearch(): void {
+        const resultsToFetch = this.getResultsToFetch();
+        this.page = resultsToFetch ? Math.ceil(resultsToFetch / this.pageSize) : 1;
+        this.result = null;
+        this.content = [];
+        this.facetLabels = [];
+        this.error = null;
+        this.reportHits();
+    }
+
+    private applyBatchResponse(response: SearchResponseCollection, facetLabels: string[]): void {
+        const contentResponse = response.responses?.find(item => '$type' in item
+            && item.$type === 'Relewise.Client.Responses.Search.ContentSearchResponse, Relewise.Client') as ContentSearchResponse | undefined;
+        this.applyResponse(contentResponse ?? null, facetLabels, true);
+        this.loading = false;
+    }
+
+    private applyResponse(response: ContentSearchResponse | null, facetLabels: string[], reset: boolean): void {
+        this.result = response;
+        this.content = reset ? response?.results ?? [] : this.content.concat(response?.results ?? []);
+        this.facetLabels = facetLabels;
+        this.reportHits();
+    }
+
+    private setError(): void {
+        this.error = getRelewiseUISearchOptions()?.localization?.universalSearch?.content?.error ?? 'Could not load content.';
+        this.loading = false;
+    }
+
+    private clear(): void {
+        this.abortController.abort();
+        this.result = null;
+        this.content = [];
+        this.facetLabels = [];
+        this.error = null;
+        this.loading = false;
+        this.page = 1;
+        this.reportHits();
+    }
+
+    private getResultsToFetch(): number | null {
+        const value = readCurrentUrlState(QueryKeys.contentTake);
+        const parsedValue = value ? parseInt(value, 10) : NaN;
+        return isNaN(parsedValue) ? null : parsedValue;
+    }
+
+    private reportHits(): void {
+        this.dispatchEvent(new CustomEvent('universal-search-tab-state-changed', {
+            bubbles: true,
+            composed: true,
+            detail: { tab, hits: this.result?.hits ?? null },
+        }));
+    }
 
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.content;
@@ -29,7 +202,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
                         part="facets"
                         exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
                         .labels=${this.facetLabels}
-                        .facetQueryKeyPrefix=${queryKeys.facet}
+                        .facetQueryKeyPrefix=${QueryKeys.contentFacet}
                         .applyFacet=${this.searchOptionsChanged}
                         .facetResult=${this.result.facets}>
                     </relewise-facets>
@@ -51,7 +224,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
                         <div class="rw-loading" part="loading-state">
                             <relewise-loading-spinner></relewise-loading-spinner>
                         </div>
-                    ` : this.content.length === 0 ? html`
+                    ` : !this.result ? nothing : this.content.length === 0 ? html`
                         <p class="rw-empty" part="zero-results">${localization?.noResults ?? 'No content found.'}</p>
                     ` : html`
                         <div class="rw-result-grid" part="content-grid">
@@ -67,9 +240,10 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
                         <relewise-universal-search-load-more
                             exportparts="loading-state, load-more"
                             .loaded=${this.content.length}
-                            .total=${this.result?.hits ?? 0}
+                            .total=${this.result.hits ?? 0}
                             resultLabel=${localization?.results ?? 'content results'}
-                            .loading=${this.loading}>
+                            .loading=${this.loading}
+                            @universal-search-load-more=${this.loadMore}>
                         </relewise-universal-search-load-more>
                     `}
                 </section>

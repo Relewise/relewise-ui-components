@@ -1,26 +1,31 @@
-import { User } from '@relewise/client';
+import { SearchCollectionBuilder } from '@relewise/client';
 import { html, nothing } from 'lit';
 import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../helpers';
+import {
+    QueryKeys,
+    getRelewiseContextSettings,
+    getRelewiseUIOptions,
+    getRelewiseUISearchOptions,
+    readCurrentUrlState,
+} from '../helpers';
 import { RelewiseLitElement } from '../relewise-lit-element';
-import { UniversalSearchContentEntity } from './universal-search-content-entity';
-import type { UniversalSearchEntity } from './universal-search-entity';
+import { getSearcher } from './searcher';
 import { trapFocusInDialog } from './universal-search-focus';
-import { getEnabledUniversalSearchTabs } from './universal-search-options';
-import { UniversalSearchProductCategoriesEntity } from './universal-search-product-categories-entity';
-import { UniversalSearchProductsEntity } from './universal-search-products-entity';
-import { searchUniversalSearchEntities } from './universal-search-service';
 import { universalSearchStyles } from './universal-search.styles';
-import { UniversalSearchTabId, getUniversalSearchTabQueryKeys } from './universal-search-tab-settings';
 import { updateUrlStateForUniversalSearchTerm } from './universal-search-url-state';
-import { UniversalSearchTab, universalSearchTabs } from './universal-search.types';
+import { UniversalSearchBatchTab, UniversalSearchTab, universalSearchTabs } from './universal-search.types';
 
 export { universalSearchTabs };
 export type { UniversalSearchTab };
 
 let universalSearchInstanceId = 0;
-const defaultPageSize = 15;
+
+const defaultTabLabels: Record<UniversalSearchTab, string> = {
+    products: 'Products',
+    productCategories: 'Categories',
+    content: 'Content',
+};
 
 export class UniversalSearch extends RelewiseLitElement {
 
@@ -33,30 +38,18 @@ export class UniversalSearch extends RelewiseLitElement {
     @property({ type: Boolean, reflect: true, attribute: 'open' })
     isOpen = false;
 
-    @state()
-    private term: string = '';
+    @state() private term = '';
+    @state() private searchTerm = '';
+    @state() private activeTab: UniversalSearchTab | null = null;
+    @state() private tabHits: Record<UniversalSearchTab, number | null> = {
+        products: null,
+        productCategories: null,
+        content: null,
+    };
 
-    @state()
-    private activeTab: UniversalSearchTab | null = null;
-
-    @state()
-    private loading: boolean = false;
-
-    @state()
-    private user: User | null = null;
-
-    private abortController: AbortController = new AbortController();
     private debounceTimeoutHandlerId: ReturnType<typeof setTimeout> | null = null;
+    private batchAbortController = new AbortController();
     private handleWindowKeyDownBound = this.handleWindowKeyDown.bind(this);
-    private readonly entityStateChanged = () => this.entities = { ...this.entities };
-
-    @state()
-    private entities = {
-        [UniversalSearchTabId.products]: new UniversalSearchProductsEntity(defaultPageSize, this.entityStateChanged),
-        [UniversalSearchTabId.productCategories]: new UniversalSearchProductCategoriesEntity(defaultPageSize, this.entityStateChanged),
-        [UniversalSearchTabId.content]: new UniversalSearchContentEntity(defaultPageSize, this.entityStateChanged),
-    } satisfies Record<UniversalSearchTab, UniversalSearchEntity>;
-
     private readonly accessibilityId = `relewise-universal-search-${universalSearchInstanceId++}`;
     private previouslyFocusedElement: HTMLElement | null = null;
     private openStateActive = false;
@@ -64,6 +57,7 @@ export class UniversalSearch extends RelewiseLitElement {
     connectedCallback(): void {
         super.connectedCallback();
         this.term = readCurrentUrlState(QueryKeys.term) ?? '';
+        this.searchTerm = this.term;
         this.activeTab = this.term ? this.firstEnabledTab : null;
         window.addEventListener('keydown', this.handleWindowKeyDownBound);
         this.syncOpenState();
@@ -75,7 +69,7 @@ export class UniversalSearch extends RelewiseLitElement {
             clearTimeout(this.debounceTimeoutHandlerId);
             this.debounceTimeoutHandlerId = null;
         }
-        this.abortController.abort();
+        this.batchAbortController.abort();
         this.openStateActive = false;
         this.previouslyFocusedElement = null;
         super.disconnectedCallback();
@@ -105,12 +99,11 @@ export class UniversalSearch extends RelewiseLitElement {
         this.openStateActive = this.isOpen;
         if (this.isOpen) {
             this.previouslyFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-            this.searchEnabledTabs(true);
+            void this.searchEnabledTabs(this.searchTerm);
             return;
         }
 
-        this.abortController.abort();
-        this.loading = false;
+        this.batchAbortController.abort();
         this.previouslyFocusedElement?.focus();
         this.previouslyFocusedElement = null;
     }
@@ -121,10 +114,10 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         this.term = term;
-        this.abortController.abort();
+        this.batchAbortController.abort();
+        this.searchTerm = '';
         this.activeTab = this.term ? this.firstEnabledTab : null;
-        this.forEachEntity(universalSearchTabs, entity => entity.clear());
-        this.loading = Boolean(this.isOpen && this.term && this.enabledTabs.length > 0);
+        this.tabHits = { products: null, productCategories: null, content: null };
 
         if (this.debounceTimeoutHandlerId) {
             clearTimeout(this.debounceTimeoutHandlerId);
@@ -134,18 +127,61 @@ export class UniversalSearch extends RelewiseLitElement {
             this.debounceTimeoutHandlerId = null;
             updateUrlStateForUniversalSearchTerm(this.term);
             this.activeTab = this.term ? this.firstEnabledTab : null;
+            this.searchTerm = this.term;
             if (this.isOpen) {
-                this.searchEnabledTabs(true);
+                void this.searchEnabledTabs(this.searchTerm);
             }
         }, getRelewiseUISearchOptions()?.debounceTimeInMs);
     };
 
-    private get enabledTabs(): UniversalSearchTab[] {
-        return getEnabledUniversalSearchTabs();
+    private async searchEnabledTabs(term: string): Promise<void> {
+        this.batchAbortController.abort();
+        if (!term || this.enabledTabs.length === 0) {
+            return;
+        }
+
+        const abortController = new AbortController();
+        this.batchAbortController = abortController;
+
+        await this.updateComplete;
+        // Let runtime configuration register before the automatic search starts.
+        await new Promise(resolve => setTimeout(resolve, 0));
+        if (abortController.signal.aborted || this.searchTerm !== term) {
+            return;
+        }
+
+        let searches: ReturnType<UniversalSearchBatchTab['prepareBatchSearch']>[] = [];
+        try {
+            const settings = await getRelewiseContextSettings(this.displayedAtLocation ?? 'Relewise Universal Search');
+            if (abortController.signal.aborted || this.searchTerm !== term) {
+                return;
+            }
+            const tabs = [...this.renderRoot.querySelectorAll<UniversalSearchBatchTab & Element>(
+                'relewise-universal-search-products-tab, relewise-universal-search-product-categories-tab, relewise-universal-search-content-tab',
+            )];
+            searches = tabs.map(tab => tab.prepareBatchSearch(settings));
+            const requestBuilder = new SearchCollectionBuilder();
+            searches.forEach(search => requestBuilder.addRequest(search.request));
+            const response = await getSearcher(getRelewiseUIOptions()).batch(requestBuilder.build(), { abortSignal: abortController.signal });
+            if (!abortController.signal.aborted && response) {
+                searches.forEach(search => search.applyResponse(response));
+            }
+        } catch {
+            if (!abortController.signal.aborted) {
+                searches.forEach(search => search.setError());
+            }
+        }
     }
 
-    private get enabledEntities() {
-        return this.enabledTabs.map(tab => this.entities[tab]);
+    private get enabledTabs(): UniversalSearchTab[] {
+        const entities = getRelewiseUISearchOptions()?.universalSearch?.entities;
+        if (!entities) {
+            return ['products'];
+        }
+
+        return Object.keys(entities)
+            .filter((tab): tab is UniversalSearchTab => universalSearchTabs.includes(tab as UniversalSearchTab))
+            .filter(tab => Boolean(entities[tab]));
     }
 
     private get firstEnabledTab(): UniversalSearchTab | null {
@@ -181,15 +217,6 @@ export class UniversalSearch extends RelewiseLitElement {
         }
     }
 
-    private onSearchOptionsChanged(): void {
-        if (!this.isOpen || !this.term || !this.activeTab) {
-            return;
-        }
-
-        updateUrlState(getUniversalSearchTabQueryKeys(this.activeTab).take, null);
-        this.searchTabs([this.activeTab], true);
-    }
-
     private handleSelectTab(tab: UniversalSearchTab): void {
         this.activeTab = tab;
     }
@@ -219,80 +246,27 @@ export class UniversalSearch extends RelewiseLitElement {
         this.renderRoot.querySelector<HTMLElement>(`#${this.getTabId(nextTab)}`)?.focus();
     }
 
+    private handleTabStateChanged(event: CustomEvent<{ tab: UniversalSearchTab; hits: number | null }>): void {
+        this.tabHits = {
+            ...this.tabHits,
+            [event.detail.tab]: event.detail.hits,
+        };
+    }
+
+    private getTabLabel(tab: UniversalSearchTab): string {
+        return getRelewiseUISearchOptions()?.localization?.universalSearch?.[tab]?.tab ?? defaultTabLabels[tab];
+    }
+
+    private getResultsForLabel(tab: UniversalSearchTab): string {
+        return getRelewiseUISearchOptions()?.localization?.universalSearch?.[tab]?.resultsFor ?? 'Search results for';
+    }
+
     private getTabId(tab: UniversalSearchTab): string {
         return `${this.accessibilityId}-tab-${tab}`;
     }
 
     private getPanelId(tab: UniversalSearchTab): string {
         return `${this.accessibilityId}-panel-${tab}`;
-    }
-
-    private async handleLoadMoreActiveTab(): Promise<void> {
-        if (!this.activeTab || this.loading) {
-            return;
-        }
-
-        const tab = this.activeTab;
-        await this.entities[tab].loadMore(() => this.searchTabs([tab], false));
-    }
-
-    private async searchEnabledTabs(shouldClearOldResult: boolean): Promise<void> {
-        await this.searchTabs(this.enabledTabs, shouldClearOldResult);
-    }
-
-    private async searchTabs(tabs: UniversalSearchTab[], shouldClearOldResult: boolean): Promise<boolean> {
-        this.abortController.abort();
-
-        if (!this.term || tabs.length === 0) {
-            this.activeTab = null;
-            this.forEachEntity(universalSearchTabs, entity => entity.clear());
-            this.loading = false;
-            return false;
-        }
-
-        if (!this.activeTab || !this.enabledTabs.includes(this.activeTab)) {
-            this.activeTab = this.firstEnabledTab;
-        }
-
-        this.loading = true;
-        if (shouldClearOldResult) {
-            this.forEachEntity(tabs, entity => entity.resetForSearch());
-        } else {
-            this.forEachEntity(tabs, entity => entity.clearError());
-        }
-
-        const abortController = new AbortController();
-        this.abortController = abortController;
-
-        try {
-            const user = await searchUniversalSearchEntities({
-                entities: tabs.map(tab => this.entities[tab]),
-                term: this.term,
-                target: this.target,
-                displayedAtLocation: this.displayedAtLocation,
-                abortSignal: abortController.signal,
-            });
-
-            if (abortController.signal.aborted) {
-                return false;
-            }
-
-            this.user = user;
-            return true;
-        } catch {
-            if (!abortController.signal.aborted) {
-                this.forEachEntity(tabs, entity => entity.setError());
-            }
-            return false;
-        } finally {
-            if (!abortController.signal.aborted) {
-                this.loading = false;
-            }
-        }
-    }
-
-    private forEachEntity(tabs: readonly UniversalSearchTab[], callback: (entity: UniversalSearchEntity) => void): void {
-        tabs.forEach(tab => callback(this.entities[tab]));
     }
 
     render() {
@@ -303,8 +277,7 @@ export class UniversalSearch extends RelewiseLitElement {
         const localization = getRelewiseUISearchOptions()?.localization;
         const searchBarLocalization = localization?.searchBar;
         const universalSearchLocalization = localization?.universalSearch;
-        const enabledEntities = this.enabledEntities;
-        const activeEntity = this.activeTab ? this.entities[this.activeTab] : null;
+        const enabledTabs = this.enabledTabs;
 
         return html`
             <div class="rw-backdrop" part="backdrop" @click=${this.closeWhenClickingOutsideDialog}>
@@ -333,89 +306,75 @@ export class UniversalSearch extends RelewiseLitElement {
                             @click=${this.close}>
                         </relewise-button>
                     </header>
-                    <div class="rw-body" part="body">
+                    <div
+                        class="rw-body"
+                        part="body"
+                        @universal-search-tab-state-changed=${this.handleTabStateChanged}>
                         ${!this.term ? html`
                             <p class="rw-empty" part="empty-state">
                                 ${universalSearchLocalization?.emptyState ?? 'Start typing to search.'}
                             </p>
-                        ` : enabledEntities.length === 0 ? html`
+                        ` : enabledTabs.length === 0 ? html`
                             <p class="rw-empty" part="empty-state">
                                 ${universalSearchLocalization?.noEntitiesConfigured ?? 'No universal-search entities configured.'}
                             </p>
                         ` : html`
                             <div class="rw-results-summary" part="results-summary">
-                                ${activeEntity?.resultsForLabel ?? 'Search results for'} <strong>${this.term}</strong>
+                                ${this.activeTab ? this.getResultsForLabel(this.activeTab) : 'Search results for'} <strong>${this.term}</strong>
                             </div>
                             <nav
                                 class="rw-tabs"
                                 part="tabs"
                                 role="tablist"
                                 aria-label=${universalSearchLocalization?.tabsLabel ?? 'Search result tabs'}>
-                                ${enabledEntities.map(entity => html`
+                                ${enabledTabs.map(tab => html`
                                     <button
                                         class="rw-tab"
                                         part="tab"
                                         type="button"
-                                        id=${this.getTabId(entity.id)}
+                                        id=${this.getTabId(tab)}
                                         role="tab"
-                                        aria-controls=${this.getPanelId(entity.id)}
-                                        aria-selected=${this.activeTab === entity.id}
-                                        tabindex=${this.activeTab === entity.id ? 0 : -1}
-                                        @keydown=${(event: KeyboardEvent) => this.handleTabKeyDown(event, entity.id)}
-                                        @click=${() => this.handleSelectTab(entity.id)}>
-                                        ${entity.tabLabel}
-                                        ${entity.response ? html`
-                                            <span class="rw-tab-count" part="tab-count">${entity.response.hits}</span>
+                                        aria-controls=${this.getPanelId(tab)}
+                                        aria-selected=${this.activeTab === tab}
+                                        tabindex=${this.activeTab === tab ? 0 : -1}
+                                        @keydown=${(event: KeyboardEvent) => this.handleTabKeyDown(event, tab)}
+                                        @click=${() => this.handleSelectTab(tab)}>
+                                        ${this.getTabLabel(tab)}
+                                        ${this.tabHits[tab] !== null ? html`
+                                            <span class="rw-tab-count" part="tab-count">${this.tabHits[tab]}</span>
                                         ` : nothing}
                                     </button>
                                 `)}
                             </nav>
-                            ${this.activeTab ? html`
+                            ${enabledTabs.map(tab => html`
                                 <div
-                                    id=${this.getPanelId(this.activeTab)}
+                                    id=${this.getPanelId(tab)}
                                     role="tabpanel"
-                                    aria-labelledby=${this.getTabId(this.activeTab)}
-                                    tabindex="0">
-                                    ${this.activeTab === UniversalSearchTabId.products ? html`
+                                    aria-labelledby=${this.getTabId(tab)}
+                                    tabindex=${this.activeTab === tab ? 0 : -1}
+                                    ?hidden=${this.activeTab !== tab}>
+                                    ${tab === 'products' ? html`
                                         <relewise-universal-search-products-tab
                                             exportparts="results-layout, facets, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, sorting, sorting-select, sorting-label, error-state, loading-state, zero-results, product-grid, product-tile, load-more"
-                                            .result=${this.entities.products.response}
-                                            .products=${this.entities.products.results}
-                                            .facetLabels=${this.entities.products.facetLabels}
-                                            .loading=${this.loading}
-                                            .error=${this.entities.products.error}
-                                            .user=${this.user}
+                                            .term=${this.searchTerm}
                                             .target=${this.target}
-                                            @universal-search-load-more=${this.handleLoadMoreActiveTab}
-                                            @universal-search-options-changed=${this.onSearchOptionsChanged}>
+                                            .displayedAtLocation=${this.displayedAtLocation}>
                                         </relewise-universal-search-products-tab>
-                                    ` : this.activeTab === UniversalSearchTabId.productCategories ? html`
+                                    ` : tab === 'productCategories' ? html`
                                         <relewise-universal-search-product-categories-tab
                                             exportparts="results-layout, facets, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, zero-results, category-grid, category-tile, load-more"
-                                            .result=${this.entities.productCategories.response}
-                                            .productCategories=${this.entities.productCategories.results}
-                                            .facetLabels=${this.entities.productCategories.facetLabels}
-                                            .loading=${this.loading}
-                                            .error=${this.entities.productCategories.error}
-                                            .user=${this.user}
-                                            @universal-search-load-more=${this.handleLoadMoreActiveTab}
-                                            @universal-search-options-changed=${this.onSearchOptionsChanged}>
+                                            .term=${this.searchTerm}
+                                            .displayedAtLocation=${this.displayedAtLocation}>
                                         </relewise-universal-search-product-categories-tab>
                                     ` : html`
                                         <relewise-universal-search-content-tab
                                             exportparts="results-layout, facets, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, zero-results, content-grid, content-tile, load-more"
-                                            .result=${this.entities.content.response}
-                                            .content=${this.entities.content.results}
-                                            .facetLabels=${this.entities.content.facetLabels}
-                                            .loading=${this.loading}
-                                            .error=${this.entities.content.error}
-                                            .user=${this.user}
-                                            @universal-search-load-more=${this.handleLoadMoreActiveTab}
-                                            @universal-search-options-changed=${this.onSearchOptionsChanged}>
+                                            .term=${this.searchTerm}
+                                            .displayedAtLocation=${this.displayedAtLocation}>
                                         </relewise-universal-search-content-tab>
                                     `}
                                 </div>
-                            ` : nothing}
+                            `)}
                         `}
                     </div>
                 </section>

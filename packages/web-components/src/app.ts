@@ -59,12 +59,12 @@ export interface UniversalSearchOptions {
 }
 
 export interface UniversalSearchEntitiesOptions {
-    products?: UniversalSearchEntityOptions;
-    productCategories?: UniversalSearchEntityOptions;
-    content?: UniversalSearchEntityOptions;
+    products?: UniversalSearchTabOptions;
+    productCategories?: UniversalSearchTabOptions;
+    content?: UniversalSearchTabOptions;
 }
 
-export interface UniversalSearchEntityOptions {
+export interface UniversalSearchTabOptions {
     pageSize?: number;
 }
 
