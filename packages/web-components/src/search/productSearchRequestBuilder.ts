@@ -2,7 +2,7 @@ import { DoubleNullableRange, ProductSearchRequest, Settings } from '@relewise/c
 import { createProductSearchBuilder } from '../builders';
 import { RelewiseFacetBuilder } from '../facetBuilder';
 import { getRelewiseSearchTargetedConfigurations, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
-import { QueryKeys, readCurrentUrlState, readCurrentUrlStateValues } from '../helpers/urlState';
+import { QueryKeys, getFacetRangeQueryKeyPrefixes, readCurrentUrlState, readCurrentUrlStateValues } from '../helpers/urlState';
 import { getSearchSortingOptions, getSearchSortingSelection } from './searchSortingBuilder';
 import { Facet } from './types';
 
@@ -101,8 +101,9 @@ function applySelectedRangeToProductFacet(facet: Facet, options: ProductSearchRe
     if ('selected' in facet) {
         let upperBound = null;
         let lowerBound = null;
-        const upperboundQueryKeyPrefix = options.facetUpperboundQueryKeyPrefix ?? QueryKeys.facetUpperbound;
-        const lowerboundQueryKeyPrefix = options.facetLowerboundQueryKeyPrefix ?? QueryKeys.facetLowerbound;
+        const rangeQueryKeyPrefixes = getFacetRangeQueryKeyPrefixes(options.facetQueryKeyPrefix ?? QueryKeys.facet);
+        const upperboundQueryKeyPrefix = options.facetUpperboundQueryKeyPrefix ?? rangeQueryKeyPrefixes.upperBound;
+        const lowerboundQueryKeyPrefix = options.facetLowerboundQueryKeyPrefix ?? rangeQueryKeyPrefixes.lowerBound;
 
         if ('key' in facet) {
             upperBound = readCurrentUrlState(upperboundQueryKeyPrefix + facet.field + facet.key);

@@ -20,6 +20,13 @@ export enum QueryKeys {
     contentFacetLowerbound = 'rw-content-facet-lowerbound-',
 }
 
+export function getFacetRangeQueryKeyPrefixes(facetQueryKeyPrefix: string) {
+    return {
+        upperBound: `${facetQueryKeyPrefix}upperbound-`,
+        lowerBound: `${facetQueryKeyPrefix}lowerbound-`,
+    };
+}
+
 export function updateUrlState(queryParamName: string, value: string | null) {
     const currentUrl = new URL(window.location.href);
     

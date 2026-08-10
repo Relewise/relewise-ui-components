@@ -2,7 +2,7 @@ import { RelewiseLitElement } from '../../../relewise-lit-element';
 import { TemplateResult, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { FacetResult, FacetResultContainer } from '../../types';
-import { Events, QueryKeys, getRelewiseUISearchOptions } from '../../../helpers';
+import { Events, QueryKeys, getFacetRangeQueryKeyPrefixes, getRelewiseUISearchOptions } from '../../../helpers';
 import { theme } from '../../../theme';
 
 export class Facets extends RelewiseLitElement {
@@ -20,10 +20,10 @@ export class Facets extends RelewiseLitElement {
     facetQueryKeyPrefix: string = QueryKeys.facet;
 
     @property({ attribute: 'facet-upperbound-query-key-prefix' })
-    facetUpperboundQueryKeyPrefix: string = QueryKeys.facetUpperbound;
+    facetUpperboundQueryKeyPrefix?: string;
 
     @property({ attribute: 'facet-lowerbound-query-key-prefix' })
-    facetLowerboundQueryKeyPrefix: string = QueryKeys.facetLowerbound;
+    facetLowerboundQueryKeyPrefix?: string;
 
     @state()
     showFacets: boolean = window.innerWidth >= 1024;
@@ -164,6 +164,7 @@ export class Facets extends RelewiseLitElement {
             facetResult.$type.includes('ContentDataDoubleRangeFacetResult') ||
             facetResult.$type.includes('ProductCategoryDataDoubleRangeFacetResult') ||
             facetResult.$type.includes('PriceRangeFacetResult')) {
+            const rangeQueryKeyPrefixes = getFacetRangeQueryKeyPrefixes(this.facetQueryKeyPrefix);
             return html`
                 <relewise-number-range-facet
                     .label=${label}
@@ -171,8 +172,8 @@ export class Facets extends RelewiseLitElement {
                     exportparts="title, input"
                     .result=${facetResult}
                     .applyFacet=${this.applyFacet}
-                    .upperboundQueryKeyPrefix=${this.facetUpperboundQueryKeyPrefix}
-                    .lowerboundQueryKeyPrefix=${this.facetLowerboundQueryKeyPrefix}
+                    .upperboundQueryKeyPrefix=${this.facetUpperboundQueryKeyPrefix ?? rangeQueryKeyPrefixes.upperBound}
+                    .lowerboundQueryKeyPrefix=${this.facetLowerboundQueryKeyPrefix ?? rangeQueryKeyPrefixes.lowerBound}
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     class=${styling}>
                 </relewise-number-range-facet>

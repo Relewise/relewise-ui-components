@@ -26,8 +26,6 @@ export class UniversalSearchProductsEntity extends UniversalSearchEntityBase<Pro
             productsToFetch: options.resultsToFetch,
             target: options.target,
             facetQueryKeyPrefix: queryKeys.facet,
-            facetUpperboundQueryKeyPrefix: queryKeys.facetUpperbound,
-            facetLowerboundQueryKeyPrefix: queryKeys.facetLowerbound,
             sortingQueryKey: queryKeys.sorting,
         });
     }

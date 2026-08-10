@@ -19,7 +19,5 @@ export function getUniversalSearchTabQueryKeys(tab: UniversalSearchTab) {
         take: `${prefix}take`,
         sorting: `${prefix}sorting`,
         facet: `${prefix}facet-`,
-        facetUpperbound: `${prefix}facet-upperbound-`,
-        facetLowerbound: `${prefix}facet-lowerbound-`,
     };
 }

@@ -1,16 +1,12 @@
-import { QueryKeys, readCurrentUrlState } from '../helpers';
+import { QueryKeys, getFacetRangeQueryKeyPrefixes, readCurrentUrlState } from '../helpers';
 import { UniversalSearchTab } from './universal-search.types';
 import { UniversalSearchTabId, getUniversalSearchTabQueryKeys, universalSearchTabs } from './universal-search-tab-settings';
 
 const tabQueryKeys = universalSearchTabs.map(getUniversalSearchTabQueryKeys);
 const takeQueryKeys = [QueryKeys.take, ...tabQueryKeys.map(queryKeys => queryKeys.take)];
 const sortingQueryKeys = [getUniversalSearchTabQueryKeys(UniversalSearchTabId.products).sorting];
-const facetQueryKeyPrefixes = [
-    QueryKeys.facet,
-    QueryKeys.facetUpperbound,
-    QueryKeys.facetLowerbound,
-    ...tabQueryKeys.flatMap(queryKeys => [queryKeys.facet, queryKeys.facetUpperbound, queryKeys.facetLowerbound]),
-];
+const facetQueryKeyPrefixes = [QueryKeys.facet, ...tabQueryKeys.map(queryKeys => queryKeys.facet)]
+    .flatMap(facetQueryKeyPrefix => [facetQueryKeyPrefix, ...Object.values(getFacetRangeQueryKeyPrefixes(facetQueryKeyPrefix))]);
 
 export function getNumberOfUniversalSearchResultsToFetch(tab: UniversalSearchTab): number | null {
     const value = readCurrentUrlState(getUniversalSearchTabQueryKeys(tab).take);

@@ -104,6 +104,23 @@ suite('facet generalization', () => {
         assert.deepEqual(searchParams.getAll(QueryKeys.facet + 'DataColor'), []);
     });
 
+    test('derives range URL keys from the facet prefix', async () => {
+        const el = await fixture(html`
+            <relewise-facets
+                .facetQueryKeyPrefix=${QueryKeys.productFacet}
+                .facetResult=${productRangeFacetResult()}
+                .labels=${['Price']}>
+            </relewise-facets>
+        `) as Facets;
+
+        el.showFacets = true;
+        await el.updateComplete;
+
+        const facet = el.shadowRoot!.querySelector<any>('relewise-number-range-facet')!;
+        assert.equal(facet.upperboundQueryKeyPrefix, QueryKeys.productFacetUpperbound);
+        assert.equal(facet.lowerboundQueryKeyPrefix, QueryKeys.productFacetLowerbound);
+    });
+
     test('applies object-valued facets with scoped URL keys', async () => {
         let applyCount = 0;
         const el = await fixture(html`
@@ -182,6 +199,21 @@ function contentStringFacetResult(): ContentFacetResult {
             }],
         }],
     } as ContentFacetResult;
+}
+
+function productRangeFacetResult(): ProductFacetResult {
+    return {
+        items: [{
+            $type: 'Relewise.Client.DataTypes.Search.Facets.Result.PriceRangeFacetResult, Relewise.Client',
+            field: 'SalesPrice',
+            available: {
+                value: {
+                    lowerBoundInclusive: 10,
+                    upperBoundInclusive: 100,
+                },
+            },
+        }],
+    } as ProductFacetResult;
 }
 
 function productBrandFacetResult(): ProductFacetResult {

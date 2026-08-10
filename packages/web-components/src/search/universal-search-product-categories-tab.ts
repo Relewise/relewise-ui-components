@@ -30,8 +30,6 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
                         exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
                         .labels=${this.facetLabels}
                         .facetQueryKeyPrefix=${queryKeys.facet}
-                        .facetUpperboundQueryKeyPrefix=${queryKeys.facetUpperbound}
-                        .facetLowerboundQueryKeyPrefix=${queryKeys.facetLowerbound}
                         .applyFacet=${this.searchOptionsChanged}
                         .facetResult=${this.result.facets}>
                     </relewise-facets>
