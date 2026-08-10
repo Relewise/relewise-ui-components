@@ -15,8 +15,6 @@ export type ProductSearchRequestOptions = {
     productsToFetch: number | null;
     target: string | null;
     facetQueryKeyPrefix?: string;
-    facetUpperboundQueryKeyPrefix?: string;
-    facetLowerboundQueryKeyPrefix?: string;
     sortingQueryKey?: string;
 };
 
@@ -102,15 +100,13 @@ function applySelectedRangeToProductFacet(facet: Facet, options: ProductSearchRe
         let upperBound = null;
         let lowerBound = null;
         const rangeQueryKeyPrefixes = getFacetRangeQueryKeyPrefixes(options.facetQueryKeyPrefix ?? QueryKeys.facet);
-        const upperboundQueryKeyPrefix = options.facetUpperboundQueryKeyPrefix ?? rangeQueryKeyPrefixes.upperBound;
-        const lowerboundQueryKeyPrefix = options.facetLowerboundQueryKeyPrefix ?? rangeQueryKeyPrefixes.lowerBound;
 
         if ('key' in facet) {
-            upperBound = readCurrentUrlState(upperboundQueryKeyPrefix + facet.field + facet.key);
-            lowerBound = readCurrentUrlState(lowerboundQueryKeyPrefix + facet.field + facet.key);
+            upperBound = readCurrentUrlState(rangeQueryKeyPrefixes.upperBound + facet.field + facet.key);
+            lowerBound = readCurrentUrlState(rangeQueryKeyPrefixes.lowerBound + facet.field + facet.key);
         } else {
-            upperBound = readCurrentUrlState(upperboundQueryKeyPrefix + facet.field);
-            lowerBound = readCurrentUrlState(lowerboundQueryKeyPrefix + facet.field);
+            upperBound = readCurrentUrlState(rangeQueryKeyPrefixes.upperBound + facet.field);
+            lowerBound = readCurrentUrlState(rangeQueryKeyPrefixes.lowerBound + facet.field);
         }
 
         facet.selected = {

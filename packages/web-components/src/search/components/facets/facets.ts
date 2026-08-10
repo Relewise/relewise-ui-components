@@ -19,12 +19,6 @@ export class Facets extends RelewiseLitElement {
     @property({ attribute: 'facet-query-key-prefix' })
     facetQueryKeyPrefix: string = QueryKeys.facet;
 
-    @property({ attribute: 'facet-upperbound-query-key-prefix' })
-    facetUpperboundQueryKeyPrefix?: string;
-
-    @property({ attribute: 'facet-lowerbound-query-key-prefix' })
-    facetLowerboundQueryKeyPrefix?: string;
-
     @state()
     showFacets: boolean = window.innerWidth >= 1024;
 
@@ -172,8 +166,8 @@ export class Facets extends RelewiseLitElement {
                     exportparts="title, input"
                     .result=${facetResult}
                     .applyFacet=${this.applyFacet}
-                    .upperboundQueryKeyPrefix=${this.facetUpperboundQueryKeyPrefix ?? rangeQueryKeyPrefixes.upperBound}
-                    .lowerboundQueryKeyPrefix=${this.facetLowerboundQueryKeyPrefix ?? rangeQueryKeyPrefixes.lowerBound}
+                    .upperboundQueryKeyPrefix=${rangeQueryKeyPrefixes.upperBound}
+                    .lowerboundQueryKeyPrefix=${rangeQueryKeyPrefixes.lowerBound}
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     class=${styling}>
                 </relewise-number-range-facet>
