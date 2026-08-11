@@ -1,22 +1,8 @@
-import { QueryKeys, readCurrentUrlState } from '../helpers';
-import { UniversalSearchTab } from './universal-search.types';
-import { universalSearchFacetQueryKeyPrefixes, universalSearchSortingQueryKeys, universalSearchTabSettings, universalSearchTakeQueryKeys } from './universal-search-tab-settings';
+import { QueryKeys, getFacetRangeQueryKeyPrefixes } from '../helpers';
 
-export function getNumberOfUniversalSearchResultsToFetch(tab: UniversalSearchTab): number | null {
-    const value = readCurrentUrlState(universalSearchTabSettings[tab].takeQueryKey);
-
-    if (!value) {
-        return null;
-    }
-
-    const parsedValue = parseInt(value, 10);
-
-    if (isNaN(parsedValue)) {
-        return null;
-    }
-
-    return parsedValue;
-}
+const takeQueryKeys = [QueryKeys.take, QueryKeys.productTake, QueryKeys.productCategoryTake, QueryKeys.contentTake];
+const facetQueryKeyPrefixes = [QueryKeys.facet, QueryKeys.productFacet, QueryKeys.productCategoryFacet, QueryKeys.contentFacet]
+    .flatMap(facetQueryKeyPrefix => [facetQueryKeyPrefix, ...Object.values(getFacetRangeQueryKeyPrefixes(facetQueryKeyPrefix))]);
 
 export function updateUrlStateForUniversalSearchTerm(term: string): void {
     const currentUrl = new URL(window.location.href);
@@ -27,13 +13,12 @@ export function updateUrlStateForUniversalSearchTerm(term: string): void {
         currentUrl.searchParams.delete(QueryKeys.term);
     }
 
-    universalSearchTakeQueryKeys.forEach(queryKey => currentUrl.searchParams.delete(queryKey));
-    universalSearchSortingQueryKeys.forEach(queryKey => currentUrl.searchParams.delete(queryKey));
+    takeQueryKeys.forEach(queryKey => currentUrl.searchParams.delete(queryKey));
+    currentUrl.searchParams.delete(QueryKeys.productSorting);
 
     const queryParamNames = [...new Set(Array.from(currentUrl.searchParams.keys()))];
-
     queryParamNames
-        .filter(queryParamName => universalSearchFacetQueryKeyPrefixes.some(prefix => queryParamName.startsWith(prefix)))
+        .filter(queryParamName => facetQueryKeyPrefixes.some(prefix => queryParamName.startsWith(prefix)))
         .forEach(queryParamName => currentUrl.searchParams.delete(queryParamName));
 
     window.history.replaceState({}, document.title, currentUrl);

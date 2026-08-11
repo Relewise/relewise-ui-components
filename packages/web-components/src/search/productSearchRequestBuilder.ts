@@ -2,7 +2,7 @@ import { DoubleNullableRange, ProductSearchRequest, Settings } from '@relewise/c
 import { createProductSearchBuilder } from '../builders';
 import { RelewiseFacetBuilder } from '../facetBuilder';
 import { getRelewiseSearchTargetedConfigurations, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
-import { QueryKeys, readCurrentUrlState, readCurrentUrlStateValues } from '../helpers/urlState';
+import { QueryKeys, getFacetRangeQueryKeyPrefixes, readCurrentUrlState, readCurrentUrlStateValues } from '../helpers/urlState';
 import { getSearchSortingOptions, getSearchSortingSelection } from './searchSortingBuilder';
 import { Facet } from './types';
 
@@ -15,8 +15,6 @@ export type ProductSearchRequestOptions = {
     productsToFetch: number | null;
     target: string | null;
     facetQueryKeyPrefix?: string;
-    facetUpperboundQueryKeyPrefix?: string;
-    facetLowerboundQueryKeyPrefix?: string;
     sortingQueryKey?: string;
 };
 
@@ -101,15 +99,14 @@ function applySelectedRangeToProductFacet(facet: Facet, options: ProductSearchRe
     if ('selected' in facet) {
         let upperBound = null;
         let lowerBound = null;
-        const upperboundQueryKeyPrefix = options.facetUpperboundQueryKeyPrefix ?? QueryKeys.facetUpperbound;
-        const lowerboundQueryKeyPrefix = options.facetLowerboundQueryKeyPrefix ?? QueryKeys.facetLowerbound;
+        const rangeQueryKeyPrefixes = getFacetRangeQueryKeyPrefixes(options.facetQueryKeyPrefix ?? QueryKeys.facet);
 
         if ('key' in facet) {
-            upperBound = readCurrentUrlState(upperboundQueryKeyPrefix + facet.field + facet.key);
-            lowerBound = readCurrentUrlState(lowerboundQueryKeyPrefix + facet.field + facet.key);
+            upperBound = readCurrentUrlState(rangeQueryKeyPrefixes.upperBound + facet.field + facet.key);
+            lowerBound = readCurrentUrlState(rangeQueryKeyPrefixes.lowerBound + facet.field + facet.key);
         } else {
-            upperBound = readCurrentUrlState(upperboundQueryKeyPrefix + facet.field);
-            lowerBound = readCurrentUrlState(lowerboundQueryKeyPrefix + facet.field);
+            upperBound = readCurrentUrlState(rangeQueryKeyPrefixes.upperBound + facet.field);
+            lowerBound = readCurrentUrlState(rangeQueryKeyPrefixes.lowerBound + facet.field);
         }
 
         facet.selected = {

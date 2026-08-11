@@ -114,10 +114,7 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
                                     id=${`${this.result?.field}-${this.result?.$type}-${index}`}
                                     name=${`${this.result?.field}-${this.result?.$type}-${index}`}
                                     .checked=${this.shouldOptionBeChecked(item)}
-                                    @click=${(e: Event) => {
-                        e.preventDefault();
-                        this.handleChange(e, item);
-                    }} />
+                                    @click=${(e: Event) => this.handleChange(e, item)} />
                                 <span part="value">${this.getOptionDisplayValue(item)}</span>
                                 <span class="rw-hits" part="hits">(${item.hits})</span>
                             </label>

@@ -82,8 +82,6 @@ suite('productSearchRequestBuilder', () => {
             productsToFetch: null,
             target: null,
             facetQueryKeyPrefix: QueryKeys.productFacet,
-            facetLowerboundQueryKeyPrefix: QueryKeys.productFacetLowerbound,
-            facetUpperboundQueryKeyPrefix: QueryKeys.productFacetUpperbound,
         });
 
         const facets = result.request.facets?.items as any[];

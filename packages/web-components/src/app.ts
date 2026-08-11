@@ -37,6 +37,10 @@ import { LikeFilledIcon } from './components/icons/like-filled';
 import { DislikeIcon } from './components/icons/dislike';
 import { DislikeFilledIcon } from './components/icons/dislike-filled';
 import { SearchSortingOptionsBuilder } from './search/searchSortingBuilder';
+import { UniversalSearchContentTab } from './search/universal-search-content-tab';
+import { UniversalSearchLoadMore } from './search/universal-search-load-more';
+import { UniversalSearchProductCategoriesTab } from './search/universal-search-product-categories-tab';
+import { UniversalSearchProductsTab } from './search/universal-search-products-tab';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -242,10 +246,15 @@ export function useSearch(options?: RelewiseUISearchOptions) {
         window.relewiseUISearchOptions = { debounceTimeInMs: defaultDebounceTimeInMs };
     }
 
-    tryRegisterElement('relewise-product-search-overlay', ProductSearchOverlay);
     if (window.relewiseUISearchOptions.universalSearch) {
         tryRegisterElement('relewise-universal-search', UniversalSearch);
+        tryRegisterElement('relewise-universal-search-products-tab', UniversalSearchProductsTab);
+        tryRegisterElement('relewise-universal-search-product-categories-tab', UniversalSearchProductCategoriesTab);
+        tryRegisterElement('relewise-universal-search-content-tab', UniversalSearchContentTab);
+        tryRegisterElement('relewise-universal-search-load-more', UniversalSearchLoadMore);
     }
+
+    tryRegisterElement('relewise-product-search-overlay', ProductSearchOverlay);
     tryRegisterElement('relewise-product-search', ProductSearch);
     tryRegisterElement('relewise-search-bar', SearchBar);
     tryRegisterElement('relewise-product-search-bar', ProductSearchBar);
