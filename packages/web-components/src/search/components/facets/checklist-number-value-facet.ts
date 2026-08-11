@@ -8,7 +8,7 @@ export class ChecklistNumberValueFacet extends ChecklistFacetBase {
     result: ProductAssortmentFacetResult | ProductDataDoubleValueFacetResult | ContentAssortmentFacetResult | ContentDataDoubleValueFacetResult | ContentDataIntegerValueFacetResult | ProductCategoryAssortmentFacetResult | ProductCategoryDataDoubleValueFacetResult | null = null;
 
     handleChange(e: Event, item: Int32AvailableFacetValue | DoubleAvailableFacetValue) {
-        const checkbox = e.target as HTMLInputElement;
+        const checkbox = e.currentTarget as HTMLInputElement;
 
         if (!item.value || !this.result) {
             return;

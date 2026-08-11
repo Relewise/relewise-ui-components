@@ -9,7 +9,7 @@ export class ChecklistBooleanValueFacet extends ChecklistFacetBase {
     result: ProductDataBooleanValueFacetResult | ContentDataBooleanValueFacetResult | ProductCategoryDataBooleanValueFacetResult | null = null;
 
     handleChange(e: Event, item: BooleanAvailableFacetValue) {
-        const checkbox = e.target as HTMLInputElement;
+        const checkbox = e.currentTarget as HTMLInputElement;
 
         if (item.value === undefined || item.value === null || !this.result) {
             return;

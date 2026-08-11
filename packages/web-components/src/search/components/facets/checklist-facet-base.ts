@@ -19,6 +19,12 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
     @property()
     label: string = '';
 
+    @property({ attribute: false })
+    applyFacet = () => window.dispatchEvent(new CustomEvent(Events.applyFacet));
+
+    @property({ attribute: 'query-key-prefix' })
+    queryKeyPrefix: string = QueryKeys.facet;
+
     @state()
     selectedValues: string[] = [];
 
@@ -54,20 +60,20 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
         updateUrlStateValues(this.getFacetQueryKey(), this.selectedValues);
 
         if (searchForProducts) {
-            window.dispatchEvent(new CustomEvent(Events.applyFacet));
+            this.applyFacet();
         }
     }
 
     getFacetQueryKey(): string {
         if (!this.result) {
-            return QueryKeys.facet;
+            return this.queryKeyPrefix;
         }
 
         if ('key' in this.result) {
-            return QueryKeys.facet + this.result.field + this.result.key;
+            return this.queryKeyPrefix + this.result.field + this.result.key;
         }
 
-        return QueryKeys.facet + this.result.field;
+        return this.queryKeyPrefix + this.result.field;
     }
 
     render() {
@@ -108,10 +114,7 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
                                     id=${`${this.result?.field}-${this.result?.$type}-${index}`}
                                     name=${`${this.result?.field}-${this.result?.$type}-${index}`}
                                     .checked=${this.shouldOptionBeChecked(item)}
-                                    @click=${(e: Event) => {
-                        e.preventDefault();
-                        this.handleChange(e, item);
-                    }} />
+                                    @click=${(e: Event) => this.handleChange(e, item)} />
                                 <span part="value">${this.getOptionDisplayValue(item)}</span>
                                 <span class="rw-hits" part="hits">(${item.hits})</span>
                             </label>

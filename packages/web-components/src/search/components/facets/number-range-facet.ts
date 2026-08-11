@@ -13,6 +13,15 @@ export class NumberRangeFacet extends RelewiseLitElement {
     @property()
     label: string = '';
 
+    @property({ attribute: false })
+    applyFacet = () => window.dispatchEvent(new CustomEvent(Events.applyFacet));
+
+    @property({ attribute: 'upperbound-query-key-prefix' })
+    upperboundQueryKeyPrefix: string = QueryKeys.facetUpperbound;
+
+    @property({ attribute: 'lowerbound-query-key-prefix' })
+    lowerboundQueryKeyPrefix: string = QueryKeys.facetLowerbound;
+
     @state()
     upperBound: number | null | undefined = null;
 
@@ -84,31 +93,31 @@ export class NumberRangeFacet extends RelewiseLitElement {
         updateUrlState(this.getFacetUpperBoundQueryKey(), upperBound?.toString() ?? '');
         updateUrlState(this.getFacetLowerBoundQueryKey(), lowerBound?.toString() ?? '');
 
-        window.dispatchEvent(new CustomEvent(Events.applyFacet));
+        this.applyFacet();
     }
 
     getFacetUpperBoundQueryKey(): string {
         if (!this.result) {
-            return QueryKeys.facetUpperbound;
+            return this.upperboundQueryKeyPrefix;
         }
 
         if ('key' in this.result) {
-            return QueryKeys.facetUpperbound + this.result.field + this.result.key;
+            return this.upperboundQueryKeyPrefix + this.result.field + this.result.key;
         }
 
-        return QueryKeys.facetUpperbound + this.result.field;
+        return this.upperboundQueryKeyPrefix + this.result.field;
     }
 
     getFacetLowerBoundQueryKey(): string {
         if (!this.result) {
-            return QueryKeys.facetLowerbound;
+            return this.lowerboundQueryKeyPrefix;
         }
 
         if ('key' in this.result) {
-            return QueryKeys.facetLowerbound + this.result.field + this.result.key;
+            return this.lowerboundQueryKeyPrefix + this.result.field + this.result.key;
         }
 
-        return QueryKeys.facetLowerbound + this.result.field;
+        return this.lowerboundQueryKeyPrefix + this.result.field;
     }
 
     handleKeyEvent(event: KeyboardEvent): void {
