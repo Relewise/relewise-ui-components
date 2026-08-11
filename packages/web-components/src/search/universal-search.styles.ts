@@ -37,7 +37,9 @@ export const universalSearchStyles = [theme, css`
     }
 
     relewise-search-bar {
+        display: block;
         flex: 1;
+        min-width: 0;
     }
 
     .rw-close {
@@ -95,6 +97,10 @@ export const universalSearchStyles = [theme, css`
         .rw-header {
             align-items: stretch;
             flex-direction: column;
+        }
+
+        relewise-search-bar {
+            width: 100%;
         }
     }
 `];

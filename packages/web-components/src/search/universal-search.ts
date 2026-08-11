@@ -12,6 +12,7 @@ import {
 import { RelewiseLitElement } from '../relewise-lit-element';
 import { getSearcher } from './searcher';
 import { trapFocusInDialog } from './universal-search-focus';
+import { UniversalSearchInputAssistController } from './universal-search-input-assist';
 import { universalSearchStyles } from './universal-search.styles';
 import { updateUrlStateForUniversalSearchTerm } from './universal-search-url-state';
 import { UniversalSearchBatchTab, UniversalSearchTab, universalSearchTabs } from './universal-search.types';
@@ -53,6 +54,15 @@ export class UniversalSearch extends RelewiseLitElement {
     private readonly accessibilityId = `relewise-universal-search-${universalSearchInstanceId++}`;
     private previouslyFocusedElement: HTMLElement | null = null;
     private openStateActive = false;
+    private readonly inputAssist = new UniversalSearchInputAssistController(this, {
+        getTerm: () => this.term,
+        getEnabledTabs: () => this.enabledTabs,
+        getDisplayedAtLocation: () => this.displayedAtLocation,
+        getAccessibilityId: () => this.accessibilityId,
+        setSearchTerm: term => this.setSearchTerm(term),
+        submitSearchTerm: () => this.submitCurrentTerm(),
+        close: () => this.close(),
+    });
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -104,6 +114,7 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         this.batchAbortController.abort();
+        this.inputAssist.close();
         this.previouslyFocusedElement?.focus();
         this.previouslyFocusedElement = null;
     }
@@ -125,14 +136,29 @@ export class UniversalSearch extends RelewiseLitElement {
 
         this.debounceTimeoutHandlerId = setTimeout(() => {
             this.debounceTimeoutHandlerId = null;
-            updateUrlStateForUniversalSearchTerm(this.term);
-            this.activeTab = this.term ? this.firstEnabledTab : null;
-            this.searchTerm = this.term;
-            if (this.isOpen) {
-                void this.searchEnabledTabs(this.searchTerm);
-            }
+            this.searchCurrentTerm();
         }, getRelewiseUISearchOptions()?.debounceTimeInMs);
     };
+
+    private searchCurrentTerm(): void {
+        updateUrlStateForUniversalSearchTerm(this.term);
+        this.activeTab = this.term ? this.firstEnabledTab : null;
+        this.searchTerm = this.term;
+
+        if (this.isOpen) {
+            void this.searchEnabledTabs(this.searchTerm);
+        }
+    }
+
+    private submitCurrentTerm(): void {
+        if (!this.debounceTimeoutHandlerId) {
+            return;
+        }
+
+        clearTimeout(this.debounceTimeoutHandlerId);
+        this.debounceTimeoutHandlerId = null;
+        this.searchCurrentTerm();
+    }
 
     private async searchEnabledTabs(term: string): Promise<void> {
         this.batchAbortController.abort();
@@ -160,6 +186,10 @@ export class UniversalSearch extends RelewiseLitElement {
                 'relewise-universal-search-products-tab, relewise-universal-search-product-categories-tab, relewise-universal-search-content-tab',
             )];
             searches = tabs.map(tab => tab.prepareBatchSearch(settings));
+            const inputAssistSearch = this.inputAssist.prepareBatchSearch(settings);
+            if (inputAssistSearch) {
+                searches.push(inputAssistSearch);
+            }
             const requestBuilder = new SearchCollectionBuilder();
             searches.forEach(search => requestBuilder.addRequest(search.request));
             const response = await getSearcher(getRelewiseUIOptions()).batch(requestBuilder.build(), { abortSignal: abortController.signal });
@@ -189,7 +219,7 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     private handleWindowKeyDown(event: KeyboardEvent): void {
-        if (!this.isOpen || event.key !== 'Escape') {
+        if (!this.isOpen || event.defaultPrevented || event.key !== 'Escape') {
             return;
         }
 
@@ -198,10 +228,7 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     private readonly handleSearchBarKeyDown = (event: KeyboardEvent): void => {
-        if (event.key === 'Escape') {
-            event.preventDefault();
-            this.close();
-        }
+        this.inputAssist.handleKeyEvent(event);
     };
 
     private closeWhenClickingOutsideDialog(event: MouseEvent): void {
@@ -280,7 +307,11 @@ export class UniversalSearch extends RelewiseLitElement {
         const enabledTabs = this.enabledTabs;
 
         return html`
-            <div class="rw-backdrop" part="backdrop" @click=${this.closeWhenClickingOutsideDialog}>
+            <div
+                class="rw-backdrop"
+                part="backdrop"
+                @click=${this.closeWhenClickingOutsideDialog}
+                @pointerdown=${(event: PointerEvent) => this.inputAssist.dismissWhenClickingOutside(event)}>
                 <section
                     class="rw-dialog"
                     part="dialog"
@@ -292,11 +323,17 @@ export class UniversalSearch extends RelewiseLitElement {
                     <header class="rw-header" part="header">
                         <relewise-search-bar
                             part="search-bar"
-                            exportparts="input: search-input, icon: search-icon"
+                            exportparts="input: search-input, icon: search-icon, input-assist, predictions, popular-search-terms, input-assist-list, input-assist-item"
                             .term=${this.term}
-                            .setSearchTerm=${this.setSearchTerm}
+                            .setSearchTerm=${(term: string) => this.inputAssist.handleSearchTermInput(term)}
+                            .setSearchBarInFocus=${(inFocus: boolean) => this.inputAssist.handleSearchBarFocus(inFocus)}
                             .handleKeyEvent=${this.handleSearchBarKeyDown}
                             .placeholder=${searchBarLocalization?.placeholder ?? null}
+                            .inputAssist=${this.inputAssist.render()}
+                            .inputAssistEnabled=${this.inputAssist.enabled}
+                            .inputAssistExpanded=${this.inputAssist.expanded}
+                            .inputAssistListId=${this.inputAssist.listId}
+                            .inputAssistActiveDescendantId=${this.inputAssist.activeDescendantId}
                             autofocus>
                         </relewise-search-bar>
                         <relewise-button

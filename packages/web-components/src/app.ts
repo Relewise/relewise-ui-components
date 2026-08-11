@@ -56,6 +56,16 @@ export interface RelewiseUISearchOptions {
 
 export interface UniversalSearchOptions {
     entities?: UniversalSearchEntitiesOptions;
+    inputAssist?: UniversalSearchInputAssistOptions;
+}
+
+export interface UniversalSearchInputAssistOptions {
+    popularSearchTerms?: {
+        take?: number;
+    };
+    searchTermPredictions?: {
+        take?: number;
+    };
 }
 
 export interface UniversalSearchEntitiesOptions {
@@ -80,6 +90,7 @@ export interface SearchLocalization {
 export interface UniversalSearchLocalization {
     close?: string;
     emptyState?: string;
+    inputAssistLabel?: string;
     noEntitiesConfigured?: string;
     tabsLabel?: string;
     products?: UniversalSearchTabLocalization;

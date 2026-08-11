@@ -592,6 +592,7 @@ useSearch({
         universalSearch: {
             close: 'Close',
             emptyState: 'Start typing to search.',
+            inputAssistLabel: 'Search suggestions',
             noEntitiesConfigured: 'No universal-search entities configured.',
             tabsLabel: 'Search result tabs',
             products: {
@@ -681,6 +682,14 @@ useSearch({
             },
             content: {},
         },
+        inputAssist: {
+            popularSearchTerms: {
+                take: 5,
+            },
+            searchTermPredictions: {
+                take: 5,
+            },
+        },
     },
 });
 ```
@@ -696,6 +705,12 @@ useSearch({
 The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
 
 When multiple entities are configured, they are searched together in one batched request when the search term changes. A single configured entity uses its direct search endpoint. Omitted entities are not rendered and are not requested. Facet, sorting, and load-more changes only search the active tab.
+
+Input Assist is opt-in. Configure `popularSearchTerms` to show popular terms while the focused input is empty, and configure `searchTermPredictions` to show predictions while it contains text. Both sections default to five terms when `take` is omitted and target the enabled universal-search entities.
+
+The assist panel supports pointer selection and Arrow Up, Arrow Down, Enter, and Escape. It closes on selection, Enter, Escape, outside interaction, or input blur. Popular terms may be empty when the dataset does not have enough engaged search history; an empty assist panel is not rendered.
+
+The Input Assist popup exposes the CSS parts `input-assist`, `popular-search-terms`, `predictions`, `input-assist-list`, and `input-assist-item` through `relewise-universal-search`.
 
 When the products tab is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option.
 
@@ -1196,6 +1211,13 @@ All CSS variables recognised by the web components are listed below together wit
 | `--relewise-product-search-bar-height` | `3em` | Height of the product search bar input. |
 | `--relewise-search-bar-border-color` | `var(--color)` | Border colour of the search input in its default state. |
 | `--relewise-search-bar-border-color-focused` | `var(--accent-color)` | Border colour of the search input when focused. |
+| `--relewise-universal-search-input-assist-z-index` | `1` | Stack order of the Universal Search Input Assist popup. |
+| `--relewise-universal-search-input-assist-offset` | `0.25em` | Space between the search input and Input Assist popup. |
+| `--relewise-universal-search-input-assist-background` | `white` | Background colour of the Input Assist popup. |
+| `--relewise-universal-search-input-assist-box-shadow` | `0 0.5em 1em rgb(0 0 0 / 0.12)` | Shadow around the Input Assist popup. |
+| `--relewise-universal-search-input-assist-padding` | `0.5em 0` | Padding around the Input Assist list. |
+| `--relewise-universal-search-input-assist-item-padding` | `0.625em 1em` | Padding for each Input Assist option. |
+| `--relewise-universal-search-input-assist-item-active-background` | `#f2f2f2` | Background of hovered or keyboard-selected Input Assist options. |
 
 #### Search overlay container and messaging
 | Variable | Default | Description |

@@ -143,5 +143,13 @@ initializeRelewiseUI(
                     pageSize: 15,
                 },
             },
+            inputAssist: {
+                popularSearchTerms: {
+                    take: 5,
+                },
+                searchTermPredictions: {
+                    take: 5,
+                },
+            },
         },
     });
