@@ -104,6 +104,25 @@ suite('product-search-sorting', () => {
         assert.equal(readCurrentUrlState(QueryKeys.sortBy), 'ProductData:Rating:Product:Descending:Numerical');
     });
 
+    test('can write sorting to an isolated URL key', async () => {
+        updateUrlState(QueryKeys.sortBy, SortingEnum.Relevance);
+        useSearch();
+
+        const element = await fixture<ProductSearchSorting>(html`
+            <relewise-product-search-sorting
+                .sortingQueryKey=${QueryKeys.productSorting}>
+            </relewise-product-search-sorting>
+        `);
+
+        const select = element.shadowRoot!.querySelector('select') as HTMLSelectElement;
+        select.value = SortingEnum.SalesPriceAsc;
+        select.dispatchEvent(new Event('change'));
+        await element.updateComplete;
+
+        assert.equal(readCurrentUrlState(QueryKeys.productSorting), SortingEnum.SalesPriceAsc);
+        assert.equal(readCurrentUrlState(QueryKeys.sortBy), SortingEnum.Relevance);
+    });
+
     test('falls back to the first configured option when the URL contains an unknown id', async () => {
         updateUrlState(QueryKeys.sortBy, 'unknown');
 

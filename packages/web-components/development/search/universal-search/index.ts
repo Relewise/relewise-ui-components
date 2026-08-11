@@ -2,6 +2,16 @@
 
 import { UserFactory } from '@relewise/client';
 import { initializeRelewiseUI } from '../../../src/index';
+import { customTemplates } from './templates';
+
+const useCustomTemplates = new URLSearchParams(window.location.search).get('templates') === 'custom';
+const templateMode = document.querySelector('#template-mode');
+
+if (templateMode) {
+    templateMode.textContent = useCustomTemplates
+        ? 'This variant uses custom entity templates.'
+        : 'This variant uses the component\'s default entity templates.';
+}
 
 initializeRelewiseUI(
     {
@@ -21,41 +31,55 @@ initializeRelewiseUI(
             product: {
                 displayName: true,
                 pricing: true,
-                dataKeys: ['Url', 'Image', 'ImageUrl'],
+                dataKeys: [
+                    'Url',
+                    'ImageUrl',
+                    'ShortDescription',
+                    'Color',
+                    'Material',
+                    'Fit',
+                    'Gender',
+                    'AgeGroup',
+                    'Season',
+                    'Occasion',
+                    'Sustainability',
+                    'NewArrival',
+                    'OnSale',
+                    'Badges',
+                    'PopularityScore',
+                ],
+            },
+            productCategory: {
+                displayName: true,
+                dataKeys: [
+                    'Url',
+                    'ImageUrl',
+                    'Description',
+                    'Gender',
+                    'AgeGroup',
+                    'Department',
+                    'Season',
+                    'CategoryType',
+                    'Priority',
+                ],
+            },
+            content: {
+                displayName: true,
+                dataKeys: [
+                    'Url',
+                    'ImageUrl',
+                    'Summary',
+                    'ArticleType',
+                    'Topic',
+                    'Audience',
+                    'Season',
+                    'ReadingTimeMinutes',
+                    'Featured',
+                    'RelatedProductCategoryIds',
+                ],
             },
         },
-        templates: {
-            product(product, { html, helpers }) {
-                const url = product.data?.['Url']?.value;
-                const image = product.data?.['Image']?.value ?? product.data?.['ImageUrl']?.value;
-                const content = html`
-                    ${image ? html`
-                        <img
-                            style="display:block;width:100%;aspect-ratio:1/1;object-fit:contain;background:#f7f7f7;"
-                            src=${image}
-                            alt=${product.displayName ?? ''}>
-                    ` : helpers.nothing}
-                    <div style="padding:.75rem;">
-                        <strong style="display:block;margin-bottom:.5rem;">${product.displayName}</strong>
-                        <span>${helpers.formatPrice(product.salesPrice)}</span>
-                    </div>
-                `;
-
-                if (url) {
-                    return html`
-                        <a style="display:block;height:100%;color:inherit;text-decoration:none;border:1px solid #ddd;" href=${url}>
-                            ${content}
-                        </a>
-                    `;
-                }
-
-                return html`
-                    <article style="height:100%;border:1px solid #ddd;">
-                        ${content}
-                    </article>
-                `;
-            },
-        },
+        ...(useCustomTemplates ? { templates: customTemplates } : {}),
     },
 )
     .useSearch({
@@ -64,7 +88,29 @@ initializeRelewiseUI(
                 builder
                     .addFacet((f) => f.addBrandFacet(), { heading: 'Brands' })
                     .addFacet((f) => f.addCategoryFacet('ImmediateParent'), { heading: 'Categories' })
-                    .addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Sales Price' });
+                    .addFacet((f) => f.addSalesPriceRangeFacet('Product'), { heading: 'Price' })
+                    .addFacet((f) => f.addProductDataStringValueFacet('Color', 'Product'), { heading: 'Colors' })
+                    .addFacet((f) => f.addProductDataStringValueFacet('Material', 'Product'), { heading: 'Materials' })
+                    .addFacet((f) => f.addProductDataStringValueFacet('Fit', 'Product'), { heading: 'Fits' })
+                    .addFacet((f) => f.addProductDataStringValueFacet('Season', 'Product'), { heading: 'Seasons' })
+                    .addFacet((f) => f.addProductDataBooleanValueFacet('OnSale', 'Product'), { heading: 'On sale' });
+            },
+            productCategory(builder) {
+                builder
+                    .addFacet((f) => f.addProductCategoryDataStringValueFacet('Gender'), { heading: 'Gender' })
+                    .addFacet((f) => f.addProductCategoryDataStringValueFacet('AgeGroup'), { heading: 'Age groups' })
+                    .addFacet((f) => f.addProductCategoryDataStringValueFacet('Department'), { heading: 'Departments' })
+                    .addFacet((f) => f.addProductCategoryDataStringValueFacet('Season'), { heading: 'Seasons' })
+                    .addFacet((f) => f.addProductCategoryDataStringValueFacet('CategoryType'), { heading: 'Category types' });
+            },
+            content(builder) {
+                builder
+                    .addFacet((f) => f.addCategoryFacet('ImmediateParent'), { heading: 'Content categories' })
+                    .addFacet((f) => f.addContentDataStringValueFacet('ArticleType'), { heading: 'Article types' })
+                    .addFacet((f) => f.addContentDataStringValueFacet('Topic'), { heading: 'Topics' })
+                    .addFacet((f) => f.addContentDataStringValueFacet('Audience'), { heading: 'Audiences' })
+                    .addFacet((f) => f.addContentDataStringValueFacet('Season'), { heading: 'Seasons' })
+                    .addFacet((f) => f.addContentDataBooleanValueFacet('Featured'), { heading: 'Featured' });
             },
         },
         sorting: sorting => sorting
@@ -77,26 +123,25 @@ initializeRelewiseUI(
             .addBrandAscending()
             .addBrandDescending()
             .addPopularityAscending()
-            .addPopularityDescending(),
-        // Dataset-specific examples:
-        // filters: {
-        //     product(builder) {
-        //         builder.addProductCategoryIdFilter('ImmediateParent', ['YOUR_CATEGORY_ID']);
-        //     },
-        // },
-        // sorting: sorting => sorting.addProductData({
-        //     label: 'Custom score',
-        //     key: 'YOUR_DATA_KEY',
-        //     selectionStrategy: 'Product',
-        //     order: 'Descending',
-        //     mode: 'Numerical',
-        // }),
+            .addPopularityDescending()
+            .addProductData({
+                label: 'Demo popularity score',
+                key: 'PopularityScore',
+                selectionStrategy: 'Product',
+                order: 'Descending',
+                mode: 'Numerical',
+            }),
         universalSearch: {
             entities: {
                 products: {
-                    pageSize: 8,
+                    pageSize: 15,
+                },
+                productCategories: {
+                    pageSize: 15,
+                },
+                content: {
+                    pageSize: 15,
                 },
             },
         },
     });
-

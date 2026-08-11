@@ -2,7 +2,7 @@ import { DoubleNullableRange, ProductSearchRequest, Settings } from '@relewise/c
 import { createProductSearchBuilder } from '../builders';
 import { RelewiseFacetBuilder } from '../facetBuilder';
 import { getRelewiseSearchTargetedConfigurations, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
-import { QueryKeys, readCurrentUrlState, readCurrentUrlStateValues } from '../helpers/urlState';
+import { QueryKeys, getFacetRangeQueryKeyPrefixes, readCurrentUrlState, readCurrentUrlStateValues } from '../helpers/urlState';
 import { getSearchSortingOptions, getSearchSortingSelection } from './searchSortingBuilder';
 import { Facet } from './types';
 
@@ -14,6 +14,8 @@ export type ProductSearchRequestOptions = {
     productsLoaded: number;
     productsToFetch: number | null;
     target: string | null;
+    facetQueryKeyPrefix?: string;
+    sortingQueryKey?: string;
 };
 
 export type ProductSearchRequestResult = {
@@ -38,7 +40,7 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
             }
         })
         .sorting(builder => {
-            const sorting = getSearchSortingSelection(sortingOptions, readCurrentUrlState(QueryKeys.sortBy));
+            const sorting = getSearchSortingSelection(sortingOptions, readCurrentUrlState(options.sortingQueryKey ?? QueryKeys.sortBy));
 
             if (sorting) {
                 sorting.apply(builder);
@@ -49,7 +51,7 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
         });
 
     if (options.target) {
-        const overwrittenConfigSettings = getRelewiseSearchTargetedConfigurations().handle(options.target, requestBuilder);
+        const overwrittenConfigSettings = getRelewiseSearchTargetedConfigurations().handle(options.target, requestBuilder, options.sortingQueryKey);
         if (overwrittenConfigSettings.facetLabels) {
             facetLabels = overwrittenConfigSettings.facetLabels;
         }
@@ -57,7 +59,7 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
 
     const request = requestBuilder.build();
 
-    applySelectedValuesToProductFacets(request);
+    applySelectedValuesToProductFacets(request, options);
 
     return {
         request,
@@ -65,45 +67,46 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
     };
 }
 
-function applySelectedValuesToProductFacets(request: ProductSearchRequest) {
+function applySelectedValuesToProductFacets(request: ProductSearchRequest, options: ProductSearchRequestOptions) {
     if (request.facets) {
         request.facets.items.forEach(facet => {
-            applySelectedValuesToProductFacet(facet);
+            applySelectedValuesToProductFacet(facet, options);
         });
     }
 }
 
-function applySelectedValuesToProductFacet(facet: Facet) {
+function applySelectedValuesToProductFacet(facet: Facet, options: ProductSearchRequestOptions) {
     if (facet.$type.includes('ProductDataDoubleRangeFacet') ||
         facet.$type.includes('PriceRangeFacet')) {
-        applySelectedRangeToProductFacet(facet);
+        applySelectedRangeToProductFacet(facet, options);
         return;
     }
 
     if (facet.$type.includes('PriceRangesFacet') ||
         facet.$type.includes('ProductDataDoubleRangesFacet')) {
-        applySelectedRangesToProductFacet(facet);
+        applySelectedRangesToProductFacet(facet, options);
         return;
     }
 
-    applySelectedStringsToProductFacet(facet);
+    applySelectedStringsToProductFacet(facet, options);
 
     if (!facet.settings) {
         facet.settings = { alwaysIncludeSelectedInAvailable: true, includeZeroHitsInAvailable: false };
     }
 }
 
-function applySelectedRangeToProductFacet(facet: Facet) {
+function applySelectedRangeToProductFacet(facet: Facet, options: ProductSearchRequestOptions) {
     if ('selected' in facet) {
         let upperBound = null;
         let lowerBound = null;
+        const rangeQueryKeyPrefixes = getFacetRangeQueryKeyPrefixes(options.facetQueryKeyPrefix ?? QueryKeys.facet);
 
         if ('key' in facet) {
-            upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field + facet.key);
-            lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field + facet.key);
+            upperBound = readCurrentUrlState(rangeQueryKeyPrefixes.upperBound + facet.field + facet.key);
+            lowerBound = readCurrentUrlState(rangeQueryKeyPrefixes.lowerBound + facet.field + facet.key);
         } else {
-            upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field);
-            lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field);
+            upperBound = readCurrentUrlState(rangeQueryKeyPrefixes.upperBound + facet.field);
+            lowerBound = readCurrentUrlState(rangeQueryKeyPrefixes.lowerBound + facet.field);
         }
 
         facet.selected = {
@@ -113,13 +116,14 @@ function applySelectedRangeToProductFacet(facet: Facet) {
     }
 }
 
-function applySelectedRangesToProductFacet(facet: Facet) {
+function applySelectedRangesToProductFacet(facet: Facet, options: ProductSearchRequestOptions) {
     if ('selected' in facet) {
         let queryValues = null;
+        const facetQueryKeyPrefix = options.facetQueryKeyPrefix ?? QueryKeys.facet;
         if ('key' in facet) {
-            queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key);
+            queryValues = readCurrentUrlStateValues(facetQueryKeyPrefix + facet.field + facet.key);
         } else {
-            queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field);
+            queryValues = readCurrentUrlStateValues(facetQueryKeyPrefix + facet.field);
         }
         facet.selected = queryValues.map(x => {
             const split = x.split('-');
@@ -131,13 +135,14 @@ function applySelectedRangesToProductFacet(facet: Facet) {
     }
 }
 
-function applySelectedStringsToProductFacet(facet: Facet) {
+function applySelectedStringsToProductFacet(facet: Facet, options: ProductSearchRequestOptions) {
     if ('selected' in facet) {
         let queryValues = null;
+        const facetQueryKeyPrefix = options.facetQueryKeyPrefix ?? QueryKeys.facet;
         if ('key' in facet) {
-            queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key);
+            queryValues = readCurrentUrlStateValues(facetQueryKeyPrefix + facet.field + facet.key);
         } else {
-            queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field);
+            queryValues = readCurrentUrlStateValues(facetQueryKeyPrefix + facet.field);
         }
         facet.selected = queryValues;
     }

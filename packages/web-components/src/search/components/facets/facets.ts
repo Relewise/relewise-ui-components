@@ -2,7 +2,7 @@ import { RelewiseLitElement } from '../../../relewise-lit-element';
 import { TemplateResult, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { FacetResult, FacetResultContainer } from '../../types';
-import { Events, getRelewiseUISearchOptions } from '../../../helpers';
+import { Events, QueryKeys, getFacetRangeQueryKeyPrefixes, getRelewiseUISearchOptions } from '../../../helpers';
 import { theme } from '../../../theme';
 
 export class Facets extends RelewiseLitElement {
@@ -12,6 +12,12 @@ export class Facets extends RelewiseLitElement {
 
     @property({ type: Array, attribute: 'labels' })
     labels: string[] = [];
+
+    @property({ attribute: false })
+    applyFacet = () => window.dispatchEvent(new CustomEvent(Events.applyFacet));
+
+    @property({ attribute: 'facet-query-key-prefix' })
+    facetQueryKeyPrefix: string = QueryKeys.facet;
 
     @state()
     showFacets: boolean = window.innerWidth >= 1024;
@@ -70,6 +76,8 @@ export class Facets extends RelewiseLitElement {
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .label=${label}
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
+                    .queryKeyPrefix=${this.facetQueryKeyPrefix}
                     class=${styling}>
                 </relewise-checklist-ranges-object-value-facet>
             `;
@@ -89,6 +97,8 @@ export class Facets extends RelewiseLitElement {
                     exportparts="title, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
+                    .queryKeyPrefix=${this.facetQueryKeyPrefix}
                     class=${styling}>
                 </relewise-checklist-number-value-facet>
             `;
@@ -103,6 +113,8 @@ export class Facets extends RelewiseLitElement {
                     exportparts="title, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
+                    .queryKeyPrefix=${this.facetQueryKeyPrefix}
                     class=${styling}>
                 </relewise-checklist-object-value-facet>
             `;
@@ -118,6 +130,8 @@ export class Facets extends RelewiseLitElement {
                     exportparts="title, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
+                    .queryKeyPrefix=${this.facetQueryKeyPrefix}
                     class=${styling}>
                 </relewise-checklist-boolean-value-facet>
             `;
@@ -133,6 +147,8 @@ export class Facets extends RelewiseLitElement {
                     exportparts="title, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
+                    .queryKeyPrefix=${this.facetQueryKeyPrefix}
                     class=${styling}>
                 </relewise-checklist-string-value-facet>
             `;
@@ -142,12 +158,16 @@ export class Facets extends RelewiseLitElement {
             facetResult.$type.includes('ContentDataDoubleRangeFacetResult') ||
             facetResult.$type.includes('ProductCategoryDataDoubleRangeFacetResult') ||
             facetResult.$type.includes('PriceRangeFacetResult')) {
+            const rangeQueryKeyPrefixes = getFacetRangeQueryKeyPrefixes(this.facetQueryKeyPrefix);
             return html`
                 <relewise-number-range-facet
                     .label=${label}
                     part="container"
                     exportparts="title, input"
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
+                    .upperboundQueryKeyPrefix=${rangeQueryKeyPrefixes.upperBound}
+                    .lowerboundQueryKeyPrefix=${rangeQueryKeyPrefixes.lowerBound}
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     class=${styling}>
                 </relewise-number-range-facet>

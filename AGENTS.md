@@ -63,6 +63,7 @@ Preserve current file/module patterns:
 - Keep event listener lifecycle symmetric (`connectedCallback` add, `disconnectedCallback` remove).
 - All Lit-based Relewise web components must extend `RelewiseLitElement` unless there is a documented reason not to. This preserves shared behavior such as `components.domMode`, Light DOM stylesheet registration, and future cross-component runtime settings.
 - Prefer extending existing base classes for recommendations/search components when applicable.
+- For component localization, keep default labels at their usage/rendering sites and resolve each property independently (for example, `localization?.showMore ?? 'Show More'`). Do not shallow-spread default and override localization objects into a merged object; future nested localization sections could be replaced wholesale and lose default properties. If localization must be normalized elsewhere, merge nested fields explicitly and test partial overrides.
 
 Prefer the simplest type/control-flow that correctly expresses the runtime behavior:
 - Do not add defensive null/undefined checks when the type system or earlier guards already guarantee a value exists.

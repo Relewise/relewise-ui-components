@@ -1,6 +1,6 @@
 import { FilterBuilder, ProductCategoryResult, ProductResult } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
-import { FilterIcon, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
+import { CategoryTile, FilterIcon, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
 import { Button } from './components/button';
 import { LoadingSpinner } from './components/loading-spinner';
 import { FavoriteButtonContent } from './components/content-favorite-button';
@@ -37,6 +37,10 @@ import { LikeFilledIcon } from './components/icons/like-filled';
 import { DislikeIcon } from './components/icons/dislike';
 import { DislikeFilledIcon } from './components/icons/dislike-filled';
 import { SearchSortingOptionsBuilder } from './search/searchSortingBuilder';
+import { UniversalSearchContentTab } from './search/universal-search-content-tab';
+import { UniversalSearchLoadMore } from './search/universal-search-load-more';
+import { UniversalSearchProductCategoriesTab } from './search/universal-search-product-categories-tab';
+import { UniversalSearchProductsTab } from './search/universal-search-products-tab';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -55,10 +59,12 @@ export interface UniversalSearchOptions {
 }
 
 export interface UniversalSearchEntitiesOptions {
-    products?: UniversalSearchProductEntityOptions;
+    products?: UniversalSearchEntityOptions;
+    productCategories?: UniversalSearchEntityOptions;
+    content?: UniversalSearchEntityOptions;
 }
 
-export interface UniversalSearchProductEntityOptions {
+export interface UniversalSearchEntityOptions {
     pageSize?: number;
 }
 
@@ -76,10 +82,12 @@ export interface UniversalSearchLocalization {
     emptyState?: string;
     noEntitiesConfigured?: string;
     tabsLabel?: string;
-    products?: UniversalSearchProductsLocalization;
+    products?: UniversalSearchTabLocalization;
+    productCategories?: UniversalSearchTabLocalization;
+    content?: UniversalSearchTabLocalization;
 }
 
-export interface UniversalSearchProductsLocalization {
+export interface UniversalSearchTabLocalization {
     tab?: string;
     resultsFor?: string;
     resultsTitle?: string;
@@ -140,10 +148,12 @@ export interface SearchResultLocalization {
 export interface SearchFilters {
     product?: (builder: FilterBuilder) => void
     productCategory?: (builder: FilterBuilder) => void
+    content?: (builder: FilterBuilder) => void
 }
 
 export interface SearchFacets {
     product?: (builder: RelewiseFacetBuilder) => void;
+    productCategory?: (builder: RelewiseFacetBuilder) => void;
     content?: (builder: RelewiseFacetBuilder) => void;
 }
 
@@ -236,10 +246,15 @@ export function useSearch(options?: RelewiseUISearchOptions) {
         window.relewiseUISearchOptions = { debounceTimeInMs: defaultDebounceTimeInMs };
     }
 
-    tryRegisterElement('relewise-product-search-overlay', ProductSearchOverlay);
     if (window.relewiseUISearchOptions.universalSearch) {
         tryRegisterElement('relewise-universal-search', UniversalSearch);
+        tryRegisterElement('relewise-universal-search-products-tab', UniversalSearchProductsTab);
+        tryRegisterElement('relewise-universal-search-product-categories-tab', UniversalSearchProductCategoriesTab);
+        tryRegisterElement('relewise-universal-search-content-tab', UniversalSearchContentTab);
+        tryRegisterElement('relewise-universal-search-load-more', UniversalSearchLoadMore);
     }
+
+    tryRegisterElement('relewise-product-search-overlay', ProductSearchOverlay);
     tryRegisterElement('relewise-product-search', ProductSearch);
     tryRegisterElement('relewise-search-bar', SearchBar);
     tryRegisterElement('relewise-product-search-bar', ProductSearchBar);
@@ -261,6 +276,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
 }
 
 function registerGenericComponents() {
+    tryRegisterElement('relewise-category-tile', CategoryTile);
     tryRegisterElement('relewise-content-tile', ContentTile);
     tryRegisterElement('relewise-product-tile', ProductTile);
     tryRegisterElement('relewise-search-icon', SearchIcon);

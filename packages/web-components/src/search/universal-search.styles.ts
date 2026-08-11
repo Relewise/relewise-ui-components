@@ -3,6 +3,7 @@ import { theme } from '../theme';
 
 export const universalSearchStyles = [theme, css`
     :host {
+        display: block;
         font-family: var(--font);
         --relewise-universal-search-color: var(--relewise-color, #212427);
     }
@@ -32,7 +33,7 @@ export const universalSearchStyles = [theme, css`
         gap: var(--relewise-universal-search-header-gap, 1em);
         align-items: center;
         padding: var(--relewise-universal-search-header-padding, 1em);
-        border-bottom: 1px solid var(--relewise-universal-search-border-color, #ddd);
+        border-bottom: 1px solid var(--relewise-universal-search-border-color, var(--relewise-checklist-facet-border-color, #eee));
     }
 
     relewise-search-bar {
@@ -60,8 +61,9 @@ export const universalSearchStyles = [theme, css`
 
     .rw-tabs {
         display: flex;
-        gap: var(--relewise-universal-search-tabs-gap, 0.5em);
-        border-bottom: 1px solid var(--relewise-universal-search-border-color, #ddd);
+        gap: var(--relewise-universal-search-tabs-gap, 1.5em);
+        border-bottom: 1px solid var(--relewise-universal-search-border-color, var(--relewise-checklist-facet-border-color, #eee));
+        padding-top: var(--relewise-universal-search-tabs-padding-top, 0.5em);
         margin-bottom: var(--relewise-universal-search-tabs-margin-bottom, 1em);
     }
 
@@ -89,66 +91,10 @@ export const universalSearchStyles = [theme, css`
         margin-bottom: var(--relewise-universal-search-results-summary-margin-bottom, 1em);
     }
 
-    .rw-results-layout {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        gap: var(--relewise-universal-search-layout-gap, 1em);
-    }
-
-    .rw-results-layout:has(.rw-facets) {
-        grid-template-columns: minmax(10em, var(--relewise-universal-search-facets-width, 18em)) minmax(0, 1fr);
-    }
-
-    .rw-results-header {
-        display: flex;
-        justify-content: space-between;
-        gap: 1em;
-        align-items: center;
-        margin-bottom: var(--relewise-universal-search-results-header-margin-bottom, 1em);
-    }
-
-    .rw-results-title {
-        font-size: var(--relewise-universal-search-results-title-font-size, 1.1em);
-        margin: 0;
-    }
-
-    .rw-results-count {
-        font-size: 0.9em;
-    }
-
-    .rw-product-grid {
-        display: grid;
-        grid-template-columns: repeat(var(--relewise-universal-search-product-columns, 5), minmax(0, 1fr));
-        gap: var(--relewise-universal-search-product-grid-gap, 1em);
-    }
-
-    .rw-loading {
-        display: flex;
-        justify-content: center;
-        padding: var(--relewise-universal-search-loading-padding, 2em 0);
-    }
-
-    .rw-load-more {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5em;
-        margin-top: var(--relewise-universal-search-load-more-margin-top, 1em);
-    }
-
     @media (max-width: 768px) {
-        .rw-header,
-        .rw-results-header {
+        .rw-header {
             align-items: stretch;
             flex-direction: column;
-        }
-
-        .rw-results-layout:has(.rw-facets) {
-            grid-template-columns: minmax(0, 1fr);
-        }
-
-        .rw-product-grid {
-            grid-template-columns: repeat(var(--relewise-universal-search-mobile-product-columns, 2), minmax(0, 1fr));
         }
     }
 `];

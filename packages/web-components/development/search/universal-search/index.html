@@ -10,15 +10,24 @@
 <body>
     <script type="module" src="index.ts"></script>
     <h1>Universal Search</h1>
-    <p>This page exercises the universal-search modal and the first products tab.</p>
+    <p>This page exercises the universal-search modal with the Universal Search clothing demo dataset.</p>
+    <p id="template-mode"></p>
+    <nav aria-label="Template variants">
+        <a href="index.html">Default templates</a>
+        <a href="index.html?templates=custom">Custom templates</a>
+    </nav>
 
     <ul>
-        <li>Products tab with page size 8.</li>
-        <li>Product facets: brand, immediate parent category, and sales price.</li>
-        <li>Product sorting: relevance, price, name, brand, and popularity.</li>
-        <li>Product rendering through <code>relewise-product-tile</code> with a demo <code>templates.product</code> override.</li>
-        <li>Product images requested from <code>Image</code>, with <code>ImageUrl</code> as fallback.</li>
-        <li>Load more through the existing <code>rw-take</code> URL state.</li>
+        <li>Products, product categories, and content tabs are configured with page size 15.</li>
+        <li>Product facets: brand, category, price, color, material, fit, season, and on-sale state.</li>
+        <li>Product category facets: gender, age group, department, season, and category type.</li>
+        <li>Content facets: content category, article type, topic, audience, season, and featured state.</li>
+        <li>Product sorting: relevance, price, name, brand, popularity, and demo product data score.</li>
+        <li>The default variant exposes the component's raw entity rendering for visual review.</li>
+        <li>The custom variant demonstrates template overrides using seeded images, URLs, descriptions, and metadata.</li>
+        <li>Load more URL state uses entity-scoped take parameters.</li>
+        <li>Enabled tabs are searched together in a batched search request.</li>
+        <li>Facet and sorting changes search only the active tab.</li>
     </ul>
 
     <button onclick="document.querySelector('relewise-universal-search').open()">

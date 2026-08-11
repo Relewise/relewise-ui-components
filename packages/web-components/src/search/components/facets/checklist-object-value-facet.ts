@@ -8,7 +8,7 @@ export class ChecklistObjectValueFacet extends ChecklistFacetBase {
     result: BrandFacetResult | CategoryFacetResult | null = null;
 
     handleChange(e: Event, item: BrandNameAndIdResultAvailableFacetValue | CategoryNameAndIdResultAvailableFacetValue) {
-        const checkbox = e.target as HTMLInputElement;
+        const checkbox = e.currentTarget as HTMLInputElement;
 
         if (!item.value || !item.value.id || !this.result) {
             return;

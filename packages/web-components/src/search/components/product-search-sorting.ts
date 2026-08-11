@@ -9,6 +9,12 @@ export class ProductSearchSorting extends RelewiseLitElement {
     @property({ type: String, attribute: 'target' })
     target: string | null = null;
 
+    @property({ attribute: false })
+    applySorting = () => window.dispatchEvent(new CustomEvent(Events.applySorting));
+
+    @property({ attribute: false })
+    sortingQueryKey: string = QueryKeys.sortBy;
+
     @state()
     selectedOption: string | null = null;
 
@@ -16,7 +22,7 @@ export class ProductSearchSorting extends RelewiseLitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.selectedOption = readCurrentUrlState(QueryKeys.sortBy);
+        this.selectedOption = readCurrentUrlState(this.sortingQueryKey);
         window.addEventListener(Events.search, this.readSortingFromUrlBound);
     }
 
@@ -26,14 +32,14 @@ export class ProductSearchSorting extends RelewiseLitElement {
     }
 
     readSortingFromUrl() {
-        this.selectedOption = readCurrentUrlState(QueryKeys.sortBy);
+        this.selectedOption = readCurrentUrlState(this.sortingQueryKey);
     }
 
     setSelectedValue(event: Event) {
         const selectElement = event.target as HTMLSelectElement;
         this.selectedOption = selectElement.value;
-        updateUrlState(QueryKeys.sortBy, this.selectedOption);
-        window.dispatchEvent(new CustomEvent(Events.applySorting));
+        updateUrlState(this.sortingQueryKey, this.selectedOption);
+        this.applySorting();
     }
 
     getOptionText(option: SearchSortingOption): string {
