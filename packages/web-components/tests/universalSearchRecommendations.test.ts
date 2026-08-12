@@ -41,6 +41,8 @@ suite('universal search recommendation blocks', () => {
     let searchTermBasedRequestTerm: string | undefined;
     let popularSearchTermTargetEntityTypes: unknown;
     let failContentCategoryRecommendations = false;
+    let failFirstProductCategoryRecommendation = false;
+    let failFirstContentCategoryRecommendation = false;
     let failNextBatchSearch = false;
     let batchSearchGate: Promise<void> | null = null;
     let batchSearches = 0;
@@ -58,6 +60,8 @@ suite('universal search recommendation blocks', () => {
         searchTermBasedRequestTerm = undefined;
         popularSearchTermTargetEntityTypes = undefined;
         failContentCategoryRecommendations = false;
+        failFirstProductCategoryRecommendation = false;
+        failFirstContentCategoryRecommendation = false;
         failNextBatchSearch = false;
         batchSearchGate = null;
         batchSearches = 0;
@@ -126,6 +130,9 @@ suite('universal search recommendation blocks', () => {
         };
         Recommender.prototype.recommendPopularProductCategories = async function() {
             popularProductCategoryCalls++;
+            if (failFirstProductCategoryRecommendation && popularProductCategoryCalls === 1) {
+                throw new Error('Product category recommendations are unavailable');
+            }
             return { recommendations: [productCategory('popular-category')] } as any;
         };
         Recommender.prototype.batchContentRecommendations = async function(requestCollection) {
@@ -137,7 +144,7 @@ suite('universal search recommendation blocks', () => {
         };
         Recommender.prototype.recommendPopularContentCategories = async function() {
             popularContentCategoryCalls++;
-            if (failContentCategoryRecommendations) {
+            if (failContentCategoryRecommendations || (failFirstContentCategoryRecommendation && popularContentCategoryCalls === 1)) {
                 throw new Error('Content category recommendations are unavailable');
             }
             return { recommendations: [contentCategory('popular-content-category')] } as any;
@@ -273,6 +280,35 @@ suite('universal search recommendation blocks', () => {
         await waitUntil(() => element.renderRoot.querySelector('[part="recommendation-product-tile"]') !== null, 'successful block was not rendered');
 
         assert.lengthOf(element.renderRoot.querySelectorAll('[part~="recommendation-block"]'), 1);
+    });
+
+    test('keeps successful category blocks when another request of the same type fails', async() => {
+        failFirstProductCategoryRecommendation = true;
+        failFirstContentCategoryRecommendation = true;
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            universalSearch: {
+                entities: { products: {} },
+                recommendations: {
+                    initial: [
+                        { type: 'PopularProductCategories', title: 'Unavailable product categories' },
+                        { type: 'PopularProductCategories', title: 'Product categories' },
+                        { type: 'PopularContentCategories', title: 'Unavailable content categories' },
+                        { type: 'PopularContentCategories', title: 'Content categories' },
+                    ],
+                },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+        await waitUntil(() => element.renderRoot.querySelectorAll('[part="recommendation-category-tile"]').length === 2, 'successful category blocks were not rendered');
+
+        assert.deepEqual(
+            [...element.renderRoot.querySelectorAll('[part="recommendation-title"]')].map(title => title.textContent),
+            ['Product categories', 'Content categories'],
+        );
+        assert.equal(popularProductCategoryCalls, 2);
+        assert.equal(popularContentCategoryCalls, 2);
     });
 
     test('renders global recovery blocks when every zero-result tab is hidden', async() => {

@@ -196,9 +196,15 @@ export class UniversalSearchRecommendationBlocksController implements ReactiveCo
 
         const outcomes = await Promise.allSettled([
             this.fetchProductRecommendations(recommender, products, recommendations, signal),
-            this.fetchProductCategoryRecommendations(recommender, productCategories, recommendations, signal),
             this.fetchContentRecommendations(recommender, content, recommendations, signal),
-            this.fetchContentCategoryRecommendations(recommender, contentCategories, recommendations, signal),
+            ...productCategories.map(async item => {
+                const response = await recommender.recommendPopularProductCategories(item.request, { abortSignal: signal });
+                recommendations.set(item, response?.recommendations ?? []);
+            }),
+            ...contentCategories.map(async item => {
+                const response = await recommender.recommendPopularContentCategories(item.request, { abortSignal: signal });
+                recommendations.set(item, response?.recommendations ?? []);
+            }),
             ...searchTerms.map(async item => {
                 const response = await recommender.recommendPopularSearchTerms(item.request, { abortSignal: signal });
                 recommendations.set(item, response?.recommendations ?? []);
@@ -261,22 +267,6 @@ export class UniversalSearchRecommendationBlocksController implements ReactiveCo
         requests.forEach((item, index) => recommendations.set(item, response?.responses?.[index]?.recommendations ?? []));
     }
 
-    private async fetchProductCategoryRecommendations(
-        recommender: Recommender,
-        requests: Extract<PreparedUniversalSearchRecommendation, { resultType: 'productCategories' }>[],
-        recommendations: Map<PreparedUniversalSearchRecommendation, RecommendationBlockResult['recommendations']>,
-        signal: AbortSignal,
-    ): Promise<void> {
-        if (requests.length === 0) {
-            return;
-        }
-
-        await Promise.all(requests.map(async item => {
-            const response = await recommender.recommendPopularProductCategories(item.request, { abortSignal: signal });
-            recommendations.set(item, response?.recommendations ?? []);
-        }));
-    }
-
     private async fetchContentRecommendations(
         recommender: Recommender,
         requests: Extract<PreparedUniversalSearchRecommendation, { resultType: 'content' }>[],
@@ -298,22 +288,6 @@ export class UniversalSearchRecommendationBlocksController implements ReactiveCo
         requests.forEach(item => builder.addRequest(item.request));
         const response = await recommender.batchContentRecommendations(builder.build(), { abortSignal: signal });
         requests.forEach((item, index) => recommendations.set(item, response?.responses?.[index]?.recommendations ?? []));
-    }
-
-    private async fetchContentCategoryRecommendations(
-        recommender: Recommender,
-        requests: Extract<PreparedUniversalSearchRecommendation, { resultType: 'contentCategories' }>[],
-        recommendations: Map<PreparedUniversalSearchRecommendation, RecommendationBlockResult['recommendations']>,
-        signal: AbortSignal,
-    ): Promise<void> {
-        if (requests.length === 0) {
-            return;
-        }
-
-        await Promise.all(requests.map(async item => {
-            const response = await recommender.recommendPopularContentCategories(item.request, { abortSignal: signal });
-            recommendations.set(item, response?.recommendations ?? []);
-        }));
     }
 
     private renderBlock(result: RecommendationBlockResult) {

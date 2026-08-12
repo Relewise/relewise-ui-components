@@ -1478,8 +1478,15 @@ Category tiles also use the shared image, information-container, display-name, a
 | `--relewise-search-suggestion-padding` | `0.5em 1em` | Padding for each suggestion. |
 | `--relewise-search-suggestion-gap` | `1em` | Space between a suggestion term and its icon. |
 | `--relewise-search-suggestion-icon-color` | `var(--accent-color)` | Color of the search icon shown beside each suggestion. |
+| `--relewise-universal-search-recommendation-block-gap` | `2em` | Vertical gap between Universal Search recommendation blocks. |
+| `--relewise-universal-search-recommendation-title-margin-bottom` | `1em` | Space below a recommendation block title. |
 | `--relewise-universal-search-recommendation-grid-columns` | `4` | Number of columns used by Universal Search recommendation blocks above the mobile breakpoint. |
 | `--relewise-universal-search-recommendation-grid-mobile-columns` | `2` | Number of columns used by Universal Search recommendation blocks at widths up to `768px`. |
+| `--relewise-universal-search-recommendation-grid-gap` | `1em` | Gap between recommendation tiles. |
+| `--relewise-universal-search-recommendation-term-gap` | `0.5em` | Gap between recommended search-term buttons. |
+| `--relewise-universal-search-recommendation-term-background` | `white` | Background color of recommended search-term buttons. |
+| `--relewise-universal-search-recommendation-term-border-radius` | `1em` | Corner radius of recommended search-term buttons. |
+| `--relewise-universal-search-recommendation-term-padding` | `0.5em 0.75em` | Internal padding of recommended search-term buttons. |
 
 #### Search overlay container and messaging
 | Variable | Default | Description |
