@@ -75,7 +75,7 @@ initializeRelewiseUI({ ... }).useSearch({
 The exact `universalSearch` type should be finalized in the first implementation PR, but the principle is fixed:
 
 - Existing product `facets`, product `sorting`, filters, relevance modifiers, target overrides, selected properties, and templates stay authoritative.
-- `universalSearch` adds modal behavior, result-entity behavior, input-assist behavior, empty/no-result recommendations, layout defaults, and result-tab rendering.
+- `universalSearch` adds modal behavior, result-entity behavior, search suggestions, empty/no-result recommendations, layout defaults, and result-tab rendering.
 - Product result rendering delegates to `relewise-product-tile`.
 - Content result rendering delegates to `relewise-content-tile`.
 - Product/content custom field rendering is handled through existing `templates.product` and `templates.content`.
@@ -363,11 +363,12 @@ Open decision:
 - If added, prefer general names such as `productCategory` and `contentCategory`, not universal-search-only names.
 - Do not add category field-mapping attributes unless a concrete consumer need appears. Selected properties and templates are the established extension model for entity data.
 
-### Search Input And Input Assist
+### Search Input And Suggestions
 
 Relevant files:
 
 - `src/search/components/search-bar.ts`
+- `src/search/components/search-combobox.ts`
 - `src/search/components/product-search-bar.ts`
 - `src/search/product-search-overlay.ts`
 - POC `development/search/universal-search-poc/index.ts`
@@ -380,7 +381,8 @@ Current behavior:
 
 Reuse decision:
 
-- Full-search should use `relewise-search-bar` directly, not `ProductSearchBar`, because universal-search has modal state, input-assist state, tabs, and scoped URL updates.
+- Keep `relewise-search-bar` generic for the compact product-search consumers.
+- Universal Search should use the shared `relewise-search-combobox`, which owns its input, suggestions popup, focus/keyboard/accessibility behavior, popular-term request, and prediction batch participation without changing the legacy `relewise-search-bar`.
 - Reuse the compact overlay's search term prediction idea, but not its compact overlay result renderer.
 
 Required behavior:
@@ -505,7 +507,7 @@ Proposed starting shape:
 export interface UniversalSearchOptions {
     entities?: UniversalSearchEntitiesOptions;
     behavior?: UniversalSearchBehaviorOptions;
-    inputAssist?: UniversalSearchInputAssistOptions;
+    suggestions?: SearchSuggestionsOptions;
     recommendations?: UniversalSearchRecommendationOptions;
 }
 ```
@@ -560,24 +562,23 @@ Rules:
 - Auto-activate first result tab only when transitioning out of the initial state.
 - Do not auto-switch tabs after the user has intentionally selected a tab.
 
-### Input Assist
+### Search Suggestions
 
 ```ts
-export interface UniversalSearchInputAssistOptions {
+export interface SearchSuggestionsOptions {
     popularSearchTerms?: {
         take?: number;
     };
     searchTermPredictions?: {
         take?: number;
-        entityTypes?: Array<'Product' | 'ProductCategory' | 'Content'>;
     };
 }
 ```
 
 Defaults:
 
-- Providing an input-assist option enables that section. Omit a section to disable it.
-- Prediction entity types default to Product, ProductCategory, Content when search term predictions are configured.
+- Providing a suggestion option enables that section. Omit a section to disable it.
+- Popular-term and prediction requests target the enabled Universal Search entities in their configured order.
 
 ### Recommendations
 
@@ -620,7 +621,9 @@ Providing a recommendation block enables it. Omit the block to disable it.
 Recommended components:
 
 - `relewise-universal-search`
-  - Owns modal state, term state, active tab, request orchestration, URL sync, input assist, empty states, no-result states, and mobile drawer state.
+  - Owns modal state, term state, active tab, request orchestration, URL sync, empty states, no-result states, and mobile drawer state.
+- `relewise-search-combobox`
+  - Shared, suggestions-enabled alternative to `relewise-search-bar` that owns its input, suggestions popup, focus/keyboard/accessibility behavior, popular-term request, and prediction batch participation.
 - `relewise-universal-search-tabs`
   - Renders enabled tabs, active tab, counts, disabled/zero-hit state.
 - `relewise-universal-search-facet-panel`
@@ -781,7 +784,7 @@ Acceptance:
 - Content cards are fully overridable through `templates.content`.
 - Category cards have a documented default rendering and extension path.
 
-### PR 6: Input Assist
+### PR 6: Search Suggestions
 
 Goal:
 
@@ -791,8 +794,8 @@ Tasks:
 
 - Add PopularSearchTerms request helper.
 - Add SearchTermPrediction request helper.
-- Render assist panel below search input.
-- Hide assist when no data is returned.
+- Render the suggestions panel below the Universal Search input.
+- Hide suggestions when no data is returned.
 - Hide predictions/popular terms on Enter, suggestion click, outside click, or blur.
 - Filter predictions equal to the current input term.
 - Add keyboard navigation if included in first release.
@@ -897,7 +900,7 @@ Future Shopify tasks:
 7. Add new Shopify settings only for things that do not already exist:
    - enabled tabs
    - initial/recovery blocks
-   - input assist
+   - search suggestions
    - universal search toggle
 8. Keep current compact overlay available.
 
@@ -946,7 +949,7 @@ Test coverage by phase:
   - first-result tab activation from initial state only
   - zero-result tab behavior
   - disabled tabs do not request
-  - input assist focus/dismiss behavior
+  - search-suggestion focus/dismiss behavior
 
 ## Trello Breakdown Candidates
 
@@ -960,7 +963,7 @@ Test coverage by phase:
 - Build products tab.
 - Build product categories tab.
 - Build content tab.
-- Add input assist.
+- Add search suggestions.
 - Add recommendation blocks.
 - Add responsive styling and CSS variables.
 - Add README documentation.

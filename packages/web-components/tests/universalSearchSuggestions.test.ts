@@ -29,14 +29,14 @@ function searchTermPredictionResponse(terms: string[]) {
 }
 
 function searchBar(element: UniversalSearch): RenderableElement {
-    return element.renderRoot.querySelector('relewise-search-bar')! as RenderableElement;
+    return element.renderRoot.querySelector('relewise-search-combobox')! as RenderableElement;
 }
 
-function inputAssistRoot(element: UniversalSearch): HTMLElement | DocumentFragment {
+function suggestionsRoot(element: UniversalSearch): HTMLElement | DocumentFragment {
     return searchBar(element).renderRoot;
 }
 
-suite('universal search Input Assist', () => {
+suite('universal search suggestions', () => {
     const originalRecommendPopularSearchTerms = Recommender.prototype.recommendPopularSearchTerms;
     const originalBatch = Searcher.prototype.batch;
     const originalSearchTermPrediction = Searcher.prototype.searchTermPrediction;
@@ -67,7 +67,7 @@ suite('universal search Input Assist', () => {
         Searcher.prototype.searchTermPrediction = originalSearchTermPrediction;
     });
 
-    test('shows popular search terms only while the empty input is focused', async () => {
+    test('shows popular search terms only while the empty input is focused', async() => {
         Recommender.prototype.recommendPopularSearchTerms = async function() {
             return {
                 recommendations: [
@@ -82,7 +82,7 @@ suite('universal search Input Assist', () => {
             debounceTimeInMs: 0,
             universalSearch: {
                 entities: { products: {} },
-                inputAssist: {
+                suggestions: {
                     popularSearchTerms: { take: 2 },
                 },
             },
@@ -92,27 +92,114 @@ suite('universal search Input Assist', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        await waitUntil(() => inputAssistRoot(element).querySelectorAll('[part~="input-assist-item"]').length === 2, 'popular search terms were not rendered');
+        await waitUntil(() => suggestionsRoot(element).querySelectorAll('[part~="suggestion"]').length === 2, 'popular search terms were not rendered');
 
-        const assist = inputAssistRoot(element).querySelector('[part~="input-assist"]');
-        assert.include(assist?.getAttribute('part') ?? '', 'popular-search-terms');
+        const suggestions = suggestionsRoot(element).querySelector('[part~="search-suggestions"]');
+        assert.include(suggestions?.getAttribute('part') ?? '', 'popular-search-terms');
 
-        const input = inputAssistRoot(element).querySelector('input')!;
+        const input = suggestionsRoot(element).querySelector('input')!;
         element.renderRoot.querySelector('[part="empty-state"]')!.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
         await element.updateComplete;
 
-        assert.isNull(inputAssistRoot(element).querySelector('[part~="input-assist"]'));
+        assert.isNull(suggestionsRoot(element).querySelector('[part~="search-suggestions"]'));
 
         input.blur();
         input.focus();
-        await waitUntil(() => inputAssistRoot(element).querySelector('[part~="input-assist"]') !== null, 'popular search terms did not return on focus');
+        await waitUntil(() => suggestionsRoot(element).querySelector('[part~="search-suggestions"]') !== null, 'popular search terms did not return on focus');
         input.blur();
         await element.updateComplete;
 
-        assert.isNull(inputAssistRoot(element).querySelector('[part~="input-assist"]'));
+        assert.isNull(suggestionsRoot(element).querySelector('[part~="search-suggestions"]'));
     });
 
-    test('does not render an empty Input Assist panel', async () => {
+    test('renders the suggestions popup with rounded corners and no outer list whitespace', async() => {
+        Recommender.prototype.recommendPopularSearchTerms = async function() {
+            return { recommendations: [{ term: 'Running shoes', rank: 1 }] } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {} },
+                suggestions: {
+                    popularSearchTerms: {},
+                },
+            },
+        });
+
+        const element = await fixture(html`
+            <relewise-universal-search
+                displayed-at-location="Universal Search"
+                style="--relewise-search-suggestions-border-radius: 12px"
+                open>
+            </relewise-universal-search>
+        `) as UniversalSearch;
+
+        await waitUntil(() => suggestionsRoot(element).querySelector('[part~="search-suggestions"]') !== null, 'suggestions were not rendered');
+
+        const suggestions = suggestionsRoot(element).querySelector<HTMLElement>('[part~="search-suggestions"]')!;
+        const list = suggestionsRoot(element).querySelector<HTMLElement>('[part="suggestions-list"]')!;
+        const suggestionsStyle = getComputedStyle(suggestions);
+        const listStyle = getComputedStyle(list);
+
+        assert.equal(suggestionsStyle.borderRadius, '12px');
+        assert.equal(suggestionsStyle.overflow, 'hidden');
+        assert.notEqual(suggestionsStyle.boxShadow, 'none');
+        assert.equal(listStyle.paddingTop, '0px');
+        assert.equal(listStyle.paddingBottom, '0px');
+    });
+
+    test('keeps the combobox and close button aligned when the shared height is customized', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            universalSearch: {
+                entities: { products: {} },
+            },
+        });
+
+        const element = await fixture(html`
+            <relewise-universal-search
+                displayed-at-location="Universal Search"
+                style="--relewise-search-combobox-height: 42px; --relewise-product-search-bar-height: 17px"
+                open>
+            </relewise-universal-search>
+        `) as UniversalSearch;
+
+        const comboboxInput = suggestionsRoot(element).querySelector<HTMLElement>('.rw-search-bar')!;
+        const closeButton = element.renderRoot.querySelector<HTMLElement>('[part="close-button"]')!;
+
+        assert.equal(comboboxInput.getBoundingClientRect().height, 42);
+        assert.equal(closeButton.getBoundingClientRect().height, 42);
+    });
+
+    test('uses the Universal Search location for popular terms when the attribute is omitted', async() => {
+        let displayedAtLocation: string | undefined;
+        Recommender.prototype.recommendPopularSearchTerms = async function(request) {
+            displayedAtLocation = request.displayedAtLocationType;
+            return { recommendations: [{ term: 'Running shoes', rank: 1 }] } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            universalSearch: {
+                entities: { products: {} },
+                suggestions: {
+                    popularSearchTerms: {},
+                },
+            },
+        });
+
+        const element = await fixture(html`
+            <relewise-universal-search open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        await waitUntil(() => suggestionsRoot(element).querySelector('[part~="suggestion"]') !== null, 'popular search term was not rendered');
+
+        assert.equal(displayedAtLocation, 'Relewise Universal Search');
+    });
+
+    test('does not render an empty suggestions panel', async() => {
         let requestCompleted = false;
         Recommender.prototype.recommendPopularSearchTerms = async function() {
             requestCompleted = true;
@@ -124,7 +211,7 @@ suite('universal search Input Assist', () => {
             debounceTimeInMs: 0,
             universalSearch: {
                 entities: { products: {} },
-                inputAssist: {
+                suggestions: {
                     popularSearchTerms: {},
                 },
             },
@@ -137,10 +224,10 @@ suite('universal search Input Assist', () => {
         await waitUntil(() => requestCompleted, 'popular search terms request did not complete');
         await element.updateComplete;
 
-        assert.isNull(inputAssistRoot(element).querySelector('[part~="input-assist"]'));
+        assert.isNull(suggestionsRoot(element).querySelector('[part~="search-suggestions"]'));
     });
 
-    test('renders Input Assist in light DOM mode', async () => {
+    test('renders suggestions in light DOM mode', async() => {
         Recommender.prototype.recommendPopularSearchTerms = async function() {
             return { recommendations: [{ term: 'Running shoes', rank: 1 }] } as any;
         };
@@ -152,7 +239,7 @@ suite('universal search Input Assist', () => {
             debounceTimeInMs: 0,
             universalSearch: {
                 entities: { products: {} },
-                inputAssist: {
+                suggestions: {
                     popularSearchTerms: {},
                 },
             },
@@ -163,7 +250,7 @@ suite('universal search Input Assist', () => {
         `) as UniversalSearch;
 
         await waitUntil(
-            () => inputAssistRoot(element).querySelector('[part~="input-assist-item"]') !== null,
+            () => suggestionsRoot(element).querySelector('[part~="suggestion"]') !== null,
             'popular search term was not rendered in light DOM',
         );
 
@@ -171,14 +258,14 @@ suite('universal search Input Assist', () => {
         assert.isNull(searchBar(element).shadowRoot);
     });
 
-    test('renders API predictions without changing them', async () => {
+    test('renders API predictions without changing them', async() => {
         let predictionEntityTypes: string[] | null | undefined;
         let predictionTerm: string | undefined;
 
         Searcher.prototype.searchTermPrediction = async function(request) {
             predictionEntityTypes = request.settings?.targetEntityTypes;
             predictionTerm = request.term;
-            return searchTermPredictionResponse(['shoe', 'Shoe rack', 'shoe RACK']);
+            return searchTermPredictionResponse(['shoe', 'Shoe rack', ' Shoe ', 'shoe RACK']);
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -186,13 +273,13 @@ suite('universal search Input Assist', () => {
             debounceTimeInMs: 0,
             universalSearch: {
                 entities: { products: {} },
-                inputAssist: {
+                suggestions: {
                     searchTermPredictions: {},
                 },
             },
             localization: {
                 universalSearch: {
-                    inputAssistLabel: 'Søgeforslag',
+                    suggestionsLabel: 'Søgeforslag',
                 },
             },
         });
@@ -200,22 +287,22 @@ suite('universal search Input Assist', () => {
         const element = await fixture(html`
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
-        const input = inputAssistRoot(element).querySelector('input')! as HTMLInputElement;
+        const input = suggestionsRoot(element).querySelector('input')! as HTMLInputElement;
 
         input.value = ' Shoe ';
         input.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }));
 
-        await waitUntil(() => inputAssistRoot(element).querySelectorAll('[part~="input-assist-item"]').length === 3, 'predictions were not rendered');
+        await waitUntil(() => suggestionsRoot(element).querySelectorAll('[part~="suggestion"]').length === 3, 'predictions were not rendered');
 
         assert.deepEqual(predictionEntityTypes, ['Product']);
         assert.equal(predictionTerm, ' Shoe ');
         assert.deepEqual(
-            [...inputAssistRoot(element).querySelectorAll('[part~="input-assist-item"]')].map(item => item.textContent?.trim()),
+            [...suggestionsRoot(element).querySelectorAll('[part~="suggestion"]')].map(item => item.textContent?.trim()),
             ['shoe', 'Shoe rack', 'shoe RACK'],
         );
-        assert.include(inputAssistRoot(element).querySelector('[part~="input-assist"]')?.getAttribute('part') ?? '', 'predictions');
+        assert.include(suggestionsRoot(element).querySelector('[part~="search-suggestions"]')?.getAttribute('part') ?? '', 'predictions');
 
-        const listbox = inputAssistRoot(element).querySelector('[part="input-assist-list"]')!;
+        const listbox = suggestionsRoot(element).querySelector('[part="suggestions-list"]')!;
         assert.equal(listbox.getAttribute('role'), 'listbox');
         assert.equal(listbox.getAttribute('aria-label'), 'Søgeforslag');
         assert.equal(listbox.querySelector('li')?.getAttribute('role'), 'none');
@@ -225,7 +312,48 @@ suite('universal search Input Assist', () => {
         assert.equal(input.getAttribute('aria-controls'), listbox.id);
     });
 
-    test('selects predictions with the keyboard and dismisses the assist panel', async () => {
+    test('matches prediction responses by their exact response type', async() => {
+        Searcher.prototype.batch = async function() {
+            return {
+                responses: [
+                    {
+                        $type: 'Example.SearchTermPredictionResponse.Lookalike',
+                        predictions: [{ term: 'Wrong prediction', rank: 1 }],
+                    },
+                    searchTermPredictionResponse(['Right prediction']),
+                    productSearchResponse(),
+                ],
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {} },
+                suggestions: {
+                    searchTermPredictions: {},
+                },
+            },
+        });
+
+        const element = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+        const input = suggestionsRoot(element).querySelector('input')! as HTMLInputElement;
+
+        input.value = 'prediction';
+        input.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }));
+
+        await waitUntil(() => suggestionsRoot(element).querySelector('[part~="suggestion"]') !== null, 'prediction was not rendered');
+
+        assert.deepEqual(
+            [...suggestionsRoot(element).querySelectorAll('[part~="suggestion"]')].map(item => item.textContent?.trim()),
+            ['Right prediction'],
+        );
+    });
+
+    test('selects predictions with the keyboard and dismisses the suggestions panel', async() => {
         Searcher.prototype.searchTermPrediction = async function() {
             return searchTermPredictionResponse(['Running shoes', 'Trail shoes']);
         };
@@ -235,7 +363,7 @@ suite('universal search Input Assist', () => {
             debounceTimeInMs: 0,
             universalSearch: {
                 entities: { products: {} },
-                inputAssist: {
+                suggestions: {
                     searchTermPredictions: { take: 2 },
                 },
             },
@@ -244,21 +372,21 @@ suite('universal search Input Assist', () => {
         const element = await fixture(html`
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
-        const input = inputAssistRoot(element).querySelector('input')! as HTMLInputElement;
+        const input = suggestionsRoot(element).querySelector('input')! as HTMLInputElement;
 
         input.value = 'shoe';
         input.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }));
-        await waitUntil(() => inputAssistRoot(element).querySelectorAll('[part~="input-assist-item"]').length === 2, 'predictions were not rendered');
+        await waitUntil(() => suggestionsRoot(element).querySelectorAll('[part~="suggestion"]').length === 2, 'predictions were not rendered');
 
         input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, composed: true }));
-        await waitUntil(() => inputAssistRoot(element).querySelector('[aria-selected="true"]') !== null, 'prediction was not selected');
+        await waitUntil(() => suggestionsRoot(element).querySelector('[aria-selected="true"]') !== null, 'prediction was not selected');
 
-        let selectedOption = inputAssistRoot(element).querySelector('[aria-selected="true"]')!;
+        let selectedOption = suggestionsRoot(element).querySelector('[aria-selected="true"]')!;
         assert.equal(selectedOption.textContent?.trim(), 'Trail shoes');
         input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, composed: true }));
         await element.updateComplete;
 
-        selectedOption = inputAssistRoot(element).querySelector('[aria-selected="true"]')!;
+        selectedOption = suggestionsRoot(element).querySelector('[aria-selected="true"]')!;
         assert.equal(selectedOption.textContent?.trim(), 'Running shoes');
         assert.equal(input.getAttribute('aria-activedescendant'), selectedOption.id);
 
@@ -266,14 +394,14 @@ suite('universal search Input Assist', () => {
         await element.updateComplete;
 
         assert.equal((element as unknown as UniversalSearchTestApi).term, 'Running shoes');
-        assert.isNull(inputAssistRoot(element).querySelector('[part~="input-assist"]'));
+        assert.isNull(suggestionsRoot(element).querySelector('[part~="search-suggestions"]'));
         assert.equal(input.getAttribute('aria-expanded'), 'false');
         assert.isNull(input.getAttribute('aria-controls'));
         assert.isNull(input.getAttribute('aria-activedescendant'));
         assert.isTrue(element.isOpen);
     });
 
-    test('does not repeat a completed search when Enter dismisses Input Assist', async () => {
+    test('does not repeat a completed search when Enter dismisses suggestions', async() => {
         let searchRequestCount = 0;
         const batch = Searcher.prototype.batch;
 
@@ -290,7 +418,7 @@ suite('universal search Input Assist', () => {
             debounceTimeInMs: 0,
             universalSearch: {
                 entities: { products: {} },
-                inputAssist: {
+                suggestions: {
                     searchTermPredictions: {},
                 },
             },
@@ -299,21 +427,21 @@ suite('universal search Input Assist', () => {
         const element = await fixture(html`
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
-        const input = inputAssistRoot(element).querySelector('input')! as HTMLInputElement;
+        const input = suggestionsRoot(element).querySelector('input')! as HTMLInputElement;
 
         input.value = 'shoe';
         input.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }));
         await waitUntil(() => searchRequestCount === 1, 'initial search did not complete');
-        await waitUntil(() => inputAssistRoot(element).querySelector('[part~="input-assist"]') !== null, 'predictions were not rendered');
+        await waitUntil(() => suggestionsRoot(element).querySelector('[part~="search-suggestions"]') !== null, 'predictions were not rendered');
 
         input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }));
         await new Promise(resolve => setTimeout(resolve, 10));
 
         assert.equal(searchRequestCount, 1);
-        assert.isNull(inputAssistRoot(element).querySelector('[part~="input-assist"]'));
+        assert.isNull(suggestionsRoot(element).querySelector('[part~="search-suggestions"]'));
     });
 
-    test('selects popular search terms after touch pointer down and hides the assist panel', async () => {
+    test('selects popular search terms after touch pointer down and hides the suggestions panel', async() => {
         Recommender.prototype.recommendPopularSearchTerms = async function() {
             return { recommendations: [{ term: 'Running shoes', rank: 1 }] } as any;
         };
@@ -323,7 +451,7 @@ suite('universal search Input Assist', () => {
             debounceTimeInMs: 0,
             universalSearch: {
                 entities: { products: {} },
-                inputAssist: {
+                suggestions: {
                     popularSearchTerms: {},
                 },
             },
@@ -333,8 +461,8 @@ suite('universal search Input Assist', () => {
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        await waitUntil(() => inputAssistRoot(element).querySelector('[part~="input-assist-item"]') !== null, 'popular search term was not rendered');
-        const suggestion = inputAssistRoot(element).querySelector('[part~="input-assist-item"]') as HTMLButtonElement;
+        await waitUntil(() => suggestionsRoot(element).querySelector('[part~="suggestion"]') !== null, 'popular search term was not rendered');
+        const suggestion = suggestionsRoot(element).querySelector('[part~="suggestion"]') as HTMLButtonElement;
         const pointerDownWasNotCancelled = suggestion.dispatchEvent(new PointerEvent('pointerdown', {
             bubbles: true,
             cancelable: true,
@@ -346,11 +474,11 @@ suite('universal search Input Assist', () => {
         await element.updateComplete;
 
         assert.equal((element as unknown as UniversalSearchTestApi).term, 'Running shoes');
-        assert.isNull(inputAssistRoot(element).querySelector('[part~="input-assist"]'));
+        assert.isNull(suggestionsRoot(element).querySelector('[part~="search-suggestions"]'));
         await waitUntil(() => readCurrentUrlState(QueryKeys.term) === 'Running shoes', 'selected popular term was not searched');
     });
 
-    test('preserves the existing search bar behavior when Input Assist is not configured', async () => {
+    test('preserves the existing search behavior when suggestions are not configured', async() => {
         let searchRequestCount = 0;
 
         Searcher.prototype.batch = async function() {
@@ -369,7 +497,7 @@ suite('universal search Input Assist', () => {
         const element = await fixture(html`
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
-        const input = inputAssistRoot(element).querySelector('input')! as HTMLInputElement;
+        const input = suggestionsRoot(element).querySelector('input')! as HTMLInputElement;
 
         input.value = 'shoe';
         input.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }));

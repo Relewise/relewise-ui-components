@@ -5,18 +5,12 @@ import {
     SearchTermPredictionRequest,
     Settings,
 } from '@relewise/client';
-import type { UniversalSearchTab } from './universal-search.types';
-
-const inputAssistEntityTypeByTab = {
-    products: 'Product',
-    productCategories: 'ProductCategory',
-    content: 'Content',
-} as const satisfies Record<UniversalSearchTab, 'Product' | 'ProductCategory' | 'Content'>;
+import type { SearchSuggestionEntityType } from './types';
 
 type PopularSearchTermsRequestOptions = {
     settings: Settings;
     take: number;
-    tabs: UniversalSearchTab[];
+    targetEntityTypes: SearchSuggestionEntityType[];
 };
 
 type SearchTermPredictionRequestOptions = PopularSearchTermsRequestOptions & {
@@ -25,7 +19,7 @@ type SearchTermPredictionRequestOptions = PopularSearchTermsRequestOptions & {
 
 export function buildPopularSearchTermsRequest(options: PopularSearchTermsRequestOptions): PopularSearchTermsRecommendationRequest {
     const builder = new PopularSearchTermsRecommendationBuilder(options.settings)
-        .addEntityType(...options.tabs.map(tab => inputAssistEntityTypeByTab[tab]));
+        .addEntityType(...options.targetEntityTypes);
 
     builder.recommendationSettings.numberOfRecommendations = options.take;
 
@@ -36,6 +30,6 @@ export function buildSearchTermPredictionRequest(options: SearchTermPredictionRe
     return new SearchTermPredictionBuilder(options.settings)
         .setTerm(options.term)
         .take(options.take)
-        .addEntityType(...options.tabs.map(tab => inputAssistEntityTypeByTab[tab]))
+        .addEntityType(...options.targetEntityTypes)
         .build();
 }

@@ -10,12 +10,14 @@ import {
     readCurrentUrlState,
 } from '../helpers';
 import { RelewiseLitElement } from '../relewise-lit-element';
+import type { SearchCombobox, SearchSuggestionsBatchSearch } from './components/search-combobox';
 import { getSearcher } from './searcher';
 import { trapFocusInDialog } from './universal-search-focus';
-import { UniversalSearchInputAssistController } from './universal-search-input-assist';
+import type { SearchSuggestionEntityType } from './types';
 import { universalSearchStyles } from './universal-search.styles';
 import { updateUrlStateForUniversalSearchTerm } from './universal-search-url-state';
-import { UniversalSearchBatchTab, UniversalSearchTab, universalSearchTabs } from './universal-search.types';
+import { universalSearchTabs } from './universal-search.types';
+import type { UniversalSearchBatchSearch, UniversalSearchBatchTab, UniversalSearchTab } from './universal-search.types';
 
 export { universalSearchTabs };
 export type { UniversalSearchTab };
@@ -27,6 +29,14 @@ const defaultTabLabels: Record<UniversalSearchTab, string> = {
     productCategories: 'Categories',
     content: 'Content',
 };
+
+const defaultDisplayedAtLocation = 'Relewise Universal Search';
+
+const suggestionEntityTypeByTab = {
+    products: 'Product',
+    productCategories: 'ProductCategory',
+    content: 'Content',
+} as const satisfies Record<UniversalSearchTab, SearchSuggestionEntityType>;
 
 export class UniversalSearch extends RelewiseLitElement {
 
@@ -54,16 +64,6 @@ export class UniversalSearch extends RelewiseLitElement {
     private readonly accessibilityId = `relewise-universal-search-${universalSearchInstanceId++}`;
     private previouslyFocusedElement: HTMLElement | null = null;
     private openStateActive = false;
-    private readonly inputAssist = new UniversalSearchInputAssistController(this, {
-        getTerm: () => this.term,
-        getEnabledTabs: () => this.enabledTabs,
-        getDisplayedAtLocation: () => this.displayedAtLocation,
-        getAccessibilityId: () => this.accessibilityId,
-        setSearchTerm: term => this.setSearchTerm(term),
-        submitSearchTerm: () => this.submitCurrentTerm(),
-        close: () => this.close(),
-    });
-
     connectedCallback(): void {
         super.connectedCallback();
         this.term = readCurrentUrlState(QueryKeys.term) ?? '';
@@ -114,7 +114,7 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         this.batchAbortController.abort();
-        this.inputAssist.close();
+        this.searchCombobox?.closeSuggestions();
         this.previouslyFocusedElement?.focus();
         this.previouslyFocusedElement = null;
     }
@@ -176,9 +176,9 @@ export class UniversalSearch extends RelewiseLitElement {
             return;
         }
 
-        let searches: ReturnType<UniversalSearchBatchTab['prepareBatchSearch']>[] = [];
+        let searches: Array<UniversalSearchBatchSearch | SearchSuggestionsBatchSearch> = [];
         try {
-            const settings = await getRelewiseContextSettings(this.displayedAtLocation ?? 'Relewise Universal Search');
+            const settings = await getRelewiseContextSettings(this.displayedAtLocation ?? defaultDisplayedAtLocation);
             if (abortController.signal.aborted || this.searchTerm !== term) {
                 return;
             }
@@ -186,9 +186,9 @@ export class UniversalSearch extends RelewiseLitElement {
                 'relewise-universal-search-products-tab, relewise-universal-search-product-categories-tab, relewise-universal-search-content-tab',
             )];
             searches = tabs.map(tab => tab.prepareBatchSearch(settings));
-            const inputAssistSearch = this.inputAssist.prepareBatchSearch(settings);
-            if (inputAssistSearch) {
-                searches.push(inputAssistSearch);
+            const suggestionsSearch = this.searchCombobox?.prepareBatchSearch(settings);
+            if (suggestionsSearch) {
+                searches.push(suggestionsSearch);
             }
             const requestBuilder = new SearchCollectionBuilder();
             searches.forEach(search => requestBuilder.addRequest(search.request));
@@ -226,10 +226,6 @@ export class UniversalSearch extends RelewiseLitElement {
         event.preventDefault();
         this.close();
     }
-
-    private readonly handleSearchBarKeyDown = (event: KeyboardEvent): void => {
-        this.inputAssist.handleKeyEvent(event);
-    };
 
     private closeWhenClickingOutsideDialog(event: MouseEvent): void {
         if (event.target === event.currentTarget) {
@@ -296,12 +292,17 @@ export class UniversalSearch extends RelewiseLitElement {
         return `${this.accessibilityId}-panel-${tab}`;
     }
 
+    private get searchCombobox(): SearchCombobox | null {
+        return this.renderRoot.querySelector('relewise-search-combobox');
+    }
+
     render() {
         if (!this.isOpen) {
             return nothing;
         }
 
-        const localization = getRelewiseUISearchOptions()?.localization;
+        const searchOptions = getRelewiseUISearchOptions();
+        const localization = searchOptions?.localization;
         const searchBarLocalization = localization?.searchBar;
         const universalSearchLocalization = localization?.universalSearch;
         const enabledTabs = this.enabledTabs;
@@ -311,7 +312,7 @@ export class UniversalSearch extends RelewiseLitElement {
                 class="rw-backdrop"
                 part="backdrop"
                 @click=${this.closeWhenClickingOutsideDialog}
-                @pointerdown=${(event: PointerEvent) => this.inputAssist.dismissWhenClickingOutside(event)}>
+                @pointerdown=${(event: PointerEvent) => this.searchCombobox?.dismissWhenClickingOutside(event)}>
                 <section
                     class="rw-dialog"
                     part="dialog"
@@ -321,21 +322,20 @@ export class UniversalSearch extends RelewiseLitElement {
                     @keydown=${this.handleDialogKeyDown}
                     aria-label=${searchBarLocalization?.search ?? 'Search'}>
                     <header class="rw-header" part="header">
-                        <relewise-search-bar
+                        <relewise-search-combobox
                             part="search-bar"
-                            exportparts="input: search-input, icon: search-icon, input-assist, predictions, popular-search-terms, input-assist-list, input-assist-item"
+                            exportparts="input: search-input, icon: search-icon, search-suggestions, predictions, popular-search-terms, suggestions-list, suggestion"
                             .term=${this.term}
-                            .setSearchTerm=${(term: string) => this.inputAssist.handleSearchTermInput(term)}
-                            .setSearchBarInFocus=${(inFocus: boolean) => this.inputAssist.handleSearchBarFocus(inFocus)}
-                            .handleKeyEvent=${this.handleSearchBarKeyDown}
+                            .suggestions=${searchOptions?.universalSearch?.suggestions}
+                            .targetEntityTypes=${enabledTabs.map(tab => suggestionEntityTypeByTab[tab])}
+                            .displayedAtLocation=${this.displayedAtLocation ?? defaultDisplayedAtLocation}
+                            .setSearchTerm=${this.setSearchTerm}
+                            .submitSearchTerm=${() => this.submitCurrentTerm()}
+                            .handleEscape=${() => this.close()}
                             .placeholder=${searchBarLocalization?.placeholder ?? null}
-                            .inputAssist=${this.inputAssist.render()}
-                            .inputAssistEnabled=${this.inputAssist.enabled}
-                            .inputAssistExpanded=${this.inputAssist.expanded}
-                            .inputAssistListId=${this.inputAssist.listId}
-                            .inputAssistActiveDescendantId=${this.inputAssist.activeDescendantId}
+                            .suggestionsLabel=${universalSearchLocalization?.suggestionsLabel ?? 'Search suggestions'}
                             autofocus>
-                        </relewise-search-bar>
+                        </relewise-search-combobox>
                         <relewise-button
                             class="rw-close"
                             part="close-button"

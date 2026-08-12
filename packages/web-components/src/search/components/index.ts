@@ -7,3 +7,4 @@ export * from './product-search-overlay-results';
 export * from './product-search-results';
 export * from './product-search-sorting';
 export * from './search-bar';
+export * from './search-combobox';

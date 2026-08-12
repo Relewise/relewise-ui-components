@@ -143,7 +143,7 @@ initializeRelewiseUI(
                     pageSize: 15,
                 },
             },
-            inputAssist: {
+            suggestions: {
                 popularSearchTerms: {
                     take: 5,
                 },

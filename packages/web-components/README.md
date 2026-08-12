@@ -592,7 +592,7 @@ useSearch({
         universalSearch: {
             close: 'Close',
             emptyState: 'Start typing to search.',
-            inputAssistLabel: 'Search suggestions',
+            suggestionsLabel: 'Search suggestions',
             noEntitiesConfigured: 'No universal-search entities configured.',
             tabsLabel: 'Search result tabs',
             products: {
@@ -682,7 +682,7 @@ useSearch({
             },
             content: {},
         },
-        inputAssist: {
+        suggestions: {
             popularSearchTerms: {
                 take: 5,
             },
@@ -706,11 +706,30 @@ The component reads the existing `rw-term` URL parameter when it is connected, b
 
 When multiple entities are configured, they are searched together in one batched request when the search term changes. A single configured entity uses its direct search endpoint. Omitted entities are not rendered and are not requested. Facet, sorting, and load-more changes only search the active tab.
 
-Input Assist is opt-in. Configure `popularSearchTerms` to show popular terms while the focused input is empty, and configure `searchTermPredictions` to show predictions while it contains text. Both sections default to five terms when `take` is omitted and target the enabled universal-search entities.
+Search suggestions are opt-in. Configure `popularSearchTerms` to show popular terms while the focused input is empty, and configure `searchTermPredictions` to show predictions while it contains text. Both sections default to five terms when `take` is omitted and target the enabled universal-search entities. Predictions that exactly match the current input are omitted.
 
-The assist panel supports pointer selection and Arrow Up, Arrow Down, Enter, and Escape. It closes on selection, Enter, Escape, outside interaction, or input blur. Popular terms may be empty when the dataset does not have enough engaged search history; an empty assist panel is not rendered.
+The suggestions panel supports pointer selection and Arrow Up, Arrow Down, Enter, and Escape. It closes on selection, Enter, Escape, outside interaction, or input blur. Popular terms may be empty when the dataset does not have enough engaged search history; an empty suggestions panel is not rendered.
 
-The Input Assist popup exposes the CSS parts `input-assist`, `popular-search-terms`, `predictions`, `input-assist-list`, and `input-assist-item` through `relewise-universal-search`.
+Universal Search renders its input and suggestions with the shared `relewise-search-combobox`. The existing `relewise-search-bar` and product-search overlay remain unchanged, while other search experiences can adopt the combobox later. The suggestions popup exposes the CSS parts `search-suggestions`, `popular-search-terms`, `predictions`, `suggestions-list`, and `suggestion` through `relewise-universal-search`.
+
+The combobox owns its input, suggestions popup, focus, dismissal, keyboard, and accessibility behavior. It loads popular search terms itself. Search-term predictions participate in the parent search experience's batch instead of starting a competing request: the parent calls `prepareBatchSearch(settings)`, includes the returned request in its batch, and then calls `applyResponse(response)` or `setError()`. Universal Search handles this integration automatically. A future Product Search integration can use the same contract without changing the existing `relewise-search-bar` or product-search overlay.
+
+```ts
+const predictionSearch = searchCombobox.prepareBatchSearch(settings);
+
+if (predictionSearch) {
+    requestBuilder.addRequest(predictionSearch.request);
+
+    try {
+        const response = await searcher.batch(requestBuilder.build());
+        predictionSearch.applyResponse(response);
+    } catch {
+        predictionSearch.setError();
+    }
+}
+```
+
+The suggestions popup uses the shared rounded-corner default, clips hover backgrounds to those corners, and has no empty padding above or below the suggestion rows. Its default shadow and hover color match the product-search overlay.
 
 When the products tab is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option.
 
@@ -1209,15 +1228,16 @@ All CSS variables recognised by the web components are listed below together wit
 | `--relewise-product-search-bar-margin-bottom` | `.5em` | Bottom margin applied to the product search bar. |
 | `--relewise-product-search-bar-width` | `100%` | Width of the product search bar container. |
 | `--relewise-product-search-bar-height` | `3em` | Height of the product search bar input. |
+| `--relewise-search-combobox-height` | `var(--relewise-product-search-bar-height, 3em)` | Height of the shared search combobox. |
 | `--relewise-search-bar-border-color` | `var(--color)` | Border colour of the search input in its default state. |
 | `--relewise-search-bar-border-color-focused` | `var(--accent-color)` | Border colour of the search input when focused. |
-| `--relewise-universal-search-input-assist-z-index` | `1` | Stack order of the Universal Search Input Assist popup. |
-| `--relewise-universal-search-input-assist-offset` | `0.25em` | Space between the search input and Input Assist popup. |
-| `--relewise-universal-search-input-assist-background` | `white` | Background colour of the Input Assist popup. |
-| `--relewise-universal-search-input-assist-box-shadow` | `0 0.5em 1em rgb(0 0 0 / 0.12)` | Shadow around the Input Assist popup. |
-| `--relewise-universal-search-input-assist-padding` | `0.5em 0` | Padding around the Input Assist list. |
-| `--relewise-universal-search-input-assist-item-padding` | `0.625em 1em` | Padding for each Input Assist option. |
-| `--relewise-universal-search-input-assist-item-active-background` | `#f2f2f2` | Background of hovered or keyboard-selected Input Assist options. |
+| `--relewise-search-suggestions-z-index` | `999` | Stack order of the search suggestions popup. |
+| `--relewise-search-suggestions-offset` | `0.25em` | Space between the search input and suggestions popup. |
+| `--relewise-search-suggestions-background-color` | `white` | Background color of the suggestions popup. |
+| `--relewise-search-suggestions-border-color` | `#ddd` | Border color of the suggestions popup. |
+| `--relewise-search-suggestions-border-radius` | `var(--relewise-border-radius, 1em)` | Corner radius of the suggestions popup. |
+| `--relewise-search-suggestions-box-shadow` | `0 10px 15px rgb(0 0 0 / 0.2)` | Shadow around the suggestions popup. |
+| `--relewise-search-suggestion-padding` | `0.5em 1em` | Padding for each suggestion. |
 
 #### Search overlay container and messaging
 | Variable | Default | Description |

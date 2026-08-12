@@ -3,14 +3,13 @@ import type {
     ProductCategorySearchRequest,
     ProductSearchRequest,
     SearchResponseCollection,
-    SearchTermPredictionRequest,
     Settings,
 } from '@relewise/client';
 
 export const universalSearchTabs = ['products', 'productCategories', 'content'] as const;
 export type UniversalSearchTab = typeof universalSearchTabs[number];
 
-export type UniversalSearchRequest = ProductSearchRequest | ProductCategorySearchRequest | ContentSearchRequest | SearchTermPredictionRequest;
+export type UniversalSearchRequest = ProductSearchRequest | ProductCategorySearchRequest | ContentSearchRequest;
 
 export type UniversalSearchBatchSearch = {
     request: UniversalSearchRequest;

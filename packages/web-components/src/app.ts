@@ -7,7 +7,8 @@ import { FavoriteButtonContent } from './components/content-favorite-button';
 import { FavoriteButtonProducts } from './components/product-favorite-button';
 import { ContextSettings, ProductTemplateExtensions } from './initialize';
 import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PopularContent, PersonalContent, ContentViewedAfterViewingContent, ContentViewedAfterViewingMultipleContent, ProductsViewedAfterViewingContent, ContentViewedAfterViewingProduct, ContentViewedAfterViewingMultipleProducts } from './recommendations';
-import { UniversalSearch, ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar } from './search';
+import { UniversalSearch, ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar, SearchCombobox } from './search';
+import type { SearchSuggestionsOptions } from './search';
 import { ChecklistBooleanValueFacet } from './search/components/facets/checklist-boolean-value-facet';
 import { ChecklistNumberValueFacet } from './search/components/facets/checklist-number-value-facet';
 import { ChecklistObjectValueFacet } from './search/components/facets/checklist-object-value-facet';
@@ -56,16 +57,7 @@ export interface RelewiseUISearchOptions {
 
 export interface UniversalSearchOptions {
     entities?: UniversalSearchEntitiesOptions;
-    inputAssist?: UniversalSearchInputAssistOptions;
-}
-
-export interface UniversalSearchInputAssistOptions {
-    popularSearchTerms?: {
-        take?: number;
-    };
-    searchTermPredictions?: {
-        take?: number;
-    };
+    suggestions?: SearchSuggestionsOptions;
 }
 
 export interface UniversalSearchEntitiesOptions {
@@ -90,7 +82,7 @@ export interface SearchLocalization {
 export interface UniversalSearchLocalization {
     close?: string;
     emptyState?: string;
-    inputAssistLabel?: string;
+    suggestionsLabel?: string;
     noEntitiesConfigured?: string;
     tabsLabel?: string;
     products?: UniversalSearchTabLocalization;
@@ -268,6 +260,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     tryRegisterElement('relewise-product-search-overlay', ProductSearchOverlay);
     tryRegisterElement('relewise-product-search', ProductSearch);
     tryRegisterElement('relewise-search-bar', SearchBar);
+    tryRegisterElement('relewise-search-combobox', SearchCombobox);
     tryRegisterElement('relewise-product-search-bar', ProductSearchBar);
     tryRegisterElement('relewise-product-search-overlay-product', ProductSearchOverlayProduct);
     tryRegisterElement('relewise-product-search-overlay-product-category', ProductSearchOverlayProductCategory);
