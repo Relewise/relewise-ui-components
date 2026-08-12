@@ -10,10 +10,10 @@ import {
     readCurrentUrlState,
 } from '../helpers';
 import { RelewiseLitElement } from '../relewise-lit-element';
-import type { SearchCombobox, SearchSuggestionsBatchSearch } from './components/search-combobox';
+import type { SearchCombobox } from './components/search-combobox';
 import { getSearcher } from './searcher';
 import { trapFocusInDialog } from './universal-search-focus';
-import type { SearchSuggestionEntityType } from './types';
+import type { SearchSuggestionEntityType, SearchSuggestionsBatchSearch } from './types';
 import { universalSearchStyles } from './universal-search.styles';
 import { updateUrlStateForUniversalSearchTerm } from './universal-search-url-state';
 import { universalSearchTabs } from './universal-search.types';

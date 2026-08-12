@@ -1,4 +1,4 @@
-import type { SearchTermPredictionRequest } from '@relewise/client';
+import type { SearchResponseCollection, SearchTermPredictionRequest } from '@relewise/client';
 
 export interface SearchSuggestionsOptions {
     popularSearchTerms?: {
@@ -12,3 +12,9 @@ export interface SearchSuggestionsOptions {
 export type SearchSuggestionEntityType = NonNullable<
     NonNullable<SearchTermPredictionRequest['settings']>['targetEntityTypes']
 >[number];
+
+export type SearchSuggestionsBatchSearch = {
+    request: SearchTermPredictionRequest;
+    applyResponse: (response: SearchResponseCollection) => void;
+    setError: () => void;
+};
