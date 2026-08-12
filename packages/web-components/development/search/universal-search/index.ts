@@ -167,9 +167,9 @@ initializeRelewiseUI(
             recommendations: {
                 initial: [
                     { type: 'PopularProducts', title: 'Popular products', take: 10 },
-                    { type: 'PopularProductCategories', title: 'Popular categories', take: 10 },
+                    { type: 'PopularProductCategories', title: 'Popular product categories', take: 5 },
                     { type: 'PopularContents', title: 'Popular content', take: 10 },
-                    { type: 'PopularContentCategories', title: 'Popular content categories', take: 10 },
+                    { type: 'PopularContentCategories', title: 'Popular content categories', take: 5 },
                     { type: 'PopularSearchTerms', title: 'Popular searches', take: 10 },
                 ],
                 noResults: {
