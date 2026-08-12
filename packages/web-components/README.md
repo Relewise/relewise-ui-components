@@ -728,6 +728,7 @@ useSearch({
             close: 'Close',
             emptyState: 'Start typing to search.',
             noEntitiesConfigured: 'No universal-search entities configured.',
+            noResults: 'No results found.',
             tabsLabel: 'Search result tabs',
             products: {
                 tab: 'Products',
@@ -826,6 +827,33 @@ useSearch({
                 targetEntityTypes: ['Product'],
             },
         },
+        behavior: {
+            zeroResultTabs: 'show',
+            activateFirstTabWithResultsFromInitialState: true,
+        },
+        recommendations: {
+            initial: [
+                { type: 'PopularProducts', title: 'Popular products', take: 4 },
+                { type: 'RecentlyViewedProducts', title: 'Recently viewed', take: 4 },
+                { type: 'PopularProductCategories', title: 'Popular categories', take: 4 },
+            ],
+            noResults: {
+                global: [
+                    // Use this when the dataset has enough search-term recommendation data:
+                    // { type: 'SearchTermBasedProduct', title: 'You might like', take: 4 },
+                    { type: 'PopularProducts', title: 'Popular products', take: 4 },
+                ],
+                products: [
+                    { type: 'PopularProducts', title: 'Popular products', take: 4 },
+                ],
+                productCategories: [
+                    { type: 'PopularProductCategories', title: 'Popular categories', take: 4 },
+                ],
+                content: [
+                    { type: 'PopularContents', title: 'Popular content', take: 4 },
+                ],
+            },
+        },
     },
 });
 ```
@@ -875,11 +903,46 @@ if (predictionSearch) {
 
 The suggestions popup uses the shared rounded-corner default, clips hover backgrounds to those corners, and has no empty padding above or below the suggestion rows. Its default shadow and hover color match the product-search overlay.
 
+Recommendation blocks are also opt-in. Configure ordered blocks independently for the termless `initial` state, the `global` no-result state, and each entity tab's no-result state. Omit a state or block to disable it. Each block accepts `type`, optional `title`, and optional `take`; `take` defaults to four.
+
+`take` controls how many recommendations are requested for a block. All recommendations returned for the block are rendered. The number of columns is controlled separately with CSS and defaults to four on desktop and two on mobile:
+
+```ts
+recommendations: {
+    initial: [
+        { type: 'PopularProducts', title: 'Popular products', take: 10 },
+    ],
+}
+```
+
+```css
+relewise-universal-search {
+    --relewise-universal-search-recommendation-grid-columns: 5;
+    --relewise-universal-search-recommendation-grid-mobile-columns: 2;
+}
+```
+
+Supported block types are `PopularProducts`, `RecentlyViewedProducts`, `PopularProductCategories`, `PopularContents`, `PopularContentCategories`, `PopularSearchTerms`, and `SearchTermBasedProduct`. `SearchTermBasedProduct` only runs when a search term is available. `RecentlyViewedProducts` is omitted for anonymous users because the API cannot resolve viewing history without a temporary or authenticated user id.
+
+`SearchTermBasedProduct` may return no recommendations on a new dataset without enough search behavior. Popular entity recommendations are therefore safer defaults for no-result recovery. When a tab-specific recovery block returns recommendations, Universal Search hides that zero-result tab's facets and removes the otherwise empty facet column. Facets remain available when no recovery recommendations are returned, allowing users to remove active filters.
+
+Set `behavior.zeroResultTabs` to `show` (the default) to keep zero-result tabs and render their configured recovery blocks. Set it to `hide` to use the global recovery blocks when every enabled tab has zero results. `behavior.activateFirstTabWithResultsFromInitialState` defaults to `true`; it only changes the active tab when the user leaves the termless initial state, not after the user has selected a tab.
+
+All configured initial blocks are requested because they are rendered together. Multiple product or content requests are batched by entity type; a single request uses its direct SDK method. Category and popular-search-term recommendations use their direct SDK methods.
+
+No-result recommendations are lazy. Universal Search initially requests only the active zero-result tab's configured blocks, loads another tab's blocks when that tab is selected, and caches successful responses—including successful empty responses—for the current search term. Returning to a previously loaded tab therefore does not repeat its recommendation requests. The cache is cleared when the term changes or the modal closes. Recommendation results retain the configured block order.
+
+Recommendation blocks expose the CSS parts `recommendation-blocks`, `recommendation-block`, `recommendation-title`, `recommendation-grid`, `product-recommendation-grid`, `content-recommendation-grid`, `category-recommendation-grid`, `recommendation-product-tile`, `recommendation-content-tile`, `recommendation-category-tile`, `recommendation-terms`, and `recommendation-term`. Each block also exposes a type-specific part such as `popular-products` or `search-term-based-products`. The result-type-specific grid parts can be used when product, content, and category blocks need different layouts.
+
 When the products tab is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option.
 
 When the content tab is configured, it renders content results with `relewise-content-tile`. Content rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { content } })` template option.
 
 When the product categories tab is configured, it renders product category results with `relewise-category-tile`. Product category rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { productCategory } })` template option. The default category tile reads `Url` and `ImageUrl` from selected category data and exposes CSS parts for styling.
+
+Product-category and content-category recommendation blocks also render with `relewise-category-tile`. Content-category rendering can be overridden through `initializeRelewiseUI({ templates: { contentCategory } })`, and its returned properties can be configured through `selectedPropertiesSettings.contentCategory`.
+
+Content-category recommendation requests also respect `filters.contentCategory` and `relevanceModifiers.contentCategory`. When using `relewise-category-tile` directly, set its `content-category` attribute to select the content-category template; Universal Search sets this automatically for content-category blocks.
 
 The current tabs use load-more behavior. Additional pagination modes are not part of the initial universal-search implementation.
 
@@ -1415,6 +1478,8 @@ Category tiles also use the shared image, information-container, display-name, a
 | `--relewise-search-suggestion-padding` | `0.5em 1em` | Padding for each suggestion. |
 | `--relewise-search-suggestion-gap` | `1em` | Space between a suggestion term and its icon. |
 | `--relewise-search-suggestion-icon-color` | `var(--accent-color)` | Color of the search icon shown beside each suggestion. |
+| `--relewise-universal-search-recommendation-grid-columns` | `4` | Number of columns used by Universal Search recommendation blocks above the mobile breakpoint. |
+| `--relewise-universal-search-recommendation-grid-mobile-columns` | `2` | Number of columns used by Universal Search recommendation blocks at widths up to `768px`. |
 
 #### Search overlay container and messaging
 | Variable | Default | Description |

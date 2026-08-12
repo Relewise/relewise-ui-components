@@ -21,6 +21,7 @@ const tab = 'content';
 
 export class UniversalSearchContentTab extends RelewiseLitElement {
     @property() term = '';
+    @property({ attribute: false }) hideFacets = false;
     @property({ attribute: 'displayed-at-location' }) displayedAtLocation?: string;
 
     @state() private result: ContentSearchResponse | null = null;
@@ -196,7 +197,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
 
         return html`
             <div class="rw-results-layout" part="results-layout">
-                ${this.result?.facets ? html`
+                ${this.result?.facets && !this.hideFacets ? html`
                     <relewise-facets
                         class="rw-facets"
                         part="facets"

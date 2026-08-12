@@ -22,6 +22,7 @@ const tab = 'products';
 export class UniversalSearchProductsTab extends RelewiseLitElement {
     @property() term = '';
     @property({ attribute: false }) target: string | null = null;
+    @property({ attribute: false }) hideFacets = false;
     @property({ attribute: 'displayed-at-location' }) displayedAtLocation?: string;
 
     @state() private result: ProductSearchResponse | null = null;
@@ -202,7 +203,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
 
         return html`
             <div class="rw-results-layout" part="results-layout">
-                ${this.result?.facets ? html`
+                ${this.result?.facets && !this.hideFacets ? html`
                     <relewise-facets
                         class="rw-facets"
                         part="facets"

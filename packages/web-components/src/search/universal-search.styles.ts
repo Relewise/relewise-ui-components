@@ -93,6 +93,46 @@ export const universalSearchStyles = [theme, css`
         margin-bottom: var(--relewise-universal-search-results-summary-margin-bottom, 1em);
     }
 
+    .rw-recommendation-blocks {
+        display: grid;
+        gap: var(--relewise-universal-search-recommendation-block-gap, 2em);
+    }
+
+    .rw-recommendation-title {
+        margin: 0 0 var(--relewise-universal-search-recommendation-title-margin-bottom, 1em);
+    }
+
+    .rw-recommendation-grid {
+        display: grid;
+        grid-template-columns: repeat(var(--relewise-universal-search-recommendation-grid-columns, 4), minmax(0, 1fr));
+        gap: var(--relewise-universal-search-recommendation-grid-gap, 1em);
+    }
+
+    .rw-recommendation-loading {
+        display: flex;
+        justify-content: center;
+    }
+
+    .rw-recommendation-terms {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--relewise-universal-search-recommendation-term-gap, 0.5em);
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .rw-recommendation-term {
+        background: var(--relewise-universal-search-recommendation-term-background, white);
+        border: 1px solid var(--relewise-universal-search-border-color, #ddd);
+        border-radius: var(--relewise-universal-search-recommendation-term-border-radius, 1em);
+        color: inherit;
+        cursor: pointer;
+        font: inherit;
+        min-height: 2.75em;
+        padding: var(--relewise-universal-search-recommendation-term-padding, 0.5em 0.75em);
+    }
+
     @media (max-width: 768px) {
         .rw-header {
             align-items: stretch;
@@ -101,6 +141,10 @@ export const universalSearchStyles = [theme, css`
 
         relewise-search-combobox {
             width: 100%;
+        }
+
+        .rw-recommendation-grid {
+            grid-template-columns: repeat(var(--relewise-universal-search-recommendation-grid-mobile-columns, 2), minmax(0, 1fr));
         }
     }
 `];

@@ -1,5 +1,5 @@
 import { RelewiseLitElement } from '../relewise-lit-element';
-import { ProductCategoryResult, User } from '@relewise/client';
+import { ContentCategoryResult, ProductCategoryResult, User } from '@relewise/client';
 import { adoptStyles, css, html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
@@ -11,7 +11,10 @@ import { until } from 'lit-html/directives/until.js';
 export class CategoryTile extends RelewiseLitElement {
 
     @property({ type: Object })
-    category: ProductCategoryResult | null = null;
+    category: ProductCategoryResult | ContentCategoryResult | null = null;
+
+    @property({ type: Boolean, attribute: 'content-category' })
+    contentCategory = false;
 
     @property({ type: Object })
     private user: User | null = null;
@@ -22,7 +25,9 @@ export class CategoryTile extends RelewiseLitElement {
         let hasCustomTemplate = false;
         try {
             const settings = getRelewiseUIOptions();
-            hasCustomTemplate = Boolean(settings.templates?.productCategory);
+            hasCustomTemplate = this.contentCategory
+                ? Boolean(settings.templates?.contentCategory)
+                : Boolean(settings.templates?.productCategory);
         } catch (error) {
             console.error('Relewise: Error initializing initializeRelewiseUI. Keeping default styles, ', error);
         }
@@ -48,8 +53,11 @@ export class CategoryTile extends RelewiseLitElement {
         }
 
         const settings = getRelewiseUIOptions();
-        if (settings.templates?.productCategory) {
-            const result = settings.templates.productCategory(this.category, { html, helpers: { ...templateHelpers, unsafeHTML, nothing, user: this.user } });
+        const extensions = { html, helpers: { ...templateHelpers, unsafeHTML, nothing, user: this.user } } as const;
+        const result = this.contentCategory
+            ? settings.templates?.contentCategory?.(this.category as ContentCategoryResult, extensions)
+            : settings.templates?.productCategory?.(this.category as ProductCategoryResult, extensions);
+        if (result !== undefined) {
             const markup = result instanceof Promise ? html`
                 ${until(result.then(result => {
                 if (result === nothing) {
@@ -83,7 +91,7 @@ export class CategoryTile extends RelewiseLitElement {
         `;
     }
 
-    renderTileContent(category: ProductCategoryResult) {
+    renderTileContent(category: ProductCategoryResult | ContentCategoryResult) {
         const image = category.data?.['ImageUrl']?.value ?? null;
 
         return html`

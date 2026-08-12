@@ -58,6 +58,36 @@ export interface RelewiseUISearchOptions {
 export interface UniversalSearchOptions {
     entities?: UniversalSearchEntitiesOptions;
     suggestions?: SearchSuggestionsOptions;
+    behavior?: UniversalSearchBehaviorOptions;
+    recommendations?: UniversalSearchRecommendationOptions;
+}
+
+export interface UniversalSearchBehaviorOptions {
+    zeroResultTabs?: 'show' | 'hide';
+    activateFirstTabWithResultsFromInitialState?: boolean;
+}
+
+export interface UniversalSearchRecommendationOptions {
+    initial?: UniversalSearchRecommendationBlock[];
+    noResults?: {
+        global?: UniversalSearchRecommendationBlock[];
+        products?: UniversalSearchRecommendationBlock[];
+        productCategories?: UniversalSearchRecommendationBlock[];
+        content?: UniversalSearchRecommendationBlock[];
+    };
+}
+
+export interface UniversalSearchRecommendationBlock {
+    title?: string;
+    type:
+        | 'PopularProducts'
+        | 'RecentlyViewedProducts'
+        | 'PopularProductCategories'
+        | 'PopularContents'
+        | 'PopularContentCategories'
+        | 'PopularSearchTerms'
+        | 'SearchTermBasedProduct';
+    take?: number;
 }
 
 export type SearchSuggestionEntityType = NonNullable<
@@ -110,6 +140,7 @@ export interface UniversalSearchLocalization {
     close?: string;
     emptyState?: string;
     noEntitiesConfigured?: string;
+    noResults?: string;
     tabsLabel?: string;
     products?: UniversalSearchTabLocalization;
     productCategories?: UniversalSearchTabLocalization;

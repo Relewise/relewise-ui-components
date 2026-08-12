@@ -1,0 +1,465 @@
+import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
+import { ContentCategoryResult, ContentResult, ProductCategoryResult, ProductResult, Recommender, Searcher, UserFactory } from '@relewise/client';
+import { clearUrlState, initializeRelewiseUI, UniversalSearch, useSearch } from '../src';
+import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
+
+type UniversalSearchTestApi = {
+    setSearchTerm: (term: string) => void;
+    handleSelectTab: (tab: 'products' | 'productCategories' | 'content') => void;
+};
+
+function product(productId: string): ProductResult {
+    return { productId, rank: 1, displayName: productId } as ProductResult;
+}
+
+function productCategory(categoryId: string): ProductCategoryResult {
+    return { categoryId, rank: 1, displayName: categoryId } as ProductCategoryResult;
+}
+
+function content(contentId: string): ContentResult {
+    return { contentId, rank: 1, displayName: contentId } as ContentResult;
+}
+
+function contentCategory(categoryId: string): ContentCategoryResult {
+    return { categoryId, rank: 1, displayName: categoryId } as ContentCategoryResult;
+}
+
+suite('universal search recommendation blocks', () => {
+    const originalBatchSearch = Searcher.prototype.batch;
+    const originalBatchProducts = Recommender.prototype.batchProductRecommendations;
+    const originalBatchContent = Recommender.prototype.batchContentRecommendations;
+    const originalPopularProducts = Recommender.prototype.recommendPopularProducts;
+    const originalRecentlyViewedProducts = Recommender.prototype.recentlyViewedProducts;
+    const originalSearchTermBasedProducts = Recommender.prototype.recommendSearchTermBasedProducts;
+    const originalPopularProductCategories = Recommender.prototype.recommendPopularProductCategories;
+    const originalPopularContents = Recommender.prototype.recommendPopularContents;
+    const originalPopularContentCategories = Recommender.prototype.recommendPopularContentCategories;
+    const originalPopularSearchTerms = Recommender.prototype.recommendPopularSearchTerms;
+    let productHits = 0;
+    let productCategoryHits = 0;
+    let contentHits = 0;
+    let searchTermBasedRequestTerm: string | undefined;
+    let popularSearchTermTargetEntityTypes: unknown;
+    let failContentCategoryRecommendations = false;
+    let failNextBatchSearch = false;
+    let batchSearchGate: Promise<void> | null = null;
+    let batchSearches = 0;
+    let productFacets: object | null = null;
+    let popularProductCalls = 0;
+    let popularProductCategoryCalls = 0;
+    let popularContentCalls = 0;
+    let popularContentCategoryCalls = 0;
+
+    setup(() => {
+        clearUrlState();
+        productHits = 0;
+        productCategoryHits = 0;
+        contentHits = 0;
+        searchTermBasedRequestTerm = undefined;
+        popularSearchTermTargetEntityTypes = undefined;
+        failContentCategoryRecommendations = false;
+        failNextBatchSearch = false;
+        batchSearchGate = null;
+        batchSearches = 0;
+        productFacets = null;
+        popularProductCalls = 0;
+        popularProductCategoryCalls = 0;
+        popularContentCalls = 0;
+        popularContentCategoryCalls = 0;
+
+        Searcher.prototype.batch = async function(requestCollection) {
+            await batchSearchGate;
+            batchSearches++;
+            if (failNextBatchSearch) {
+                failNextBatchSearch = false;
+                throw new Error('Search is unavailable');
+            }
+
+            return {
+                responses: requestCollection.requests.map(request => {
+                    if (request.$type.includes('ProductCategorySearchRequest')) {
+                        return {
+                            $type: 'Relewise.Client.Responses.Search.ProductCategorySearchResponse, Relewise.Client',
+                            hits: productCategoryHits,
+                            results: productCategoryHits ? [productCategory('search-category')] : [],
+                            facets: null,
+                        };
+                    }
+                    if (request.$type.includes('ContentSearchRequest')) {
+                        return {
+                            $type: 'Relewise.Client.Responses.Search.ContentSearchResponse, Relewise.Client',
+                            hits: contentHits,
+                            results: contentHits ? [content('search-content')] : [],
+                            facets: null,
+                        };
+                    }
+                    return {
+                        $type: 'Relewise.Client.Responses.Search.ProductSearchResponse, Relewise.Client',
+                        hits: productHits,
+                        results: productHits ? [product('search-product')] : [],
+                        facets: productFacets,
+                    };
+                }),
+            } as any;
+        };
+
+        Recommender.prototype.batchProductRecommendations = async function(requestCollection) {
+            return {
+                responses: requestCollection.requests?.map(request => {
+                    if (request.$type.includes('SearchTermBasedProductRecommendationRequest')) {
+                        searchTermBasedRequestTerm = (request as { term: string }).term;
+                    }
+                    return { recommendations: [product(request.$type.includes('RecentlyViewedProductsRequest') ? 'recent' : 'recommended')] };
+                }),
+            } as any;
+        };
+        Recommender.prototype.recommendPopularProducts = async function() {
+            popularProductCalls++;
+            return { recommendations: [product('recommended')] } as any;
+        };
+        Recommender.prototype.recentlyViewedProducts = async function() {
+            return { recommendations: [product('recent')] } as any;
+        };
+        Recommender.prototype.recommendSearchTermBasedProducts = async function(request) {
+            searchTermBasedRequestTerm = request.term;
+            return { recommendations: [product('recommended')] } as any;
+        };
+        Recommender.prototype.recommendPopularProductCategories = async function() {
+            popularProductCategoryCalls++;
+            return { recommendations: [productCategory('popular-category')] } as any;
+        };
+        Recommender.prototype.batchContentRecommendations = async function(requestCollection) {
+            return { responses: requestCollection.requests?.map(() => ({ recommendations: [content('popular-content')] })) } as any;
+        };
+        Recommender.prototype.recommendPopularContents = async function() {
+            popularContentCalls++;
+            return { recommendations: [content('popular-content')] } as any;
+        };
+        Recommender.prototype.recommendPopularContentCategories = async function() {
+            popularContentCategoryCalls++;
+            if (failContentCategoryRecommendations) {
+                throw new Error('Content category recommendations are unavailable');
+            }
+            return { recommendations: [contentCategory('popular-content-category')] } as any;
+        };
+        Recommender.prototype.recommendPopularSearchTerms = async function(request) {
+            popularSearchTermTargetEntityTypes = request.settings?.targetEntityTypes;
+            return { recommendations: [{ term: 'Trail shoes', rank: 1 }] } as any;
+        };
+    });
+
+    teardown(() => {
+        clearUrlState();
+        fixtureCleanup();
+        window.relewiseUISearchOptions = undefined!;
+        window.relewiseUIOptions = undefined!;
+        Searcher.prototype.batch = originalBatchSearch;
+        Recommender.prototype.batchProductRecommendations = originalBatchProducts;
+        Recommender.prototype.batchContentRecommendations = originalBatchContent;
+        Recommender.prototype.recommendPopularProducts = originalPopularProducts;
+        Recommender.prototype.recentlyViewedProducts = originalRecentlyViewedProducts;
+        Recommender.prototype.recommendSearchTermBasedProducts = originalSearchTermBasedProducts;
+        Recommender.prototype.recommendPopularProductCategories = originalPopularProductCategories;
+        Recommender.prototype.recommendPopularContents = originalPopularContents;
+        Recommender.prototype.recommendPopularContentCategories = originalPopularContentCategories;
+        Recommender.prototype.recommendPopularSearchTerms = originalPopularSearchTerms;
+    });
+
+    test('renders consumer-selected initial blocks in order without result tabs', async() => {
+        const options = mockRelewiseOptions();
+        options.contextSettings.getUser = () => UserFactory.byTemporaryId('temporary-id');
+        initializeRelewiseUI(options);
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {}, productCategories: {}, content: {} },
+                recommendations: {
+                    initial: [
+                        { type: 'PopularProducts', title: 'Products' },
+                        { type: 'RecentlyViewedProducts', title: 'Recent' },
+                        { type: 'PopularProductCategories', title: 'Categories' },
+                        { type: 'PopularContents', title: 'Content' },
+                        { type: 'PopularContentCategories', title: 'Content categories' },
+                        { type: 'PopularSearchTerms', title: 'Searches' },
+                    ],
+                },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+        await waitUntil(() => element.renderRoot.querySelectorAll('[part~="recommendation-block"]').length === 6, 'initial blocks were not rendered');
+
+        assert.exists(element.renderRoot.querySelector('relewise-search-combobox'));
+        assert.lengthOf(element.renderRoot.querySelectorAll('[role="tab"]'), 0);
+        assert.deepEqual(
+            [...element.renderRoot.querySelectorAll('[part="recommendation-title"]')].map(title => title.textContent),
+            ['Products', 'Recent', 'Categories', 'Content', 'Content categories', 'Searches'],
+        );
+        assert.lengthOf(element.renderRoot.querySelectorAll('relewise-product-tile'), 2);
+        assert.lengthOf(element.renderRoot.querySelectorAll('relewise-category-tile'), 2);
+        assert.lengthOf(element.renderRoot.querySelectorAll('relewise-content-tile'), 1);
+        assert.equal(element.renderRoot.querySelector('[part="recommendation-term"]')?.textContent?.trim(), 'Trail shoes');
+        assert.deepEqual(popularSearchTermTargetEntityTypes, ['Product', 'ProductCategory', 'Content']);
+        assert.equal(popularProductCategoryCalls, 1);
+        assert.equal(popularContentCalls, 1);
+        assert.equal(popularContentCategoryCalls, 1);
+    });
+
+    test('uses the configured content-category template', async() => {
+        const options = mockRelewiseOptions();
+        options.templates = {
+            contentCategory: (category, { html }) => html`<span class="custom-content-category">${category.displayName}</span>`,
+        };
+        initializeRelewiseUI(options);
+        useSearch({
+            universalSearch: {
+                entities: { products: {} },
+                recommendations: {
+                    initial: [{ type: 'PopularContentCategories' }],
+                },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+        await waitUntil(() => element.renderRoot.querySelector('relewise-category-tile') !== null, 'content category was not rendered');
+        const tile = element.renderRoot.querySelector('relewise-category-tile') as HTMLElement & { renderRoot: HTMLElement | DocumentFragment; updateComplete: Promise<boolean> };
+        await tile.updateComplete;
+
+        assert.equal(tile.renderRoot.querySelector('.custom-content-category')?.textContent, 'popular-content-category');
+    });
+
+    test('searches with the API term when a recommendation term is selected', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {} },
+                recommendations: {
+                    initial: [{ type: 'PopularSearchTerms' }],
+                },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+        await waitUntil(
+            () => element.renderRoot.querySelector<HTMLButtonElement>('[part="recommendation-term"]'),
+            'search term recommendation was not rendered',
+        );
+        const recommendation = element.renderRoot.querySelector<HTMLButtonElement>('[part="recommendation-term"]')!;
+        recommendation.click();
+
+        await waitUntil(
+            () => element.renderRoot.querySelector('[part="results-summary"] strong')?.textContent === 'Trail shoes',
+            'selected search term was not submitted',
+        );
+    });
+
+    test('keeps successful blocks when another recommendation endpoint fails', async() => {
+        failContentCategoryRecommendations = true;
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            universalSearch: {
+                entities: { products: {} },
+                recommendations: {
+                    initial: [
+                        { type: 'PopularProducts' },
+                        { type: 'PopularContentCategories' },
+                    ],
+                },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+        await waitUntil(() => element.renderRoot.querySelector('[part="recommendation-product-tile"]') !== null, 'successful block was not rendered');
+
+        assert.lengthOf(element.renderRoot.querySelectorAll('[part~="recommendation-block"]'), 1);
+    });
+
+    test('renders global recovery blocks when every zero-result tab is hidden', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            localization: {
+                universalSearch: {
+                    noResults: 'Nothing matched your search.',
+                },
+            },
+            universalSearch: {
+                entities: { products: {}, productCategories: {}, content: {} },
+                behavior: { zeroResultTabs: 'hide' },
+                recommendations: {
+                    noResults: {
+                        global: [{ type: 'SearchTermBasedProduct', title: 'Try these instead' }],
+                    },
+                },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+        (element as unknown as UniversalSearchTestApi).setSearchTerm('No matches');
+
+        await waitUntil(() => element.renderRoot.querySelector('[part="recommendation-product-tile"]') !== null, 'global recovery block was not rendered');
+        assert.lengthOf(element.renderRoot.querySelectorAll('[role="tab"]'), 0);
+        assert.equal(element.renderRoot.querySelector('[part="zero-results"]')?.textContent?.trim(), 'Nothing matched your search.');
+        assert.equal(searchTermBasedRequestTerm, 'No matches');
+    });
+
+    test('renders the active tab recovery blocks when zero-result tabs remain visible', async() => {
+        productFacets = { items: [] };
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {} },
+                recommendations: {
+                    noResults: {
+                        products: [{ type: 'PopularProducts', title: 'Popular products' }],
+                    },
+                },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+        (element as unknown as UniversalSearchTestApi).setSearchTerm('No products');
+
+        await waitUntil(() => element.renderRoot.querySelector('[part="recommendation-product-tile"]') !== null, 'tab recovery block was not rendered');
+        assert.lengthOf(element.renderRoot.querySelectorAll('[role="tab"]'), 1);
+        const productsTab = element.renderRoot.querySelector<HTMLElement & { renderRoot: HTMLElement | DocumentFragment }>('relewise-universal-search-products-tab')!;
+        await waitUntil(() => productsTab.renderRoot.querySelector('[part="facets"]') === null, 'facets were not hidden');
+        assert.isNull(productsTab.renderRoot.querySelector('[part="facets"]'));
+    });
+
+    test('loads no-result recommendations when a tab is selected and reuses its cached result', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {}, productCategories: {}, content: {} },
+                recommendations: {
+                    noResults: {
+                        products: [{ type: 'PopularProducts' }],
+                        productCategories: [{ type: 'PopularProductCategories' }],
+                        content: [{ type: 'PopularContents' }],
+                    },
+                },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+        const api = element as unknown as UniversalSearchTestApi;
+        api.setSearchTerm('No matches');
+
+        await waitUntil(() => popularProductCalls === 1, 'active product fallback was not loaded');
+        assert.equal(popularProductCategoryCalls, 0);
+        assert.equal(popularContentCalls, 0);
+
+        api.handleSelectTab('productCategories');
+        await waitUntil(() => popularProductCategoryCalls === 1, 'product category fallback was not loaded on selection');
+        assert.equal(popularContentCalls, 0);
+
+        api.handleSelectTab('products');
+        await waitUntil(() => element.renderRoot.querySelector('[part="recommendation-product-tile"]') !== null, 'cached product fallback was not restored');
+        assert.equal(popularProductCalls, 1);
+    });
+
+    test('only auto-selects the first tab with results when leaving the initial state', async() => {
+        productHits = 0;
+        contentHits = 1;
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {}, content: {} },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+        const api = element as unknown as UniversalSearchTestApi;
+        api.setSearchTerm('First search');
+        await waitUntil(() => element.renderRoot.querySelector('[role="tab"][aria-selected="true"]')?.textContent?.includes('Content') === true, 'content tab was not selected');
+
+        api.handleSelectTab('products');
+        api.setSearchTerm('Refined search');
+        await waitUntil(() => element.renderRoot.querySelector('[role="tab"] [part="tab-count"]') !== null, 'refined search did not complete');
+
+        assert.include(element.renderRoot.querySelector('[role="tab"][aria-selected="true"]')?.textContent ?? '', 'Products');
+    });
+
+    test('does not auto-select another tab after the initial search fails', async() => {
+        productHits = 0;
+        contentHits = 1;
+        failNextBatchSearch = true;
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {}, content: {} },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+        const api = element as unknown as UniversalSearchTestApi;
+        api.setSearchTerm('Failed search');
+        await waitUntil(() => {
+            const productsTab = element.renderRoot.querySelector<HTMLElement & { renderRoot: HTMLElement | DocumentFragment }>('relewise-universal-search-products-tab');
+            return Boolean(productsTab?.renderRoot.querySelector('[part="error-state"]'));
+        }, 'initial search did not fail');
+
+        api.setSearchTerm('Retry search');
+        await waitUntil(() => batchSearches >= 2, 'retry search did not complete');
+        await element.updateComplete;
+
+        assert.include(element.renderRoot.querySelector('[role="tab"][aria-selected="true"]')?.textContent ?? '', 'Products');
+    });
+
+    test('respects disabled initial tab activation', async() => {
+        productHits = 0;
+        contentHits = 1;
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {}, content: {} },
+                behavior: { activateFirstTabWithResultsFromInitialState: false },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+        (element as unknown as UniversalSearchTestApi).setSearchTerm('First search');
+        await waitUntil(
+            () => element.renderRoot.querySelector('[role="tab"] [part="tab-count"]') !== null,
+            'search did not complete',
+        );
+
+        assert.include(element.renderRoot.querySelector('[role="tab"][aria-selected="true"]')?.textContent ?? '', 'Products');
+    });
+
+    test('does not override a tab selected while the initial search is pending', async() => {
+        productHits = 1;
+        contentHits = 0;
+        let releaseBatchSearch!: () => void;
+        batchSearchGate = new Promise(resolve => {
+            releaseBatchSearch = resolve;
+        });
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {}, content: {} },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+        const api = element as unknown as UniversalSearchTestApi;
+        api.setSearchTerm('First search');
+        await waitUntil(() => element.renderRoot.querySelectorAll('[role="tab"]').length === 2, 'tabs were not rendered');
+        api.handleSelectTab('content');
+        releaseBatchSearch();
+
+        await waitUntil(
+            () => element.renderRoot.querySelector('[role="tab"] [part="tab-count"]') !== null,
+            'search did not complete',
+        );
+        assert.include(element.renderRoot.querySelector('[role="tab"][aria-selected="true"]')?.textContent ?? '', 'Content');
+    });
+});

@@ -63,6 +63,13 @@ initializeRelewiseUI(
                     'Priority',
                 ],
             },
+            contentCategory: {
+                displayName: true,
+                dataKeys: [
+                    'Url',
+                    'ImageUrl',
+                ],
+            },
             content: {
                 displayName: true,
                 dataKeys: [
@@ -151,6 +158,36 @@ initializeRelewiseUI(
                 searchTermPredictions: {
                     take: 5,
                     targetEntityTypes: ['Product'],
+                },
+            },
+            behavior: {
+                zeroResultTabs: 'show',
+                activateFirstTabWithResultsFromInitialState: true,
+            },
+            recommendations: {
+                initial: [
+                    { type: 'PopularProducts', title: 'Popular products', take: 10 },
+                    { type: 'PopularProductCategories', title: 'Popular categories', take: 10 },
+                    { type: 'PopularContents', title: 'Popular content', take: 10 },
+                    { type: 'PopularContentCategories', title: 'Popular content categories', take: 10 },
+                    { type: 'PopularSearchTerms', title: 'Popular searches', take: 10 },
+                ],
+                noResults: {
+                    global: [
+                        // Use this when the dataset has enough search-term recommendation data:
+                        // { type: 'SearchTermBasedProduct', title: 'You might like', take: 10 },
+                        { type: 'PopularProducts', title: 'Popular products', take: 10 },
+                    ],
+                    products: [
+                        // { type: 'SearchTermBasedProduct', title: 'You might like', take: 10 },
+                        { type: 'PopularProducts', title: 'Popular products', take: 10 },
+                    ],
+                    productCategories: [
+                        { type: 'PopularProductCategories', title: 'Popular categories', take: 10 },
+                    ],
+                    content: [
+                        { type: 'PopularContents', title: 'Popular content', take: 10 },
+                    ],
                 },
             },
         },

@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
     <title>Universal Search</title>
+    <style>
+        relewise-universal-search {
+            --relewise-universal-search-recommendation-grid-columns: 5;
+        }
+    </style>
 </head>
 
 <body>
@@ -29,6 +34,9 @@
         <li>Enabled tabs are searched together in a batched search request.</li>
         <li>Facet and sorting changes search only the active tab.</li>
         <li>A focused, empty input shows popular search terms, and a focused input with text shows search-term predictions.</li>
+        <li>The termless state renders configured discovery recommendation blocks with ten results and five columns.</li>
+        <li>Zero-result tabs render popular recovery recommendations and hide the unused facet column.</li>
+        <li>Each zero-result tab loads its recovery recommendations when selected and reuses them while the search term remains unchanged.</li>
     </ul>
 
     <button onclick="document.querySelector('relewise-universal-search').open()">
