@@ -900,7 +900,9 @@ if (predictionSearch) {
 
 The suggestions popup uses the shared rounded-corner default, clips hover backgrounds to those corners, and has no empty padding above or below the suggestion rows. Its default shadow and hover color match the product-search overlay.
 
-Recommendation blocks are also opt-in. Configure ordered blocks independently for the termless `initial` state, the `global` no-result state, and each entity tab's no-result state. Omit a state or block to disable it. Each block accepts `type`, optional `title`, and optional `take`; `take` defaults to four. Set `title` to the localized heading that should be rendered, such as `Måske kan du også lide`, or set it to an empty string to omit the heading.
+Recommendation blocks are also opt-in. Configure them independently for the termless `initial` state, the `global` no-result state, and each entity tab's no-result state. Every state accepts an ordered array: you can add multiple blocks, and they are rendered in the configured order. The same recommendation type can be added more than once, although blocks with identical configuration will normally return similar recommendations. Omit a state or block to disable it.
+
+Each block accepts `type`, optional `title`, and optional `take`; `take` defaults to four. Set `title` to the localized heading that should be rendered, such as `Måske kan du også lide`, or set it to an empty string to omit the heading.
 
 `take` controls how many recommendations are requested for a block. All recommendations returned for the block are rendered. The number of columns is controlled separately with CSS and defaults to four on desktop and two on mobile:
 
@@ -908,7 +910,24 @@ Recommendation blocks are also opt-in. Configure ordered blocks independently fo
 recommendations: {
     initial: [
         { type: 'PopularProducts', title: 'Popular products', take: 10 },
+        { type: 'PopularProductCategories', title: 'Popular categories', take: 5 },
+        { type: 'PopularContents', title: 'Popular content', take: 10 },
     ],
+    noResults: {
+        global: [
+            { type: 'PopularProducts', title: 'You might also like', take: 10 },
+        ],
+        products: [
+            { type: 'SearchTermBasedProduct', title: 'Recommended products', take: 10 },
+            { type: 'PopularProducts', title: 'Popular products', take: 10 },
+        ],
+        productCategories: [
+            { type: 'PopularProductCategories', title: 'Popular categories', take: 5 },
+        ],
+        content: [
+            { type: 'PopularContents', title: 'Popular content', take: 10 },
+        ],
+    },
 }
 ```
 
@@ -919,7 +938,17 @@ relewise-universal-search {
 }
 ```
 
-Supported block types are `PopularProducts`, `RecentlyViewedProducts`, `PopularProductCategories`, `PopularContents`, `PopularContentCategories`, `PopularSearchTerms`, and `SearchTermBasedProduct`. `SearchTermBasedProduct` only runs when a search term is available. `RecentlyViewedProducts` is omitted for anonymous users because the API cannot resolve viewing history without a temporary or authenticated user id.
+Supported recommendation types:
+
+| Type | Renders | Important behavior |
+| --- | --- | --- |
+| `PopularProducts` | Product tiles | Suitable for initial and no-result states. |
+| `RecentlyViewedProducts` | Product tiles | Skipped for anonymous users because viewing history requires a temporary or authenticated user id. |
+| `PopularProductCategories` | Category tiles | Uses the product-category template and configuration. |
+| `PopularContents` | Content tiles | Suitable for initial and no-result states. |
+| `PopularContentCategories` | Category tiles | Uses the content-category template and configuration. |
+| `PopularSearchTerms` | Search-term buttons | May be empty when the dataset does not have enough engaged search history. |
+| `SearchTermBasedProduct` | Product tiles | Requires a search term and is therefore skipped in the termless initial state. |
 
 `SearchTermBasedProduct` may return no recommendations on a new dataset without enough search behavior. Popular entity recommendations are therefore safer defaults for no-result recovery. When a tab-specific recovery block returns recommendations, Universal Search hides that zero-result tab's facets and removes the otherwise empty facet column. Facets remain available when no recovery recommendations are returned, allowing users to remove active filters.
 
@@ -1475,6 +1504,40 @@ Category tiles also use the shared image, information-container, display-name, a
 | `--relewise-search-suggestion-padding` | `0.5em 1em` | Padding for each suggestion. |
 | `--relewise-search-suggestion-gap` | `1em` | Space between a suggestion term and its icon. |
 | `--relewise-search-suggestion-icon-color` | `var(--accent-color)` | Color of the search icon shown beside each suggestion. |
+
+#### Universal Search
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-universal-search-z-index` | `1000` | Stack order of the Universal Search backdrop. |
+| `--relewise-universal-search-backdrop-background` | `rgb(0 0 0 / 0.35)` | Background behind the Universal Search dialog. |
+| `--relewise-universal-search-background` | `white` | Background of the Universal Search dialog. |
+| `--relewise-universal-search-color` | `var(--relewise-color, #212427)` | Text color inherited by the Universal Search dialog. |
+| `--relewise-universal-search-width` | `100%` | Width of the Universal Search dialog. |
+| `--relewise-universal-search-height` | `100%` | Height of the Universal Search dialog. |
+| `--relewise-universal-search-border-color` | `var(--relewise-checklist-facet-border-color, #eee)` | Border color used within Universal Search. |
+| `--relewise-universal-search-header-gap` | `1em` | Gap between the combobox and close button. |
+| `--relewise-universal-search-header-padding` | `1em` | Padding inside the Universal Search header. |
+| `--relewise-universal-search-close-button-padding` | `0 0.75em` | Padding inside the close button. |
+| `--relewise-universal-search-body-padding` | `1em` | Padding around the Universal Search body. |
+| `--relewise-universal-search-tabs-gap` | `1.5em` | Gap between result tabs. |
+| `--relewise-universal-search-tabs-padding-top` | `0.5em` | Space above the result tabs. |
+| `--relewise-universal-search-tabs-margin-bottom` | `1em` | Space below the result tabs. |
+| `--relewise-universal-search-tab-padding` | `0.5em 0` | Padding inside each result tab. |
+| `--relewise-universal-search-tab-active-border-color` | `currentColor` | Underline color of the active result tab. |
+| `--relewise-universal-search-results-summary-margin-bottom` | `1em` | Space below the search-term summary. |
+| `--relewise-universal-search-layout-gap` | `1em` | Gap between the facet column and results. |
+| `--relewise-universal-search-facets-width` | `18em` | Preferred width of the desktop facet column. |
+| `--relewise-universal-search-results-header-margin-bottom` | `1em` | Space below an entity result header. |
+| `--relewise-universal-search-results-title-font-size` | `1.1em` | Font size of entity result titles. |
+| `--relewise-universal-search-result-columns` | `5` | Number of entity result columns above the mobile breakpoint. |
+| `--relewise-universal-search-product-columns` | `5` | Compatibility fallback for result columns when `--relewise-universal-search-result-columns` is unset. |
+| `--relewise-universal-search-mobile-result-columns` | `2` | Number of entity result columns at widths up to `768px`. |
+| `--relewise-universal-search-mobile-product-columns` | `2` | Compatibility fallback for mobile result columns when `--relewise-universal-search-mobile-result-columns` is unset. |
+| `--relewise-universal-search-result-grid-gap` | `1em` | Gap between entity result tiles. |
+| `--relewise-universal-search-product-grid-gap` | `1em` | Compatibility fallback for the result grid gap when `--relewise-universal-search-result-grid-gap` is unset. |
+| `--relewise-universal-search-loading-padding` | `2em 0` | Vertical padding around Universal Search loading indicators. |
+| `--relewise-universal-search-load-more-margin-top` | `1em` | Space above an entity's load-more control. |
 | `--relewise-universal-search-recommendation-block-gap` | `2em` | Vertical gap between Universal Search recommendation blocks. |
 | `--relewise-universal-search-recommendation-title-margin-bottom` | `1em` | Space below a recommendation block title. |
 | `--relewise-universal-search-recommendation-grid-columns` | `4` | Number of columns used by Universal Search recommendation blocks above the mobile breakpoint. |

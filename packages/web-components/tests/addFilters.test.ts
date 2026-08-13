@@ -3,7 +3,7 @@ import { addFilters, initializeRelewiseUI, Filters } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('addFilters', () => {
-    test('addFilters composes callbacks', async() => {
+    test('addFilters composes callbacks', () => {
         const mockedOptions = mockRelewiseOptions();
         const invocationOrder: string[] = [];
         mockedOptions.filters = {
@@ -22,7 +22,7 @@ suite('addFilters', () => {
         assert.deepEqual(invocationOrder, ['base', 'additional']);
     });
 
-    test('addFilters supports content category filters', async() => {
+    test('addFilters composes content category callbacks', () => {
         const mockedOptions = mockRelewiseOptions();
         const invocationOrder: string[] = [];
         mockedOptions.filters = {

@@ -48,6 +48,8 @@ suite('universal search recommendation blocks', () => {
     let batchSearches = 0;
     let productFacets: object | null = null;
     let popularProductCalls = 0;
+    let popularProductRecommendations: ProductResult[] = [];
+    let failNextPopularProductRecommendation = false;
     let popularProductCategoryCalls = 0;
     let popularContentCalls = 0;
     let popularContentCategoryCalls = 0;
@@ -67,6 +69,8 @@ suite('universal search recommendation blocks', () => {
         batchSearches = 0;
         productFacets = null;
         popularProductCalls = 0;
+        popularProductRecommendations = [product('recommended')];
+        failNextPopularProductRecommendation = false;
         popularProductCategoryCalls = 0;
         popularContentCalls = 0;
         popularContentCategoryCalls = 0;
@@ -119,7 +123,11 @@ suite('universal search recommendation blocks', () => {
         };
         Recommender.prototype.recommendPopularProducts = async function() {
             popularProductCalls++;
-            return { recommendations: [product('recommended')] } as any;
+            if (failNextPopularProductRecommendation) {
+                failNextPopularProductRecommendation = false;
+                throw new Error('Popular products are unavailable');
+            }
+            return { recommendations: popularProductRecommendations } as any;
         };
         Recommender.prototype.recentlyViewedProducts = async function() {
             return { recommendations: [product('recent')] } as any;
@@ -398,6 +406,66 @@ suite('universal search recommendation blocks', () => {
         api.handleSelectTab('products');
         await waitUntil(() => element.renderRoot.querySelector('[part="recommendation-product-tile"]') !== null, 'cached product fallback was not restored');
         assert.equal(popularProductCalls, 1);
+    });
+
+    test('caches an empty fallback response and keeps facets available', async() => {
+        productFacets = { items: [] };
+        popularProductRecommendations = [];
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {}, productCategories: {} },
+                recommendations: {
+                    noResults: {
+                        products: [{ type: 'PopularProducts' }],
+                    },
+                },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+        const api = element as unknown as UniversalSearchTestApi;
+        api.setSearchTerm('No matches');
+
+        await waitUntil(() => popularProductCalls === 1, 'empty product fallback was not loaded');
+        const productsTab = element.renderRoot.querySelector<HTMLElement & { renderRoot: HTMLElement | DocumentFragment }>('relewise-universal-search-products-tab')!;
+        await waitUntil(() => productsTab.renderRoot.querySelector('[part="facets"]') !== null, 'facets were not retained');
+
+        api.handleSelectTab('productCategories');
+        api.handleSelectTab('products');
+        await element.updateComplete;
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        assert.equal(popularProductCalls, 1);
+        assert.exists(productsTab.renderRoot.querySelector('[part="facets"]'));
+    });
+
+    test('retries a failed fallback request when its tab is selected again', async() => {
+        failNextPopularProductRecommendation = true;
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {}, productCategories: {} },
+                recommendations: {
+                    noResults: {
+                        products: [{ type: 'PopularProducts' }],
+                    },
+                },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+        const api = element as unknown as UniversalSearchTestApi;
+        api.setSearchTerm('No matches');
+
+        await waitUntil(() => popularProductCalls === 1, 'failed product fallback was not requested');
+        api.handleSelectTab('productCategories');
+        api.handleSelectTab('products');
+
+        await waitUntil(() => element.renderRoot.querySelector('[part="recommendation-product-tile"]') !== null, 'product fallback was not retried');
+        assert.equal(popularProductCalls, 2);
     });
 
     test('only auto-selects the first tab with results when leaving the initial state', async() => {
