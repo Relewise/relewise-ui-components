@@ -1,4 +1,5 @@
 import { FilterBuilder, ProductCategoryResult, ProductResult, RecommendPopularSearchTermSettings } from '@relewise/client';
+import type { SearchTermPredictionRequest } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { CategoryTile, ContentCategoryTile, FilterIcon, ProductCategoryTile, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
 import { Button } from './components/button';
@@ -7,7 +8,7 @@ import { FavoriteButtonContent } from './components/content-favorite-button';
 import { FavoriteButtonProducts } from './components/product-favorite-button';
 import { ContextSettings, ProductTemplateExtensions } from './initialize';
 import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PopularContent, PersonalContent, ContentViewedAfterViewingContent, ContentViewedAfterViewingMultipleContent, ProductsViewedAfterViewingContent, ContentViewedAfterViewingProduct, ContentViewedAfterViewingMultipleProducts, PopularProductCategories, PopularContentCategories, PopularSearchTerms, SearchTermBasedProducts } from './recommendations';
-import { UniversalSearch, ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar } from './search';
+import { UniversalSearch, ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar, SearchCombobox } from './search';
 import { ChecklistBooleanValueFacet } from './search/components/facets/checklist-boolean-value-facet';
 import { ChecklistNumberValueFacet } from './search/components/facets/checklist-number-value-facet';
 import { ChecklistObjectValueFacet } from './search/components/facets/checklist-object-value-facet';
@@ -56,6 +57,21 @@ export interface RelewiseUISearchOptions {
 
 export interface UniversalSearchOptions {
     entities?: UniversalSearchEntitiesOptions;
+    suggestions?: SearchSuggestionsOptions;
+}
+
+export type SearchSuggestionEntityType = NonNullable<
+    NonNullable<SearchTermPredictionRequest['settings']>['targetEntityTypes']
+>[number];
+
+export interface SearchSuggestionOptions {
+    take?: number;
+    targetEntityTypes?: SearchSuggestionEntityType[];
+}
+
+export interface SearchSuggestionsOptions {
+    popularSearchTerms?: SearchSuggestionOptions;
+    searchTermPredictions?: SearchSuggestionOptions;
 }
 
 export interface UniversalSearchEntitiesOptions {
@@ -78,11 +94,16 @@ export interface RelewiseUIRecommendationOptions {
 
 export interface SearchLocalization {
     searchBar?: SearchBarLocalization;
+    searchSuggestions?: SearchSuggestionsLocalization;
     universalSearch?: UniversalSearchLocalization;
     sortingButton?: SortingLocalization;
     loadMoreButton?: LoadMoreLocalization;
     facets?: FacetLocalization;
     searchResults?: SearchResultLocalization;
+}
+
+export interface SearchSuggestionsLocalization {
+    label?: string;
 }
 
 export interface UniversalSearchLocalization {
@@ -271,6 +292,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     tryRegisterElement('relewise-product-search-overlay', ProductSearchOverlay);
     tryRegisterElement('relewise-product-search', ProductSearch);
     tryRegisterElement('relewise-search-bar', SearchBar);
+    tryRegisterElement('relewise-search-combobox', SearchCombobox);
     tryRegisterElement('relewise-product-search-bar', ProductSearchBar);
     tryRegisterElement('relewise-product-search-overlay-product', ProductSearchOverlayProduct);
     tryRegisterElement('relewise-product-search-overlay-product-category', ProductSearchOverlayProductCategory);

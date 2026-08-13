@@ -10,11 +10,15 @@ import {
     readCurrentUrlState,
 } from '../helpers';
 import { RelewiseLitElement } from '../relewise-lit-element';
+import type { SearchSuggestionEntityType } from '../app';
+import type { SearchCombobox } from './components/search-combobox';
+import type { SearchComboboxTermEventDetail, SearchSuggestionsBatchSearch } from './components/search-combobox.types';
 import { getSearcher } from './searcher';
 import { trapFocusInDialog } from './universal-search-focus';
 import { universalSearchStyles } from './universal-search.styles';
 import { updateUrlStateForUniversalSearchTerm } from './universal-search-url-state';
-import { UniversalSearchBatchTab, UniversalSearchTab, universalSearchTabs } from './universal-search.types';
+import { universalSearchTabs } from './universal-search.types';
+import type { UniversalSearchBatchSearch, UniversalSearchBatchTab, UniversalSearchTab } from './universal-search.types';
 
 export { universalSearchTabs };
 export type { UniversalSearchTab };
@@ -26,6 +30,14 @@ const defaultTabLabels: Record<UniversalSearchTab, string> = {
     productCategories: 'Categories',
     content: 'Content',
 };
+
+const defaultDisplayedAtLocation = 'Relewise Universal Search';
+
+const suggestionEntityTypeByTab = {
+    products: 'Product',
+    productCategories: 'ProductCategory',
+    content: 'Content',
+} as const satisfies Record<UniversalSearchTab, SearchSuggestionEntityType>;
 
 export class UniversalSearch extends RelewiseLitElement {
 
@@ -53,7 +65,6 @@ export class UniversalSearch extends RelewiseLitElement {
     private readonly accessibilityId = `relewise-universal-search-${universalSearchInstanceId++}`;
     private previouslyFocusedElement: HTMLElement | null = null;
     private openStateActive = false;
-
     connectedCallback(): void {
         super.connectedCallback();
         this.term = readCurrentUrlState(QueryKeys.term) ?? '';
@@ -125,14 +136,29 @@ export class UniversalSearch extends RelewiseLitElement {
 
         this.debounceTimeoutHandlerId = setTimeout(() => {
             this.debounceTimeoutHandlerId = null;
-            updateUrlStateForUniversalSearchTerm(this.term);
-            this.activeTab = this.term ? this.firstEnabledTab : null;
-            this.searchTerm = this.term;
-            if (this.isOpen) {
-                void this.searchEnabledTabs(this.searchTerm);
-            }
+            this.searchCurrentTerm();
         }, getRelewiseUISearchOptions()?.debounceTimeInMs);
     };
+
+    private searchCurrentTerm(): void {
+        updateUrlStateForUniversalSearchTerm(this.term);
+        this.activeTab = this.term ? this.firstEnabledTab : null;
+        this.searchTerm = this.term;
+
+        if (this.isOpen) {
+            void this.searchEnabledTabs(this.searchTerm);
+        }
+    }
+
+    private submitCurrentTerm(): void {
+        if (!this.debounceTimeoutHandlerId) {
+            return;
+        }
+
+        clearTimeout(this.debounceTimeoutHandlerId);
+        this.debounceTimeoutHandlerId = null;
+        this.searchCurrentTerm();
+    }
 
     private async searchEnabledTabs(term: string): Promise<void> {
         this.batchAbortController.abort();
@@ -150,9 +176,9 @@ export class UniversalSearch extends RelewiseLitElement {
             return;
         }
 
-        let searches: ReturnType<UniversalSearchBatchTab['prepareBatchSearch']>[] = [];
+        let searches: Array<UniversalSearchBatchSearch | SearchSuggestionsBatchSearch> = [];
         try {
-            const settings = await getRelewiseContextSettings(this.displayedAtLocation ?? 'Relewise Universal Search');
+            const settings = await getRelewiseContextSettings(this.displayedAtLocation ?? defaultDisplayedAtLocation);
             if (abortController.signal.aborted || this.searchTerm !== term) {
                 return;
             }
@@ -160,6 +186,12 @@ export class UniversalSearch extends RelewiseLitElement {
                 'relewise-universal-search-products-tab, relewise-universal-search-product-categories-tab, relewise-universal-search-content-tab',
             )];
             searches = tabs.map(tab => tab.prepareBatchSearch(settings));
+            const suggestionsSearch = this.renderRoot
+                .querySelector<SearchCombobox>('relewise-search-combobox')
+                ?.prepareBatchSearch(settings);
+            if (suggestionsSearch) {
+                searches.push(suggestionsSearch);
+            }
             const requestBuilder = new SearchCollectionBuilder();
             searches.forEach(search => requestBuilder.addRequest(search.request));
             const response = await getSearcher(getRelewiseUIOptions()).batch(requestBuilder.build(), { abortSignal: abortController.signal });
@@ -189,7 +221,7 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     private handleWindowKeyDown(event: KeyboardEvent): void {
-        if (!this.isOpen || event.key !== 'Escape') {
+        if (!this.isOpen || event.defaultPrevented || event.key !== 'Escape') {
             return;
         }
 
@@ -197,16 +229,19 @@ export class UniversalSearch extends RelewiseLitElement {
         this.close();
     }
 
-    private readonly handleSearchBarKeyDown = (event: KeyboardEvent): void => {
-        if (event.key === 'Escape') {
-            event.preventDefault();
-            this.close();
-        }
-    };
-
     private closeWhenClickingOutsideDialog(event: MouseEvent): void {
         if (event.target === event.currentTarget) {
             this.close();
+        }
+    }
+
+    private handleComboboxTermChanged(event: CustomEvent<SearchComboboxTermEventDetail>): void {
+        this.setSearchTerm(event.detail.term);
+    }
+
+    private handleComboboxSearchSubmitted(): void {
+        if (getRelewiseUISearchOptions()?.universalSearch?.suggestions) {
+            this.submitCurrentTerm();
         }
     }
 
@@ -274,13 +309,17 @@ export class UniversalSearch extends RelewiseLitElement {
             return nothing;
         }
 
-        const localization = getRelewiseUISearchOptions()?.localization;
+        const searchOptions = getRelewiseUISearchOptions();
+        const localization = searchOptions?.localization;
         const searchBarLocalization = localization?.searchBar;
         const universalSearchLocalization = localization?.universalSearch;
         const enabledTabs = this.enabledTabs;
 
         return html`
-            <div class="rw-backdrop" part="backdrop" @click=${this.closeWhenClickingOutsideDialog}>
+            <div
+                class="rw-backdrop"
+                part="backdrop"
+                @click=${this.closeWhenClickingOutsideDialog}>
                 <section
                     class="rw-dialog"
                     part="dialog"
@@ -290,15 +329,19 @@ export class UniversalSearch extends RelewiseLitElement {
                     @keydown=${this.handleDialogKeyDown}
                     aria-label=${searchBarLocalization?.search ?? 'Search'}>
                     <header class="rw-header" part="header">
-                        <relewise-search-bar
+                        <relewise-search-combobox
                             part="search-bar"
-                            exportparts="input: search-input, icon: search-icon"
+                            exportparts="search-input, search-icon, search-suggestions, predictions, popular-search-terms, suggestions-list, suggestion, suggestion-icon"
                             .term=${this.term}
-                            .setSearchTerm=${this.setSearchTerm}
-                            .handleKeyEvent=${this.handleSearchBarKeyDown}
+                            .suggestions=${searchOptions?.universalSearch?.suggestions}
+                            .targetEntityTypes=${enabledTabs.map(tab => suggestionEntityTypeByTab[tab])}
+                            .displayedAtLocation=${this.displayedAtLocation ?? defaultDisplayedAtLocation}
                             .placeholder=${searchBarLocalization?.placeholder ?? null}
+                            @relewise-search-combobox-term-changed=${this.handleComboboxTermChanged}
+                            @relewise-search-combobox-search-submitted=${this.handleComboboxSearchSubmitted}
+                            @relewise-search-combobox-escape-requested=${this.close}
                             autofocus>
-                        </relewise-search-bar>
+                        </relewise-search-combobox>
                         <relewise-button
                             class="rw-close"
                             part="close-button"

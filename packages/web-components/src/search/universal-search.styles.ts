@@ -36,13 +36,15 @@ export const universalSearchStyles = [theme, css`
         border-bottom: 1px solid var(--relewise-universal-search-border-color, var(--relewise-checklist-facet-border-color, #eee));
     }
 
-    relewise-search-bar {
+    relewise-search-combobox {
+        display: block;
         flex: 1;
+        min-width: 0;
     }
 
     .rw-close {
         flex: 0 0 auto;
-        height: var(--relewise-product-search-bar-height, 3em);
+        height: var(--relewise-search-combobox-height, var(--relewise-product-search-bar-height, 3em));
         margin: 0;
         padding: var(--relewise-universal-search-close-button-padding, 0 0.75em);
         --relewise-button-icon-padding: 0;
@@ -95,6 +97,10 @@ export const universalSearchStyles = [theme, css`
         .rw-header {
             align-items: stretch;
             flex-direction: column;
+        }
+
+        relewise-search-combobox {
+            width: 100%;
         }
     }
 `];

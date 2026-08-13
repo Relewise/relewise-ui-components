@@ -191,6 +191,7 @@ suite('relewise-universal-search', () => {
 
     test('is registered through useSearch', () => {
         assert.isDefined(customElements.get('relewise-universal-search'));
+        assert.isDefined(customElements.get('relewise-search-combobox'));
     });
 
     test('respects configured light DOM rendering', async () => {
@@ -251,17 +252,17 @@ suite('relewise-universal-search', () => {
         el.open();
         await universalSearchUpdated(el);
 
-        const searchBar = queryDeep(el, 'relewise-search-bar')! as HTMLElement & { updateComplete: Promise<boolean>; shadowRoot: ShadowRoot };
+        const searchCombobox = queryDeep(el, 'relewise-search-combobox')! as HTMLElement & { updateComplete: Promise<boolean>; shadowRoot: ShadowRoot };
         const closeButton = queryDeep(el, 'relewise-button[part="close-button"]')! as Button;
-        await searchBar.updateComplete;
+        await searchCombobox.updateComplete;
         await closeButton.updateComplete;
 
-        const searchInput = searchBar.shadowRoot!.querySelector('input')!;
+        const searchInput = searchCombobox.shadowRoot!.querySelector('input')!;
         const closeButtonElement = closeButton.shadowRoot!.querySelector('button')!;
 
         closeButtonElement.focus();
         closeButtonElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, composed: true }));
-        assert.equal(searchBar.shadowRoot!.activeElement, searchInput);
+        assert.equal(searchCombobox.shadowRoot!.activeElement, searchInput);
 
         searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, composed: true }));
         assert.equal(closeButton.shadowRoot!.activeElement, closeButtonElement);

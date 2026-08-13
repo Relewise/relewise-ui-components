@@ -707,6 +707,9 @@ To overwrite words and sentences used by the search components, call the `useSea
 ```ts
 useSearch({
     localization: {
+        searchSuggestions: {
+            label: 'Search suggestions',
+        },
         facets: {
             save: 'Save',
             showLess: 'Show Less',
@@ -813,6 +816,16 @@ useSearch({
             },
             content: {},
         },
+        suggestions: {
+            popularSearchTerms: {
+                take: 5,
+                targetEntityTypes: ['Product', 'ProductCategory', 'Content'],
+            },
+            searchTermPredictions: {
+                take: 5,
+                targetEntityTypes: ['Product'],
+            },
+        },
     },
 });
 ```
@@ -828,6 +841,39 @@ useSearch({
 The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
 
 When multiple entities are configured, they are searched together in one batched request when the search term changes. A single configured entity uses its direct search endpoint. Omitted entities are not rendered and are not requested. Facet, sorting, and load-more changes only search the active tab.
+
+Search suggestions are opt-in. Configure `popularSearchTerms` to show popular terms while the focused input is empty, and configure `searchTermPredictions` to show predictions while it contains text. Both sections default to five terms when `take` is omitted. Their `targetEntityTypes` can be configured independently; when omitted, each defaults to the enabled Universal Search entities. This allows an entity to remain searchable without using it as a prediction source. Predictions that exactly match the current input are omitted.
+
+The suggestions panel supports pointer selection and Arrow Up, Arrow Down, Enter, and Escape. It closes on selection, Enter, Escape, outside interaction, or input blur. Popular terms may be empty when the dataset does not have enough engaged search history; an empty suggestions panel is not rendered.
+
+Universal Search renders its input and suggestions with the shared `relewise-search-combobox`. The existing `relewise-search-bar` and product-search overlay remain unchanged, while other search experiences can adopt the combobox later. Both `relewise-search-combobox` and `relewise-universal-search` expose the CSS parts `search-input`, `search-icon`, `search-suggestions`, `popular-search-terms`, `predictions`, `suggestions-list`, `suggestion`, and `suggestion-icon`.
+
+The combobox owns its input, suggestions popup, focus, outside-interaction dismissal, keyboard, localization, and accessibility behavior. It loads popular search terms itself and caches a completed response, including an empty response, while it remains connected. Search-term predictions participate in the parent search experience's batch instead of starting a competing request: the parent calls `prepareBatchSearch(settings)`, includes the returned request in its batch, and then calls `applyResponse(response)` or `setError()`. Universal Search handles this integration automatically. A future Product Search integration can use the same contract without changing the existing `relewise-search-bar` or product-search overlay.
+
+The public combobox updates its own `term` and emits these bubbling, composed events:
+
+| Event | Detail | When |
+| --- | --- | --- |
+| `relewise-search-combobox-term-changed` | `{ term: string }` | The input value changes or a suggestion is selected. |
+| `relewise-search-combobox-search-submitted` | `{ term: string }` | Enter is pressed or a suggestion is selected. |
+| `relewise-search-combobox-escape-requested` | None | Escape is pressed when there is no open suggestions list to dismiss. |
+
+```ts
+const predictionSearch = searchCombobox.prepareBatchSearch(settings);
+
+if (predictionSearch) {
+    requestBuilder.addRequest(predictionSearch.request);
+
+    try {
+        const response = await searcher.batch(requestBuilder.build());
+        predictionSearch.applyResponse(response);
+    } catch {
+        predictionSearch.setError();
+    }
+}
+```
+
+The suggestions popup uses the shared rounded-corner default, clips hover backgrounds to those corners, and has no empty padding above or below the suggestion rows. Its default shadow and hover color match the product-search overlay.
 
 When the products tab is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option.
 
@@ -1357,8 +1403,18 @@ Category tiles also use the shared image, information-container, display-name, a
 | `--relewise-product-search-bar-margin-bottom` | `.5em` | Bottom margin applied to the product search bar. |
 | `--relewise-product-search-bar-width` | `100%` | Width of the product search bar container. |
 | `--relewise-product-search-bar-height` | `3em` | Height of the product search bar input. |
+| `--relewise-search-combobox-height` | `var(--relewise-product-search-bar-height, 3em)` | Height of the shared search combobox. |
 | `--relewise-search-bar-border-color` | `var(--color)` | Border colour of the search input in its default state. |
 | `--relewise-search-bar-border-color-focused` | `var(--accent-color)` | Border colour of the search input when focused. |
+| `--relewise-search-suggestions-z-index` | `999` | Stack order of the search suggestions popup. |
+| `--relewise-search-suggestions-offset` | `0.25em` | Space between the search input and suggestions popup. |
+| `--relewise-search-suggestions-background-color` | `white` | Background color of the suggestions popup. |
+| `--relewise-search-suggestions-border-color` | `#ddd` | Border color of the suggestions popup. |
+| `--relewise-search-suggestions-border-radius` | `var(--relewise-border-radius, 1em)` | Corner radius of the suggestions popup. |
+| `--relewise-search-suggestions-box-shadow` | `0 10px 15px rgb(0 0 0 / 0.2)` | Shadow around the suggestions popup. |
+| `--relewise-search-suggestion-padding` | `0.5em 1em` | Padding for each suggestion. |
+| `--relewise-search-suggestion-gap` | `1em` | Space between a suggestion term and its icon. |
+| `--relewise-search-suggestion-icon-color` | `var(--accent-color)` | Color of the search icon shown beside each suggestion. |
 
 #### Search overlay container and messaging
 | Variable | Default | Description |
