@@ -254,7 +254,7 @@ export class ProductSearchOverlay extends RelewiseLitElement {
         } else if (result?.redirect) {
             // We have previously validated the destination as a valid URL.
             window.location.href = result?.redirect.destination ?? '';
-        } else if (this.redirects && this.redirects.length > 0 && URL.canParse(this.redirects[0].destination ?? '')) {
+        } else if (this.redirects && this.redirects.length > 0 && canParseRedirectDestination(this.redirects[0].destination)) {
             if (this.redirects[0].destination) {
                 window.location.href = this.redirects[0].destination;
             }
@@ -299,7 +299,7 @@ export class ProductSearchOverlay extends RelewiseLitElement {
                 return { product };
             }) ?? [];
             this.redirects = productSearchResult.redirects;
-            const redirects: SearchResult[] = productSearchResult.redirects?.filter(x => x.data?.Title && URL.canParse(x.destination ?? '')).map(x => ({ redirect: x })) ?? [];
+            const redirects: SearchResult[] = productSearchResult.redirects?.filter(x => x.data?.Title && canParseRedirectDestination(x.destination)).map(x => ({ redirect: x })) ?? [];
 
             let searchTermPredictions: SearchResult[] = [];
             const searchTermPredictionResponse = findResponseOfType<SearchTermPredictionResponse>(response.responses, 'SearchTermPredictionResponse');
@@ -392,6 +392,12 @@ function isResponseWithType(response: any, typeName: string): boolean {
 function findResponseOfType<T>(responses: any[] | undefined, typeName: string): T | undefined {
     if (!responses) return undefined;
     return responses.find(r => isResponseWithType(r, typeName)) as T | undefined;
+}
+
+function canParseRedirectDestination(destination?: string | null): boolean {
+    if (!destination) return false;
+
+    return URL.canParse(destination) || URL.canParse(destination, window.location.href);
 }
 
 declare global {

@@ -1,10 +1,53 @@
 import { assert, fixture, html } from '@open-wc/testing';
+import { Searcher } from '@relewise/client';
 import { initializeRelewiseUI, ProductSearchOverlay } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('product search overlay', () => {
+    const originalBatch = Searcher.prototype.batch;
+
     setup(() => {
         initializeRelewiseUI(mockRelewiseOptions()).useSearch();
+    });
+
+    teardown(() => {
+        Searcher.prototype.batch = originalBatch;
+    });
+
+    test('includes redirects with relative destinations in the results', async() => {
+        Searcher.prototype.batch = async function() {
+            return {
+                responses: [
+                    {
+                        hits: 0,
+                        results: [],
+                        redirects: [
+                            { destination: '/campaign', data: { Title: 'Campaign' } },
+                            { destination: 'https://example.com/campaign', data: { Title: 'External campaign' } },
+                            { destination: 'https://[invalid', data: { Title: 'Invalid' } },
+                        ],
+                    },
+                    { $type: 'SearchTermPredictionResponse', predictions: [] },
+                    { $type: 'ProductCategorySearchResponse', results: [] },
+                ],
+            } as any;
+        };
+        const el = await fixture<ProductSearchOverlay>(html`<relewise-product-search-overlay></relewise-product-search-overlay>`);
+
+        await el.search('campaign');
+
+        assert.deepEqual(el.results?.map(result => result.redirect?.destination), ['/campaign', 'https://example.com/campaign']);
+    });
+
+    test('uses a relative redirect destination when submitting the matching term', async() => {
+        const originalUrl = window.location.href;
+        const el = await fixture<ProductSearchOverlay>(html`<relewise-product-search-overlay></relewise-product-search-overlay>`);
+        el.redirects = [{ destination: '#campaign' } as any];
+
+        el.handleActionOnResult();
+
+        assert.equal(window.location.hash, '#campaign');
+        window.history.replaceState({}, document.title, originalUrl);
     });
 
     test('keeps results open when the search input blurs after touching the overlay', async() => {
