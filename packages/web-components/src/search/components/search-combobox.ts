@@ -340,7 +340,7 @@ export class SearchCombobox extends RelewiseLitElement {
 
         return html`
             <div class="rw-search-combobox">
-                <div class="rw-search-bar rw-border" part="input">
+                <div class="rw-search-bar rw-border" part="search-input">
                     <input
                         id="search-input"
                         autocomplete="off"
@@ -360,11 +360,11 @@ export class SearchCombobox extends RelewiseLitElement {
                         @blur=${() => this.handleInputFocus(false)}>
                     ${this.term ? html`
                         <div class="rw-icon" @click=${() => this.handleSearchTermInput('')}>
-                            <relewise-x-icon exportparts="icon"></relewise-x-icon>
+                            <relewise-x-icon exportparts="icon: search-icon"></relewise-x-icon>
                         </div>
                     ` : html`
                         <div class="rw-icon" @click=${() => this.focusSearchInput()}>
-                            <relewise-search-icon exportparts="icon"></relewise-search-icon>
+                            <relewise-search-icon exportparts="icon: search-icon"></relewise-search-icon>
                         </div>
                     `}
                 </div>

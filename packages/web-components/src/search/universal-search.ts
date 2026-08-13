@@ -331,7 +331,7 @@ export class UniversalSearch extends RelewiseLitElement {
                     <header class="rw-header" part="header">
                         <relewise-search-combobox
                             part="search-bar"
-                            exportparts="input: search-input, icon: search-icon, search-suggestions, predictions, popular-search-terms, suggestions-list, suggestion, suggestion-icon"
+                            exportparts="search-input, search-icon, search-suggestions, predictions, popular-search-terms, suggestions-list, suggestion, suggestion-icon"
                             .term=${this.term}
                             .suggestions=${searchOptions?.universalSearch?.suggestions}
                             .targetEntityTypes=${enabledTabs.map(tab => suggestionEntityTypeByTab[tab])}

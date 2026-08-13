@@ -47,6 +47,8 @@ suite('relewise-search-combobox', () => {
         assert.deepEqual(targetEntityTypes, ['Product']);
         assert.equal(displayedAtLocation, 'Standalone search');
         assert.equal(getComputedStyle(element.renderRoot.querySelector<HTMLElement>('.rw-search-bar')!).height, '42px');
+        assert.isNotNull(element.renderRoot.querySelector('[part~="search-input"]'));
+        assert.equal(element.renderRoot.querySelector('relewise-search-icon')?.getAttribute('exportparts'), 'icon: search-icon');
         assert.equal(element.renderRoot.querySelector('[part~="suggestion"]')?.textContent?.trim(), 'Guides');
         assert.isNotNull(element.renderRoot.querySelector('[part~="suggestion-icon"]'));
         assert.isUndefined(window.relewiseUISearchOptions.universalSearch);
