@@ -35,7 +35,9 @@ type RecommendationBlockResult =
     | { block: RecommendationBlock; resultType: 'productCategories'; recommendations: ProductCategoryResult[] }
     | { block: RecommendationBlock; resultType: 'content'; recommendations: ContentResult[] }
     | { block: RecommendationBlock; resultType: 'contentCategories'; recommendations: ContentCategoryResult[] }
-    | { block: RecommendationBlock; resultType: 'searchTerms'; recommendations: SearchTermResult[] };
+    | { block: RecommendationBlock; resultType: 'searchTerms'; recommendations: RenderableSearchTermResult[] };
+
+type RenderableSearchTermResult = SearchTermResult & { term: string };
 
 type RecommendationCacheEntry = {
     results: RecommendationBlockResult[];
@@ -206,7 +208,10 @@ export class RecommendationBlocksController implements ReactiveController {
             }),
             ...searchTerms.map(async item => {
                 const response = await recommender.recommendPopularSearchTerms(item.request, { abortSignal: signal });
-                recommendations.set(item, response?.recommendations ?? []);
+                const renderableRecommendations = response?.recommendations?.filter(
+                    (recommendation): recommendation is RenderableSearchTermResult => recommendation.term !== null && recommendation.term !== undefined,
+                ) ?? [];
+                recommendations.set(item, renderableRecommendations);
             }),
         ]);
 
@@ -336,13 +341,13 @@ export class RecommendationBlocksController implements ReactiveController {
         case 'searchTerms':
             return html`
                     <ul class="rw-recommendation-terms" part="recommendation-terms">
-                        ${result.recommendations.map(recommendation => recommendation.term === null || recommendation.term === undefined ? nothing : html`
+                        ${result.recommendations.map(recommendation => html`
                             <li>
                                 <button
                                     class="rw-recommendation-term"
                                     part="recommendation-term"
                                     type="button"
-                                    @click=${() => this.options.selectSearchTerm(recommendation.term!)}>
+                                    @click=${() => this.options.selectSearchTerm(recommendation.term)}>
                                     ${recommendation.term}
                                 </button>
                             </li>

@@ -1,5 +1,5 @@
 import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
-import { ContentCategoryResult, ContentResult, ProductCategoryResult, ProductResult, Recommender, Searcher, UserFactory } from '@relewise/client';
+import { ContentCategoryResult, ContentResult, ProductCategoryResult, ProductResult, Recommender, Searcher, SearchTermResult, UserFactory } from '@relewise/client';
 import { clearUrlState, initializeRelewiseUI, UniversalSearch, useSearch } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
@@ -53,6 +53,8 @@ suite('universal search recommendation blocks', () => {
     let popularProductCategoryCalls = 0;
     let popularContentCalls = 0;
     let popularContentCategoryCalls = 0;
+    let popularSearchTermCalls = 0;
+    let popularSearchTermRecommendations: SearchTermResult[] = [];
 
     setup(() => {
         clearUrlState();
@@ -74,6 +76,8 @@ suite('universal search recommendation blocks', () => {
         popularProductCategoryCalls = 0;
         popularContentCalls = 0;
         popularContentCategoryCalls = 0;
+        popularSearchTermCalls = 0;
+        popularSearchTermRecommendations = [{ term: 'Trail shoes', rank: 1 }];
 
         Searcher.prototype.batch = async function(requestCollection) {
             await batchSearchGate;
@@ -158,8 +162,9 @@ suite('universal search recommendation blocks', () => {
             return { recommendations: [contentCategory('popular-content-category')] } as any;
         };
         Recommender.prototype.recommendPopularSearchTerms = async function(request) {
+            popularSearchTermCalls++;
             popularSearchTermTargetEntityTypes = request.settings?.targetEntityTypes;
-            return { recommendations: [{ term: 'Trail shoes', rank: 1 }] } as any;
+            return { recommendations: popularSearchTermRecommendations } as any;
         };
     });
 
@@ -438,6 +443,39 @@ suite('universal search recommendation blocks', () => {
         await new Promise(resolve => setTimeout(resolve, 0));
 
         assert.equal(popularProductCalls, 1);
+        assert.exists(productsTab.renderRoot.querySelector('[part="facets"]'));
+    });
+
+    test('ignores popular search term recommendations without a term and keeps facets available', async() => {
+        productFacets = { items: [] };
+        popularSearchTermRecommendations = [
+            { term: null, rank: 1 },
+            { rank: 2 },
+        ];
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {} },
+                recommendations: {
+                    noResults: {
+                        products: [{ type: 'PopularSearchTerms' }],
+                    },
+                },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+        (element as unknown as UniversalSearchTestApi).setSearchTerm('No matches');
+
+        await waitUntil(
+            () => popularSearchTermCalls === 1 && element.renderRoot.querySelector('[part="recommendation-loading"]') === null,
+            'invalid popular search terms were not processed',
+        );
+        const productsTab = element.renderRoot.querySelector<HTMLElement & { renderRoot: HTMLElement | DocumentFragment; updateComplete: Promise<boolean> }>('relewise-universal-search-products-tab')!;
+        await productsTab.updateComplete;
+
+        assert.isNull(element.renderRoot.querySelector('[part~="recommendation-block"]'));
         assert.exists(productsTab.renderRoot.querySelector('[part="facets"]'));
     });
 
