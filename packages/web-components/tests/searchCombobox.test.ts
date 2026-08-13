@@ -171,4 +171,41 @@ suite('relewise-search-combobox', () => {
 
         assert.equal(element.renderRoot.querySelector('[part~="suggestion"]')?.textContent?.trim(), 'Shoes');
     });
+
+    test('ignores outdated prediction responses', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch();
+
+        const element = await fixture(html`
+            <relewise-search-combobox
+                .term=${'shoe'}
+                .suggestions=${{ searchTermPredictions: {} }}
+                .targetEntityTypes=${['Product']}
+                autofocus>
+            </relewise-search-combobox>
+        `) as SearchCombobox;
+        const settings = await getRelewiseContextSettings('Standalone search');
+        const predictionSearch = element.prepareBatchSearch(settings);
+        const input = element.renderRoot.querySelector('input')!;
+        const response = {
+            responses: [{
+                $type: 'Relewise.Client.Responses.Search.SearchTermPredictionResponse, Relewise.Client',
+                predictions: [{ term: 'Shoe rack', rank: 1 }],
+            }],
+        } as any;
+
+        input.value = 'shoes';
+        input.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }));
+        predictionSearch?.applyResponse(response);
+        await element.updateComplete;
+
+        assert.isNull(element.renderRoot.querySelector('[part~="suggestion"]'));
+
+        const currentPredictionSearch = element.prepareBatchSearch(settings);
+        document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+        currentPredictionSearch?.applyResponse(response);
+        await element.updateComplete;
+
+        assert.isNull(element.renderRoot.querySelector('[part~="suggestion"]'));
+    });
 });

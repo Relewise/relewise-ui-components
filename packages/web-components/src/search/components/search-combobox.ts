@@ -82,15 +82,26 @@ export class SearchCombobox extends RelewiseLitElement {
             return null;
         }
 
+        const requestedTerm = this.term;
+        const responseIsCurrent = () => this.term === requestedTerm && this.inputInFocus && !this.dismissed;
+
         return {
             request: buildSearchTermPredictionRequest({
                 settings,
-                term: this.term,
+                term: requestedTerm,
                 take,
                 targetEntityTypes,
             }),
-            applyResponse: response => this.applySearchTermPredictionResponse(response),
-            setError: () => this.searchTermPredictions = [],
+            applyResponse: response => {
+                if (responseIsCurrent()) {
+                    this.applySearchTermPredictionResponse(response);
+                }
+            },
+            setError: () => {
+                if (responseIsCurrent()) {
+                    this.searchTermPredictions = [];
+                }
+            },
         };
     }
 
