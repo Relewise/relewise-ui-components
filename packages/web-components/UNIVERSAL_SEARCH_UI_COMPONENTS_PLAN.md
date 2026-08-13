@@ -438,7 +438,7 @@ Behavior rules:
 - If every enabled tab is zero-hit:
   - Respect zero-hit tab visibility config.
   - If zero-hit tabs are hidden, show global no-result recovery blocks.
-- If zero-hit tabs remain visible, show tab-specific no-result recovery blocks.
+  - If zero-hit tabs remain visible, show tab-specific no-result recovery blocks.
 - Load tab-specific recovery blocks only when their zero-result tab becomes active, and cache successful responses for the current search term.
 - Hide the active zero-result tab's facets when a configured recovery block returns recommendations; retain facets when recovery is empty so active filters can still be removed.
 

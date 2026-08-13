@@ -900,7 +900,7 @@ if (predictionSearch) {
 
 The suggestions popup uses the shared rounded-corner default, clips hover backgrounds to those corners, and has no empty padding above or below the suggestion rows. Its default shadow and hover color match the product-search overlay.
 
-Recommendation blocks are also opt-in. Configure ordered blocks independently for the termless `initial` state, the `global` no-result state, and each entity tab's no-result state. Omit a state or block to disable it. Each block accepts `type`, optional `title`, and optional `take`; `take` defaults to four.
+Recommendation blocks are also opt-in. Configure ordered blocks independently for the termless `initial` state, the `global` no-result state, and each entity tab's no-result state. Omit a state or block to disable it. Each block accepts `type`, optional `title`, and optional `take`; `take` defaults to four. Set `title` to the localized heading that should be rendered, such as `Måske kan du også lide`, or set it to an empty string to omit the heading.
 
 `take` controls how many recommendations are requested for a block. All recommendations returned for the block are rendered. The number of columns is controlled separately with CSS and defaults to four on desktop and two on mobile:
 
