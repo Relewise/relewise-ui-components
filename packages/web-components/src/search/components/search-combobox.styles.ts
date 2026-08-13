@@ -66,15 +66,23 @@ export const searchComboboxStyles = [
 
         .rw-search-suggestion {
             appearance: none;
+            align-items: center;
             background: transparent;
             border: 0;
             color: inherit;
             cursor: pointer;
-            display: block;
+            display: flex;
             font: inherit;
+            gap: var(--relewise-search-suggestion-gap, 1em);
             padding: var(--relewise-search-suggestion-padding, 0.5em 1em);
             text-align: left;
             width: 100%;
+        }
+
+        .rw-suggestion-icon {
+            flex: none;
+            margin-left: auto;
+            --relewise-icon-color: var(--relewise-search-suggestion-icon-color, var(--accent-color));
         }
 
         .rw-search-suggestion:hover,

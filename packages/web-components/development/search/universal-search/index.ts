@@ -146,9 +146,11 @@ initializeRelewiseUI(
             suggestions: {
                 popularSearchTerms: {
                     take: 5,
+                    targetEntityTypes: ['Product', 'ProductCategory', 'Content'],
                 },
                 searchTermPredictions: {
                     take: 5,
+                    targetEntityTypes: ['Product'],
                 },
             },
         },

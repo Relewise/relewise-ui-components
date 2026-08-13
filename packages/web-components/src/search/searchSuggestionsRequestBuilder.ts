@@ -5,7 +5,7 @@ import {
     SearchTermPredictionRequest,
     Settings,
 } from '@relewise/client';
-import type { SearchSuggestionEntityType } from './types';
+import type { SearchSuggestionEntityType } from '../app';
 
 type PopularSearchTermsRequestOptions = {
     settings: Settings;

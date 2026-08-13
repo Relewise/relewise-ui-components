@@ -8,3 +8,4 @@ export * from './product-search-results';
 export * from './product-search-sorting';
 export * from './search-bar';
 export * from './search-combobox';
+export * from './search-combobox.types';

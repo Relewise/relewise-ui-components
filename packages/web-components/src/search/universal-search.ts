@@ -10,10 +10,11 @@ import {
     readCurrentUrlState,
 } from '../helpers';
 import { RelewiseLitElement } from '../relewise-lit-element';
+import type { SearchSuggestionEntityType } from '../app';
 import type { SearchCombobox } from './components/search-combobox';
+import type { SearchComboboxTermEventDetail, SearchSuggestionsBatchSearch } from './components/search-combobox.types';
 import { getSearcher } from './searcher';
 import { trapFocusInDialog } from './universal-search-focus';
-import type { SearchSuggestionEntityType, SearchSuggestionsBatchSearch } from './types';
 import { universalSearchStyles } from './universal-search.styles';
 import { updateUrlStateForUniversalSearchTerm } from './universal-search-url-state';
 import { universalSearchTabs } from './universal-search.types';
@@ -114,7 +115,6 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         this.batchAbortController.abort();
-        this.searchCombobox?.closeSuggestions();
         this.previouslyFocusedElement?.focus();
         this.previouslyFocusedElement = null;
     }
@@ -186,7 +186,9 @@ export class UniversalSearch extends RelewiseLitElement {
                 'relewise-universal-search-products-tab, relewise-universal-search-product-categories-tab, relewise-universal-search-content-tab',
             )];
             searches = tabs.map(tab => tab.prepareBatchSearch(settings));
-            const suggestionsSearch = this.searchCombobox?.prepareBatchSearch(settings);
+            const suggestionsSearch = this.renderRoot
+                .querySelector<SearchCombobox>('relewise-search-combobox')
+                ?.prepareBatchSearch(settings);
             if (suggestionsSearch) {
                 searches.push(suggestionsSearch);
             }
@@ -230,6 +232,16 @@ export class UniversalSearch extends RelewiseLitElement {
     private closeWhenClickingOutsideDialog(event: MouseEvent): void {
         if (event.target === event.currentTarget) {
             this.close();
+        }
+    }
+
+    private handleComboboxTermChanged(event: CustomEvent<SearchComboboxTermEventDetail>): void {
+        this.setSearchTerm(event.detail.term);
+    }
+
+    private handleComboboxSearchSubmitted(): void {
+        if (getRelewiseUISearchOptions()?.universalSearch?.suggestions) {
+            this.submitCurrentTerm();
         }
     }
 
@@ -292,10 +304,6 @@ export class UniversalSearch extends RelewiseLitElement {
         return `${this.accessibilityId}-panel-${tab}`;
     }
 
-    private get searchCombobox(): SearchCombobox | null {
-        return this.renderRoot.querySelector('relewise-search-combobox');
-    }
-
     render() {
         if (!this.isOpen) {
             return nothing;
@@ -311,8 +319,7 @@ export class UniversalSearch extends RelewiseLitElement {
             <div
                 class="rw-backdrop"
                 part="backdrop"
-                @click=${this.closeWhenClickingOutsideDialog}
-                @pointerdown=${(event: PointerEvent) => this.searchCombobox?.dismissWhenClickingOutside(event)}>
+                @click=${this.closeWhenClickingOutsideDialog}>
                 <section
                     class="rw-dialog"
                     part="dialog"
@@ -324,16 +331,15 @@ export class UniversalSearch extends RelewiseLitElement {
                     <header class="rw-header" part="header">
                         <relewise-search-combobox
                             part="search-bar"
-                            exportparts="input: search-input, icon: search-icon, search-suggestions, predictions, popular-search-terms, suggestions-list, suggestion"
+                            exportparts="input: search-input, icon: search-icon, search-suggestions, predictions, popular-search-terms, suggestions-list, suggestion, suggestion-icon"
                             .term=${this.term}
                             .suggestions=${searchOptions?.universalSearch?.suggestions}
                             .targetEntityTypes=${enabledTabs.map(tab => suggestionEntityTypeByTab[tab])}
                             .displayedAtLocation=${this.displayedAtLocation ?? defaultDisplayedAtLocation}
-                            .setSearchTerm=${this.setSearchTerm}
-                            .submitSearchTerm=${() => this.submitCurrentTerm()}
-                            .handleEscape=${() => this.close()}
                             .placeholder=${searchBarLocalization?.placeholder ?? null}
-                            .suggestionsLabel=${universalSearchLocalization?.suggestionsLabel ?? 'Search suggestions'}
+                            @relewise-search-combobox-term-changed=${this.handleComboboxTermChanged}
+                            @relewise-search-combobox-search-submitted=${this.handleComboboxSearchSubmitted}
+                            @relewise-search-combobox-escape-requested=${this.close}
                             autofocus>
                         </relewise-search-combobox>
                         <relewise-button

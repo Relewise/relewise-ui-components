@@ -575,6 +575,9 @@ To overwrite words and sentences used by the search components, call the `useSea
 ```ts
 useSearch({
     localization: {
+        searchSuggestions: {
+            label: 'Search suggestions',
+        },
         facets: {
             save: 'Save',
             showLess: 'Show Less',
@@ -592,7 +595,6 @@ useSearch({
         universalSearch: {
             close: 'Close',
             emptyState: 'Start typing to search.',
-            suggestionsLabel: 'Search suggestions',
             noEntitiesConfigured: 'No universal-search entities configured.',
             tabsLabel: 'Search result tabs',
             products: {
@@ -685,9 +687,11 @@ useSearch({
         suggestions: {
             popularSearchTerms: {
                 take: 5,
+                targetEntityTypes: ['Product', 'ProductCategory', 'Content'],
             },
             searchTermPredictions: {
                 take: 5,
+                targetEntityTypes: ['Product'],
             },
         },
     },
@@ -706,13 +710,21 @@ The component reads the existing `rw-term` URL parameter when it is connected, b
 
 When multiple entities are configured, they are searched together in one batched request when the search term changes. A single configured entity uses its direct search endpoint. Omitted entities are not rendered and are not requested. Facet, sorting, and load-more changes only search the active tab.
 
-Search suggestions are opt-in. Configure `popularSearchTerms` to show popular terms while the focused input is empty, and configure `searchTermPredictions` to show predictions while it contains text. Both sections default to five terms when `take` is omitted and target the enabled universal-search entities. Predictions that exactly match the current input are omitted.
+Search suggestions are opt-in. Configure `popularSearchTerms` to show popular terms while the focused input is empty, and configure `searchTermPredictions` to show predictions while it contains text. Both sections default to five terms when `take` is omitted. Their `targetEntityTypes` can be configured independently; when omitted, each defaults to the enabled Universal Search entities. This allows an entity to remain searchable without using it as a prediction source. Predictions that exactly match the current input are omitted.
 
 The suggestions panel supports pointer selection and Arrow Up, Arrow Down, Enter, and Escape. It closes on selection, Enter, Escape, outside interaction, or input blur. Popular terms may be empty when the dataset does not have enough engaged search history; an empty suggestions panel is not rendered.
 
-Universal Search renders its input and suggestions with the shared `relewise-search-combobox`. The existing `relewise-search-bar` and product-search overlay remain unchanged, while other search experiences can adopt the combobox later. The suggestions popup exposes the CSS parts `search-suggestions`, `popular-search-terms`, `predictions`, `suggestions-list`, and `suggestion` through `relewise-universal-search`.
+Universal Search renders its input and suggestions with the shared `relewise-search-combobox`. The existing `relewise-search-bar` and product-search overlay remain unchanged, while other search experiences can adopt the combobox later. The suggestions popup exposes the CSS parts `search-suggestions`, `popular-search-terms`, `predictions`, `suggestions-list`, `suggestion`, and `suggestion-icon` through `relewise-universal-search`.
 
-The combobox owns its input, suggestions popup, focus, dismissal, keyboard, and accessibility behavior. It loads popular search terms itself. Search-term predictions participate in the parent search experience's batch instead of starting a competing request: the parent calls `prepareBatchSearch(settings)`, includes the returned request in its batch, and then calls `applyResponse(response)` or `setError()`. Universal Search handles this integration automatically. A future Product Search integration can use the same contract without changing the existing `relewise-search-bar` or product-search overlay.
+The combobox owns its input, suggestions popup, focus, outside-interaction dismissal, keyboard, localization, and accessibility behavior. It loads popular search terms itself and caches a completed response, including an empty response, while it remains connected. Search-term predictions participate in the parent search experience's batch instead of starting a competing request: the parent calls `prepareBatchSearch(settings)`, includes the returned request in its batch, and then calls `applyResponse(response)` or `setError()`. Universal Search handles this integration automatically. A future Product Search integration can use the same contract without changing the existing `relewise-search-bar` or product-search overlay.
+
+The public combobox updates its own `term` and emits these bubbling, composed events:
+
+| Event | Detail | When |
+| --- | --- | --- |
+| `relewise-search-combobox-term-changed` | `{ term: string }` | The input value changes or a suggestion is selected. |
+| `relewise-search-combobox-search-submitted` | `{ term: string }` | Enter is pressed or a suggestion is selected. |
+| `relewise-search-combobox-escape-requested` | None | Escape is pressed when there is no open suggestions list to dismiss. |
 
 ```ts
 const predictionSearch = searchCombobox.prepareBatchSearch(settings);
@@ -1238,6 +1250,8 @@ All CSS variables recognised by the web components are listed below together wit
 | `--relewise-search-suggestions-border-radius` | `var(--relewise-border-radius, 1em)` | Corner radius of the suggestions popup. |
 | `--relewise-search-suggestions-box-shadow` | `0 10px 15px rgb(0 0 0 / 0.2)` | Shadow around the suggestions popup. |
 | `--relewise-search-suggestion-padding` | `0.5em 1em` | Padding for each suggestion. |
+| `--relewise-search-suggestion-gap` | `1em` | Space between a suggestion term and its icon. |
+| `--relewise-search-suggestion-icon-color` | `var(--accent-color)` | Color of the search icon shown beside each suggestion. |
 
 #### Search overlay container and messaging
 | Variable | Default | Description |

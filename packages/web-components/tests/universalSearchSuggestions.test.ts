@@ -272,14 +272,16 @@ suite('universal search suggestions', () => {
         useSearch({
             debounceTimeInMs: 0,
             universalSearch: {
-                entities: { products: {} },
+                entities: { products: {}, content: {} },
                 suggestions: {
-                    searchTermPredictions: {},
+                    searchTermPredictions: {
+                        targetEntityTypes: ['Product'],
+                    },
                 },
             },
             localization: {
-                universalSearch: {
-                    suggestionsLabel: 'Søgeforslag',
+                searchSuggestions: {
+                    label: 'Søgeforslag',
                 },
             },
         });

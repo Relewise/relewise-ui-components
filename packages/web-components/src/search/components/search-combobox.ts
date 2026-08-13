@@ -1,16 +1,23 @@
 import type { SearchResponseCollection, SearchTermPredictionResponse, Settings } from '@relewise/client';
 import { html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { getRelewiseContextSettings, getRelewiseUIOptions } from '../../helpers';
+import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../../helpers';
 import { getRecommender } from '../../recommendations/recommender';
 import { RelewiseLitElement } from '../../relewise-lit-element';
+import type { SearchSuggestionEntityType, SearchSuggestionsOptions } from '../../app';
 import { buildPopularSearchTermsRequest, buildSearchTermPredictionRequest } from '../searchSuggestionsRequestBuilder';
-import type { SearchSuggestionEntityType, SearchSuggestionsBatchSearch, SearchSuggestionsOptions } from '../types';
 import { searchComboboxStyles } from './search-combobox.styles';
+import type { SearchComboboxTermEventDetail, SearchSuggestionsBatchSearch } from './search-combobox.types';
 
 const defaultTake = 5;
 const searchTermPredictionResponseType = 'Relewise.Client.Responses.Search.SearchTermPredictionResponse, Relewise.Client';
 let searchComboboxInstanceId = 0;
+
+export const SearchComboboxEvents = {
+    termChanged: 'relewise-search-combobox-term-changed',
+    searchSubmitted: 'relewise-search-combobox-search-submitted',
+    escapeRequested: 'relewise-search-combobox-escape-requested',
+} as const;
 
 export class SearchCombobox extends RelewiseLitElement {
     @property()
@@ -25,20 +32,8 @@ export class SearchCombobox extends RelewiseLitElement {
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string;
 
-    @property({ attribute: false })
-    setSearchTerm = (term: string) => { };
-
-    @property({ attribute: false })
-    submitSearchTerm = () => { };
-
-    @property({ attribute: false })
-    handleEscape = () => { };
-
     @property()
     placeholder: string | null = null;
-
-    @property()
-    suggestionsLabel = 'Search suggestions';
 
     @property({ type: Boolean, reflect: true })
     autofocus = false;
@@ -50,10 +45,21 @@ export class SearchCombobox extends RelewiseLitElement {
     @state() private selectedIndex = -1;
 
     private readonly accessibilityId = `relewise-search-combobox-${searchComboboxInstanceId++}`;
-    private abortController = new AbortController();
+    private popularSearchTermsAbortController = new AbortController();
+    private popularSearchTermsState: 'idle' | 'loading' | 'loaded' = 'idle';
+    private readonly handleDocumentPointerDownBound = this.handleDocumentPointerDown.bind(this);
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        document.addEventListener('pointerdown', this.handleDocumentPointerDownBound);
+    }
 
     disconnectedCallback(): void {
-        this.abortController.abort();
+        document.removeEventListener('pointerdown', this.handleDocumentPointerDownBound);
+        this.abortPopularSearchTermsRequest();
+        this.popularSearchTermsState = 'idle';
+        this.popularSearchTerms = [];
+        this.searchTermPredictions = [];
         super.disconnectedCallback();
     }
 
@@ -70,8 +76,9 @@ export class SearchCombobox extends RelewiseLitElement {
     prepareBatchSearch(settings: Settings): SearchSuggestionsBatchSearch | null {
         const options = this.suggestions?.searchTermPredictions;
         const take = options?.take ?? defaultTake;
+        const targetEntityTypes = options?.targetEntityTypes ?? this.targetEntityTypes;
 
-        if (!options || take <= 0 || this.targetEntityTypes.length === 0 || !this.inputInFocus || !this.term || this.dismissed) {
+        if (!options || take <= 0 || targetEntityTypes.length === 0 || !this.inputInFocus || !this.term || this.dismissed) {
             return null;
         }
 
@@ -80,27 +87,14 @@ export class SearchCombobox extends RelewiseLitElement {
                 settings,
                 term: this.term,
                 take,
-                targetEntityTypes: this.targetEntityTypes,
+                targetEntityTypes,
             }),
             applyResponse: response => this.applySearchTermPredictionResponse(response),
             setError: () => this.searchTermPredictions = [],
         };
     }
 
-    closeSuggestions(): void {
-        if (!this.suggestionsEnabled) {
-            return;
-        }
-
-        this.abortController.abort();
-        this.inputInFocus = false;
-        this.dismissed = true;
-        this.selectedIndex = -1;
-        this.popularSearchTerms = [];
-        this.searchTermPredictions = [];
-    }
-
-    dismissWhenClickingOutside(event: PointerEvent): void {
+    private handleDocumentPointerDown(event: PointerEvent): void {
         if (!this.suggestionsEnabled || event.composedPath().includes(this)) {
             return;
         }
@@ -114,15 +108,15 @@ export class SearchCombobox extends RelewiseLitElement {
 
     private handleSearchTermInput(term: string): void {
         if (!this.suggestionsEnabled) {
-            this.setSearchTerm(term);
+            this.updateTerm(term);
             return;
         }
 
-        this.abortController.abort();
+        this.abortPopularSearchTermsRequest();
         this.dismissed = false;
         this.selectedIndex = -1;
         this.searchTermPredictions = [];
-        this.setSearchTerm(term);
+        this.updateTerm(term);
 
         if (!term && this.inputInFocus) {
             void this.loadPopularSearchTerms();
@@ -153,7 +147,10 @@ export class SearchCombobox extends RelewiseLitElement {
         if (!this.suggestionsEnabled) {
             if (event.key === 'Escape') {
                 event.preventDefault();
-                this.handleEscape();
+                this.requestEscape();
+            } else if (event.key === 'Enter') {
+                event.preventDefault();
+                this.submitSearch();
             }
             return;
         }
@@ -181,7 +178,7 @@ export class SearchCombobox extends RelewiseLitElement {
                 this.selectTerm(selectedTerm);
             } else {
                 this.dismissSuggestions();
-                this.submitSearchTerm();
+                this.submitSearch();
             }
             return;
         }
@@ -195,14 +192,45 @@ export class SearchCombobox extends RelewiseLitElement {
             event.stopPropagation();
             this.dismissSuggestions();
         } else {
-            this.handleEscape();
+            this.requestEscape();
         }
     }
 
     private dismissSuggestions(): void {
-        this.abortController.abort();
+        this.abortPopularSearchTermsRequest();
         this.dismissed = true;
         this.selectedIndex = -1;
+    }
+
+    private abortPopularSearchTermsRequest(): void {
+        this.popularSearchTermsAbortController.abort();
+        if (this.popularSearchTermsState === 'loading') {
+            this.popularSearchTermsState = 'idle';
+        }
+    }
+
+    private updateTerm(term: string): void {
+        this.term = term;
+        this.dispatchEvent(new CustomEvent<SearchComboboxTermEventDetail>(SearchComboboxEvents.termChanged, {
+            bubbles: true,
+            composed: true,
+            detail: { term },
+        }));
+    }
+
+    private submitSearch(): void {
+        this.dispatchEvent(new CustomEvent<SearchComboboxTermEventDetail>(SearchComboboxEvents.searchSubmitted, {
+            bubbles: true,
+            composed: true,
+            detail: { term: this.term },
+        }));
+    }
+
+    private requestEscape(): void {
+        this.dispatchEvent(new CustomEvent(SearchComboboxEvents.escapeRequested, {
+            bubbles: true,
+            composed: true,
+        }));
     }
 
     private get listId(): string {
@@ -223,8 +251,8 @@ export class SearchCombobox extends RelewiseLitElement {
 
     private selectTerm(term: string): void {
         this.dismissSuggestions();
-        this.setSearchTerm(term);
-        this.submitSearchTerm();
+        this.updateTerm(term);
+        this.submitSearch();
     }
 
     private get visibleTerms(): string[] {
@@ -238,14 +266,22 @@ export class SearchCombobox extends RelewiseLitElement {
     private async loadPopularSearchTerms(): Promise<void> {
         const options = this.suggestions?.popularSearchTerms;
         const take = options?.take ?? defaultTake;
+        const targetEntityTypes = options?.targetEntityTypes ?? this.targetEntityTypes;
 
-        if (!options || take <= 0 || this.targetEntityTypes.length === 0 || !this.inputInFocus || this.term || this.dismissed) {
+        if (!options
+            || take <= 0
+            || targetEntityTypes.length === 0
+            || this.popularSearchTermsState !== 'idle'
+            || !this.inputInFocus
+            || this.term
+            || this.dismissed) {
             return;
         }
 
-        this.abortController.abort();
+        this.abortPopularSearchTermsRequest();
         const abortController = new AbortController();
-        this.abortController = abortController;
+        this.popularSearchTermsAbortController = abortController;
+        this.popularSearchTermsState = 'loading';
 
         try {
             const settings = await getRelewiseContextSettings(this.displayedAtLocation ?? 'Relewise Search Combobox');
@@ -256,17 +292,22 @@ export class SearchCombobox extends RelewiseLitElement {
             const response = await getRecommender(getRelewiseUIOptions()).recommendPopularSearchTerms(buildPopularSearchTermsRequest({
                 settings,
                 take,
-                targetEntityTypes: this.targetEntityTypes,
+                targetEntityTypes,
             }), { abortSignal: abortController.signal });
 
             if (!abortController.signal.aborted && this.inputInFocus && !this.term && !this.dismissed) {
                 this.popularSearchTerms = response?.recommendations
                     ?.map(recommendation => recommendation.term)
                     .filter((term): term is string => term !== null && term !== undefined) ?? [];
+                this.popularSearchTermsState = 'loaded';
             }
         } catch {
             if (!abortController.signal.aborted) {
                 this.popularSearchTerms = [];
+            }
+        } finally {
+            if (this.popularSearchTermsAbortController === abortController && this.popularSearchTermsState === 'loading') {
+                this.popularSearchTermsState = 'idle';
             }
         }
     }
@@ -284,6 +325,7 @@ export class SearchCombobox extends RelewiseLitElement {
         const terms = this.visibleTerms;
         const expanded = terms.length > 0;
         const suggestionType = this.term ? 'predictions' : 'popular-search-terms';
+        const suggestionsLabel = getRelewiseUISearchOptions()?.localization?.searchSuggestions?.label ?? 'Search suggestions';
 
         return html`
             <div class="rw-search-combobox">
@@ -325,7 +367,7 @@ export class SearchCombobox extends RelewiseLitElement {
                             class="rw-search-suggestions-list"
                             part="suggestions-list"
                             role="listbox"
-                            aria-label=${this.suggestionsLabel}>
+                            aria-label=${suggestionsLabel}>
                             ${terms.map((term, index) => html`
                                 <li role="none">
                                     <button
@@ -339,7 +381,12 @@ export class SearchCombobox extends RelewiseLitElement {
                                         ?data-selected=${this.selectedIndex === index}
                                         @pointerenter=${() => this.selectedIndex = index}
                                         @click=${() => this.selectTerm(term)}>
-                                        ${term}
+                                        <span>${term}</span>
+                                        <relewise-search-icon
+                                            class="rw-suggestion-icon"
+                                            part="suggestion-icon"
+                                            aria-hidden="true">
+                                        </relewise-search-icon>
                                     </button>
                                 </li>
                             `)}
@@ -356,5 +403,11 @@ export class SearchCombobox extends RelewiseLitElement {
 declare global {
     interface HTMLElementTagNameMap {
         'relewise-search-combobox': SearchCombobox;
+    }
+
+    interface HTMLElementEventMap {
+        'relewise-search-combobox-term-changed': CustomEvent<SearchComboboxTermEventDetail>;
+        'relewise-search-combobox-search-submitted': CustomEvent<SearchComboboxTermEventDetail>;
+        'relewise-search-combobox-escape-requested': CustomEvent;
     }
 }

@@ -1,6 +1,13 @@
 import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
 import { Recommender } from '@relewise/client';
-import { getRelewiseContextSettings, initializeRelewiseUI, SearchCombobox, useSearch } from '../src';
+import {
+    getRelewiseContextSettings,
+    initializeRelewiseUI,
+    SearchCombobox,
+    SearchComboboxEvents,
+    SearchComboboxTermEventDetail,
+    useSearch,
+} from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('relewise-search-combobox', () => {
@@ -29,7 +36,7 @@ suite('relewise-search-combobox', () => {
             <relewise-search-combobox
                 displayed-at-location="Standalone search"
                 style="--relewise-search-combobox-height: 42px; --relewise-product-search-bar-height: 17px"
-                .suggestions=${{ popularSearchTerms: {} }}
+                .suggestions=${{ popularSearchTerms: { targetEntityTypes: ['Product'] } }}
                 .targetEntityTypes=${['Content']}
                 autofocus>
             </relewise-search-combobox>
@@ -37,11 +44,96 @@ suite('relewise-search-combobox', () => {
 
         await waitUntil(() => element.renderRoot.querySelector('[part~="suggestion"]') !== null, 'standalone suggestions were not rendered');
 
-        assert.deepEqual(targetEntityTypes, ['Content']);
+        assert.deepEqual(targetEntityTypes, ['Product']);
         assert.equal(displayedAtLocation, 'Standalone search');
         assert.equal(getComputedStyle(element.renderRoot.querySelector<HTMLElement>('.rw-search-bar')!).height, '42px');
         assert.equal(element.renderRoot.querySelector('[part~="suggestion"]')?.textContent?.trim(), 'Guides');
+        assert.isNotNull(element.renderRoot.querySelector('[part~="suggestion-icon"]'));
         assert.isUndefined(window.relewiseUISearchOptions.universalSearch);
+    });
+
+    test('updates its term and dispatches public interaction events', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch();
+
+        const element = await fixture(html`
+            <relewise-search-combobox></relewise-search-combobox>
+        `) as SearchCombobox;
+        const input = element.renderRoot.querySelector('input')!;
+        let changedTerm: string | null = null;
+        let submittedTerm: string | null = null;
+        let escapeRequested = false;
+
+        element.addEventListener(SearchComboboxEvents.termChanged, (event: CustomEvent<SearchComboboxTermEventDetail>) => {
+            changedTerm = event.detail.term;
+        });
+        element.addEventListener(SearchComboboxEvents.searchSubmitted, (event: CustomEvent<SearchComboboxTermEventDetail>) => {
+            submittedTerm = event.detail.term;
+        });
+        element.addEventListener(SearchComboboxEvents.escapeRequested, () => escapeRequested = true);
+
+        input.value = 'shoes';
+        input.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }));
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }));
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }));
+        await element.updateComplete;
+
+        assert.equal(element.term, 'shoes');
+        assert.equal(changedTerm, 'shoes');
+        assert.equal(submittedTerm, 'shoes');
+        assert.isTrue(escapeRequested);
+    });
+
+    test('dismisses suggestions when interacting outside the standalone combobox', async() => {
+        Recommender.prototype.recommendPopularSearchTerms = async function() {
+            return { recommendations: [{ term: 'Guides', rank: 1 }] } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch();
+
+        const element = await fixture(html`
+            <relewise-search-combobox
+                .suggestions=${{ popularSearchTerms: {} }}
+                .targetEntityTypes=${['Content']}
+                autofocus>
+            </relewise-search-combobox>
+        `) as SearchCombobox;
+
+        await waitUntil(() => element.renderRoot.querySelector('[part~="suggestion"]') !== null, 'standalone suggestions were not rendered');
+        document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+        await element.updateComplete;
+
+        assert.isNull(element.renderRoot.querySelector('[part~="search-suggestions"]'));
+    });
+
+    test('does not reload completed empty popular search terms when refocused', async() => {
+        let requests = 0;
+        let requestCompleted = false;
+        Recommender.prototype.recommendPopularSearchTerms = async function() {
+            requests++;
+            requestCompleted = true;
+            return { recommendations: [] } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch();
+
+        const element = await fixture(html`
+            <relewise-search-combobox
+                .suggestions=${{ popularSearchTerms: {} }}
+                .targetEntityTypes=${['Content']}
+                autofocus>
+            </relewise-search-combobox>
+        `) as SearchCombobox;
+        const input = element.renderRoot.querySelector('input')!;
+
+        await waitUntil(() => requestCompleted, 'popular search term request did not complete');
+        input.blur();
+        input.focus();
+        await new Promise(resolve => setTimeout(resolve, 10));
+
+        assert.equal(requests, 1);
     });
 
     test('exposes prediction request and response handling for a parent search batch', async() => {
@@ -52,7 +144,7 @@ suite('relewise-search-combobox', () => {
             <relewise-search-combobox
                 displayed-at-location="Standalone search"
                 .term=${'shoe'}
-                .suggestions=${{ searchTermPredictions: { take: 3 } }}
+                .suggestions=${{ searchTermPredictions: { take: 3, targetEntityTypes: ['Product'] } }}
                 .targetEntityTypes=${['Product', 'Content']}
                 autofocus>
             </relewise-search-combobox>
@@ -63,7 +155,11 @@ suite('relewise-search-combobox', () => {
         assert.isNotNull(predictionSearch);
         assert.equal(predictionSearch?.request.term, 'shoe');
         assert.equal(predictionSearch?.request.take, 3);
-        assert.deepEqual(predictionSearch?.request.settings?.targetEntityTypes, ['Product', 'Content']);
+        assert.deepEqual(predictionSearch?.request.settings?.targetEntityTypes, ['Product']);
+
+        element.suggestions = { searchTermPredictions: { take: 3 } };
+        const fallbackPredictionSearch = element.prepareBatchSearch(settings);
+        assert.deepEqual(fallbackPredictionSearch?.request.settings?.targetEntityTypes, ['Product', 'Content']);
 
         predictionSearch?.applyResponse({
             responses: [{

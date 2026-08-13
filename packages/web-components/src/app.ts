@@ -1,4 +1,5 @@
 import { FilterBuilder, ProductCategoryResult, ProductResult } from '@relewise/client';
+import type { SearchTermPredictionRequest } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { CategoryTile, FilterIcon, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
 import { Button } from './components/button';
@@ -8,7 +9,6 @@ import { FavoriteButtonProducts } from './components/product-favorite-button';
 import { ContextSettings, ProductTemplateExtensions } from './initialize';
 import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PopularContent, PersonalContent, ContentViewedAfterViewingContent, ContentViewedAfterViewingMultipleContent, ProductsViewedAfterViewingContent, ContentViewedAfterViewingProduct, ContentViewedAfterViewingMultipleProducts } from './recommendations';
 import { UniversalSearch, ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar, SearchCombobox } from './search';
-import type { SearchSuggestionsOptions } from './search';
 import { ChecklistBooleanValueFacet } from './search/components/facets/checklist-boolean-value-facet';
 import { ChecklistNumberValueFacet } from './search/components/facets/checklist-number-value-facet';
 import { ChecklistObjectValueFacet } from './search/components/facets/checklist-object-value-facet';
@@ -60,6 +60,20 @@ export interface UniversalSearchOptions {
     suggestions?: SearchSuggestionsOptions;
 }
 
+export type SearchSuggestionEntityType = NonNullable<
+    NonNullable<SearchTermPredictionRequest['settings']>['targetEntityTypes']
+>[number];
+
+export interface SearchSuggestionOptions {
+    take?: number;
+    targetEntityTypes?: SearchSuggestionEntityType[];
+}
+
+export interface SearchSuggestionsOptions {
+    popularSearchTerms?: SearchSuggestionOptions;
+    searchTermPredictions?: SearchSuggestionOptions;
+}
+
 export interface UniversalSearchEntitiesOptions {
     products?: UniversalSearchEntityOptions;
     productCategories?: UniversalSearchEntityOptions;
@@ -72,6 +86,7 @@ export interface UniversalSearchEntityOptions {
 
 export interface SearchLocalization {
     searchBar?: SearchBarLocalization;
+    searchSuggestions?: SearchSuggestionsLocalization;
     universalSearch?: UniversalSearchLocalization;
     sortingButton?: SortingLocalization;
     loadMoreButton?: LoadMoreLocalization;
@@ -79,10 +94,13 @@ export interface SearchLocalization {
     searchResults?: SearchResultLocalization;
 }
 
+export interface SearchSuggestionsLocalization {
+    label?: string;
+}
+
 export interface UniversalSearchLocalization {
     close?: string;
     emptyState?: string;
-    suggestionsLabel?: string;
     noEntitiesConfigured?: string;
     tabsLabel?: string;
     products?: UniversalSearchTabLocalization;
