@@ -17,11 +17,10 @@ import {
     Settings,
     userIsAnonymous,
 } from '@relewise/client';
-import type { UniversalSearchRecommendationBlock } from '../app';
+import type { SearchSuggestionEntityType, UniversalSearchRecommendationBlock } from '../app';
 import { defaultContentCategoryProperties, defaultProductCategoryProperties, getSelectedContentProperties, getSelectedProductProperties } from '../defaultSettings';
 import { getRelewiseUIOptions } from '../helpers';
 import { buildPopularSearchTermsRequest } from './searchSuggestionsRequestBuilder';
-import type { SearchSuggestionEntityType } from './types';
 
 const defaultTake = 4;
 

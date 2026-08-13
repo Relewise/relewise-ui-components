@@ -153,7 +153,6 @@ export interface UniversalSearchTabLocalization {
     resultsTitle?: string;
     result?: string;
     results?: string;
-    noResults?: string;
     error?: string;
 }
 

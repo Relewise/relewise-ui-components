@@ -736,7 +736,6 @@ useSearch({
                 resultsTitle: 'Products',
                 result: 'Result',
                 results: 'Results',
-                noResults: 'No products found.',
                 error: 'Could not load products.',
             },
             productCategories: {
@@ -745,7 +744,6 @@ useSearch({
                 resultsTitle: 'Categories',
                 result: 'Result',
                 results: 'Results',
-                noResults: 'No categories found.',
                 error: 'Could not load categories.',
             },
             content: {
@@ -754,7 +752,6 @@ useSearch({
                 resultsTitle: 'Content',
                 result: 'Result',
                 results: 'Results',
-                noResults: 'No content found.',
                 error: 'Could not load content.',
             },
         },
@@ -932,7 +929,7 @@ All configured initial blocks are requested because they are rendered together. 
 
 No-result recommendations are lazy. Universal Search initially requests only the active zero-result tab's configured blocks, loads another tab's blocks when that tab is selected, and caches successful responses—including successful empty responses—for the current search term. Returning to a previously loaded tab therefore does not repeat its recommendation requests. The cache is cleared when the term changes or the modal closes. Recommendation results retain the configured block order.
 
-Recommendation blocks expose the CSS parts `recommendation-blocks`, `recommendation-block`, `recommendation-title`, `recommendation-grid`, `product-recommendation-grid`, `content-recommendation-grid`, `category-recommendation-grid`, `recommendation-product-tile`, `recommendation-content-tile`, `recommendation-category-tile`, `recommendation-terms`, and `recommendation-term`. Each block also exposes a type-specific part such as `popular-products` or `search-term-based-products`. The result-type-specific grid parts can be used when product, content, and category blocks need different layouts.
+Recommendation blocks expose the CSS parts `recommendation-blocks`, `recommendation-block`, `recommendation-title`, `recommendation-grid`, `product-recommendation-grid`, `content-recommendation-grid`, `category-recommendation-grid`, `recommendation-product-tile`, `recommendation-content-tile`, `recommendation-category-tile`, `recommendation-terms`, and `recommendation-term`. Each block also exposes a type-specific part such as `popular-products`, `popular-search-term-recommendations`, or `search-term-based-products`. The result-type-specific grid parts can be used when product, content, and category blocks need different layouts.
 
 When the products tab is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option.
 

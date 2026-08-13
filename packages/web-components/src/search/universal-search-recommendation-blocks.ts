@@ -16,10 +16,9 @@ import {
 } from '@relewise/client';
 import { html, nothing } from 'lit';
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
-import type { UniversalSearchRecommendationBlock } from '../app';
+import type { SearchSuggestionEntityType, UniversalSearchRecommendationBlock } from '../app';
 import { getRelewiseContextSettings, getRelewiseUIOptions } from '../helpers';
 import { getRecommender } from '../recommendations/recommender';
-import type { SearchSuggestionEntityType } from './types';
 import {
     buildUniversalSearchRecommendationRequest,
     PreparedUniversalSearchRecommendation,
@@ -59,7 +58,7 @@ const partByType: Record<UniversalSearchRecommendationBlock['type'], string> = {
     PopularProductCategories: 'popular-product-categories',
     PopularContents: 'popular-contents',
     PopularContentCategories: 'popular-content-categories',
-    PopularSearchTerms: 'popular-search-terms',
+    PopularSearchTerms: 'popular-search-term-recommendations',
     SearchTermBasedProduct: 'search-term-based-products',
 };
 

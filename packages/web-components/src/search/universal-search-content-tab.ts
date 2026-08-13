@@ -225,9 +225,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
                         <div class="rw-loading" part="loading-state">
                             <relewise-loading-spinner></relewise-loading-spinner>
                         </div>
-                    ` : !this.result ? nothing : this.content.length === 0 ? html`
-                        <p class="rw-empty" part="zero-results">${localization?.noResults ?? 'No content found.'}</p>
-                    ` : html`
+                    ` : !this.result || this.content.length === 0 ? nothing : html`
                         <div class="rw-result-grid" part="content-grid">
                             ${this.content.map(content => html`
                                 <relewise-content-tile

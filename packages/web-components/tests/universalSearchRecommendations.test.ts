@@ -206,6 +206,8 @@ suite('universal search recommendation blocks', () => {
         assert.lengthOf(element.renderRoot.querySelectorAll('relewise-category-tile'), 2);
         assert.lengthOf(element.renderRoot.querySelectorAll('relewise-content-tile'), 1);
         assert.equal(element.renderRoot.querySelector('[part="recommendation-term"]')?.textContent?.trim(), 'Trail shoes');
+        assert.exists(element.renderRoot.querySelector('[part~="popular-search-term-recommendations"]'));
+        assert.isNull(element.renderRoot.querySelector('[part~="popular-search-terms"]'));
         assert.deepEqual(popularSearchTermTargetEntityTypes, ['Product', 'ProductCategory', 'Content']);
         assert.equal(popularProductCategoryCalls, 1);
         assert.equal(popularContentCalls, 1);

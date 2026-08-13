@@ -527,7 +527,7 @@ export class UniversalSearch extends RelewiseLitElement {
                                         ?hidden=${this.activeTab !== tab}>
                                         ${tab === 'products' ? html`
                                             <relewise-universal-search-products-tab
-                                                exportparts="results-layout, facets, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, sorting, sorting-select, sorting-label, error-state, loading-state, zero-results, product-grid, product-tile, load-more"
+                                                exportparts="results-layout, facets, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, sorting, sorting-select, sorting-label, error-state, loading-state, product-grid, product-tile, load-more"
                                                 .term=${this.searchTerm}
                                                 .target=${this.target}
                                                 .hideFacets=${hideActiveTabFacets && this.activeTab === tab}
@@ -535,14 +535,14 @@ export class UniversalSearch extends RelewiseLitElement {
                                             </relewise-universal-search-products-tab>
                                         ` : tab === 'productCategories' ? html`
                                             <relewise-universal-search-product-categories-tab
-                                                exportparts="results-layout, facets, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, zero-results, category-grid, category-tile, load-more"
+                                                exportparts="results-layout, facets, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, category-grid, category-tile, load-more"
                                                 .term=${this.searchTerm}
                                                 .hideFacets=${hideActiveTabFacets && this.activeTab === tab}
                                                 .displayedAtLocation=${this.displayedAtLocation}>
                                             </relewise-universal-search-product-categories-tab>
                                         ` : html`
                                             <relewise-universal-search-content-tab
-                                                exportparts="results-layout, facets, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, zero-results, content-grid, content-tile, load-more"
+                                                exportparts="results-layout, facets, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, content-grid, content-tile, load-more"
                                                 .term=${this.searchTerm}
                                                 .hideFacets=${hideActiveTabFacets && this.activeTab === tab}
                                                 .displayedAtLocation=${this.displayedAtLocation}>

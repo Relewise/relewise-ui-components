@@ -225,9 +225,7 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
                         <div class="rw-loading" part="loading-state">
                             <relewise-loading-spinner></relewise-loading-spinner>
                         </div>
-                    ` : !this.result ? nothing : this.productCategories.length === 0 ? html`
-                        <p class="rw-empty" part="zero-results">${localization?.noResults ?? 'No categories found.'}</p>
-                    ` : html`
+                    ` : !this.result || this.productCategories.length === 0 ? nothing : html`
                         <div class="rw-result-grid" part="category-grid">
                             ${this.productCategories.map(category => html`
                                 <relewise-category-tile
