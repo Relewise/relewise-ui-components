@@ -20,13 +20,12 @@ type SearchTermPredictionRequestOptions = PopularSearchTermsRequestOptions & {
 
 export function buildPopularSearchTermsRequest(options: PopularSearchTermsRequestOptions): PopularSearchTermsRecommendationRequest {
     const builder = new PopularSearchTermsRecommendationBuilder(options.settings)
-        .addEntityType(...options.targetEntityTypes);
+        .addEntityType(...options.targetEntityTypes)
+        .take(options.take);
 
     if (options.term !== undefined) {
         builder.setTerm(options.term);
     }
-
-    builder.recommendationSettings.numberOfRecommendations = options.take;
 
     return builder.build();
 }
