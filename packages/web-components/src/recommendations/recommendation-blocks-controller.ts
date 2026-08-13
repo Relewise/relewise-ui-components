@@ -16,33 +16,33 @@ import {
 } from '@relewise/client';
 import { html, nothing } from 'lit';
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
-import type { SearchSuggestionEntityType, UniversalSearchRecommendationBlock } from '../app';
+import type { RecommendationBlock, SearchSuggestionEntityType } from '../app';
 import { getRelewiseContextSettings, getRelewiseUIOptions } from '../helpers';
-import { getRecommender } from '../recommendations/recommender';
+import { getRecommender } from './recommender';
 import {
-    buildUniversalSearchRecommendationRequest,
-    PreparedUniversalSearchRecommendation,
-} from './universalSearchRecommendationRequestBuilder';
+    buildRecommendationBlockRequest,
+    PreparedRecommendationBlock,
+} from './recommendationBlockRequestBuilder';
 
-type UniversalSearchRecommendationBlocksControllerOptions = {
+type RecommendationBlocksControllerOptions = {
     getDisplayedAtLocation: () => string;
     getTargetEntityTypes: () => SearchSuggestionEntityType[];
     selectSearchTerm: (term: string) => void;
 };
 
 type RecommendationBlockResult =
-    | { block: UniversalSearchRecommendationBlock; resultType: 'products'; recommendations: ProductResult[] }
-    | { block: UniversalSearchRecommendationBlock; resultType: 'productCategories'; recommendations: ProductCategoryResult[] }
-    | { block: UniversalSearchRecommendationBlock; resultType: 'content'; recommendations: ContentResult[] }
-    | { block: UniversalSearchRecommendationBlock; resultType: 'contentCategories'; recommendations: ContentCategoryResult[] }
-    | { block: UniversalSearchRecommendationBlock; resultType: 'searchTerms'; recommendations: SearchTermResult[] };
+    | { block: RecommendationBlock; resultType: 'products'; recommendations: ProductResult[] }
+    | { block: RecommendationBlock; resultType: 'productCategories'; recommendations: ProductCategoryResult[] }
+    | { block: RecommendationBlock; resultType: 'content'; recommendations: ContentResult[] }
+    | { block: RecommendationBlock; resultType: 'contentCategories'; recommendations: ContentCategoryResult[] }
+    | { block: RecommendationBlock; resultType: 'searchTerms'; recommendations: SearchTermResult[] };
 
 type RecommendationCacheEntry = {
     results: RecommendationBlockResult[];
     user: User;
 };
 
-const defaultTitles: Record<UniversalSearchRecommendationBlock['type'], string> = {
+const defaultTitles: Record<RecommendationBlock['type'], string> = {
     PopularProducts: 'Popular products',
     RecentlyViewedProducts: 'Recently viewed products',
     PopularProductCategories: 'Popular categories',
@@ -52,7 +52,7 @@ const defaultTitles: Record<UniversalSearchRecommendationBlock['type'], string> 
     SearchTermBasedProduct: 'Recommended products',
 };
 
-const partByType: Record<UniversalSearchRecommendationBlock['type'], string> = {
+const partByType: Record<RecommendationBlock['type'], string> = {
     PopularProducts: 'popular-products',
     RecentlyViewedProducts: 'recently-viewed-products',
     PopularProductCategories: 'popular-product-categories',
@@ -62,7 +62,7 @@ const partByType: Record<UniversalSearchRecommendationBlock['type'], string> = {
     SearchTermBasedProduct: 'search-term-based-products',
 };
 
-export class UniversalSearchRecommendationBlocksController implements ReactiveController {
+export class RecommendationBlocksController implements ReactiveController {
     private results: RecommendationBlockResult[] = [];
     private loading = false;
     private user: User | null = null;
@@ -71,7 +71,7 @@ export class UniversalSearchRecommendationBlocksController implements ReactiveCo
 
     constructor(
         private readonly host: ReactiveControllerHost,
-        private readonly options: UniversalSearchRecommendationBlocksControllerOptions,
+        private readonly options: RecommendationBlocksControllerOptions,
     ) {
         this.host.addController(this);
     }
@@ -100,7 +100,7 @@ export class UniversalSearchRecommendationBlocksController implements ReactiveCo
         this.clear();
     }
 
-    async load(blocks: UniversalSearchRecommendationBlock[], term: string, cacheKey?: string): Promise<void> {
+    async load(blocks: RecommendationBlock[], term: string, cacheKey?: string): Promise<void> {
         this.abortController.abort();
         this.results = [];
 
@@ -136,8 +136,8 @@ export class UniversalSearchRecommendationBlocksController implements ReactiveCo
             this.user = settings.user;
             const targetEntityTypes = this.options.getTargetEntityTypes();
             const prepared = blocks
-                .map(block => buildUniversalSearchRecommendationRequest({ block, settings, targetEntityTypes, term }))
-                .filter((request): request is PreparedUniversalSearchRecommendation => request !== null);
+                .map(block => buildRecommendationBlockRequest({ block, settings, targetEntityTypes, term }))
+                .filter((request): request is PreparedRecommendationBlock => request !== null);
 
             const response = await this.fetchRecommendations(prepared, abortController.signal);
             if (!abortController.signal.aborted) {
@@ -182,16 +182,16 @@ export class UniversalSearchRecommendationBlocksController implements ReactiveCo
     }
 
     private async fetchRecommendations(
-        prepared: PreparedUniversalSearchRecommendation[],
+        prepared: PreparedRecommendationBlock[],
         signal: AbortSignal,
     ): Promise<{ results: RecommendationBlockResult[]; complete: boolean }> {
         const recommender = getRecommender(getRelewiseUIOptions());
-        const recommendations = new Map<PreparedUniversalSearchRecommendation, RecommendationBlockResult['recommendations']>();
-        const products = prepared.filter((item): item is Extract<PreparedUniversalSearchRecommendation, { resultType: 'products' }> => item.resultType === 'products');
-        const productCategories = prepared.filter((item): item is Extract<PreparedUniversalSearchRecommendation, { resultType: 'productCategories' }> => item.resultType === 'productCategories');
-        const content = prepared.filter((item): item is Extract<PreparedUniversalSearchRecommendation, { resultType: 'content' }> => item.resultType === 'content');
-        const contentCategories = prepared.filter((item): item is Extract<PreparedUniversalSearchRecommendation, { resultType: 'contentCategories' }> => item.resultType === 'contentCategories');
-        const searchTerms = prepared.filter((item): item is Extract<PreparedUniversalSearchRecommendation, { resultType: 'searchTerms' }> => item.resultType === 'searchTerms');
+        const recommendations = new Map<PreparedRecommendationBlock, RecommendationBlockResult['recommendations']>();
+        const products = prepared.filter((item): item is Extract<PreparedRecommendationBlock, { resultType: 'products' }> => item.resultType === 'products');
+        const productCategories = prepared.filter((item): item is Extract<PreparedRecommendationBlock, { resultType: 'productCategories' }> => item.resultType === 'productCategories');
+        const content = prepared.filter((item): item is Extract<PreparedRecommendationBlock, { resultType: 'content' }> => item.resultType === 'content');
+        const contentCategories = prepared.filter((item): item is Extract<PreparedRecommendationBlock, { resultType: 'contentCategories' }> => item.resultType === 'contentCategories');
+        const searchTerms = prepared.filter((item): item is Extract<PreparedRecommendationBlock, { resultType: 'searchTerms' }> => item.resultType === 'searchTerms');
 
         const outcomes = await Promise.allSettled([
             this.fetchProductRecommendations(recommender, products, recommendations, signal),
@@ -231,8 +231,8 @@ export class UniversalSearchRecommendationBlocksController implements ReactiveCo
 
     private async fetchProductRecommendations(
         recommender: Recommender,
-        requests: Extract<PreparedUniversalSearchRecommendation, { resultType: 'products' }>[],
-        recommendations: Map<PreparedUniversalSearchRecommendation, RecommendationBlockResult['recommendations']>,
+        requests: Extract<PreparedRecommendationBlock, { resultType: 'products' }>[],
+        recommendations: Map<PreparedRecommendationBlock, RecommendationBlockResult['recommendations']>,
         signal: AbortSignal,
     ): Promise<void> {
         if (requests.length === 0) {
@@ -268,8 +268,8 @@ export class UniversalSearchRecommendationBlocksController implements ReactiveCo
 
     private async fetchContentRecommendations(
         recommender: Recommender,
-        requests: Extract<PreparedUniversalSearchRecommendation, { resultType: 'content' }>[],
-        recommendations: Map<PreparedUniversalSearchRecommendation, RecommendationBlockResult['recommendations']>,
+        requests: Extract<PreparedRecommendationBlock, { resultType: 'content' }>[],
+        recommendations: Map<PreparedRecommendationBlock, RecommendationBlockResult['recommendations']>,
         signal: AbortSignal,
     ): Promise<void> {
         if (requests.length === 0) {

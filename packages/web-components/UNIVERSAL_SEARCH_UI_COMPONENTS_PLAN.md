@@ -586,12 +586,12 @@ Defaults:
 
 ```ts
 export interface UniversalSearchRecommendationOptions {
-    initial?: UniversalSearchRecommendationBlock[];
+    initial?: RecommendationBlock[];
     noResults?: {
-        global?: UniversalSearchRecommendationBlock[];
-        products?: UniversalSearchRecommendationBlock[];
-        productCategories?: UniversalSearchRecommendationBlock[];
-        content?: UniversalSearchRecommendationBlock[];
+        global?: RecommendationBlock[];
+        products?: RecommendationBlock[];
+        productCategories?: RecommendationBlock[];
+        content?: RecommendationBlock[];
     };
 }
 ```
@@ -599,7 +599,7 @@ export interface UniversalSearchRecommendationOptions {
 Recommendation block:
 
 ```ts
-export interface UniversalSearchRecommendationBlock {
+export interface RecommendationBlock {
     title?: string;
     type:
         | 'PopularProducts'

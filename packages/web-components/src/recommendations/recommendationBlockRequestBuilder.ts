@@ -17,28 +17,28 @@ import {
     Settings,
     userIsAnonymous,
 } from '@relewise/client';
-import type { SearchSuggestionEntityType, UniversalSearchRecommendationBlock } from '../app';
+import type { RecommendationBlock, SearchSuggestionEntityType } from '../app';
 import { defaultContentCategoryProperties, defaultProductCategoryProperties, getSelectedContentProperties, getSelectedProductProperties } from '../defaultSettings';
 import { getRelewiseUIOptions } from '../helpers';
-import { buildPopularSearchTermsRequest } from './searchSuggestionsRequestBuilder';
+import { buildPopularSearchTermsRequest } from '../search/searchSuggestionsRequestBuilder';
 
 const defaultTake = 4;
 
-export type PreparedUniversalSearchRecommendation =
-    | { block: UniversalSearchRecommendationBlock; request: ProductRecommendationRequest; resultType: 'products' }
-    | { block: UniversalSearchRecommendationBlock; request: PopularProductCategoriesRecommendationRequest; resultType: 'productCategories' }
-    | { block: UniversalSearchRecommendationBlock; request: ContentRecommendationRequest; resultType: 'content' }
-    | { block: UniversalSearchRecommendationBlock; request: PopularContentCategoriesRecommendationRequest; resultType: 'contentCategories' }
-    | { block: UniversalSearchRecommendationBlock; request: PopularSearchTermsRecommendationRequest; resultType: 'searchTerms' };
+export type PreparedRecommendationBlock =
+    | { block: RecommendationBlock; request: ProductRecommendationRequest; resultType: 'products' }
+    | { block: RecommendationBlock; request: PopularProductCategoriesRecommendationRequest; resultType: 'productCategories' }
+    | { block: RecommendationBlock; request: ContentRecommendationRequest; resultType: 'content' }
+    | { block: RecommendationBlock; request: PopularContentCategoriesRecommendationRequest; resultType: 'contentCategories' }
+    | { block: RecommendationBlock; request: PopularSearchTermsRecommendationRequest; resultType: 'searchTerms' };
 
 type BuildRecommendationRequestOptions = {
-    block: UniversalSearchRecommendationBlock;
+    block: RecommendationBlock;
     settings: Settings;
     targetEntityTypes: SearchSuggestionEntityType[];
     term: string;
 };
 
-export function buildUniversalSearchRecommendationRequest(options: BuildRecommendationRequestOptions): PreparedUniversalSearchRecommendation | null {
+export function buildRecommendationBlockRequest(options: BuildRecommendationRequestOptions): PreparedRecommendationBlock | null {
     const take = options.block.take ?? defaultTake;
     if (take <= 0) {
         return null;

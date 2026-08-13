@@ -1,7 +1,7 @@
 import { assert } from '@open-wc/testing';
 import { Settings, UserFactory } from '@relewise/client';
 import { initializeRelewiseUI } from '../src';
-import { buildUniversalSearchRecommendationRequest } from '../src/search/universalSearchRecommendationRequestBuilder';
+import { buildRecommendationBlockRequest } from '../src/recommendations/recommendationBlockRequestBuilder';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 function settings(user = UserFactory.byTemporaryId('temporary-id')): Settings {
@@ -13,7 +13,7 @@ function settings(user = UserFactory.byTemporaryId('temporary-id')): Settings {
     };
 }
 
-suite('universalSearchRecommendationRequestBuilder', () => {
+suite('recommendationBlockRequestBuilder', () => {
     setup(() => {
         initializeRelewiseUI(mockRelewiseOptions());
     });
@@ -34,7 +34,7 @@ suite('universalSearchRecommendationRequestBuilder', () => {
 
     recommendationTypes.forEach(([type, requestType, resultType]) => {
         test(`builds ${type}`, () => {
-            const result = buildUniversalSearchRecommendationRequest({
+            const result = buildRecommendationBlockRequest({
                 block: { type, take: 3 },
                 settings: settings(),
                 targetEntityTypes: ['Product', 'Content'],
@@ -49,7 +49,7 @@ suite('universalSearchRecommendationRequestBuilder', () => {
     });
 
     test('does not request recently viewed products for an anonymous user', () => {
-        const result = buildUniversalSearchRecommendationRequest({
+        const result = buildRecommendationBlockRequest({
             block: { type: 'RecentlyViewedProducts' },
             settings: settings(UserFactory.anonymous()),
             targetEntityTypes: ['Product'],
@@ -60,7 +60,7 @@ suite('universalSearchRecommendationRequestBuilder', () => {
     });
 
     test('only builds search-term-based products when a term is available', () => {
-        const result = buildUniversalSearchRecommendationRequest({
+        const result = buildRecommendationBlockRequest({
             block: { type: 'SearchTermBasedProduct' },
             settings: settings(),
             targetEntityTypes: ['Product'],
@@ -71,7 +71,7 @@ suite('universalSearchRecommendationRequestBuilder', () => {
     });
 
     test('uses the search term for popular search term recommendations', () => {
-        const result = buildUniversalSearchRecommendationRequest({
+        const result = buildRecommendationBlockRequest({
             block: { type: 'PopularSearchTerms' },
             settings: settings(),
             targetEntityTypes: ['Product', 'Content'],
@@ -85,7 +85,7 @@ suite('universalSearchRecommendationRequestBuilder', () => {
     });
 
     test('uses four recommendations by default', () => {
-        const result = buildUniversalSearchRecommendationRequest({
+        const result = buildRecommendationBlockRequest({
             block: { type: 'PopularProducts' },
             settings: settings(),
             targetEntityTypes: ['Product'],
@@ -96,7 +96,7 @@ suite('universalSearchRecommendationRequestBuilder', () => {
     });
 
     test('does not build a block with a non-positive take', () => {
-        const result = buildUniversalSearchRecommendationRequest({
+        const result = buildRecommendationBlockRequest({
             block: { type: 'PopularProducts', take: 0 },
             settings: settings(),
             targetEntityTypes: ['Product'],
@@ -129,7 +129,7 @@ suite('universalSearchRecommendationRequestBuilder', () => {
         };
         initializeRelewiseUI(options);
 
-        const result = buildUniversalSearchRecommendationRequest({
+        const result = buildRecommendationBlockRequest({
             block: { type: 'PopularContentCategories' },
             settings: settings(),
             targetEntityTypes: ['Content'],

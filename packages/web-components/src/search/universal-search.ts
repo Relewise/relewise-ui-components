@@ -2,7 +2,7 @@ import { SearchCollectionBuilder } from '@relewise/client';
 import { html, nothing } from 'lit';
 import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import type { SearchSuggestionEntityType, UniversalSearchRecommendationBlock } from '../app';
+import type { RecommendationBlock, SearchSuggestionEntityType } from '../app';
 import {
     QueryKeys,
     getRelewiseContextSettings,
@@ -11,11 +11,11 @@ import {
     readCurrentUrlState,
 } from '../helpers';
 import { RelewiseLitElement } from '../relewise-lit-element';
+import { RecommendationBlocksController } from '../recommendations/recommendation-blocks-controller';
 import type { SearchCombobox } from './components/search-combobox';
 import type { SearchComboboxTermEventDetail, SearchSuggestionsBatchSearch } from './components/search-combobox.types';
 import { getSearcher } from './searcher';
 import { trapFocusInDialog } from './universal-search-focus';
-import { UniversalSearchRecommendationBlocksController } from './universal-search-recommendation-blocks';
 import { universalSearchStyles } from './universal-search.styles';
 import { updateUrlStateForUniversalSearchTerm } from './universal-search-url-state';
 import { universalSearchTabs } from './universal-search.types';
@@ -68,7 +68,7 @@ export class UniversalSearch extends RelewiseLitElement {
     private openStateActive = false;
     private activateTabAfterInitialSearch = false;
     private batchSearching = false;
-    private readonly recommendationBlocks = new UniversalSearchRecommendationBlocksController(this, {
+    private readonly recommendationBlocks = new RecommendationBlocksController(this, {
         getDisplayedAtLocation: () => this.displayedAtLocation ?? defaultDisplayedAtLocation,
         getTargetEntityTypes: () => this.enabledTabs.map(tab => suggestionEntityTypeByTab[tab]),
         selectSearchTerm: term => {
@@ -308,7 +308,7 @@ export class UniversalSearch extends RelewiseLitElement {
     private async loadNoResultRecommendations(): Promise<void> {
         const options = getRelewiseUISearchOptions()?.universalSearch;
         const noResults = options?.recommendations?.noResults;
-        let blocks: UniversalSearchRecommendationBlock[] = [];
+        let blocks: RecommendationBlock[] = [];
         let scope: UniversalSearchTab | 'global' | null = null;
 
         if (options?.behavior?.zeroResultTabs === 'hide' && this.allEnabledTabsHaveZeroResults) {

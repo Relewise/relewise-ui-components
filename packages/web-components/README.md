@@ -900,7 +900,24 @@ if (predictionSearch) {
 
 The suggestions popup uses the shared rounded-corner default, clips hover backgrounds to those corners, and has no empty padding above or below the suggestion rows. Its default shadow and hover color match the product-search overlay.
 
-Recommendation blocks are also opt-in. Configure them independently for the termless `initial` state, the `global` no-result state, and each entity tab's no-result state. Every state accepts an ordered array: you can add multiple blocks, and they are rendered in the configured order. The same recommendation type can be added more than once, although blocks with identical configuration will normally return similar recommendations. Omit a state or block to disable it.
+Recommendation blocks are also opt-in. Configure them independently for the termless `initial` state, the `global` no-result state, and each entity tab's no-result state. Every state accepts an ordered `RecommendationBlock[]`: you can add multiple blocks, and they are rendered in the configured order. The same recommendation type can be added more than once, although blocks with identical configuration will normally return similar recommendations. Omit a state or block to disable it.
+
+`RecommendationBlock` is the shared recommendation-block shape. `UniversalSearchRecommendationOptions` only controls where Universal Search places those blocks:
+
+```ts
+export interface RecommendationBlock {
+    title?: string;
+    type:
+        | 'PopularProducts'
+        | 'RecentlyViewedProducts'
+        | 'PopularProductCategories'
+        | 'PopularContents'
+        | 'PopularContentCategories'
+        | 'PopularSearchTerms'
+        | 'SearchTermBasedProduct';
+    take?: number;
+}
+```
 
 Each block accepts `type`, optional `title`, and optional `take`; `take` defaults to four. Set `title` to the localized heading that should be rendered, such as `Måske kan du også lide`, or set it to an empty string to omit the heading.
 
@@ -933,8 +950,8 @@ recommendations: {
 
 ```css
 relewise-universal-search {
-    --relewise-universal-search-recommendation-grid-columns: 5;
-    --relewise-universal-search-recommendation-grid-mobile-columns: 2;
+    --relewise-recommendation-grid-columns: 5;
+    --relewise-recommendation-grid-mobile-columns: 2;
 }
 ```
 
@@ -1505,6 +1522,23 @@ Category tiles also use the shared image, information-container, display-name, a
 | `--relewise-search-suggestion-gap` | `1em` | Space between a suggestion term and its icon. |
 | `--relewise-search-suggestion-icon-color` | `var(--accent-color)` | Color of the search icon shown beside each suggestion. |
 
+#### Recommendation blocks
+
+These variables style recommendation blocks wherever their shared styles are used. Universal Search is currently the first consumer.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-recommendation-block-gap` | `2em` | Vertical gap between recommendation blocks. |
+| `--relewise-recommendation-title-margin-bottom` | `1em` | Space below a recommendation block title. |
+| `--relewise-recommendation-grid-columns` | `4` | Number of recommendation tile columns above the mobile breakpoint. |
+| `--relewise-recommendation-grid-mobile-columns` | `2` | Number of recommendation tile columns at widths up to `768px`. |
+| `--relewise-recommendation-grid-gap` | `1em` | Gap between recommendation tiles. |
+| `--relewise-recommendation-term-gap` | `0.5em` | Gap between recommended search-term buttons. |
+| `--relewise-recommendation-term-background` | `white` | Background color of recommended search-term buttons. |
+| `--relewise-recommendation-term-border-color` | `#ddd` | Border color of recommended search-term buttons. |
+| `--relewise-recommendation-term-border-radius` | `1em` | Corner radius of recommended search-term buttons. |
+| `--relewise-recommendation-term-padding` | `0.5em 0.75em` | Internal padding of recommended search-term buttons. |
+
 #### Universal Search
 
 | Variable | Default | Description |
@@ -1538,15 +1572,6 @@ Category tiles also use the shared image, information-container, display-name, a
 | `--relewise-universal-search-product-grid-gap` | `1em` | Compatibility fallback for the result grid gap when `--relewise-universal-search-result-grid-gap` is unset. |
 | `--relewise-universal-search-loading-padding` | `2em 0` | Vertical padding around Universal Search loading indicators. |
 | `--relewise-universal-search-load-more-margin-top` | `1em` | Space above an entity's load-more control. |
-| `--relewise-universal-search-recommendation-block-gap` | `2em` | Vertical gap between Universal Search recommendation blocks. |
-| `--relewise-universal-search-recommendation-title-margin-bottom` | `1em` | Space below a recommendation block title. |
-| `--relewise-universal-search-recommendation-grid-columns` | `4` | Number of columns used by Universal Search recommendation blocks above the mobile breakpoint. |
-| `--relewise-universal-search-recommendation-grid-mobile-columns` | `2` | Number of columns used by Universal Search recommendation blocks at widths up to `768px`. |
-| `--relewise-universal-search-recommendation-grid-gap` | `1em` | Gap between recommendation tiles. |
-| `--relewise-universal-search-recommendation-term-gap` | `0.5em` | Gap between recommended search-term buttons. |
-| `--relewise-universal-search-recommendation-term-background` | `white` | Background color of recommended search-term buttons. |
-| `--relewise-universal-search-recommendation-term-border-radius` | `1em` | Corner radius of recommended search-term buttons. |
-| `--relewise-universal-search-recommendation-term-padding` | `0.5em 0.75em` | Internal padding of recommended search-term buttons. |
 
 #### Search overlay container and messaging
 | Variable | Default | Description |
