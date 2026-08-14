@@ -2,10 +2,11 @@ import type { SearchResponseCollection, SearchTermPredictionResponse, Settings }
 import { html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../../helpers';
+import { buildPopularSearchTermsRequest } from '../../recommendations/popularSearchTermsRequestBuilder';
 import { getRecommender } from '../../recommendations/recommender';
 import { RelewiseLitElement } from '../../relewise-lit-element';
 import type { SearchSuggestionEntityType, SearchSuggestionsOptions } from '../../app';
-import { buildPopularSearchTermsRequest, buildSearchTermPredictionRequest } from '../searchSuggestionsRequestBuilder';
+import { buildSearchTermPredictionRequest } from '../searchSuggestionsRequestBuilder';
 import { searchComboboxStyles } from './search-combobox.styles';
 import type { SearchComboboxTermEventDetail, SearchSuggestionsBatchSearch } from './search-combobox.types';
 

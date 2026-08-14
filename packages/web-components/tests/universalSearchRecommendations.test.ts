@@ -1,6 +1,6 @@
 import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
 import { ContentCategoryResult, ContentResult, ProductCategoryResult, ProductResult, Recommender, Searcher, SearchTermResult, UserFactory } from '@relewise/client';
-import { clearUrlState, initializeRelewiseUI, UniversalSearch, useSearch } from '../src';
+import { clearUrlState, initializeRelewiseUI, RecommendationBlocks, UniversalSearch, useSearch } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 type UniversalSearchTestApi = {
@@ -22,6 +22,15 @@ function content(contentId: string): ContentResult {
 
 function contentCategory(categoryId: string): ContentCategoryResult {
     return { categoryId, rank: 1, displayName: categoryId } as ContentCategoryResult;
+}
+
+function queryRecommendationElements<T extends Element>(element: UniversalSearch, selector: string): T[] {
+    return [...element.renderRoot.querySelectorAll<RecommendationBlocks>('relewise-recommendation-blocks')]
+        .flatMap(blocks => [...blocks.renderRoot.querySelectorAll<T>(selector)]);
+}
+
+function queryRecommendationElement<T extends Element>(element: UniversalSearch, selector: string): T | null {
+    return queryRecommendationElements<T>(element, selector)[0] ?? null;
 }
 
 suite('universal search recommendation blocks', () => {
@@ -207,20 +216,24 @@ suite('universal search recommendation blocks', () => {
         });
 
         const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
-        await waitUntil(() => element.renderRoot.querySelectorAll('[part~="recommendation-block"]').length === 6, 'initial blocks were not rendered');
+        await waitUntil(() => queryRecommendationElements(element, '[part~="recommendation-block"]').length === 6, 'initial blocks were not rendered');
 
         assert.exists(element.renderRoot.querySelector('relewise-search-combobox'));
+        const recommendationBlocks = element.renderRoot.querySelector('relewise-recommendation-blocks');
+        assert.include(recommendationBlocks?.getAttribute('exportparts') ?? '', 'recommendation-loading');
+        assert.include(recommendationBlocks?.getAttribute('exportparts') ?? '', 'recommendation-product-tile');
+        assert.include(recommendationBlocks?.getAttribute('exportparts') ?? '', 'popular-search-term-recommendations');
         assert.lengthOf(element.renderRoot.querySelectorAll('[role="tab"]'), 0);
         assert.deepEqual(
-            [...element.renderRoot.querySelectorAll('[part="recommendation-title"]')].map(title => title.textContent),
+            queryRecommendationElements(element, '[part="recommendation-title"]').map(title => title.textContent),
             ['Products', 'Recent', 'Categories', 'Content', 'Content categories', 'Searches'],
         );
-        assert.lengthOf(element.renderRoot.querySelectorAll('relewise-product-tile'), 2);
-        assert.lengthOf(element.renderRoot.querySelectorAll('relewise-category-tile'), 2);
-        assert.lengthOf(element.renderRoot.querySelectorAll('relewise-content-tile'), 1);
-        assert.equal(element.renderRoot.querySelector('[part="recommendation-term"]')?.textContent?.trim(), 'Trail shoes');
-        assert.exists(element.renderRoot.querySelector('[part~="popular-search-term-recommendations"]'));
-        assert.isNull(element.renderRoot.querySelector('[part~="popular-search-terms"]'));
+        assert.lengthOf(queryRecommendationElements(element, 'relewise-product-tile'), 2);
+        assert.lengthOf(queryRecommendationElements(element, 'relewise-category-tile'), 2);
+        assert.lengthOf(queryRecommendationElements(element, 'relewise-content-tile'), 1);
+        assert.equal(queryRecommendationElement(element, '[part="recommendation-term"]')?.textContent?.trim(), 'Trail shoes');
+        assert.exists(queryRecommendationElement(element, '[part~="popular-search-term-recommendations"]'));
+        assert.isNull(queryRecommendationElement(element, '[part~="popular-search-terms"]'));
         assert.deepEqual(popularSearchTermTargetEntityTypes, ['Product', 'ProductCategory', 'Content']);
         assert.equal(popularProductCategoryCalls, 1);
         assert.equal(popularContentCalls, 1);
@@ -243,8 +256,8 @@ suite('universal search recommendation blocks', () => {
         });
 
         const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
-        await waitUntil(() => element.renderRoot.querySelector('relewise-category-tile') !== null, 'content category was not rendered');
-        const tile = element.renderRoot.querySelector('relewise-category-tile') as HTMLElement & { renderRoot: HTMLElement | DocumentFragment; updateComplete: Promise<boolean> };
+        await waitUntil(() => queryRecommendationElement(element, 'relewise-category-tile') !== null, 'content category was not rendered');
+        const tile = queryRecommendationElement(element, 'relewise-category-tile') as HTMLElement & { renderRoot: HTMLElement | DocumentFragment; updateComplete: Promise<boolean> };
         await tile.updateComplete;
 
         assert.equal(tile.renderRoot.querySelector('.custom-content-category')?.textContent, 'popular-content-category');
@@ -264,10 +277,10 @@ suite('universal search recommendation blocks', () => {
 
         const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
         await waitUntil(
-            () => element.renderRoot.querySelector<HTMLButtonElement>('[part="recommendation-term"]'),
+            () => queryRecommendationElement<HTMLButtonElement>(element, '[part="recommendation-term"]'),
             'search term recommendation was not rendered',
         );
-        const recommendation = element.renderRoot.querySelector<HTMLButtonElement>('[part="recommendation-term"]')!;
+        const recommendation = queryRecommendationElement<HTMLButtonElement>(element, '[part="recommendation-term"]')!;
         recommendation.click();
 
         await waitUntil(
@@ -292,9 +305,9 @@ suite('universal search recommendation blocks', () => {
         });
 
         const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
-        await waitUntil(() => element.renderRoot.querySelector('[part="recommendation-product-tile"]') !== null, 'successful block was not rendered');
+        await waitUntil(() => queryRecommendationElement(element, '[part="recommendation-product-tile"]') !== null, 'successful block was not rendered');
 
-        assert.lengthOf(element.renderRoot.querySelectorAll('[part~="recommendation-block"]'), 1);
+        assert.lengthOf(queryRecommendationElements(element, '[part~="recommendation-block"]'), 1);
     });
 
     test('keeps successful category blocks when another request of the same type fails', async() => {
@@ -316,10 +329,10 @@ suite('universal search recommendation blocks', () => {
         });
 
         const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
-        await waitUntil(() => element.renderRoot.querySelectorAll('[part="recommendation-category-tile"]').length === 2, 'successful category blocks were not rendered');
+        await waitUntil(() => queryRecommendationElements(element, '[part="recommendation-category-tile"]').length === 2, 'successful category blocks were not rendered');
 
         assert.deepEqual(
-            [...element.renderRoot.querySelectorAll('[part="recommendation-title"]')].map(title => title.textContent),
+            queryRecommendationElements(element, '[part="recommendation-title"]').map(title => title.textContent),
             ['Product categories', 'Content categories'],
         );
         assert.equal(popularProductCategoryCalls, 2);
@@ -349,7 +362,7 @@ suite('universal search recommendation blocks', () => {
         const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
         (element as unknown as UniversalSearchTestApi).setSearchTerm('No matches');
 
-        await waitUntil(() => element.renderRoot.querySelector('[part="recommendation-product-tile"]') !== null, 'global recovery block was not rendered');
+        await waitUntil(() => queryRecommendationElement(element, '[part="recommendation-product-tile"]') !== null, 'global recovery block was not rendered');
         assert.lengthOf(element.renderRoot.querySelectorAll('[role="tab"]'), 0);
         assert.equal(element.renderRoot.querySelector('[part="zero-results"]')?.textContent?.trim(), 'Nothing matched your search.');
         assert.equal(searchTermBasedRequestTerm, 'No matches');
@@ -373,7 +386,7 @@ suite('universal search recommendation blocks', () => {
         const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
         (element as unknown as UniversalSearchTestApi).setSearchTerm('No products');
 
-        await waitUntil(() => element.renderRoot.querySelector('[part="recommendation-product-tile"]') !== null, 'tab recovery block was not rendered');
+        await waitUntil(() => queryRecommendationElement(element, '[part="recommendation-product-tile"]') !== null, 'tab recovery block was not rendered');
         assert.lengthOf(element.renderRoot.querySelectorAll('[role="tab"]'), 1);
         const productsTab = element.renderRoot.querySelector<HTMLElement & { renderRoot: HTMLElement | DocumentFragment }>('relewise-universal-search-products-tab')!;
         await waitUntil(() => productsTab.renderRoot.querySelector('[part="facets"]') === null, 'facets were not hidden');
@@ -409,7 +422,7 @@ suite('universal search recommendation blocks', () => {
         assert.equal(popularContentCalls, 0);
 
         api.handleSelectTab('products');
-        await waitUntil(() => element.renderRoot.querySelector('[part="recommendation-product-tile"]') !== null, 'cached product fallback was not restored');
+        await waitUntil(() => queryRecommendationElement(element, '[part="recommendation-product-tile"]') !== null, 'cached product fallback was not restored');
         assert.equal(popularProductCalls, 1);
     });
 
@@ -438,6 +451,7 @@ suite('universal search recommendation blocks', () => {
         await waitUntil(() => productsTab.renderRoot.querySelector('[part="facets"]') !== null, 'facets were not retained');
 
         api.handleSelectTab('productCategories');
+        await element.updateComplete;
         api.handleSelectTab('products');
         await element.updateComplete;
         await new Promise(resolve => setTimeout(resolve, 0));
@@ -469,13 +483,13 @@ suite('universal search recommendation blocks', () => {
         (element as unknown as UniversalSearchTestApi).setSearchTerm('No matches');
 
         await waitUntil(
-            () => popularSearchTermCalls === 1 && element.renderRoot.querySelector('[part="recommendation-loading"]') === null,
+            () => popularSearchTermCalls === 1 && queryRecommendationElement(element, '[part="recommendation-loading"]') === null,
             'invalid popular search terms were not processed',
         );
         const productsTab = element.renderRoot.querySelector<HTMLElement & { renderRoot: HTMLElement | DocumentFragment; updateComplete: Promise<boolean> }>('relewise-universal-search-products-tab')!;
         await productsTab.updateComplete;
 
-        assert.isNull(element.renderRoot.querySelector('[part~="recommendation-block"]'));
+        assert.isNull(queryRecommendationElement(element, '[part~="recommendation-block"]'));
         assert.exists(productsTab.renderRoot.querySelector('[part="facets"]'));
     });
 
@@ -500,9 +514,10 @@ suite('universal search recommendation blocks', () => {
 
         await waitUntil(() => popularProductCalls === 1, 'failed product fallback was not requested');
         api.handleSelectTab('productCategories');
+        await element.updateComplete;
         api.handleSelectTab('products');
 
-        await waitUntil(() => element.renderRoot.querySelector('[part="recommendation-product-tile"]') !== null, 'product fallback was not retried');
+        await waitUntil(() => queryRecommendationElement(element, '[part="recommendation-product-tile"]') !== null, 'product fallback was not retried');
         assert.equal(popularProductCalls, 2);
     });
 

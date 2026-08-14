@@ -1,8 +1,7 @@
 import { css } from 'lit';
-import { recommendationBlockStyles } from '../recommendations/recommendation-blocks.styles';
 import { theme } from '../theme';
 
-export const universalSearchStyles = [theme, recommendationBlockStyles, css`
+export const universalSearchStyles = [theme, css`
     :host {
         display: block;
         font-family: var(--font);

@@ -15,20 +15,20 @@ import {
     User,
 } from '@relewise/client';
 import { html, nothing } from 'lit';
-import type { ReactiveController, ReactiveControllerHost } from 'lit';
-import type { RecommendationBlock, SearchSuggestionEntityType } from '../app';
+import type { PropertyValues } from 'lit';
+import { property, state } from 'lit/decorators.js';
+import type { SearchSuggestionEntityType } from '../app';
 import { getRelewiseContextSettings, getRelewiseUIOptions } from '../helpers';
+import { RelewiseLitElement } from '../relewise-lit-element';
+import { buildRecommendationBlockRequest, PreparedRecommendationBlock } from './recommendationBlockRequestBuilder';
+import { recommendationBlockStyles } from './recommendation-blocks.styles';
+import { RecommendationBlocksEvents } from './recommendation-blocks.types';
+import type {
+    RecommendationBlock,
+    RecommendationBlocksStateChangedEventDetail,
+    RecommendationBlocksTermSelectedEventDetail,
+} from './recommendation-blocks.types';
 import { getRecommender } from './recommender';
-import {
-    buildRecommendationBlockRequest,
-    PreparedRecommendationBlock,
-} from './recommendationBlockRequestBuilder';
-
-type RecommendationBlocksControllerOptions = {
-    getDisplayedAtLocation: () => string;
-    getTargetEntityTypes: () => SearchSuggestionEntityType[];
-    selectSearchTerm: (term: string) => void;
-};
 
 type RecommendationBlockResult =
     | { block: RecommendationBlock; resultType: 'products'; recommendations: ProductResult[] }
@@ -38,11 +38,6 @@ type RecommendationBlockResult =
     | { block: RecommendationBlock; resultType: 'searchTerms'; recommendations: RenderableSearchTermResult[] };
 
 type RenderableSearchTermResult = SearchTermResult & { term: string };
-
-type RecommendationCacheEntry = {
-    results: RecommendationBlockResult[];
-    user: User;
-};
 
 const defaultTitles: Record<RecommendationBlock['type'], string> = {
     PopularProducts: 'Popular products',
@@ -64,123 +59,157 @@ const partByType: Record<RecommendationBlock['type'], string> = {
     SearchTermBasedProduct: 'search-term-based-products',
 };
 
-export class RecommendationBlocksController implements ReactiveController {
-    private results: RecommendationBlockResult[] = [];
-    private loading = false;
-    private user: User | null = null;
+export class RecommendationBlocks extends RelewiseLitElement {
+    @property({ attribute: false })
+    blocks: RecommendationBlock[] = [];
+
+    @property()
+    term = '';
+
+    @property({ attribute: false })
+    targetEntityTypes: SearchSuggestionEntityType[] = [];
+
+    @property({ attribute: 'displayed-at-location' })
+    displayedAtLocation?: string;
+
+    @property({ type: Boolean })
+    active = true;
+
+    @state() private results: RecommendationBlockResult[] = [];
+    @state() private loading = false;
+    @state() private user: User | null = null;
+
     private abortController = new AbortController();
-    private readonly cache = new Map<string, RecommendationCacheEntry>();
+    private currentLoadKey: string | null = null;
+    private currentLoadComplete = false;
 
-    constructor(
-        private readonly host: ReactiveControllerHost,
-        private readonly options: RecommendationBlocksControllerOptions,
-    ) {
-        this.host.addController(this);
+    protected willUpdate(changedProperties: PropertyValues<this>): void {
+        const inputPropertyChanged = changedProperties.has('blocks')
+            || changedProperties.has('term')
+            || changedProperties.has('targetEntityTypes')
+            || changedProperties.has('displayedAtLocation');
+        const loadKey = this.loadKey;
+        const inputsChanged = inputPropertyChanged && this.currentLoadKey !== loadKey;
+
+        if (inputsChanged) {
+            this.abortController.abort();
+            this.results = [];
+            this.user = null;
+            this.loading = false;
+            this.currentLoadKey = loadKey;
+            this.currentLoadComplete = false;
+            this.reportState();
+        }
+
+        if (changedProperties.has('active') && !this.active) {
+            this.abortController.abort();
+            this.loading = false;
+            this.reportState();
+            return;
+        }
+
+        if ((inputsChanged || changedProperties.has('active')) && this.active) {
+            void this.load();
+        }
     }
 
-    hostDisconnected(): void {
+    disconnectedCallback(): void {
         this.abortController.abort();
-    }
-
-    get hasResults(): boolean {
-        return this.results.length > 0;
-    }
-
-    get isLoading(): boolean {
-        return this.loading;
-    }
-
-    clear(): void {
-        this.abortController.abort();
+        this.currentLoadKey = null;
+        this.currentLoadComplete = false;
         this.results = [];
         this.loading = false;
-        this.host.requestUpdate();
+        super.disconnectedCallback();
     }
 
-    clearCache(): void {
-        this.cache.clear();
-        this.clear();
+    private get loadKey(): string {
+        return JSON.stringify({
+            blocks: this.blocks,
+            displayedAtLocation: this.displayedAtLocation ?? 'Relewise Recommendation Blocks',
+            targetEntityTypes: this.targetEntityTypes,
+            term: this.term,
+        });
     }
 
-    async load(blocks: RecommendationBlock[], term: string, cacheKey?: string): Promise<void> {
+    private async load(): Promise<void> {
+        const loadKey = this.loadKey;
+        if (!this.active || this.blocks.length === 0) {
+            this.results = [];
+            this.loading = false;
+            this.currentLoadKey = loadKey;
+            this.currentLoadComplete = true;
+            this.reportState();
+            return;
+        }
+
+        if (this.currentLoadKey === loadKey && (this.loading || this.currentLoadComplete)) {
+            return;
+        }
+
         this.abortController.abort();
-        this.results = [];
-
-        const resolvedCacheKey = cacheKey ? `${cacheKey}:${JSON.stringify(blocks)}` : null;
-        const cached = resolvedCacheKey ? this.cache.get(resolvedCacheKey) : undefined;
-        if (cached) {
-            this.results = cached.results;
-            this.user = cached.user;
-            this.loading = false;
-            this.host.requestUpdate();
-            return;
-        }
-
-        if (blocks.length === 0) {
-            this.loading = false;
-            this.host.requestUpdate();
-            return;
-        }
-
         const abortController = new AbortController();
         this.abortController = abortController;
+        this.results = [];
         this.loading = true;
-        this.host.requestUpdate();
+        this.currentLoadKey = loadKey;
+        this.currentLoadComplete = false;
+        this.reportState();
 
         try {
             // Allow runtime recommendation filters to register before the requests are built.
             await new Promise(resolve => setTimeout(resolve, 0));
-            const settings = await getRelewiseContextSettings(this.options.getDisplayedAtLocation());
-            if (abortController.signal.aborted) {
+            const settings = await getRelewiseContextSettings(this.displayedAtLocation ?? 'Relewise Recommendation Blocks');
+            if (abortController.signal.aborted || this.loadKey !== loadKey) {
                 return;
             }
 
             this.user = settings.user;
-            const targetEntityTypes = this.options.getTargetEntityTypes();
-            const prepared = blocks
-                .map(block => buildRecommendationBlockRequest({ block, settings, targetEntityTypes, term }))
+            const prepared = this.blocks
+                .map(block => buildRecommendationBlockRequest({
+                    block,
+                    settings,
+                    targetEntityTypes: this.targetEntityTypes,
+                    term: this.term,
+                }))
                 .filter((request): request is PreparedRecommendationBlock => request !== null);
 
             const response = await this.fetchRecommendations(prepared, abortController.signal);
-            if (!abortController.signal.aborted) {
-                this.results = response.results;
-                if (resolvedCacheKey && response.complete) {
-                    this.cache.set(resolvedCacheKey, {
-                        results: response.results,
-                        user: settings.user,
-                    });
-                }
+            if (abortController.signal.aborted || this.loadKey !== loadKey) {
+                return;
             }
+
+            this.results = response.results;
+            this.currentLoadComplete = response.complete;
         } catch {
             if (!abortController.signal.aborted) {
                 this.results = [];
+                this.currentLoadComplete = false;
             }
         } finally {
-            if (!abortController.signal.aborted) {
+            if (!abortController.signal.aborted && this.currentLoadKey === loadKey) {
                 this.loading = false;
-                this.host.requestUpdate();
+                this.reportState();
             }
         }
     }
 
-    render() {
-        if (this.loading && this.results.length === 0) {
-            return html`
-                <div class="rw-recommendation-loading" part="recommendation-loading">
-                    <relewise-loading-spinner></relewise-loading-spinner>
-                </div>
-            `;
-        }
+    private reportState(): void {
+        this.dispatchEvent(new CustomEvent<RecommendationBlocksStateChangedEventDetail>(RecommendationBlocksEvents.stateChanged, {
+            bubbles: true,
+            composed: true,
+            detail: {
+                hasResults: this.results.length > 0,
+                loading: this.loading,
+            },
+        }));
+    }
 
-        if (this.results.length === 0) {
-            return nothing;
-        }
-
-        return html`
-            <div class="rw-recommendation-blocks" part="recommendation-blocks">
-                ${this.results.map(result => this.renderBlock(result))}
-            </div>
-        `;
+    private selectSearchTerm(term: string): void {
+        this.dispatchEvent(new CustomEvent<RecommendationBlocksTermSelectedEventDetail>(RecommendationBlocksEvents.termSelected, {
+            bubbles: true,
+            composed: true,
+            detail: { term },
+        }));
     }
 
     private async fetchRecommendations(
@@ -294,6 +323,30 @@ export class RecommendationBlocksController implements ReactiveController {
         requests.forEach((item, index) => recommendations.set(item, response?.responses?.[index]?.recommendations ?? []));
     }
 
+    render() {
+        if (!this.active) {
+            return nothing;
+        }
+
+        if (this.loading && this.results.length === 0) {
+            return html`
+                <div class="rw-recommendation-loading" part="recommendation-loading">
+                    <relewise-loading-spinner></relewise-loading-spinner>
+                </div>
+            `;
+        }
+
+        if (this.results.length === 0) {
+            return nothing;
+        }
+
+        return html`
+            <div class="rw-recommendation-blocks" part="recommendation-blocks">
+                ${this.results.map(result => this.renderBlock(result))}
+            </div>
+        `;
+    }
+
     private renderBlock(result: RecommendationBlockResult) {
         const title = result.block.title ?? defaultTitles[result.block.type];
         return html`
@@ -318,7 +371,7 @@ export class RecommendationBlocksController implements ReactiveController {
             return html`
                     <div class="rw-recommendation-grid" part="recommendation-grid category-recommendation-grid">
                         ${result.recommendations.map(category => html`
-                            <relewise-category-tile part="recommendation-category-tile" .category=${category} .user=${this.user}></relewise-category-tile>
+                            <relewise-category-tile part="recommendation-category-tile" .category=${category} .user=${this.user}></rewise-category-tile>
                         `)}
                     </div>
                 `;
@@ -347,7 +400,7 @@ export class RecommendationBlocksController implements ReactiveController {
                                     class="rw-recommendation-term"
                                     part="recommendation-term"
                                     type="button"
-                                    @click=${() => this.options.selectSearchTerm(recommendation.term)}>
+                                    @click=${() => this.selectSearchTerm(recommendation.term)}>
                                     ${recommendation.term}
                                 </button>
                             </li>
@@ -355,5 +408,18 @@ export class RecommendationBlocksController implements ReactiveController {
                     </ul>
                 `;
         }
+    }
+
+    static styles = recommendationBlockStyles;
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        'relewise-recommendation-blocks': RecommendationBlocks;
+    }
+
+    interface HTMLElementEventMap {
+        'relewise-recommendation-blocks-state-changed': CustomEvent<RecommendationBlocksStateChangedEventDetail>;
+        'relewise-recommendation-blocks-term-selected': CustomEvent<RecommendationBlocksTermSelectedEventDetail>;
     }
 }

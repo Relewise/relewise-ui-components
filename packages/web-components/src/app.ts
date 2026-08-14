@@ -7,7 +7,8 @@ import { LoadingSpinner } from './components/loading-spinner';
 import { FavoriteButtonContent } from './components/content-favorite-button';
 import { FavoriteButtonProducts } from './components/product-favorite-button';
 import { ContextSettings, ProductTemplateExtensions } from './initialize';
-import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PopularContent, PersonalContent, ContentViewedAfterViewingContent, ContentViewedAfterViewingMultipleContent, ProductsViewedAfterViewingContent, ContentViewedAfterViewingProduct, ContentViewedAfterViewingMultipleProducts, PopularProductCategories, PopularContentCategories, PopularSearchTerms, SearchTermBasedProducts } from './recommendations';
+import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PopularContent, PersonalContent, ContentViewedAfterViewingContent, ContentViewedAfterViewingMultipleContent, ProductsViewedAfterViewingContent, ContentViewedAfterViewingProduct, ContentViewedAfterViewingMultipleProducts, PopularProductCategories, PopularContentCategories, PopularSearchTerms, SearchTermBasedProducts, RecommendationBlocks } from './recommendations';
+import type { RecommendationBlock } from './recommendations/recommendation-blocks.types';
 import { UniversalSearch, ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar, SearchCombobox } from './search';
 import { ChecklistBooleanValueFacet } from './search/components/facets/checklist-boolean-value-facet';
 import { ChecklistNumberValueFacet } from './search/components/facets/checklist-number-value-facet';
@@ -75,19 +76,6 @@ export interface UniversalSearchRecommendationOptions {
         productCategories?: RecommendationBlock[];
         content?: RecommendationBlock[];
     };
-}
-
-export interface RecommendationBlock {
-    title?: string;
-    type:
-        | 'PopularProducts'
-        | 'RecentlyViewedProducts'
-        | 'PopularProductCategories'
-        | 'PopularContents'
-        | 'PopularContentCategories'
-        | 'PopularSearchTerms'
-        | 'SearchTermBasedProduct';
-    take?: number;
 }
 
 export type SearchSuggestionEntityType = NonNullable<
@@ -256,6 +244,7 @@ export class App {
 export function useRecommendations(options?: RelewiseUIRecommendationOptions) {
     window.relewiseUIRecommendationOptions = options ?? {};
 
+    tryRegisterElement('relewise-recommendation-blocks', RecommendationBlocks);
     tryRegisterElement('relewise-product-recommendation-batcher', RecommendationBatcher);
     tryRegisterElement('relewise-popular-products', PopularProducts);
     tryRegisterElement('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);
@@ -313,6 +302,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
 
     if (window.relewiseUISearchOptions.universalSearch) {
         tryRegisterElement('relewise-universal-search', UniversalSearch);
+        tryRegisterElement('relewise-recommendation-blocks', RecommendationBlocks);
         tryRegisterElement('relewise-universal-search-products-tab', UniversalSearchProductsTab);
         tryRegisterElement('relewise-universal-search-product-categories-tab', UniversalSearchProductCategoriesTab);
         tryRegisterElement('relewise-universal-search-content-tab', UniversalSearchContentTab);

@@ -1,6 +1,12 @@
 import { css } from 'lit';
+import { theme } from '../theme';
 
-export const recommendationBlockStyles = css`
+export const recommendationBlockStyles = [theme, css`
+    :host {
+        display: block;
+        font-family: var(--font);
+    }
+
     .rw-recommendation-blocks {
         display: grid;
         gap: var(--relewise-recommendation-block-gap, 2em);
@@ -46,4 +52,4 @@ export const recommendationBlockStyles = css`
             grid-template-columns: repeat(var(--relewise-recommendation-grid-mobile-columns, 2), minmax(0, 1fr));
         }
     }
-`;
+`];

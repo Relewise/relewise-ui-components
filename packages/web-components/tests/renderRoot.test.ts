@@ -1,5 +1,5 @@
 import { assert, fixture, html } from '@open-wc/testing';
-import { ProductCategoryResult, ProductResult } from '@relewise/client';
+import { ContentCategoryResult, ProductCategoryResult, ProductResult } from '@relewise/client';
 import { Button, CategoryTile, ChecklistStringValueFacet, Facets, initializeRelewiseUI, ProductSearchBar, ProductSearchResults, ProductTile } from '../src';
 import { clearRegisteredLightDomStylesForTesting } from '../src/lightDomStyles';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
@@ -27,6 +27,14 @@ function productCategory(): ProductCategoryResult {
         rank: 1,
         displayName: 'Test category',
     } as ProductCategoryResult;
+}
+
+function contentCategory(): ContentCategoryResult {
+    return {
+        categoryId: 'content-category-1',
+        rank: 1,
+        displayName: 'Test content category',
+    } as ContentCategoryResult;
 }
 
 suite('domMode', () => {
@@ -133,6 +141,24 @@ suite('domMode', () => {
         await el.updateComplete;
 
         assert.equal(el.querySelector('.customer-product-category-template')?.textContent, 'Test category');
+    });
+
+    test('renders customer content category templates into queryable light DOM', async() => {
+        const options = mockRelewiseOptions();
+        options.components = {
+            domMode: 'light',
+        };
+        options.templates = {
+            contentCategory: (category, { html }) => html`<article class="customer-content-category-template">${category.displayName}</article>`,
+        };
+        initializeRelewiseUI(options).useRecommendations();
+
+        const el = await fixture<CategoryTile>(html`
+            <relewise-category-tile content-category .category=${contentCategory()}></relewise-category-tile>
+        `);
+        await el.updateComplete;
+
+        assert.equal(el.querySelector('.customer-content-category-template')?.textContent, 'Test content category');
     });
 
     test('renders button light DOM children inside the button element', async() => {

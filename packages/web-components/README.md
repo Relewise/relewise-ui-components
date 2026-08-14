@@ -344,6 +344,82 @@ This increases performance, and ensures that there are no duplicate products in 
 </relewise-product-recommendation-batcher>
 ```
 
+#### Recommendation Blocks
+
+`relewise-recommendation-blocks` renders multiple, ordered recommendation types in one component. Configure its `blocks` property from JavaScript after calling `useRecommendations()`:
+
+```html
+<relewise-recommendation-blocks displayed-at-location="Home page recommendations"></relewise-recommendation-blocks>
+
+<script type="module">
+    const recommendationBlocks = document.querySelector('relewise-recommendation-blocks');
+    recommendationBlocks.blocks = [
+        { type: 'PopularProducts', title: 'You might also like', take: 10 },
+        { type: 'PopularProductCategories', title: 'Popular categories', take: 6 },
+        { type: 'PopularSearchTerms', title: 'Popular searches', take: 8 },
+    ];
+    recommendationBlocks.targetEntityTypes = ['Product', 'ProductCategory'];
+</script>
+```
+
+`RecommendationBlock` has this public shape:
+
+```ts
+export interface RecommendationBlock {
+    title?: string;
+    type:
+        | 'PopularProducts'
+        | 'RecentlyViewedProducts'
+        | 'PopularProductCategories'
+        | 'PopularContents'
+        | 'PopularContentCategories'
+        | 'PopularSearchTerms'
+        | 'SearchTermBasedProduct';
+    take?: number;
+}
+```
+
+Each block accepts `type`, optional `title`, and optional `take`; `take` defaults to four. Blocks render in their configured order. Set `title` to the localized heading that should be rendered, such as `Måske kan du også lide`, or set it to an empty string to omit the heading. `take` controls how many recommendations are requested; all returned recommendations are rendered.
+
+Supported recommendation types:
+
+| Type | Renders | Important behavior |
+| --- | --- | --- |
+| `PopularProducts` | Product tiles | Can be used with or without a term. |
+| `RecentlyViewedProducts` | Product tiles | Skipped for anonymous users because viewing history requires a temporary or authenticated user id. |
+| `PopularProductCategories` | Category tiles | Uses the product-category template and configuration. |
+| `PopularContents` | Content tiles | Can be used with or without a term. |
+| `PopularContentCategories` | Category tiles | Uses the content-category template and configuration. |
+| `PopularSearchTerms` | Search-term buttons | Requires at least one `targetEntityTypes` value and may be empty without enough engaged search history. |
+| `SearchTermBasedProduct` | Product tiles | Requires a non-empty `term`; otherwise the block is skipped. |
+
+##### Properties
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `blocks` | `RecommendationBlock[]` | `[]` | Ordered blocks to request and render. Multiple blocks, including repeated types, are supported. |
+| `term` | `string` | `''` | Term used by term-dependent recommendation types. |
+| `targetEntityTypes` | `SearchSuggestionEntityType[]` | `[]` | Entity types used by `PopularSearchTerms`. |
+| `displayedAtLocation` | `string \| undefined` | `undefined` | Recommendation request location. Defaults to `Relewise Recommendation Blocks`. |
+| `active` | `boolean` | `true` | Controls requesting and rendering. A completed result is retained while inactive. |
+
+Arrays and objects must be assigned as JavaScript properties rather than HTML attributes.
+
+##### Events
+
+Both events bubble and cross shadow boundaries.
+
+| Event | Detail | When |
+| --- | --- | --- |
+| `relewise-recommendation-blocks-state-changed` | `{ hasResults: boolean; loading: boolean }` | Loading or renderable-result state changes. |
+| `relewise-recommendation-blocks-term-selected` | `{ term: string }` | A recommended search-term button is selected. |
+
+##### Styling and templates
+
+The component exposes the CSS parts `recommendation-loading`, `recommendation-blocks`, `recommendation-block`, `recommendation-title`, `recommendation-grid`, `product-recommendation-grid`, `content-recommendation-grid`, `category-recommendation-grid`, `recommendation-product-tile`, `recommendation-content-tile`, `recommendation-category-tile`, `recommendation-terms`, and `recommendation-term`. Each block also exposes a type-specific part such as `popular-products`, `popular-search-term-recommendations`, or `search-term-based-products`.
+
+Product, content, product-category, and content-category results reuse `relewise-product-tile`, `relewise-content-tile`, and `relewise-category-tile`. Their existing templates, selected-property settings, filters, and relevance modifiers therefore apply. Content-category tiles automatically select the content-category template.
+
 #### Popular Content
 This component renders [popular content](https://docs.relewise.com/docs/recommendations/recommendation-types.html#popular-content).
 
@@ -900,28 +976,9 @@ if (predictionSearch) {
 
 The suggestions popup uses the shared rounded-corner default, clips hover backgrounds to those corners, and has no empty padding above or below the suggestion rows. Its default shadow and hover color match the product-search overlay.
 
-Recommendation blocks are also opt-in. Configure them independently for the termless `initial` state, the `global` no-result state, and each entity tab's no-result state. Every state accepts an ordered `RecommendationBlock[]`: you can add multiple blocks, and they are rendered in the configured order. The same recommendation type can be added more than once, although blocks with identical configuration will normally return similar recommendations. Omit a state or block to disable it.
+Universal Search uses the shared [`relewise-recommendation-blocks`](#recommendation-blocks) component. Recommendation blocks are opt-in and can be configured independently for the termless `initial` state, the `global` no-result state, and each entity tab's no-result state. Every state accepts an ordered `RecommendationBlock[]`; omit a state or block to disable it.
 
-`RecommendationBlock` is the shared recommendation-block shape. `UniversalSearchRecommendationOptions` only controls where Universal Search places those blocks:
-
-```ts
-export interface RecommendationBlock {
-    title?: string;
-    type:
-        | 'PopularProducts'
-        | 'RecentlyViewedProducts'
-        | 'PopularProductCategories'
-        | 'PopularContents'
-        | 'PopularContentCategories'
-        | 'PopularSearchTerms'
-        | 'SearchTermBasedProduct';
-    take?: number;
-}
-```
-
-Each block accepts `type`, optional `title`, and optional `take`; `take` defaults to four. Set `title` to the localized heading that should be rendered, such as `Måske kan du også lide`, or set it to an empty string to omit the heading.
-
-`take` controls how many recommendations are requested for a block. All recommendations returned for the block are rendered. The number of columns is controlled separately with CSS and defaults to four on desktop and two on mobile:
+The number requested is configured with each block's `take`. The number of columns is controlled separately with CSS and defaults to four on desktop and two on mobile:
 
 ```ts
 recommendations: {
@@ -955,37 +1012,15 @@ relewise-universal-search {
 }
 ```
 
-Supported recommendation types:
-
-| Type | Renders | Important behavior |
-| --- | --- | --- |
-| `PopularProducts` | Product tiles | Suitable for initial and no-result states. |
-| `RecentlyViewedProducts` | Product tiles | Skipped for anonymous users because viewing history requires a temporary or authenticated user id. |
-| `PopularProductCategories` | Category tiles | Uses the product-category template and configuration. |
-| `PopularContents` | Content tiles | Suitable for initial and no-result states. |
-| `PopularContentCategories` | Category tiles | Uses the content-category template and configuration. |
-| `PopularSearchTerms` | Search-term buttons | May be empty when the dataset does not have enough engaged search history. |
-| `SearchTermBasedProduct` | Product tiles | Requires a search term and is therefore skipped in the termless initial state. |
-
 `SearchTermBasedProduct` may return no recommendations on a new dataset without enough search behavior. Popular entity recommendations are therefore safer defaults for no-result recovery. When a tab-specific recovery block returns recommendations, Universal Search hides that zero-result tab's facets and removes the otherwise empty facet column. Facets remain available when no recovery recommendations are returned, allowing users to remove active filters.
 
 Set `behavior.zeroResultTabs` to `show` (the default) to keep zero-result tabs and render their configured recovery blocks. Set it to `hide` to use the global recovery blocks when every enabled tab has zero results. `behavior.activateFirstTabWithResultsFromInitialState` defaults to `true`; it only changes the active tab when the user leaves the termless initial state, not after the user has selected a tab.
 
 All configured initial blocks are requested because they are rendered together. Multiple product or content requests are batched by entity type; a single request uses its direct SDK method. Category and popular-search-term recommendations use their direct SDK methods.
 
-No-result recommendations are lazy. Universal Search initially requests only the active zero-result tab's configured blocks, loads another tab's blocks when that tab is selected, and caches successful responses—including successful empty responses—for the current search term. Returning to a previously loaded tab therefore does not repeat its recommendation requests. The cache is cleared when the term changes or the modal closes. Recommendation results retain the configured block order.
+No-result recommendations are lazy. Universal Search initially activates only the active zero-result tab's component and activates another tab's blocks when that tab is selected. Each tab component retains its completed response, including an empty response, while inactive, so returning to it does not repeat the request. Changing the term or closing the modal removes those scoped components and their retained result. Recommendation results retain the configured block order.
 
-Recommendation blocks expose the CSS parts `recommendation-blocks`, `recommendation-block`, `recommendation-title`, `recommendation-grid`, `product-recommendation-grid`, `content-recommendation-grid`, `category-recommendation-grid`, `recommendation-product-tile`, `recommendation-content-tile`, `recommendation-category-tile`, `recommendation-terms`, and `recommendation-term`. Each block also exposes a type-specific part such as `popular-products`, `popular-search-term-recommendations`, or `search-term-based-products`. The result-type-specific grid parts can be used when product, content, and category blocks need different layouts.
-
-When the products tab is configured, it renders product results with `relewise-product-tile`. Product rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { product } })` template option.
-
-When the content tab is configured, it renders content results with `relewise-content-tile`. Content rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { content } })` template option.
-
-When the product categories tab is configured, it renders product category results with `relewise-category-tile`. Product category rendering can therefore be overridden through the existing `initializeRelewiseUI({ templates: { productCategory } })` template option. The default category tile reads `Url` and `ImageUrl` from selected category data and exposes CSS parts for styling.
-
-Product-category and content-category recommendation blocks also render with `relewise-category-tile`. Content-category rendering can be overridden through `initializeRelewiseUI({ templates: { contentCategory } })`, and its returned properties can be configured through `selectedPropertiesSettings.contentCategory`.
-
-Content-category recommendation requests also respect `filters.contentCategory` and `relevanceModifiers.contentCategory`. When using `relewise-category-tile` directly, set its `content-category` attribute to select the content-category template; Universal Search sets this automatically for content-category blocks.
+Universal Search forwards all recommendation-block CSS parts, so the shared component can be styled through `relewise-universal-search` without reaching into a nested shadow root.
 
 The current tabs use load-more behavior. Additional pagination modes are not part of the initial universal-search implementation.
 
@@ -1524,7 +1559,7 @@ Category tiles also use the shared image, information-container, display-name, a
 
 #### Recommendation blocks
 
-These variables style recommendation blocks wherever their shared styles are used. Universal Search is currently the first consumer.
+These variables style `relewise-recommendation-blocks` directly and also pass through Universal Search to its nested recommendation blocks.
 
 | Variable | Default | Description |
 | --- | --- | --- |
