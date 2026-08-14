@@ -386,7 +386,7 @@ Supported recommendation types:
 | Type | Renders | Important behavior |
 | --- | --- | --- |
 | `PopularProducts` | Product tiles | Can be used with or without a term. |
-| `RecentlyViewedProducts` | Product tiles | Skipped for anonymous users because viewing history requires a temporary or authenticated user id. |
+| `RecentlyViewedProducts` | Product tiles | Skipped for anonymous users because viewing history requires a temporary or authenticated user ID. |
 | `PopularProductCategories` | Category tiles | Uses the product-category template and configuration. |
 | `PopularContents` | Content tiles | Can be used with or without a term. |
 | `PopularContentCategories` | Category tiles | Uses the content-category template and configuration. |

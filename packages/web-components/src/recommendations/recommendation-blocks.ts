@@ -371,7 +371,7 @@ export class RecommendationBlocks extends RelewiseLitElement {
             return html`
                     <div class="rw-recommendation-grid" part="recommendation-grid category-recommendation-grid">
                         ${result.recommendations.map(category => html`
-                            <relewise-category-tile part="recommendation-category-tile" .category=${category} .user=${this.user}></rewise-category-tile>
+                            <relewise-category-tile part="recommendation-category-tile" .category=${category} .user=${this.user}></relewise-category-tile>
                         `)}
                     </div>
                 `;

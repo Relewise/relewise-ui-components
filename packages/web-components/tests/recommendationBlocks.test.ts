@@ -1,5 +1,5 @@
 import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
-import { ProductResult, Recommender, SearchTermResult } from '@relewise/client';
+import { ProductCategoryResult, ProductResult, Recommender, SearchTermResult } from '@relewise/client';
 import {
     initializeRelewiseUI,
     RecommendationBlocks,
@@ -15,8 +15,13 @@ function product(productId: string): ProductResult {
     return { productId, rank: 1, displayName: productId } as ProductResult;
 }
 
+function productCategory(categoryId: string): ProductCategoryResult {
+    return { categoryId, rank: 1, displayName: categoryId } as ProductCategoryResult;
+}
+
 suite('recommendation blocks', () => {
     const originalPopularProducts = Recommender.prototype.recommendPopularProducts;
+    const originalPopularProductCategories = Recommender.prototype.recommendPopularProductCategories;
     const originalBatchProducts = Recommender.prototype.batchProductRecommendations;
     const originalPopularContentCategories = Recommender.prototype.recommendPopularContentCategories;
     const originalPopularSearchTerms = Recommender.prototype.recommendPopularSearchTerms;
@@ -24,6 +29,9 @@ suite('recommendation blocks', () => {
     setup(() => {
         Recommender.prototype.recommendPopularProducts = async function() {
             return { recommendations: [product('popular')] } as any;
+        };
+        Recommender.prototype.recommendPopularProductCategories = async function() {
+            return { recommendations: [productCategory('first'), productCategory('second')] } as any;
         };
         Recommender.prototype.batchProductRecommendations = async function(requestCollection) {
             return {
@@ -44,6 +52,7 @@ suite('recommendation blocks', () => {
         window.relewiseUISearchOptions = undefined!;
         window.relewiseUIOptions = undefined!;
         Recommender.prototype.recommendPopularProducts = originalPopularProducts;
+        Recommender.prototype.recommendPopularProductCategories = originalPopularProductCategories;
         Recommender.prototype.batchProductRecommendations = originalBatchProducts;
         Recommender.prototype.recommendPopularContentCategories = originalPopularContentCategories;
         Recommender.prototype.recommendPopularSearchTerms = originalPopularSearchTerms;
@@ -78,6 +87,23 @@ suite('recommendation blocks', () => {
             ['First block', 'Second block'],
         );
         assert.lengthOf(element.renderRoot.querySelectorAll('relewise-product-tile'), 2);
+    });
+
+    test('renders product category recommendations as grid siblings', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useRecommendations();
+
+        const element = await fixture<RecommendationBlocks>(html`
+            <relewise-recommendation-blocks
+                .blocks=${[{ type: 'PopularProductCategories' as const }]}>
+            </relewise-recommendation-blocks>
+        `);
+        await waitUntil(() => element.renderRoot.querySelectorAll('relewise-category-tile').length === 2);
+
+        const grid = element.renderRoot.querySelector('[part~="category-recommendation-grid"]')!;
+        const tiles = [...grid.children];
+        assert.lengthOf(tiles, 2);
+        assert.isTrue(tiles.every(tile => tile.parentElement === grid));
     });
 
     test('emits a composed term-selected event', async() => {
