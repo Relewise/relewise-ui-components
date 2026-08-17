@@ -152,7 +152,7 @@ This component renders the most popular product categories.
 
     Selects an additional targeted configuration. You can read more [here](#targeted-recommendations).
 
-Product category recommendations use `selectedPropertiesSettings.productCategory`, `filters.productCategory`, and `relevanceModifiers.productCategory`. The default selected data key is only `Url`. Include `ImageUrl` explicitly to render category images.
+Product category recommendations use `selectedPropertiesSettings.productCategory`, `filters.productCategory`, and `relevanceModifiers.productCategory`. The default selected data keys are `ImageUrl` and `Url`.
 
 #### Search-Term-Based Products
 This component renders product recommendations based on a search term.
@@ -392,7 +392,7 @@ This component renders the most popular content categories.
 
     Selects an additional targeted configuration. You can read more [here](#targeted-recommendations).
 
-Content category recommendations use `selectedPropertiesSettings.contentCategory`, `filters.contentCategory`, and `relevanceModifiers.contentCategory`. The default selected data key is only `Url`. Include `ImageUrl` explicitly to render category images.
+Content category recommendations use `selectedPropertiesSettings.contentCategory`, `filters.contentCategory`, and `relevanceModifiers.contentCategory`. The default selected data keys are `ImageUrl` and `Url`.
 
 ```ts
 initializeRelewiseUI({
@@ -1456,7 +1456,7 @@ The public category tile components are:
 - `<relewise-product-category-tile>` with the JavaScript property `productCategory`.
 - `<relewise-content-category-tile>` with the JavaScript property `contentCategory`.
 
-Both are registered by `useRecommendations()` and `useSearch()`. They render `Url`, `ImageUrl`, and the display name when those values are present on the supplied result. Recommendation requests select `Url` by default; select `ImageUrl` explicitly if an image should be available.
+Both are registered by `useRecommendations()` and `useSearch()`. They render `Url`, `ImageUrl`, and the display name when those values are present on the supplied result. Category recommendation requests select `ImageUrl` and `Url` by default.
 
 ```ts
 initializeRelewiseUI({

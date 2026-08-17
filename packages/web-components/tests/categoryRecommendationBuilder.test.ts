@@ -11,7 +11,7 @@ import { initializeRelewiseUI } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('categoryRecommendationBuilder', () => {
-    test('uses conservative category defaults', async() => {
+    test('selects the properties used by the default category tiles', async() => {
         initializeRelewiseUI(mockRelewiseOptions());
 
         const productRequest = (await getProductCategoryRecommendationBuilderWithDefaults(
@@ -23,8 +23,8 @@ suite('categoryRecommendationBuilder', () => {
             'content categories',
         )).build();
 
-        assert.deepEqual(productRequest.settings.selectedProductCategoryProperties?.dataKeys, ['Url']);
-        assert.deepEqual(contentRequest.settings.selectedContentCategoryProperties?.dataKeys, ['Url']);
+        assert.deepEqual(productRequest.settings.selectedProductCategoryProperties?.dataKeys, ['ImageUrl', 'Url']);
+        assert.deepEqual(contentRequest.settings.selectedContentCategoryProperties?.dataKeys, ['ImageUrl', 'Url']);
     });
 
     test('preserves explicit category selected properties including ImageUrl', async() => {
