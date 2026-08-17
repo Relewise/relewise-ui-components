@@ -193,4 +193,21 @@ suite('category tiles', () => {
         assert.isFalse(element.hidden);
         assert.equal(element.shadowRoot!.textContent?.trim(), 'New content category');
     });
+
+    test('asynchronous category template cannot hide a disconnected tile', async() => {
+        let resolveTemplate!: (result: TemplateResult<1> | typeof nothing) => void;
+        const templateResult = new Promise<TemplateResult<1> | typeof nothing>(resolve => resolveTemplate = resolve);
+        const options = mockRelewiseOptions();
+        options.templates = { productCategory: () => templateResult };
+        initializeRelewiseUI(options).useRecommendations();
+        const element = await fixture<ProductCategoryTile>(html`
+            <relewise-product-category-tile .productCategory=${productCategory()}></relewise-product-category-tile>
+        `);
+
+        element.remove();
+        resolveTemplate(nothing);
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        assert.isFalse(element.hidden);
+    });
 });
