@@ -22,6 +22,8 @@ export abstract class ContentRecommendationBase extends RelewiseLitElement {
     @state()
     private user: User | null = null;
 
+    private requestGeneration = 0;
+
     abstract fetchContent(): Promise<ContentRecommendationResponse | undefined> | undefined;
     abstract buildRequest(): Promise<ContentRecommendationRequest | undefined>;
 
@@ -33,28 +35,28 @@ export abstract class ContentRecommendationBase extends RelewiseLitElement {
             console.error('Missing displayed-at-location attribute on recommendation component.');
         }
 
-        await this.fetchAndUpdateContent();
-        if (this.isConnected) {
-            window.addEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateContentBound);
-        }
+        window.addEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateContentBound);
+        void this.fetchAndUpdateContent();
     }
 
     disconnectedCallback() {
+        this.requestGeneration++;
         window.removeEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateContentBound);
 
         super.disconnectedCallback();
     }
 
     async fetchAndUpdateContent() {
+        const generation = ++this.requestGeneration;
         const user = await getRelewiseUIOptions().contextSettings.getUser();
 
-        if (!this.isConnected) {
+        if (generation !== this.requestGeneration || !this.isConnected) {
             return;
         }
 
         const result = await this.fetchContent();
 
-        if (!this.isConnected) {
+        if (generation !== this.requestGeneration || !this.isConnected) {
             return;
         }
 

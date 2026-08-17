@@ -22,39 +22,41 @@ export abstract class CategoryRecommendationBase<TCategory, TRequest> extends Re
     @state()
     protected user: User | null = null;
 
+    private requestGeneration = 0;
+
     abstract fetchCategories(): Promise<{ recommendations?: TCategory[] | null } | undefined> | undefined;
     abstract buildRequest(): Promise<TRequest | undefined>;
     protected abstract renderCategory(category: TCategory): TemplateResult;
 
     private readonly fetchAndUpdateCategoriesBound = this.fetchAndUpdateCategories.bind(this);
 
-    async connectedCallback() {
+    connectedCallback() {
         super.connectedCallback();
         if (!this.displayedAtLocation) {
             console.error('Missing displayed-at-location attribute on recommendation component.');
         }
 
-        await this.fetchAndUpdateCategories();
-        if (this.isConnected) {
-            window.addEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateCategoriesBound);
-        }
+        window.addEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateCategoriesBound);
+        void this.fetchAndUpdateCategories();
     }
 
     disconnectedCallback() {
+        this.requestGeneration++;
         window.removeEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateCategoriesBound);
         super.disconnectedCallback();
     }
 
     private async fetchAndUpdateCategories() {
+        const generation = ++this.requestGeneration;
         const user = await getRelewiseUIOptions().contextSettings.getUser();
 
-        if (!this.isConnected) {
+        if (generation !== this.requestGeneration || !this.isConnected) {
             return;
         }
 
         const result = await this.fetchCategories();
 
-        if (!this.isConnected) {
+        if (generation !== this.requestGeneration || !this.isConnected) {
             return;
         }
 

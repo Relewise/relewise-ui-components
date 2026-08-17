@@ -130,4 +130,28 @@ suite('relewise-popular-search-terms', () => {
         assert.isNull(element.renderRoot.querySelector('[part="term"]'));
     });
 
+    test('ignores an older response after a context update', async() => {
+        let resolveInitial!: (response: { recommendations: SearchTermResult[] }) => void;
+        const initialResponse = new Promise<{ recommendations: SearchTermResult[] }>(resolve => resolveInitial = resolve);
+        Recommender.prototype.recommendPopularSearchTerms = async request => {
+            requests.push(request);
+            return requests.length === 1
+                ? initialResponse
+                : { recommendations: [{ term: 'Current', rank: 1 }] as SearchTermResult[] };
+        };
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+        const element = await fixture<PopularSearchTerms>(html`
+            <relewise-popular-search-terms displayed-at-location="test"></relewise-popular-search-terms>
+        `);
+        await waitUntil(() => requests.length === 1);
+
+        window.dispatchEvent(new CustomEvent(Events.contextSettingsUpdated));
+        await waitUntil(() => element.renderRoot.querySelector('[part="term"]')?.textContent?.trim() === 'Current');
+        resolveInitial({ recommendations: [{ term: 'Stale', rank: 1 }] as SearchTermResult[] });
+        await initialResponse;
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        assert.equal(element.renderRoot.querySelector('[part="term"]')?.textContent?.trim(), 'Current');
+    });
+
 });

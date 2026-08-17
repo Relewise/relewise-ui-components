@@ -43,36 +43,37 @@ export class PopularSearchTerms extends RelewiseLitElement {
     @state()
     private recommendations: RenderableSearchTermResult[] = [];
 
+    private requestGeneration = 0;
     private readonly fetchAndUpdateRecommendationsBound = this.fetchAndUpdateRecommendations.bind(this);
 
-    async connectedCallback() {
+    connectedCallback() {
         super.connectedCallback();
         if (!this.displayedAtLocation) {
             console.error('Missing displayed-at-location attribute on recommendation component.');
         }
 
-        await this.fetchAndUpdateRecommendations();
-        if (this.isConnected) {
-            window.addEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateRecommendationsBound);
-        }
+        window.addEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateRecommendationsBound);
+        void this.fetchAndUpdateRecommendations();
     }
 
     disconnectedCallback() {
+        this.requestGeneration++;
         window.removeEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateRecommendationsBound);
         super.disconnectedCallback();
     }
 
     private async fetchAndUpdateRecommendations() {
+        const generation = ++this.requestGeneration;
         const recommender = getRecommender(getRelewiseUIOptions());
         const request = await this.buildRequest();
 
-        if (!this.isConnected) {
+        if (generation !== this.requestGeneration || !this.isConnected) {
             return;
         }
 
         const response = await recommender.recommendPopularSearchTerms(request);
 
-        if (!this.isConnected) {
+        if (generation !== this.requestGeneration || !this.isConnected) {
             return;
         }
 
