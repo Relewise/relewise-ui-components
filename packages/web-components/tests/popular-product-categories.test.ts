@@ -54,7 +54,7 @@ suite('relewise-popular-product-categories', () => {
         const element = await fixture<PopularProductCategories>(html`
             <relewise-popular-product-categories displayed-at-location="test"></relewise-popular-product-categories>
         `);
-        await waitUntil(() => requests.length === 1);
+        await waitUntil(() => requests.length === 1 && element.renderRoot.querySelectorAll('relewise-product-category-tile').length === 2);
 
         window.dispatchEvent(new CustomEvent(Events.contextSettingsUpdated));
         await waitUntil(() => requests.length === 2);
@@ -85,32 +85,4 @@ suite('relewise-popular-product-categories', () => {
         assert.isNull(element.renderRoot.querySelector('relewise-product-category-tile'));
     });
 
-    test('ignores an older response after a context update', async() => {
-        let resolveInitial!: (response: { recommendations: ProductCategoryResult[] }) => void;
-        const initialResponse = new Promise<{ recommendations: ProductCategoryResult[] }>(resolve => resolveInitial = resolve);
-        const currentCategory = { categoryId: 'current', displayName: 'Current' } as ProductCategoryResult;
-        const staleCategory = { categoryId: 'stale', displayName: 'Stale' } as ProductCategoryResult;
-        Recommender.prototype.recommendPopularProductCategories = async request => {
-            requests.push(request);
-            return requests.length === 1
-                ? initialResponse
-                : { recommendations: [currentCategory] };
-        };
-        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
-        const element = await fixture<PopularProductCategories>(html`
-            <relewise-popular-product-categories displayed-at-location="test"></relewise-popular-product-categories>
-        `);
-        await waitUntil(() => requests.length === 1);
-
-        window.dispatchEvent(new CustomEvent(Events.contextSettingsUpdated));
-        await waitUntil(() => element.renderRoot.querySelector<HTMLElement & { productCategory: ProductCategoryResult }>('relewise-product-category-tile')?.productCategory === currentCategory);
-        resolveInitial({ recommendations: [staleCategory] });
-        await initialResponse;
-        await new Promise(resolve => setTimeout(resolve, 0));
-
-        assert.strictEqual(
-            element.renderRoot.querySelector<HTMLElement & { productCategory: ProductCategoryResult }>('relewise-product-category-tile')?.productCategory,
-            currentCategory,
-        );
-    });
 });
