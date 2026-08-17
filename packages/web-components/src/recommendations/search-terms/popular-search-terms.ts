@@ -37,7 +37,7 @@ export class PopularSearchTerms extends RelewiseLitElement {
     @property({ type: String })
     term = '';
 
-    @property({ attribute: false })
+    @property({ type: Array, attribute: 'target-entity-types' })
     targetEntityTypes: PopularSearchTermEntityType[] = [];
 
     @state()

@@ -50,7 +50,7 @@ suite('relewise-popular-search-terms', () => {
                 term="trail"
                 target="search terms target"
                 number-of-recommendations="5"
-                .targetEntityTypes=${['Product', 'ProductCategory']}>
+                target-entity-types='["Product","ProductCategory"]'>
             </relewise-popular-search-terms>
         `);
 
@@ -58,6 +58,7 @@ suite('relewise-popular-search-terms', () => {
 
         assert.equal(requests[0].term, 'trail');
         assert.equal(requests[0].settings?.numberOfRecommendations, 5);
+        assert.deepEqual(element.targetEntityTypes, ['Product', 'ProductCategory']);
         assert.deepEqual(requests[0].settings?.targetEntityTypes, ['Product', 'ProductCategory']);
         assert.isTrue(targetedConfigurationApplied);
     });
