@@ -1,4 +1,4 @@
-import { ContentCategoryResult, ContentResult, FilterBuilder, ProductCategoryResult, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedContentCategoryPropertiesSettings, SelectedContentPropertiesSettings, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
+import { ContentCategoryResult, ContentResult, FilterBuilder, ProductCategoryResult, ProductResult, RecommendPopularSearchTermSettings, RelevanceModifierBuilder, RelewiseClientOptions, SelectedContentCategoryPropertiesSettings, SelectedContentPropertiesSettings, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { App, RelewiseUISearchOptions } from './app';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
@@ -41,6 +41,14 @@ export interface RelewiseComponentsOptions {
     styling?: RelewiseComponentStyling;
 }
 
+export type PopularSearchTermEntityType = NonNullable<RecommendPopularSearchTermSettings['targetEntityTypes']>[number];
+
+export interface RelewiseRecommendationSettings {
+    popularSearchTerms?: {
+        targetEntityTypes?: PopularSearchTermEntityType[];
+    };
+}
+
 export interface RelewiseUIOptions {
     datasetId: string;
     apiKey: string;
@@ -60,6 +68,7 @@ export interface RelewiseUIOptions {
     targets?: Targets;
     userEngagement?: UserEngagementOptions;
     components?: RelewiseComponentsOptions;
+    recommendationSettings?: RelewiseRecommendationSettings;
 }
 
 export interface Filters {

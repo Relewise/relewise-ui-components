@@ -19,6 +19,11 @@ initializeRelewiseUI({
     clientOptions: {
         serverUrl: import.meta.env.VITE_SERVER_URL,
     },
+    recommendationSettings: {
+        popularSearchTerms: {
+            targetEntityTypes: ['Product', 'ProductCategory', 'Content'],
+        },
+    },
 }).useRecommendations();
 
 const popularSearchTerms = document.querySelector<PopularSearchTerms>('#popular-search-terms-example');

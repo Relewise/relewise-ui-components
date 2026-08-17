@@ -435,18 +435,18 @@ This component renders popular search terms as buttons. Selecting a term dispatc
 
     Selects an additional targeted configuration. You can read more [here](#targeted-recommendations).
 
-- **target-entity-types** (Optional JSON array):
+The entity types used when recommending search terms can be configured centrally during initialization. Allowed values are `Product`, `Variant`, `ProductCategory`, `Brand`, `Content`, and `ContentCategory`.
 
-    Limits the entity types used when recommending search terms. Allowed values are `Product`, `Variant`, `ProductCategory`, `Brand`, `Content`, and `ContentCategory`.
-
-    ```html
-    <relewise-popular-search-terms
-        displayed-at-location="LOCATION"
-        target-entity-types='["Product","ProductCategory","Content"]'>
-    </relewise-popular-search-terms>
-    ```
-
-    JavaScript consumers can configure the same value through the typed `targetEntityTypes` property before the component connects.
+```ts
+initializeRelewiseUI({
+    // Other options...
+    recommendationSettings: {
+        popularSearchTerms: {
+            targetEntityTypes: ['Product', 'ProductCategory', 'Content'],
+        },
+    },
+});
+```
 
 ##### CSS parts
 - `terms`: The list containing all recommended terms.

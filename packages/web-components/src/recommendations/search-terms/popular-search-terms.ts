@@ -1,6 +1,5 @@
 import {
     PopularSearchTermsRecommendationBuilder,
-    RecommendPopularSearchTermSettings,
     SearchTermResult,
 } from '@relewise/client';
 import { css, html } from 'lit';
@@ -12,9 +11,9 @@ import {
     getRelewiseUIOptions,
 } from '../../helpers/relewiseUIOptions';
 import { RelewiseLitElement } from '../../relewise-lit-element';
+import { PopularSearchTermEntityType } from '../../initialize';
 import { getRecommender } from '../recommender';
 
-export type PopularSearchTermEntityType = NonNullable<RecommendPopularSearchTermSettings['targetEntityTypes']>[number];
 export type PopularSearchTermsTermSelectedEventDetail = { term: string };
 
 export const PopularSearchTermsEvents = {
@@ -36,9 +35,6 @@ export class PopularSearchTerms extends RelewiseLitElement {
 
     @property({ type: String })
     term = '';
-
-    @property({ type: Array, attribute: 'target-entity-types' })
-    targetEntityTypes: PopularSearchTermEntityType[] = [];
 
     @state()
     private recommendations: RenderableSearchTermResult[] = [];
@@ -88,9 +84,11 @@ export class PopularSearchTerms extends RelewiseLitElement {
         const builder = new PopularSearchTermsRecommendationBuilder(settings)
             .setTerm(this.term || undefined)
             .take(this.numberOfRecommendations);
+        const targetEntityTypes: PopularSearchTermEntityType[] = getRelewiseUIOptions()
+            .recommendationSettings?.popularSearchTerms?.targetEntityTypes ?? [];
 
-        if (this.targetEntityTypes.length > 0) {
-            builder.addEntityType(...this.targetEntityTypes);
+        if (targetEntityTypes.length > 0) {
+            builder.addEntityType(...targetEntityTypes);
         }
 
         if (this.target) {

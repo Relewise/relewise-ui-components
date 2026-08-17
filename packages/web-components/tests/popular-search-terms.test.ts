@@ -43,14 +43,18 @@ suite('relewise-popular-search-terms', () => {
                 configuration: { filters: () => targetedConfigurationApplied = true },
             }),
         };
+        options.recommendationSettings = {
+            popularSearchTerms: {
+                targetEntityTypes: ['Product', 'ProductCategory'],
+            },
+        };
         initializeRelewiseUI(options).useRecommendations();
         const element = await fixture<PopularSearchTerms>(html`
             <relewise-popular-search-terms
                 displayed-at-location="test"
                 term="trail"
                 target="search terms target"
-                number-of-recommendations="5"
-                target-entity-types='["Product","ProductCategory"]'>
+                number-of-recommendations="5">
             </relewise-popular-search-terms>
         `);
 
@@ -58,7 +62,6 @@ suite('relewise-popular-search-terms', () => {
 
         assert.equal(requests[0].term, 'trail');
         assert.equal(requests[0].settings?.numberOfRecommendations, 5);
-        assert.deepEqual(element.targetEntityTypes, ['Product', 'ProductCategory']);
         assert.deepEqual(requests[0].settings?.targetEntityTypes, ['Product', 'ProductCategory']);
         assert.isTrue(targetedConfigurationApplied);
     });
