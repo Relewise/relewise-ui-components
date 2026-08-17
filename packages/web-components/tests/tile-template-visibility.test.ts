@@ -103,4 +103,38 @@ suite('tile template visibility', () => {
         assert.isFalse(element.hidden);
         assert.equal(element.shadowRoot!.textContent?.trim(), 'New content');
     });
+
+    test('asynchronous product template cannot hide a disconnected tile', async() => {
+        let resolveTemplate!: (result: TemplateResult<1> | typeof nothing) => void;
+        const templateResult = new Promise<TemplateResult<1> | typeof nothing>(resolve => resolveTemplate = resolve);
+        const options = mockRelewiseOptions();
+        options.templates = { product: () => templateResult };
+        initializeRelewiseUI(options).useRecommendations();
+        const element = await fixture<ProductTile>(html`
+            <relewise-product-tile .product=${product()}></relewise-product-tile>
+        `);
+
+        element.remove();
+        resolveTemplate(nothing);
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        assert.isFalse(element.hidden);
+    });
+
+    test('asynchronous content template cannot hide a disconnected tile', async() => {
+        let resolveTemplate!: (result: TemplateResult<1> | typeof nothing) => void;
+        const templateResult = new Promise<TemplateResult<1> | typeof nothing>(resolve => resolveTemplate = resolve);
+        const options = mockRelewiseOptions();
+        options.templates = { content: () => templateResult };
+        initializeRelewiseUI(options).useRecommendations();
+        const element = await fixture<ContentTile>(html`
+            <relewise-content-tile .content=${content()}></relewise-content-tile>
+        `);
+
+        element.remove();
+        resolveTemplate(nothing);
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        assert.isFalse(element.hidden);
+    });
 });

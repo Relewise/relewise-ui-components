@@ -47,6 +47,11 @@ export class ProductTile extends RelewiseLitElement {
         super.connectedCallback();
     }
 
+    disconnectedCallback() {
+        this.templateRenderGeneration++;
+        super.disconnectedCallback();
+    }
+
     render() {
         const generation = ++this.templateRenderGeneration;
         if (!this.product) {
@@ -92,7 +97,7 @@ export class ProductTile extends RelewiseLitElement {
         if (result instanceof Promise) {
             this.removeAttribute('hidden');
             return html`${until(result.then(result => {
-                if (generation !== this.templateRenderGeneration) {
+                if (generation !== this.templateRenderGeneration || !this.isConnected) {
                     return nothing;
                 }
 
