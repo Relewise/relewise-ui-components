@@ -1,25 +1,17 @@
 import {
     ContentCategorySettingsRecommendationBuilder,
     ProductCategorySettingsRecommendationBuilder,
-    SelectedContentCategoryPropertiesSettings,
-    SelectedProductCategoryPropertiesSettings,
     Settings,
 } from '@relewise/client';
+import {
+    defaultContentCategoryRecommendationProperties,
+    defaultProductCategoryRecommendationProperties,
+} from '../defaultSettings';
 import {
     getRelewiseContextSettings,
     getRelewiseRecommendationTargetedConfigurations,
     getRelewiseUIOptions,
 } from '../helpers/relewiseUIOptions';
-
-const defaultProductCategoryRecommendationProperties: Partial<SelectedProductCategoryPropertiesSettings> = {
-    displayName: true,
-    dataKeys: ['ImageUrl', 'Url'],
-};
-
-const defaultContentCategoryRecommendationProperties: Partial<SelectedContentCategoryPropertiesSettings> = {
-    displayName: true,
-    dataKeys: ['ImageUrl', 'Url'],
-};
 
 export async function getProductCategoryRecommendationBuilderWithDefaults<T extends ProductCategorySettingsRecommendationBuilder>(
     createBuilder: (settings: Settings) => T,
