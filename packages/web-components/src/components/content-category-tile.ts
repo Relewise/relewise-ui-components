@@ -16,8 +16,6 @@ export class ContentCategoryTile extends RelewiseLitElement {
     @property({ type: Object })
     private user: User | null = null;
 
-    private templateRenderGeneration = 0;
-
     protected createRenderRoot(): HTMLElement | DocumentFragment {
         const root = super.createRenderRoot();
 
@@ -39,13 +37,7 @@ export class ContentCategoryTile extends RelewiseLitElement {
         return root;
     }
 
-    disconnectedCallback() {
-        this.templateRenderGeneration++;
-        super.disconnectedCallback();
-    }
-
     render() {
-        const generation = ++this.templateRenderGeneration;
         if (!this.contentCategory) {
             return nothing;
         }
@@ -55,7 +47,7 @@ export class ContentCategoryTile extends RelewiseLitElement {
             return this.renderCustomTemplate(template(this.contentCategory, {
                 html,
                 helpers: { ...templateHelpers, unsafeHTML, nothing, user: this.user },
-            }), generation);
+            }));
         }
 
         this.removeAttribute('hidden');
@@ -64,15 +56,10 @@ export class ContentCategoryTile extends RelewiseLitElement {
 
     private renderCustomTemplate(
         result: TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>,
-        generation: number,
     ) {
         if (result instanceof Promise) {
             this.removeAttribute('hidden');
             return html`${until(result.then(result => {
-                if (generation !== this.templateRenderGeneration || !this.isConnected) {
-                    return nothing;
-                }
-
                 this.toggleAttribute('hidden', result === nothing);
                 return result;
             }))}`;

@@ -17,8 +17,6 @@ export class ProductTile extends RelewiseLitElement {
     @property({ type: Object })
     private user: User | null = null;
 
-    private templateRenderGeneration = 0;
-
     // Override Lit's shadow root creation and only attach default styles when no template override exists.
     protected createRenderRoot(): HTMLElement | DocumentFragment {
         const root = super.createRenderRoot();
@@ -47,13 +45,7 @@ export class ProductTile extends RelewiseLitElement {
         super.connectedCallback();
     }
 
-    disconnectedCallback() {
-        this.templateRenderGeneration++;
-        super.disconnectedCallback();
-    }
-
     render() {
-        const generation = ++this.templateRenderGeneration;
         if (!this.product) {
             return;
         }
@@ -61,7 +53,7 @@ export class ProductTile extends RelewiseLitElement {
         const settings = getRelewiseUIOptions();
         if (settings.templates?.product) {
             const result = settings.templates.product(this.product, { html, helpers: { ...templateHelpers, formatPrice, unsafeHTML, nothing, user: this.user } });
-            return this.renderCustomTemplate(result, generation);
+            return this.renderCustomTemplate(result);
         }
 
         this.removeAttribute('hidden');
@@ -92,15 +84,10 @@ export class ProductTile extends RelewiseLitElement {
 
     private renderCustomTemplate(
         result: TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>,
-        generation: number,
     ) {
         if (result instanceof Promise) {
             this.removeAttribute('hidden');
             return html`${until(result.then(result => {
-                if (generation !== this.templateRenderGeneration || !this.isConnected) {
-                    return nothing;
-                }
-
                 this.toggleAttribute('hidden', result === nothing);
                 return result;
             }))}`;

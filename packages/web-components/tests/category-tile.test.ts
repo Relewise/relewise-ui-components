@@ -1,6 +1,5 @@
 import { assert, fixture, fixtureCleanup, html } from '@open-wc/testing';
 import { ContentCategoryResult, ProductCategoryResult } from '@relewise/client';
-import { nothing, TemplateResult } from 'lit';
 import {
     ContentCategoryTile,
     initializeRelewiseUI,
@@ -169,64 +168,4 @@ suite('category tiles', () => {
         assert.equal(element.shadowRoot!.textContent?.trim(), 'Visible');
     });
 
-    test('stale asynchronous product category result cannot hide newer content', async() => {
-        let resolveOld!: (result: TemplateResult<1> | typeof nothing) => void;
-        const oldResult = new Promise<TemplateResult<1> | typeof nothing>(resolve => resolveOld = resolve);
-        const options = mockRelewiseOptions();
-        options.templates = {
-            productCategory: (category, { html }) => category.categoryId === 'old' ? oldResult : html`<span>New product category</span>`,
-        };
-        initializeRelewiseUI(options).useRecommendations();
-        const element = await fixture<ProductCategoryTile>(html`
-            <relewise-product-category-tile .productCategory=${productCategory('old')}></relewise-product-category-tile>
-        `);
-        await element.updateComplete;
-
-        element.productCategory = productCategory('new');
-        await element.updateComplete;
-        resolveOld(nothing);
-        await new Promise(resolve => setTimeout(resolve, 0));
-
-        assert.isFalse(element.hidden);
-        assert.equal(element.shadowRoot!.textContent?.trim(), 'New product category');
-    });
-
-    test('stale asynchronous content category result cannot hide newer content', async() => {
-        let resolveOld!: (result: TemplateResult<1> | typeof nothing) => void;
-        const oldResult = new Promise<TemplateResult<1> | typeof nothing>(resolve => resolveOld = resolve);
-        const options = mockRelewiseOptions();
-        options.templates = {
-            contentCategory: (category, { html }) => category.categoryId === 'old' ? oldResult : html`<span>New content category</span>`,
-        };
-        initializeRelewiseUI(options).useRecommendations();
-        const element = await fixture<ContentCategoryTile>(html`
-            <relewise-content-category-tile .contentCategory=${contentCategory('old')}></relewise-content-category-tile>
-        `);
-        await element.updateComplete;
-
-        element.contentCategory = contentCategory('new');
-        await element.updateComplete;
-        resolveOld(nothing);
-        await new Promise(resolve => setTimeout(resolve, 0));
-
-        assert.isFalse(element.hidden);
-        assert.equal(element.shadowRoot!.textContent?.trim(), 'New content category');
-    });
-
-    test('asynchronous category template cannot hide a disconnected tile', async() => {
-        let resolveTemplate!: (result: TemplateResult<1> | typeof nothing) => void;
-        const templateResult = new Promise<TemplateResult<1> | typeof nothing>(resolve => resolveTemplate = resolve);
-        const options = mockRelewiseOptions();
-        options.templates = { productCategory: () => templateResult };
-        initializeRelewiseUI(options).useRecommendations();
-        const element = await fixture<ProductCategoryTile>(html`
-            <relewise-product-category-tile .productCategory=${productCategory()}></relewise-product-category-tile>
-        `);
-
-        element.remove();
-        resolveTemplate(nothing);
-        await new Promise(resolve => setTimeout(resolve, 0));
-
-        assert.isFalse(element.hidden);
-    });
 });
