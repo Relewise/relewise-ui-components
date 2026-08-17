@@ -96,6 +96,8 @@ This can also be done fluently when initializing relewise UI.
 initializeRelewiseUI().useRecommendations();
 ```
 
+Attributes and properties that affect recommendation requests are initialization-time inputs. Configure them before the component connects. Components automatically request again when the Relewise context is updated.
+
 #### Popular Products
 This component renders the most [popular products](https://docs.relewise.com/docs/recommendations/recommendation-types.html#popular-products).
 
@@ -122,6 +124,54 @@ This component renders the most [popular products](https://docs.relewise.com/doc
     possible values: MostPurchased, MostViewed 
 
     The type of behavioral data that recommendations should be based on.
+
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
+#### Popular Product Categories
+This component renders the most popular product categories.
+
+```html
+<relewise-popular-product-categories displayed-at-location="LOCATION"></relewise-popular-product-categories>
+```
+##### Attributes
+- **displayed-at-location**:
+
+    Where the recommendations are being shown.
+
+- **number-of-recommendations** (Optional, *Default 4*):
+
+    The number of product category recommendations to render.
+
+- **since-minutes-ago** (Optional, *Default 20160 - 14 days*):
+
+    The time interval, in minutes, that the popularity calculation should be based on.
+
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
+Product category recommendations use `selectedPropertiesSettings.productCategory`, `filters.productCategory`, and `relevanceModifiers.productCategory`. The default selected data key is only `Url`. Include `ImageUrl` explicitly to render category images.
+
+#### Search-Term-Based Products
+This component renders product recommendations based on a search term.
+
+```html
+<relewise-search-term-based-products term="SEARCH_TERM" displayed-at-location="LOCATION"></relewise-search-term-based-products>
+```
+##### Attributes
+- **displayed-at-location**:
+
+    Where the recommendations are being shown.
+
+- **term**:
+
+    The search term that the recommendations should be based on.
+
+- **number-of-recommendations** (Optional, *Default 4*):
+
+    The number of product recommendations to render.
 
 - **target** (Optional):
 
@@ -318,6 +368,80 @@ This component renders [popular content](https://docs.relewise.com/docs/recommen
 - **target** (Optional):
 
     The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
+#### Popular Content Categories
+This component renders the most popular content categories.
+
+```html
+<relewise-popular-content-categories displayed-at-location="LOCATION"></relewise-popular-content-categories>
+```
+##### Attributes
+- **displayed-at-location**:
+
+    Where the recommendations are being shown.
+
+- **number-of-recommendations** (Optional, *Default 4*):
+
+    The number of content category recommendations to render.
+
+- **since-minutes-ago** (Optional, *Default 20160 - 14 days*):
+
+    The time interval, in minutes, that the popularity calculation should be based on.
+
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
+Content category recommendations use `selectedPropertiesSettings.contentCategory`, `filters.contentCategory`, and `relevanceModifiers.contentCategory`. The default selected data key is only `Url`. Include `ImageUrl` explicitly to render category images.
+
+```ts
+initializeRelewiseUI({
+    ...
+    selectedPropertiesSettings: {
+        productCategory: { displayName: true, dataKeys: ['Url', 'ImageUrl'] },
+        contentCategory: { displayName: true, dataKeys: ['Url', 'ImageUrl'] },
+    },
+    filters: {
+        productCategory: builder => { /* Add product category filters */ },
+        contentCategory: builder => { /* Add content category filters */ },
+    },
+    relevanceModifiers: {
+        productCategory: builder => { /* Add product category relevance modifiers */ },
+        contentCategory: builder => { /* Add content category relevance modifiers */ },
+    },
+}).useRecommendations();
+```
+
+#### Popular Search Terms
+This component renders popular search terms as buttons. Selecting a term dispatches a bubbling and composed `relewise-popular-search-terms-term-selected` event with `{ term }` in `event.detail`.
+
+```html
+<relewise-popular-search-terms displayed-at-location="LOCATION"></relewise-popular-search-terms>
+```
+##### Attributes and properties
+- **displayed-at-location**:
+
+    Where the recommendations are being shown.
+
+- **number-of-recommendations** (Optional, *Default 4*):
+
+    The number of search terms to render.
+
+- **term** (Optional):
+
+    A search term used to make the recommendations contextual.
+
+- **target** (Optional):
+
+    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+
+- **targetEntityTypes** (Optional JavaScript property):
+
+    Limits the entity types used when recommending search terms. Allowed values are `Product`, `Variant`, `ProductCategory`, `Brand`, `Content`, and `ContentCategory`. Set this property before the component connects.
+
+##### CSS parts
+- `terms`: The list containing all recommended terms.
+- `term`: A recommended search-term button.
 
 #### Personal Content
 This component renders [personal content](https://docs.relewise.com/docs/recommendations/recommendation-types.html#personal-content).
@@ -1038,7 +1162,16 @@ All CSS variables recognised by the web components are listed below together wit
 | `--relewise-product-search-sorting-padding` | `.5em` | Padding for the sorting `<select>` element. |
 | `--relewise-focus-outline-color` | `#000` | Colour applied to focus outlines for interactive elements within the components. |
 
-#### Product tiles and pricing
+#### Popular search terms
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-popular-search-terms-gap` | `0.5em` | Gap between recommended search-term buttons. |
+| `--relewise-popular-search-term-background` | `white` | Background colour of recommended search-term buttons. |
+| `--relewise-popular-search-term-border-color` | `#eee` | Border colour of recommended search-term buttons. |
+| `--relewise-popular-search-term-border-radius` | `1em` | Corner radius of recommended search-term buttons. |
+| `--relewise-popular-search-term-padding` | `0.5em 0.75em` | Internal padding of recommended search-term buttons. |
+
+#### Product and category tiles, and pricing
 | Variable | Default | Description |
 | --- | --- | --- |
 | `--relewise-image-padding` | `0` | Padding around product images. |
@@ -1063,6 +1196,25 @@ All CSS variables recognised by the web components are listed below together wit
 | `--relewise-list-price-text-decoration` | `line-through` | Decoration applied to the list price. |
 | `--relewise-list-price-color` | `#bbb` | Text colour of the list price. |
 | `--relewise-list-price-margin` | `0em 0em 0em 0.5em` | Margin around the list price element. |
+
+#### Category tiles
+Both category tile components expose the same CSS parts:
+
+- `link`: Linked tile container when `Url` is available.
+- `container`: Non-linked tile container when `Url` is unavailable.
+- `image-container`: Container around the optional category image.
+- `image`: Optional category image.
+- `information`: Category information container.
+- `display-name`: Category display name.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-category-tile-background-color` | `white` | Category tile background colour. |
+| `--relewise-category-tile-border-color` | `#eee` | Category tile border colour. |
+| `--relewise-category-tile-border-radius` | `0.5em` | Category tile corner radius. |
+| `--relewise-category-tile-box-shadow` | `0 1px rgb(0 0 0 / 0.05)` | Category tile box shadow. |
+
+Category tiles also use the shared image, information-container, display-name, and focus-outline variables listed above.
 
 #### User engagement and favorites
 | Variable | Default | Description |
@@ -1292,6 +1444,30 @@ initializeRelewiseUI({
                     </div>
                 </div>`;
         },
+    },
+});
+```
+
+### Category templates
+Product and content category tiles can be customized independently through `templates.productCategory` and `templates.contentCategory`.
+
+The public category tile components are:
+
+- `<relewise-product-category-tile>` with the JavaScript property `productCategory`.
+- `<relewise-content-category-tile>` with the JavaScript property `contentCategory`.
+
+Both are registered by `useRecommendations()` and `useSearch()`. They render `Url`, `ImageUrl`, and the display name when those values are present on the supplied result. Recommendation requests select `Url` by default; select `ImageUrl` explicitly if an image should be available.
+
+```ts
+initializeRelewiseUI({
+    ...
+    templates: {
+        productCategory: (category, { html }) => html`
+            <a href=${category.data?.Url?.value ?? ''}>${category.displayName}</a>
+        `,
+        contentCategory: (category, { html }) => html`
+            <a href=${category.data?.Url?.value ?? ''}>${category.displayName}</a>
+        `,
     },
 });
 ```

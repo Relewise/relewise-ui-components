@@ -1,4 +1,4 @@
-import { ContentResult, FilterBuilder, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedContentPropertiesSettings, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
+import { ContentCategoryResult, ContentResult, FilterBuilder, ProductCategoryResult, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedContentCategoryPropertiesSettings, SelectedContentPropertiesSettings, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { App, RelewiseUISearchOptions } from './app';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
@@ -50,6 +50,7 @@ export interface RelewiseUIOptions {
         product?: Partial<SelectedProductPropertiesSettings>;
         variant?: Partial<SelectedVariantPropertiesSettings>;
         productCategory?: Partial<SelectedProductCategoryPropertiesSettings>;
+        contentCategory?: Partial<SelectedContentCategoryPropertiesSettings>;
         content?: Partial<SelectedContentPropertiesSettings>;
     };
     clientOptions: RelewiseClientOptions;
@@ -64,12 +65,14 @@ export interface RelewiseUIOptions {
 export interface Filters {
     product?: (builder: FilterBuilder) => void;
     productCategory?: (builder: FilterBuilder) => void;
+    contentCategory?: (builder: FilterBuilder) => void;
     content?: (builder: FilterBuilder) => void;
 }
 
 export interface RelevanceModifiers {
     product?: (builder: RelevanceModifierBuilder) => void;
     productCategory?: (builder: RelevanceModifierBuilder) => void;
+    contentCategory?: (builder: RelevanceModifierBuilder) => void;
     content?: (builder: RelevanceModifierBuilder) => void;
 }
 
@@ -97,9 +100,14 @@ export interface ContentTemplateExtensions {
     helpers: CommonTemplateHelpers;
 }
 
+export type ProductCategoryTemplateExtensions = ContentTemplateExtensions;
+export type ContentCategoryTemplateExtensions = ContentTemplateExtensions;
+
 export interface Templates {
     product?: (product: ProductResult, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
     content?: (content: ContentResult, extensions: ContentTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    productCategory?: (productCategory: ProductCategoryResult, extensions: ProductCategoryTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    contentCategory?: (contentCategory: ContentCategoryResult, extensions: ContentCategoryTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
 }
 
 export interface Targets {
