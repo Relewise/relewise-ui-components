@@ -144,7 +144,7 @@ This component renders the most popular product categories.
 
     The number of product category recommendations to render.
 
-- **since-minutes-ago** (Optional, *Default 20160 - 14 days*):
+- **since-minutes-ago** (Optional, *Default 20,160 (14 days)*):
 
     The time interval, in minutes, that the popularity calculation should be based on.
 
@@ -384,7 +384,7 @@ This component renders the most popular content categories.
 
     The number of content category recommendations to render.
 
-- **since-minutes-ago** (Optional, *Default 20160 - 14 days*):
+- **since-minutes-ago** (Optional, *Default 20,160 (14 days)*):
 
     The time interval, in minutes, that the popularity calculation should be based on.
 
