@@ -7,6 +7,8 @@ import {
     getContentCategoryRecommendationBuilderWithDefaults,
     getProductCategoryRecommendationBuilderWithDefaults,
 } from '../src/builders/categoryRecommendationBuilder';
+import { createProductCategorySearchBuilder } from '../src/builders/productCategorySearchBuilder';
+import { getRelewiseContextSettings } from '../src/helpers/relewiseUIOptions';
 import { initializeRelewiseUI } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
@@ -22,9 +24,14 @@ suite('categoryRecommendationBuilder', () => {
             settings => new PopularContentCategoriesRecommendationBuilder(settings),
             'content categories',
         )).build();
+        const searchRequest = createProductCategorySearchBuilder(
+            'category',
+            await getRelewiseContextSettings('product category search'),
+        ).build();
 
         assert.deepEqual(productRequest.settings.selectedProductCategoryProperties?.dataKeys, ['ImageUrl', 'Url']);
         assert.deepEqual(contentRequest.settings.selectedContentCategoryProperties?.dataKeys, ['ImageUrl', 'Url']);
+        assert.deepEqual(searchRequest.settings?.selectedCategoryProperties?.dataKeys, ['Url']);
     });
 
     test('preserves explicit category selected properties including ImageUrl', async() => {

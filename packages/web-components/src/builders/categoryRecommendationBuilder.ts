@@ -1,14 +1,25 @@
 import {
     ContentCategorySettingsRecommendationBuilder,
     ProductCategorySettingsRecommendationBuilder,
+    SelectedContentCategoryPropertiesSettings,
+    SelectedProductCategoryPropertiesSettings,
     Settings,
 } from '@relewise/client';
-import { defaultContentCategoryProperties, defaultProductCategoryProperties } from '../defaultSettings';
 import {
     getRelewiseContextSettings,
     getRelewiseRecommendationTargetedConfigurations,
     getRelewiseUIOptions,
 } from '../helpers/relewiseUIOptions';
+
+const defaultProductCategoryRecommendationProperties: Partial<SelectedProductCategoryPropertiesSettings> = {
+    displayName: true,
+    dataKeys: ['ImageUrl', 'Url'],
+};
+
+const defaultContentCategoryRecommendationProperties: Partial<SelectedContentCategoryPropertiesSettings> = {
+    displayName: true,
+    dataKeys: ['ImageUrl', 'Url'],
+};
 
 export async function getProductCategoryRecommendationBuilderWithDefaults<T extends ProductCategorySettingsRecommendationBuilder>(
     createBuilder: (settings: Settings) => T,
@@ -20,7 +31,7 @@ export async function getProductCategoryRecommendationBuilderWithDefaults<T exte
     const settings = await getRelewiseContextSettings(displayedAtLocation);
     const options = getRelewiseUIOptions();
     const builder = createBuilder(settings)
-        .setProductCategoryProperties(options.selectedPropertiesSettings?.productCategory ?? defaultProductCategoryProperties)
+        .setProductCategoryProperties(options.selectedPropertiesSettings?.productCategory ?? defaultProductCategoryRecommendationProperties)
         .relevanceModifiers(modifiers => options.relevanceModifiers?.productCategory?.(modifiers))
         .filters(filters => options.filters?.productCategory?.(filters));
 
@@ -41,7 +52,7 @@ export async function getContentCategoryRecommendationBuilderWithDefaults<T exte
     const settings = await getRelewiseContextSettings(displayedAtLocation);
     const options = getRelewiseUIOptions();
     const builder = createBuilder(settings)
-        .setSelectedContentCategoryProperties(options.selectedPropertiesSettings?.contentCategory ?? defaultContentCategoryProperties)
+        .setSelectedContentCategoryProperties(options.selectedPropertiesSettings?.contentCategory ?? defaultContentCategoryRecommendationProperties)
         .relevanceModifiers(modifiers => options.relevanceModifiers?.contentCategory?.(modifiers))
         .filters(filters => options.filters?.contentCategory?.(filters));
 
