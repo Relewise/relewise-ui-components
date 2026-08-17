@@ -33,8 +33,8 @@ export abstract class ContentRecommendationBase extends RelewiseLitElement {
             console.error('Missing displayed-at-location attribute on recommendation component.');
         }
 
-        await this.fetchAndUpdateContent();
         window.addEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateContentBound);
+        void this.fetchAndUpdateContent();
     }
 
     disconnectedCallback() {

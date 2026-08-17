@@ -1,6 +1,6 @@
 import { RelewiseLitElement } from '../relewise-lit-element';
 import { ProductResult, User } from '@relewise/client';
-import { adoptStyles, css, html, nothing } from 'lit';
+import { adoptStyles, css, html, nothing, TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
@@ -16,6 +16,8 @@ export class ProductTile extends RelewiseLitElement {
 
     @property({ type: Object })
     private user: User | null = null;
+
+    private templateRenderGeneration = 0;
 
     // Override Lit's shadow root creation and only attach default styles when no template override exists.
     protected createRenderRoot(): HTMLElement | DocumentFragment {
@@ -46,6 +48,7 @@ export class ProductTile extends RelewiseLitElement {
     }
 
     render() {
+        const generation = ++this.templateRenderGeneration;
         if (!this.product) {
             return;
         }
@@ -53,21 +56,10 @@ export class ProductTile extends RelewiseLitElement {
         const settings = getRelewiseUIOptions();
         if (settings.templates?.product) {
             const result = settings.templates.product(this.product, { html, helpers: { ...templateHelpers, formatPrice, unsafeHTML, nothing, user: this.user } });
-            const markup = result instanceof Promise ? html`
-                ${until(result.then(result => {
-                if (result === nothing) {
-                    this.toggleAttribute('hidden', true);
-                }
-
-                return result;
-            }))}` : result;
-
-            if (result === nothing) {
-                this.toggleAttribute('hidden', true);
-            }
-
-            return html`${markup}`;
+            return this.renderCustomTemplate(result, generation);
         }
+
+        this.removeAttribute('hidden');
 
         const url = this.product.data && 'Url' in this.product.data ? this.product.data['Url'].value ?? '' : null;
 
@@ -91,6 +83,26 @@ export class ProductTile extends RelewiseLitElement {
                         </relewise-product-sentiment-buttons>`
                 : nothing}
             </div>`;
+    }
+
+    private renderCustomTemplate(
+        result: TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>,
+        generation: number,
+    ) {
+        if (result instanceof Promise) {
+            this.removeAttribute('hidden');
+            return html`${until(result.then(result => {
+                if (generation !== this.templateRenderGeneration) {
+                    return nothing;
+                }
+
+                this.toggleAttribute('hidden', result === nothing);
+                return result;
+            }))}`;
+        }
+
+        this.toggleAttribute('hidden', result === nothing);
+        return result;
     }
 
     renderTileContent(product: ProductResult) {

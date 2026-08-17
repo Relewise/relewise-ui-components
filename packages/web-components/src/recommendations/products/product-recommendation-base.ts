@@ -35,7 +35,7 @@ export abstract class ProductRecommendationBase extends RelewiseLitElement {
 
     constructor() {
         super();
-        setTimeout(async () => {
+        setTimeout(async() => {
             if (this.providedData !== undefined) {
                 const request = await this.buildRequest();
                 if (request) {
@@ -51,8 +51,8 @@ export abstract class ProductRecommendationBase extends RelewiseLitElement {
             console.error('Missing displayed-at-location attribute on recommendation component.');
         }
 
-        await this.fetchAndUpdateProducts();
         window.addEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateProductsBound);
+        void this.fetchAndUpdateProducts();
     }
 
     disconnectedCallback() {
