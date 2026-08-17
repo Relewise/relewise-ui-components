@@ -154,7 +154,7 @@ export class ContentCategoryTile extends RelewiseLitElement {
                 font-size: var(--relewise-display-name-font-size, 1em);
                 font-weight: var(--relewise-display-name-font-weight, 500);
                 height: calc(var(--relewise-display-name-line-height, 1.05em) * 2);
-                justify-content: var(--relewise-display-name-alignment, start);
+                text-align: var(--relewise-display-name-alignment, start);
                 letter-spacing: var(--relewise-display-name-letter-spacing, -0.025em);
                 line-height: var(--relewise-display-name-line-height, 1);
                 margin: var(--relewise-display-name-margin, 0);

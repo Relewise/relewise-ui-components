@@ -18,6 +18,25 @@ suite('tile template visibility', () => {
         window.relewiseUIOptions = undefined!;
     });
 
+    test('applies display name alignment to product and content tiles', async() => {
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+        const productElement = await fixture<ProductTile>(html`
+            <relewise-product-tile
+                style="--relewise-display-name-alignment: center"
+                .product=${product()}>
+            </relewise-product-tile>
+        `);
+        const contentElement = await fixture<ContentTile>(html`
+            <relewise-content-tile
+                style="--relewise-display-name-alignment: end"
+                .content=${content()}>
+            </relewise-content-tile>
+        `);
+
+        assert.equal(getComputedStyle(productElement.shadowRoot!.querySelector('.rw-display-name')!).textAlign, 'center');
+        assert.equal(getComputedStyle(contentElement.shadowRoot!.querySelector('.rw-display-name')!).textAlign, 'end');
+    });
+
     test('product tile removes hidden when a later synchronous template is visible', async() => {
         let visible = false;
         const options = mockRelewiseOptions();

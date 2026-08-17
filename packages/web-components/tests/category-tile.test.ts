@@ -74,6 +74,25 @@ suite('category tiles', () => {
         assert.equal(element.shadowRoot!.querySelector('[part="display-name"]')?.textContent, 'Content category');
     });
 
+    test('applies display name alignment to both category tile types', async() => {
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+        const productElement = await fixture<ProductCategoryTile>(html`
+            <relewise-product-category-tile
+                style="--relewise-display-name-alignment: center"
+                .productCategory=${productCategory()}>
+            </relewise-product-category-tile>
+        `);
+        const contentElement = await fixture<ContentCategoryTile>(html`
+            <relewise-content-category-tile
+                style="--relewise-display-name-alignment: end"
+                .contentCategory=${contentCategory()}>
+            </relewise-content-category-tile>
+        `);
+
+        assert.equal(getComputedStyle(productElement.shadowRoot!.querySelector('[part="display-name"]')!).textAlign, 'center');
+        assert.equal(getComputedStyle(contentElement.shadowRoot!.querySelector('[part="display-name"]')!).textAlign, 'end');
+    });
+
     test('uses the product category custom template and suppresses default styles', async() => {
         const options = mockRelewiseOptions();
         options.templates = {

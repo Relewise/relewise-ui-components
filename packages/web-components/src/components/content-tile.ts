@@ -190,7 +190,7 @@ export class ContentTile extends RelewiseLitElement {
         .rw-display-name {
             display: -webkit-box;
             letter-spacing: var(--relewise-display-name-letter-spacing, -0.025em);
-            justify-content: var(--relewise-display-name-alignment, start);
+            text-align: var(--relewise-display-name-alignment, start);
             color: var(--relewise-display-name-color, #212427);
             line-height: var(--relewise-display-name-line-height, 1);
             font-weight: var(--relewise-display-name-font-weight, 500);
