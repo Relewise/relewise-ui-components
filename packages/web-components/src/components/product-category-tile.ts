@@ -1,4 +1,4 @@
-import { ProductCategoryResult, User } from '@relewise/client';
+import { ProductCategoryResult } from '@relewise/client';
 import { adoptStyles, css, html, nothing, TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
@@ -12,9 +12,6 @@ export class ProductCategoryTile extends RelewiseLitElement {
 
     @property({ type: Object })
     productCategory: ProductCategoryResult | null = null;
-
-    @property({ type: Object })
-    private user: User | null = null;
 
     protected createRenderRoot(): HTMLElement | DocumentFragment {
         const root = super.createRenderRoot();
@@ -46,7 +43,7 @@ export class ProductCategoryTile extends RelewiseLitElement {
         if (template) {
             return this.renderCustomTemplate(template(this.productCategory, {
                 html,
-                helpers: { ...templateHelpers, unsafeHTML, nothing, user: this.user },
+                helpers: { ...templateHelpers, unsafeHTML, nothing },
             }));
         }
 

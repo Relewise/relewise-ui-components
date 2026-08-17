@@ -109,8 +109,13 @@ export interface ContentTemplateExtensions {
     helpers: CommonTemplateHelpers;
 }
 
-export type ProductCategoryTemplateExtensions = ContentTemplateExtensions;
-export type ContentCategoryTemplateExtensions = ContentTemplateExtensions;
+export interface CategoryTemplateExtensions {
+    html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>;
+    helpers: Omit<CommonTemplateHelpers, 'user'>;
+}
+
+export type ProductCategoryTemplateExtensions = CategoryTemplateExtensions;
+export type ContentCategoryTemplateExtensions = CategoryTemplateExtensions;
 
 export interface Templates {
     product?: (product: ProductResult, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;

@@ -1,8 +1,6 @@
-import { User } from '@relewise/client';
 import { css, html, TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
-import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
 import { RelewiseLitElement } from '../../relewise-lit-element';
 
 export abstract class CategoryRecommendationBase<TCategory, TRequest> extends RelewiseLitElement {
@@ -18,9 +16,6 @@ export abstract class CategoryRecommendationBase<TCategory, TRequest> extends Re
 
     @state()
     categories: TCategory[] | null = null;
-
-    @state()
-    protected user: User | null = null;
 
     private requestGeneration = 0;
 
@@ -48,19 +43,12 @@ export abstract class CategoryRecommendationBase<TCategory, TRequest> extends Re
 
     private async fetchAndUpdateCategories() {
         const generation = ++this.requestGeneration;
-        const user = await getRelewiseUIOptions().contextSettings.getUser();
-
-        if (generation !== this.requestGeneration || !this.isConnected) {
-            return;
-        }
-
         const result = await this.fetchCategories();
 
         if (generation !== this.requestGeneration || !this.isConnected) {
             return;
         }
 
-        this.user = user;
         this.categories = result?.recommendations ?? null;
     }
 

@@ -35,8 +35,7 @@ export class PopularContentCategories extends CategoryRecommendationBase<Content
     protected renderCategory(category: ContentCategoryResult) {
         return html`
             <relewise-content-category-tile
-                .contentCategory=${category}
-                .user=${this.user}>
+                .contentCategory=${category}>
             </relewise-content-category-tile>
         `;
     }

@@ -95,8 +95,8 @@ suite('category tiles', () => {
     test('uses the product category custom template and suppresses default styles', async() => {
         const options = mockRelewiseOptions();
         options.templates = {
-            productCategory: (category, { html, helpers }) => html`
-                <span class="custom-product-category">${category.displayName}-${helpers.user?.temporaryId ?? 'anonymous'}</span>
+            productCategory: (category, { html }) => html`
+                <span class="custom-product-category">${category.displayName}</span>
             `,
         };
         initializeRelewiseUI(options).useRecommendations();
@@ -105,7 +105,7 @@ suite('category tiles', () => {
         `);
         await element.updateComplete;
 
-        assert.equal(element.shadowRoot!.querySelector('.custom-product-category')?.textContent, 'Product category-anonymous');
+        assert.equal(element.shadowRoot!.querySelector('.custom-product-category')?.textContent, 'Product category');
         assert.lengthOf(element.shadowRoot!.adoptedStyleSheets, 0);
     });
 

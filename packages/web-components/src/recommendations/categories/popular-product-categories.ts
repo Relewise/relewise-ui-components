@@ -35,8 +35,7 @@ export class PopularProductCategories extends CategoryRecommendationBase<Product
     protected renderCategory(category: ProductCategoryResult) {
         return html`
             <relewise-product-category-tile
-                .productCategory=${category}
-                .user=${this.user}>
+                .productCategory=${category}>
             </relewise-product-category-tile>
         `;
     }
