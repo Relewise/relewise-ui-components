@@ -150,7 +150,7 @@ This component renders the most popular product categories.
 
 - **target** (Optional):
 
-    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+    Selects an additional targeted configuration. You can read more [here](#targeted-recommendations).
 
 Product category recommendations use `selectedPropertiesSettings.productCategory`, `filters.productCategory`, and `relevanceModifiers.productCategory`. The default selected data key is only `Url`. Include `ImageUrl` explicitly to render category images.
 
@@ -175,7 +175,7 @@ This component renders product recommendations based on a search term.
 
 - **target** (Optional):
 
-    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+    Selects an additional targeted configuration. You can read more [here](#targeted-recommendations).
 
 #### Products viewed after viewing Product
 This component renders [products typically viewed after viewing a given product](https://docs.relewise.com/docs/recommendations/recommendation-types.html#products-viewed-after-viewing-product).
@@ -390,7 +390,7 @@ This component renders the most popular content categories.
 
 - **target** (Optional):
 
-    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+    Selects an additional targeted configuration. You can read more [here](#targeted-recommendations).
 
 Content category recommendations use `selectedPropertiesSettings.contentCategory`, `filters.contentCategory`, and `relevanceModifiers.contentCategory`. The default selected data key is only `Url`. Include `ImageUrl` explicitly to render category images.
 
@@ -433,7 +433,7 @@ This component renders popular search terms as buttons. Selecting a term dispatc
 
 - **target** (Optional):
 
-    The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
+    Selects an additional targeted configuration. You can read more [here](#targeted-recommendations).
 
 - **targetEntityTypes** (Optional JavaScript property):
 

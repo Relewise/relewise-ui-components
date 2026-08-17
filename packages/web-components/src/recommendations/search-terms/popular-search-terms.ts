@@ -43,6 +43,7 @@ export class PopularSearchTerms extends RelewiseLitElement {
     @state()
     private recommendations: RenderableSearchTermResult[] = [];
 
+    private requestGeneration = 0;
     private readonly fetchAndUpdateRecommendationsBound = this.fetchAndUpdateRecommendations.bind(this);
 
     connectedCallback() {
@@ -56,13 +57,26 @@ export class PopularSearchTerms extends RelewiseLitElement {
     }
 
     disconnectedCallback() {
+        this.requestGeneration++;
         window.removeEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateRecommendationsBound);
         super.disconnectedCallback();
     }
 
     private async fetchAndUpdateRecommendations() {
+        const generation = ++this.requestGeneration;
         const recommender = getRecommender(getRelewiseUIOptions());
-        const response = await recommender.recommendPopularSearchTerms(await this.buildRequest());
+        const request = await this.buildRequest();
+
+        if (generation !== this.requestGeneration || !this.isConnected) {
+            return;
+        }
+
+        const response = await recommender.recommendPopularSearchTerms(request);
+
+        if (generation !== this.requestGeneration || !this.isConnected) {
+            return;
+        }
+
         this.recommendations = response?.recommendations?.filter(
             (recommendation): recommendation is RenderableSearchTermResult => Boolean(recommendation.term),
         ) ?? [];

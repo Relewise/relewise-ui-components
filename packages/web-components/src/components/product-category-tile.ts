@@ -25,7 +25,7 @@ export class ProductCategoryTile extends RelewiseLitElement {
         try {
             hasCustomTemplate = Boolean(getRelewiseUIOptions().templates?.productCategory);
         } catch (error) {
-            console.error('Relewise: Error initializing initializeRelewiseUI. Keeping default styles, ', error);
+            console.error('Relewise: Error during initializeRelewiseUI. Keeping default styles.', error);
         }
 
         if (root instanceof ShadowRoot) {

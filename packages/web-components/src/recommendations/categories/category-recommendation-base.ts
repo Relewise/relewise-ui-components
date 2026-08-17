@@ -22,6 +22,8 @@ export abstract class CategoryRecommendationBase<TCategory, TRequest> extends Re
     @state()
     protected user: User | null = null;
 
+    private requestGeneration = 0;
+
     abstract fetchCategories(): Promise<{ recommendations?: TCategory[] | null } | undefined> | undefined;
     abstract buildRequest(): Promise<TRequest | undefined>;
     protected abstract renderCategory(category: TCategory): TemplateResult;
@@ -39,13 +41,26 @@ export abstract class CategoryRecommendationBase<TCategory, TRequest> extends Re
     }
 
     disconnectedCallback() {
+        this.requestGeneration++;
         window.removeEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateCategoriesBound);
         super.disconnectedCallback();
     }
 
     private async fetchAndUpdateCategories() {
-        this.user = await getRelewiseUIOptions().contextSettings.getUser();
+        const generation = ++this.requestGeneration;
+        const user = await getRelewiseUIOptions().contextSettings.getUser();
+
+        if (generation !== this.requestGeneration || !this.isConnected) {
+            return;
+        }
+
         const result = await this.fetchCategories();
+
+        if (generation !== this.requestGeneration || !this.isConnected) {
+            return;
+        }
+
+        this.user = user;
         this.categories = result?.recommendations ?? null;
     }
 
