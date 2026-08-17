@@ -1216,6 +1216,8 @@ Both category tile components expose the same CSS parts:
 - `information`: Category information container.
 - `display-name`: Category display name.
 
+The popular product-category and content-category recommendation components forward these parts from their nested category tiles.
+
 | Variable | Default | Description |
 | --- | --- | --- |
 | `--relewise-category-tile-background-color` | `white` | Category tile background colour. |

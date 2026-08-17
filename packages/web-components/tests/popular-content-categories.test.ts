@@ -5,6 +5,7 @@ import {
     Recommender,
 } from '@relewise/client';
 import { initializeRelewiseUI, PopularContentCategories } from '../src';
+import { clearRegisteredLightDomStylesForTesting } from '../src/lightDomStyles';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('relewise-popular-content-categories', () => {
@@ -27,6 +28,7 @@ suite('relewise-popular-content-categories', () => {
     teardown(() => {
         Recommender.prototype.recommendPopularContentCategories = originalRecommend;
         fixtureCleanup();
+        clearRegisteredLightDomStylesForTesting();
         window.relewiseUIOptions = undefined!;
     });
 
@@ -46,5 +48,21 @@ suite('relewise-popular-content-categories', () => {
         assert.equal(requests[0].settings.numberOfRecommendations, 2);
         assert.equal(requests[0].sinceMinutesAgo, 60);
         assert.equal(element.renderRoot.querySelectorAll('relewise-content-category-tile').length, 2);
+    });
+
+    test('retains category tile part forwarding in Light DOM', async() => {
+        const options = mockRelewiseOptions();
+        options.components = { domMode: 'light' };
+        initializeRelewiseUI(options).useRecommendations();
+        const element = await fixture<PopularContentCategories>(html`
+            <relewise-popular-content-categories displayed-at-location="test"></relewise-popular-content-categories>
+        `);
+        await waitUntil(() => element.querySelector('relewise-content-category-tile') !== null);
+
+        assert.equal(element.renderRoot, element);
+        assert.equal(
+            element.querySelector('relewise-content-category-tile')?.getAttribute('exportparts'),
+            'link, container, image-container, image, information, display-name',
+        );
     });
 });

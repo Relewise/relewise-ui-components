@@ -85,6 +85,19 @@ suite('relewise-popular-product-categories', () => {
         assert.isNull(element.renderRoot.querySelector('relewise-product-category-tile'));
     });
 
+    test('forwards category tile parts in Shadow DOM', async() => {
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+        const element = await fixture<PopularProductCategories>(html`
+            <relewise-popular-product-categories displayed-at-location="test"></relewise-popular-product-categories>
+        `);
+        await waitUntil(() => element.renderRoot.querySelector('relewise-product-category-tile') !== null);
+
+        assert.equal(
+            element.renderRoot.querySelector('relewise-product-category-tile')?.getAttribute('exportparts'),
+            'link, container, image-container, image, information, display-name',
+        );
+    });
+
     test('ignores an older response after a context update', async() => {
         let resolveInitial!: (response: { recommendations: ProductCategoryResult[] }) => void;
         const initialResponse = new Promise<{ recommendations: ProductCategoryResult[] }>(resolve => resolveInitial = resolve);
