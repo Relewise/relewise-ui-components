@@ -6,3 +6,4 @@ export * from './purchased-with-multiple-products';
 export * from './personal-products';
 export * from './recently-viewed-products';
 export * from './products-viewed-after-viewing-content';
+export * from './search-term-based-products';

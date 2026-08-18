@@ -1,12 +1,12 @@
-import { FilterBuilder, ProductCategoryResult, ProductResult } from '@relewise/client';
+import { FilterBuilder, ProductCategoryResult, ProductResult, RecommendPopularSearchTermSettings } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
-import { FilterIcon, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
+import { ContentCategoryTile, FilterIcon, ProductCategoryTile, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
 import { Button } from './components/button';
 import { LoadingSpinner } from './components/loading-spinner';
 import { FavoriteButtonContent } from './components/content-favorite-button';
 import { FavoriteButtonProducts } from './components/product-favorite-button';
 import { ContextSettings, ProductTemplateExtensions } from './initialize';
-import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PopularContent, PersonalContent, ContentViewedAfterViewingContent, ContentViewedAfterViewingMultipleContent, ProductsViewedAfterViewingContent, ContentViewedAfterViewingProduct, ContentViewedAfterViewingMultipleProducts } from './recommendations';
+import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PopularContent, PersonalContent, ContentViewedAfterViewingContent, ContentViewedAfterViewingMultipleContent, ProductsViewedAfterViewingContent, ContentViewedAfterViewingProduct, ContentViewedAfterViewingMultipleProducts, PopularProductCategories, PopularContentCategories, PopularSearchTerms, SearchTermBasedProducts } from './recommendations';
 import { ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar } from './search';
 import { ChecklistBooleanValueFacet } from './search/components/facets/checklist-boolean-value-facet';
 import { ChecklistNumberValueFacet } from './search/components/facets/checklist-number-value-facet';
@@ -47,6 +47,14 @@ export interface RelewiseUISearchOptions {
     rememberScrollPosition?: boolean;
     debounceTimeInMs?: number;
     explodedVariants?: number;
+}
+
+export type PopularSearchTermEntityType = NonNullable<RecommendPopularSearchTermSettings['targetEntityTypes']>[number];
+
+export interface RelewiseUIRecommendationOptions {
+    popularSearchTerms?: {
+        targetEntityTypes?: PopularSearchTermEntityType[];
+    };
 }
 
 export interface SearchLocalization {
@@ -120,8 +128,8 @@ export interface SearchTemplates {
 }
 
 export class App {
-    useRecommendations(): App {
-        useRecommendations();
+    useRecommendations(options?: RelewiseUIRecommendationOptions): App {
+        useRecommendations(options);
         return this;
     }
 
@@ -151,7 +159,9 @@ export class App {
     }
 }
 
-export function useRecommendations() {
+export function useRecommendations(options?: RelewiseUIRecommendationOptions) {
+    window.relewiseUIRecommendationOptions = options ?? {};
+
     tryRegisterElement('relewise-product-recommendation-batcher', RecommendationBatcher);
     tryRegisterElement('relewise-popular-products', PopularProducts);
     tryRegisterElement('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);
@@ -159,11 +169,15 @@ export function useRecommendations() {
     tryRegisterElement('relewise-purchased-with-multiple-products', PurchasedWithMultipleProducts);
     tryRegisterElement('relewise-personal-products', PersonalProducts);
     tryRegisterElement('relewise-recently-viewed-products', RecentlyViewedProducts);
+    tryRegisterElement('relewise-search-term-based-products', SearchTermBasedProducts);
     tryRegisterElement('relewise-personal-content', PersonalContent);
     tryRegisterElement('relewise-products-viewed-after-viewing-content', ProductsViewedAfterViewingContent);
     tryRegisterElement('relewise-content-viewed-after-viewing-content', ContentViewedAfterViewingContent);
     tryRegisterElement('relewise-content-viewed-after-viewing-multiple-content', ContentViewedAfterViewingMultipleContent);
     tryRegisterElement('relewise-popular-content', PopularContent);
+    tryRegisterElement('relewise-popular-product-categories', PopularProductCategories);
+    tryRegisterElement('relewise-popular-content-categories', PopularContentCategories);
+    tryRegisterElement('relewise-popular-search-terms', PopularSearchTerms);
     tryRegisterElement('relewise-content-viewed-after-viewing-product', ContentViewedAfterViewingProduct);
     tryRegisterElement('relewise-content-viewed-after-viewing-multiple-products', ContentViewedAfterViewingMultipleProducts);
 
@@ -225,6 +239,8 @@ export function useSearch(options?: RelewiseUISearchOptions) {
 }
 
 function registerGenericComponents() {
+    tryRegisterElement('relewise-product-category-tile', ProductCategoryTile);
+    tryRegisterElement('relewise-content-category-tile', ContentCategoryTile);
     tryRegisterElement('relewise-content-tile', ContentTile);
     tryRegisterElement('relewise-product-tile', ProductTile);
     tryRegisterElement('relewise-search-icon', SearchIcon);

@@ -28,6 +28,8 @@ export abstract class ProductRecommendationBase extends RelewiseLitElement {
     @state()
     private user: User | null = null;
 
+    private requestGeneration = 0;
+
     abstract fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined;
     abstract buildRequest(): Promise<ProductRecommendationRequest | undefined>;
 
@@ -35,7 +37,7 @@ export abstract class ProductRecommendationBase extends RelewiseLitElement {
 
     constructor() {
         super();
-        setTimeout(async () => {
+        setTimeout(async() => {
             if (this.providedData !== undefined) {
                 const request = await this.buildRequest();
                 if (request) {
@@ -51,22 +53,37 @@ export abstract class ProductRecommendationBase extends RelewiseLitElement {
             console.error('Missing displayed-at-location attribute on recommendation component.');
         }
 
-        await this.fetchAndUpdateProducts();
         window.addEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateProductsBound);
+        void this.fetchAndUpdateProducts();
     }
 
     disconnectedCallback() {
+        this.requestGeneration++;
         window.removeEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateProductsBound);
 
         super.disconnectedCallback();
     }
 
     async fetchAndUpdateProducts() {
-        this.user = await getRelewiseUIOptions().contextSettings.getUser();
+        const generation = ++this.requestGeneration;
+        const user = await getRelewiseUIOptions().contextSettings.getUser();
 
-        if (this.providedData?.requests) return;
+        if (generation !== this.requestGeneration || !this.isConnected) {
+            return;
+        }
+
+        if (this.providedData?.requests) {
+            this.user = user;
+            return;
+        }
 
         const result = await this.fetchProducts();
+
+        if (generation !== this.requestGeneration || !this.isConnected) {
+            return;
+        }
+
+        this.user = user;
         this.products = result?.recommendations ?? null;
     };
 

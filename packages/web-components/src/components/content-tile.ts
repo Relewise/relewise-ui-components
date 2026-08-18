@@ -1,6 +1,6 @@
 import { RelewiseLitElement } from '../relewise-lit-element';
 import { ContentResult, User } from '@relewise/client';
-import { adoptStyles, css, html, nothing } from 'lit';
+import { adoptStyles, css, html, nothing, TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { templateHelpers } from '../helpers/templateHelpers';
@@ -51,21 +51,10 @@ export class ContentTile extends RelewiseLitElement {
         const settings = getRelewiseUIOptions();
         if (settings.templates?.content) {
             const result = settings.templates.content(this.content, { html, helpers: { ...templateHelpers, unsafeHTML, nothing, user: this.user } });
-            const markup = result instanceof Promise ? html`
-                ${until(result.then(result => {
-                if (result === nothing) {
-                    this.toggleAttribute('hidden', true);
-                }
-
-                return result;
-            }))}` : result;
-
-            if (result === nothing) {
-                this.toggleAttribute('hidden', true);
-            }
-
-            return html`${markup}`;
+            return this.renderCustomTemplate(result);
         }
+
+        this.removeAttribute('hidden');
 
         const url = this.content.data && 'Url' in this.content.data ? this.content.data['Url'].value ?? '' : null;
 
@@ -89,6 +78,21 @@ export class ContentTile extends RelewiseLitElement {
                             </relewise-content-sentiment-buttons>`
                 : nothing}
             </div>`;
+    }
+
+    private renderCustomTemplate(
+        result: TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>,
+    ) {
+        if (result instanceof Promise) {
+            this.removeAttribute('hidden');
+            return html`${until(result.then(result => {
+                this.toggleAttribute('hidden', result === nothing);
+                return result;
+            }))}`;
+        }
+
+        this.toggleAttribute('hidden', result === nothing);
+        return result;
     }
 
     renderTileContent(content: ContentResult) {
@@ -173,7 +177,7 @@ export class ContentTile extends RelewiseLitElement {
         .rw-display-name {
             display: -webkit-box;
             letter-spacing: var(--relewise-display-name-letter-spacing, -0.025em);
-            justify-content: var(--relewise-display-name-alignment, start);
+            text-align: var(--relewise-display-name-alignment, start);
             color: var(--relewise-display-name-color, #212427);
             line-height: var(--relewise-display-name-line-height, 1);
             font-weight: var(--relewise-display-name-font-weight, 500);
