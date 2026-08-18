@@ -39,8 +39,4 @@ export function addFilters(filters: Partial<Filters>): void {
     if (filters.content) {
         options.filters.content = composeFilterCallbacks(options.filters.content, filters.content);
     }
-
-    if (filters.contentCategory) {
-        options.filters.contentCategory = composeFilterCallbacks(options.filters.contentCategory, filters.contentCategory);
-    }
 }

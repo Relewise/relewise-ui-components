@@ -4,7 +4,9 @@ import {
     initializeRelewiseUI,
     PopularSearchTerms,
     PopularSearchTermSelectedEventDetail,
+    recommendationStateChangedEventName,
 } from '../src';
+import type { RecommendationStateChangedEventDetail } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 import { clearRegisteredLightDomStylesForTesting } from '../src/lightDomStyles';
 import { Events } from '../src/helpers/events';
@@ -47,12 +49,14 @@ suite('relewise-popular-search-terms', () => {
                 targetEntityTypes: ['Product', 'ProductCategory'],
             },
         });
+        const states: RecommendationStateChangedEventDetail[] = [];
         const element = await fixture<PopularSearchTerms>(html`
             <relewise-popular-search-terms
                 displayed-at-location="test"
                 term="trail"
                 target="search terms target"
-                number-of-recommendations="5">
+                number-of-recommendations="5"
+                @relewise-ui-components:recommendation-state-changed=${(event: CustomEvent<RecommendationStateChangedEventDetail>) => states.push(event.detail)}>
             </relewise-popular-search-terms>
         `);
 
@@ -62,6 +66,9 @@ suite('relewise-popular-search-terms', () => {
         assert.equal(requests[0].settings?.numberOfRecommendations, 5);
         assert.deepEqual(requests[0].settings?.targetEntityTypes, ['Product', 'ProductCategory']);
         assert.isTrue(targetedConfigurationApplied);
+        assert.deepInclude(states, { loading: true, hasResults: false });
+        assert.deepInclude(states, { loading: false, hasResults: true });
+        assert.equal(recommendationStateChangedEventName, 'relewise-ui-components:recommendation-state-changed');
     });
 
     test('emits the selected term', async() => {

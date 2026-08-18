@@ -487,7 +487,7 @@ suite('relewise-universal-search', () => {
         assert.equal(queryAllDeep(el.renderRoot, 'relewise-product-tile').length, 1);
     });
 
-    test('does not render the result count before product search responds', async () => {
+    test('does not render zero results before product search responds', async () => {
         Searcher.prototype.searchProducts = async function() {
             return productSearchResponse([], 0);
         };
@@ -502,10 +502,9 @@ suite('relewise-universal-search', () => {
         internals(el).setSearchTerm('shoe');
         await universalSearchUpdated(el);
 
-        assert.isNull(queryDeep(el, '[part="results-count"]'));
-
-        await waitUntil(() => queryDeep(el, '[part="results-count"]')?.textContent?.trim() === '0 Results', 'zero result count was not rendered after search response');
         assert.isNull(queryDeep(el, '[part="zero-results"]'));
+
+        await waitUntil(() => queryDeep(el, '[part="zero-results"]') !== null, 'zero-results was not rendered after search response');
     });
 
     test('clears previous products when the search term changes', async () => {
@@ -648,6 +647,7 @@ suite('relewise-universal-search', () => {
                         resultsTitle: 'Vareresultater',
                         result: 'vare',
                         results: 'varer',
+                        noResults: 'Ingen varer fundet.',
                     },
                 },
             },
@@ -658,14 +658,14 @@ suite('relewise-universal-search', () => {
         `) as UniversalSearch;
 
         internals(el).setSearchTerm('sko');
-        await waitUntil(() => queryDeep(el, '[part="results-count"]')?.textContent?.trim() === '0 varer', 'localized zero result count was not rendered');
+        await waitUntil(() => queryDeep(el, '[part="zero-results"]') !== null, 'zero-results was not rendered');
 
         assert.equal(queryDeep(el, '[part="tabs"]')?.getAttribute('aria-label'), 'Søgeresultatfaner');
         assert.include(queryDeep(el, '[part="tab"]')?.textContent ?? '', 'Varer');
         assert.include(queryDeep(el, '[part="results-summary"]')?.textContent ?? '', 'Søgeresultater for');
         assert.equal(queryDeep(el, '[part="results-title"]')?.textContent?.trim(), 'Vareresultater');
         assert.equal(queryDeep(el, '[part="results-count"]')?.textContent?.trim(), '0 varer');
-        assert.isNull(queryDeep(el, '[part="zero-results"]'));
+        assert.equal(queryDeep(el, '[part="zero-results"]')?.textContent?.trim(), 'Ingen varer fundet.');
     });
 
     test('uses default labels for properties omitted from tab localization', async () => {
@@ -691,13 +691,13 @@ suite('relewise-universal-search', () => {
         `) as UniversalSearch;
 
         internals(el).setSearchTerm('shoe');
-        await waitUntil(() => queryDeep(el, '[part="results-count"]')?.textContent?.trim() === '0 Results', 'zero result count was not rendered');
+        await waitUntil(() => queryDeep(el, '[part="zero-results"]') !== null, 'zero-results was not rendered');
 
         assert.include(queryDeep(el, '[part="tab"]')?.textContent ?? '', 'Items');
         assert.include(queryDeep(el, '[part="results-summary"]')?.textContent ?? '', 'Search results for');
         assert.equal(queryDeep(el, '[part="results-title"]')?.textContent?.trim(), 'Products');
         assert.equal(queryDeep(el, '[part="results-count"]')?.textContent?.trim(), '0 Results');
-        assert.isNull(queryDeep(el, '[part="zero-results"]'));
+        assert.equal(queryDeep(el, '[part="zero-results"]')?.textContent?.trim(), 'No products found.');
     });
 
     test('keeps facets available when a selected filter returns zero results', async () => {
@@ -1015,7 +1015,7 @@ suite('relewise-universal-search', () => {
         assert.equal(tabs[0].getAttribute('role'), 'tab');
         assert.equal(tabs[0].tabIndex, 0);
         assert.equal(tabs[1].tabIndex, -1);
-        assert.equal(queryAllDeep(el.renderRoot, 'relewise-category-tile').length, 1);
+        assert.equal(queryAllDeep(el.renderRoot, 'relewise-product-category-tile').length, 1);
 
         tabs[0].focus();
         tabs[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));

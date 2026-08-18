@@ -1,9 +1,9 @@
 import { css, html, TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
-import { RelewiseLitElement } from '../../relewise-lit-element';
+import { RecommendationStateElement } from '../recommendation-state';
 
-export abstract class CategoryRecommendationBase<TCategory, TRequest> extends RelewiseLitElement {
+export abstract class CategoryRecommendationBase<TCategory, TRequest> extends RecommendationStateElement {
 
     @property({ type: String, attribute: 'target' })
     target: string | null = null;
@@ -18,6 +18,7 @@ export abstract class CategoryRecommendationBase<TCategory, TRequest> extends Re
     categories: TCategory[] | null = null;
 
     private requestGeneration = 0;
+    private loading = false;
 
     abstract fetchCategories(): Promise<{ recommendations?: TCategory[] | null } | undefined> | undefined;
     abstract buildRequest(): Promise<TRequest | undefined>;
@@ -43,13 +44,34 @@ export abstract class CategoryRecommendationBase<TCategory, TRequest> extends Re
 
     private async fetchAndUpdateCategories() {
         const generation = ++this.requestGeneration;
-        const result = await this.fetchCategories();
+        this.loading = true;
+        this.reportCurrentRecommendationState();
 
-        if (generation !== this.requestGeneration || !this.isConnected) {
-            return;
+        try {
+            const result = await this.fetchCategories();
+
+            if (generation !== this.requestGeneration || !this.isConnected) {
+                return;
+            }
+
+            this.categories = result?.recommendations ?? null;
+        } catch {
+            if (generation === this.requestGeneration && this.isConnected) {
+                this.categories = null;
+            }
+        } finally {
+            if (generation === this.requestGeneration && this.isConnected) {
+                this.loading = false;
+                this.reportCurrentRecommendationState();
+            }
         }
+    }
 
-        this.categories = result?.recommendations ?? null;
+    private reportCurrentRecommendationState(): void {
+        this.reportRecommendationState({
+            loading: this.loading,
+            hasResults: Boolean(this.categories?.length),
+        });
     }
 
     render() {
@@ -64,14 +86,14 @@ export abstract class CategoryRecommendationBase<TCategory, TRequest> extends Re
         :host {
             display: grid;
             width: 100%;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1em;
+            grid-template-columns: repeat(var(--relewise-recommendation-grid-columns, 4), minmax(0, 1fr));
+            gap: var(--relewise-recommendation-grid-gap, 1em);
             grid-auto-rows: 1fr;
         }
 
         @media (max-width: 768px) {
             :host {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(var(--relewise-recommendation-grid-mobile-columns, 2), minmax(0, 1fr));
             }
         }
     `;

@@ -1,4 +1,4 @@
-import { ProductCategoryResult, ProductCategorySearchResponse, SearchResponseCollection, Settings, User } from '@relewise/client';
+import { ProductCategoryResult, ProductCategorySearchResponse, SearchResponseCollection, Settings } from '@relewise/client';
 import { html, nothing } from 'lit';
 import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
@@ -22,6 +22,7 @@ const tab = 'productCategories';
 export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
     @property() term = '';
     @property({ attribute: false }) hideFacets = false;
+    @property({ attribute: false }) hideZeroResults = false;
     @property({ attribute: 'displayed-at-location' }) displayedAtLocation?: string;
 
     @state() private result: ProductCategorySearchResponse | null = null;
@@ -29,7 +30,6 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
     @state() private facetLabels: string[] = [];
     @state() private loading = false;
     @state() private error: string | null = null;
-    @state() private user: User | null = null;
 
     private page = 1;
     private abortController = new AbortController();
@@ -75,7 +75,6 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
         this.resetForSearch();
         const requestResult = this.buildRequest(settings, true);
         this.loading = true;
-        this.user = settings.user;
 
         return {
             request: requestResult.request,
@@ -113,7 +112,6 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
                 return false;
             }
 
-            this.user = settings.user;
             this.applyResponse(response ?? null, requestResult.facetLabels, reset);
             return true;
         } catch {
@@ -225,15 +223,17 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
                         <div class="rw-loading" part="loading-state">
                             <relewise-loading-spinner></relewise-loading-spinner>
                         </div>
-                    ` : !this.result || this.productCategories.length === 0 ? nothing : html`
+                    ` : !this.result ? nothing : this.productCategories.length === 0 ? this.hideZeroResults ? nothing : html`
+                        <p class="rw-empty" part="zero-results">${localization?.noResults ?? 'No product categories found.'}</p>
+                    ` : html`
                         <div class="rw-result-grid" part="category-grid">
                             ${this.productCategories.map(category => html`
-                                <relewise-category-tile
+                                <relewise-product-category-tile
                                     class="rw-category-tile"
                                     part="category-tile"
-                                    .category=${category}
-                                    .user=${this.user}>
-                                </relewise-category-tile>
+                                    exportparts="link, container, image-container, image, information, display-name"
+                                    .productCategory=${category}>
+                                </relewise-product-category-tile>
                             `)}
                         </div>
                         <relewise-universal-search-load-more

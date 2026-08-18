@@ -23,6 +23,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
     @property() term = '';
     @property({ attribute: false }) target: string | null = null;
     @property({ attribute: false }) hideFacets = false;
+    @property({ attribute: false }) hideZeroResults = false;
     @property({ attribute: 'displayed-at-location' }) displayedAtLocation?: string;
 
     @state() private result: ProductSearchResponse | null = null;
@@ -241,7 +242,9 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
                         <div class="rw-loading" part="loading-state">
                             <relewise-loading-spinner></relewise-loading-spinner>
                         </div>
-                    ` : !this.result || this.products.length === 0 ? nothing : html`
+                    ` : !this.result ? nothing : this.products.length === 0 ? this.hideZeroResults ? nothing : html`
+                        <p class="rw-empty" part="zero-results">${localization?.noResults ?? 'No products found.'}</p>
+                    ` : html`
                         <div class="rw-result-grid" part="product-grid">
                             ${this.products.map(product => html`
                                 <relewise-product-tile

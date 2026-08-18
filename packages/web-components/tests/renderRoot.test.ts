@@ -1,6 +1,6 @@
 import { assert, fixture, html } from '@open-wc/testing';
 import { ContentCategoryResult, ProductCategoryResult, ProductResult } from '@relewise/client';
-import { Button, CategoryTile, ChecklistStringValueFacet, Facets, initializeRelewiseUI, ProductSearchBar, ProductSearchResults, ProductTile } from '../src';
+import { Button, ContentCategoryTile, ChecklistStringValueFacet, Facets, initializeRelewiseUI, ProductCategoryTile, ProductSearchBar, ProductSearchResults, ProductTile } from '../src';
 import { clearRegisteredLightDomStylesForTesting } from '../src/lightDomStyles';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
@@ -137,7 +137,9 @@ suite('domMode', () => {
         };
         initializeRelewiseUI(options).useRecommendations();
 
-        const el = await fixture<CategoryTile>(html`<relewise-category-tile .category=${productCategory()}></relewise-category-tile>`);
+        const el = await fixture<ProductCategoryTile>(html`
+            <relewise-product-category-tile .productCategory=${productCategory()}></relewise-product-category-tile>
+        `);
         await el.updateComplete;
 
         assert.equal(el.querySelector('.customer-product-category-template')?.textContent, 'Test category');
@@ -153,8 +155,8 @@ suite('domMode', () => {
         };
         initializeRelewiseUI(options).useRecommendations();
 
-        const el = await fixture<CategoryTile>(html`
-            <relewise-category-tile content-category .category=${contentCategory()}></relewise-category-tile>
+        const el = await fixture<ContentCategoryTile>(html`
+            <relewise-content-category-tile .contentCategory=${contentCategory()}></relewise-content-category-tile>
         `);
         await el.updateComplete;
 

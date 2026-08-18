@@ -22,6 +22,7 @@ const tab = 'content';
 export class UniversalSearchContentTab extends RelewiseLitElement {
     @property() term = '';
     @property({ attribute: false }) hideFacets = false;
+    @property({ attribute: false }) hideZeroResults = false;
     @property({ attribute: 'displayed-at-location' }) displayedAtLocation?: string;
 
     @state() private result: ContentSearchResponse | null = null;
@@ -225,7 +226,9 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
                         <div class="rw-loading" part="loading-state">
                             <relewise-loading-spinner></relewise-loading-spinner>
                         </div>
-                    ` : !this.result || this.content.length === 0 ? nothing : html`
+                    ` : !this.result ? nothing : this.content.length === 0 ? this.hideZeroResults ? nothing : html`
+                        <p class="rw-empty" part="zero-results">${localization?.noResults ?? 'No content found.'}</p>
+                    ` : html`
                         <div class="rw-result-grid" part="content-grid">
                             ${this.content.map(content => html`
                                 <relewise-content-tile

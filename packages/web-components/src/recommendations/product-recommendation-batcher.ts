@@ -19,26 +19,25 @@ export class RecommendationBatcher extends RelewiseLitElement {
     data: BatchingContextValue = { requests: [] };
 
     timeoutHandler: ReturnType<typeof setTimeout> | undefined;
+    private requestGeneration = 0;
 
-    batchBound = this.batch.bind(this);
+    resetRequestsBound = this.resetRequests.bind(this);
     registerEventBound = this.registerEvent.bind(this);
-
-    constructor() {
-        super();
-
-        this.attachShadow({ mode: 'open' });
-    }
 
     async connectedCallback() {
         super.connectedCallback();
 
-        window.addEventListener(Events.contextSettingsUpdated, this.batchBound);
-        this.shadowRoot?.addEventListener(Events.registerProductRecommendation, this.registerEventBound);
+        window.addEventListener(Events.contextSettingsUpdated, this.resetRequestsBound);
+        this.renderRoot.addEventListener(Events.registerProductRecommendation, this.registerEventBound);
     }
 
     disconnectedCallback() {
-        window.removeEventListener(Events.contextSettingsUpdated, this.batchBound);
-        this.shadowRoot?.removeEventListener(Events.registerProductRecommendation, this.registerEventBound);
+        this.requestGeneration++;
+        if (this.timeoutHandler) {
+            clearTimeout(this.timeoutHandler);
+        }
+        window.removeEventListener(Events.contextSettingsUpdated, this.resetRequestsBound);
+        this.renderRoot.removeEventListener(Events.registerProductRecommendation, this.registerEventBound);
         
         super.disconnectedCallback();
     }
@@ -49,38 +48,56 @@ export class RecommendationBatcher extends RelewiseLitElement {
             return;
         }
 
+        const generation = ++this.requestGeneration;
+        const requests = this.data.requests;
         const builder = new ProductsRecommendationCollectionBuilder();
 
-        this.data.requests.forEach(x => builder.addRequest(x.request));
+        requests.forEach(x => builder.addRequest(x.request));
 
-        const recommender = getRecommender(getRelewiseUIOptions());
-        const response = await recommender.batchProductRecommendations(builder.build());
-        if (!response || !response.responses || response.responses.length === 0) {
-            return;
-        }
-
-        const newState: BatchingContextValue = { requests: this.data.requests };
-        newState.requests.forEach((x, index) => {
-            if (response.responses) {
-                x.result = response.responses[index];
+        try {
+            const recommender = getRecommender(getRelewiseUIOptions());
+            const response = await recommender.batchProductRecommendations(builder.build());
+            if (generation !== this.requestGeneration || !this.isConnected) {
+                return;
             }
-        });
-        this.data = newState;
+
+            this.data = {
+                requests: requests.map((request, index) => ({
+                    ...request,
+                    result: response?.responses?.[index] ?? null,
+                })),
+            };
+        } catch {
+            if (generation === this.requestGeneration && this.isConnected) {
+                this.data = {
+                    requests: requests.map(request => ({ ...request, result: null })),
+                };
+            }
+        }
     }
 
     registerEvent(e: Event) {
         e.preventDefault();
 
-        const newState: BatchingContextValue = { requests: this.data.requests };
         const event: CustomEvent = (e as CustomEvent);
-        newState.requests.push({ request: event.detail, id: event.target });
-        this.data = newState;
+        this.requestGeneration++;
+        this.data = {
+            requests: [
+                ...this.data.requests.filter(request => request.id !== event.target),
+                { request: event.detail, id: event.target },
+            ],
+        };
 
         if (this.timeoutHandler) {
             clearTimeout(this.timeoutHandler);
         }
 
         this.timeoutHandler = setTimeout(() => this.batch(), 100);
+    }
+
+    private resetRequests() {
+        this.requestGeneration++;
+        this.data = { requests: [] };
     }
 
     render() {

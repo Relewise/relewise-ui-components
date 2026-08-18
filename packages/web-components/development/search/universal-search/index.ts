@@ -89,6 +89,11 @@ initializeRelewiseUI(
         ...(useCustomTemplates ? { templates: customTemplates } : {}),
     },
 )
+    .useRecommendations({
+        popularSearchTerms: {
+            targetEntityTypes: ['Product', 'ProductCategory', 'Content'],
+        },
+    })
     .useSearch({
         facets: {
             product(builder) {
