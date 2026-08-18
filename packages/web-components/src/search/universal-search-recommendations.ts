@@ -1,11 +1,11 @@
-import { html, nothing, PropertyValues, TemplateResult } from 'lit';
+import { css, html, nothing, PropertyValues, TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';
 import { keyed } from 'lit/directives/keyed.js';
 import type { UniversalSearchRecommendationBlock } from '../app';
 import { Events } from '../helpers/events';
 import { RecommendationStateChangedEventDetail } from '../recommendations/recommendation-state';
 import { RelewiseLitElement } from '../relewise-lit-element';
-import { universalSearchRecommendationsStyles } from './universal-search-recommendations.styles';
+import { theme } from '../theme';
 
 const defaultTitles: Record<UniversalSearchRecommendationBlock['type'], string> = {
     PopularProducts: 'Popular products',
@@ -238,7 +238,27 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
         }
     }
 
-    static styles = universalSearchRecommendationsStyles;
+    static styles = [theme, css`
+        :host {
+            display: block;
+            font-family: var(--font);
+        }
+
+        .rw-recommendation-blocks,
+        relewise-product-recommendation-batcher {
+            display: grid;
+            gap: var(--relewise-universal-search-recommendation-block-gap, 2em);
+        }
+
+        .rw-recommendation-title {
+            margin: 0 0 var(--relewise-universal-search-recommendation-title-margin-bottom, 1em);
+        }
+
+        .rw-recommendation-loading {
+            display: flex;
+            justify-content: center;
+        }
+    `];
 }
 
 declare global {
