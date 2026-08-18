@@ -9,7 +9,7 @@ import { Events } from '../helpers';
 const contextKey = Symbol('product-batcher');
 
 export type BatchingContextValue = {
-    requests: { request: ProductRecommendationRequest, id: EventTarget | null, result?: ProductRecommendationResponse | null }[]
+    requests: { request: ProductRecommendationRequest, id: Element, result?: ProductRecommendationResponse | null }[]
 }
 export const context = createContext<BatchingContextValue>(contextKey);
 
@@ -43,13 +43,17 @@ export class RecommendationBatcher extends RelewiseLitElement {
     }
 
     async batch() {
-        if (this.data.requests.length === 0) {
+        const requests = this.activeRequests;
+        if (requests.length !== this.data.requests.length) {
+            this.data = { requests };
+        }
+
+        if (requests.length === 0) {
             // No recommendation components found to batch
             return;
         }
 
         const generation = ++this.requestGeneration;
-        const requests = this.data.requests;
         const builder = new ProductsRecommendationCollectionBuilder();
 
         requests.forEach(x => builder.addRequest(x.request));
@@ -65,12 +69,14 @@ export class RecommendationBatcher extends RelewiseLitElement {
                 requests: requests.map((request, index) => ({
                     ...request,
                     result: response?.responses?.[index] ?? null,
-                })),
+                })).filter(request => this.isActive(request.id)),
             };
         } catch {
             if (generation === this.requestGeneration && this.isConnected) {
                 this.data = {
-                    requests: requests.map(request => ({ ...request, result: null })),
+                    requests: requests
+                        .map(request => ({ ...request, result: null }))
+                        .filter(request => this.isActive(request.id)),
                 };
             }
         }
@@ -79,12 +85,13 @@ export class RecommendationBatcher extends RelewiseLitElement {
     registerEvent(e: Event) {
         e.preventDefault();
 
-        const event: CustomEvent = (e as CustomEvent);
+        const event = e as CustomEvent<ProductRecommendationRequest>;
+        const id = event.target as Element;
         this.requestGeneration++;
         this.data = {
             requests: [
-                ...this.data.requests.filter(request => request.id !== event.target),
-                { request: event.detail, id: event.target },
+                ...this.activeRequests.filter(request => request.id !== id),
+                { request: event.detail, id },
             ],
         };
 
@@ -98,6 +105,14 @@ export class RecommendationBatcher extends RelewiseLitElement {
     private resetRequests() {
         this.requestGeneration++;
         this.data = { requests: [] };
+    }
+
+    private get activeRequests() {
+        return this.data.requests.filter(request => this.isActive(request.id));
+    }
+
+    private isActive(id: Element) {
+        return id.isConnected && this.contains(id);
     }
 
     render() {

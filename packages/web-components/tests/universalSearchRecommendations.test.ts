@@ -3,6 +3,7 @@ import {
     ContentCategoryResult,
     ContentResult,
     ProductCategoryResult,
+    ProductRecommendationRequest,
     ProductResult,
     Recommender,
     Searcher,
@@ -15,7 +16,7 @@ import {
     useRecommendations,
     useSearch,
 } from '../src';
-import type { RecommendationStateChangedEventDetail, UniversalSearchRecommendationBlock } from '../src';
+import type { RecommendationBatcher, RecommendationStateChangedEventDetail, UniversalSearchRecommendationBlock } from '../src';
 import { Events } from '../src/helpers/events';
 import { UniversalSearchRecommendations } from '../src/search/universal-search-recommendations';
 import { clearRegisteredLightDomStylesForTesting } from '../src/lightDomStyles';
@@ -458,6 +459,41 @@ suite('universal search recommendations', () => {
         assert.deepInclude(states, { loading: true, hasResults: false });
         assert.deepInclude(states, { loading: false, hasResults: true });
         assert.equal(Events.recommendationStateChanged, 'relewise-ui-components:recommendation-state-changed');
+    });
+
+    test('replaces disconnected registrations when keyed recommendation children change', async() => {
+        const batches: ProductRecommendationRequest[][] = [];
+        Recommender.prototype.batchProductRecommendations = async requestCollection => {
+            const requests = [...(requestCollection.requests ?? [])];
+            batches.push(requests);
+            return {
+                responses: requests.map(() => ({ recommendations: [product('result')] })),
+            } as never;
+        };
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ universalSearch: {} });
+
+        const element = await fixture<UniversalSearchRecommendations>(html`
+            <relewise-universal-search-recommendations
+                .recommendations=${[
+                    { type: 'PopularProducts' as const },
+                    { type: 'SearchTermBasedProduct' as const },
+                ]}
+                term="Boots">
+            </relewise-universal-search-recommendations>
+        `);
+        await waitUntil(() => batches.length === 1);
+
+        element.term = 'Shoes';
+        await element.updateComplete;
+        await waitUntil(() => batches.length === 2);
+
+        assert.lengthOf(batches[1], 2);
+        assert.isFalse(batches[1].some(request => 'term' in request && request.term === 'Boots'));
+        assert.isTrue(batches[1].some(request => 'term' in request && request.term === 'Shoes'));
+        const batcher = element.renderRoot.querySelector<RecommendationBatcher>('relewise-product-recommendation-batcher')!;
+        assert.lengthOf(batcher.data.requests, 2);
+        assert.isTrue(batcher.data.requests.every(request => request.id.isConnected && batcher.contains(request.id)));
     });
 
     test('aggregates loading and results across independent recommendation children', async() => {
