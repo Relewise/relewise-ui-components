@@ -4,7 +4,6 @@ import {
     initializeRelewiseUI,
     PopularSearchTerms,
     PopularSearchTermSelectedEventDetail,
-    recommendationStateChangedEventName,
 } from '../src';
 import type { RecommendationStateChangedEventDetail } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
@@ -68,7 +67,7 @@ suite('relewise-popular-search-terms', () => {
         assert.isTrue(targetedConfigurationApplied);
         assert.deepInclude(states, { loading: true, hasResults: false });
         assert.deepInclude(states, { loading: false, hasResults: true });
-        assert.equal(recommendationStateChangedEventName, 'relewise-ui-components:recommendation-state-changed');
+        assert.equal(Events.recommendationStateChanged, 'relewise-ui-components:recommendation-state-changed');
     });
 
     test('emits the selected term', async() => {

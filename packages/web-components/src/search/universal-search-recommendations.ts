@@ -2,10 +2,8 @@ import { html, nothing, PropertyValues, TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';
 import { keyed } from 'lit/directives/keyed.js';
 import type { UniversalSearchRecommendationBlock } from '../app';
-import {
-    recommendationStateChangedEventName,
-    RecommendationStateChangedEventDetail,
-} from '../recommendations/recommendation-state';
+import { Events } from '../helpers/events';
+import { RecommendationStateChangedEventDetail } from '../recommendations/recommendation-state';
 import { RelewiseLitElement } from '../relewise-lit-element';
 import { universalSearchRecommendationsStyles } from './universal-search-recommendations.styles';
 
@@ -111,7 +109,7 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
         }
 
         this.lastReportedState = state;
-        this.dispatchEvent(new CustomEvent<RecommendationStateChangedEventDetail>(recommendationStateChangedEventName, {
+        this.dispatchEvent(new CustomEvent<RecommendationStateChangedEventDetail>(Events.recommendationStateChanged, {
             bubbles: true,
             composed: true,
             detail: state,

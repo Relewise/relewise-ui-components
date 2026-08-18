@@ -1,11 +1,10 @@
 import { RelewiseLitElement } from '../relewise-lit-element';
+import { Events } from '../helpers/events';
 
 export interface RecommendationStateChangedEventDetail {
     loading: boolean;
     hasResults: boolean;
 }
-
-export const recommendationStateChangedEventName = 'relewise-ui-components:recommendation-state-changed';
 
 export abstract class RecommendationStateElement extends RelewiseLitElement {
     private lastReportedRecommendationState?: RecommendationStateChangedEventDetail;
@@ -17,10 +16,16 @@ export abstract class RecommendationStateElement extends RelewiseLitElement {
         }
 
         this.lastReportedRecommendationState = state;
-        this.dispatchEvent(new CustomEvent<RecommendationStateChangedEventDetail>(recommendationStateChangedEventName, {
+        this.dispatchEvent(new CustomEvent<RecommendationStateChangedEventDetail>(Events.recommendationStateChanged, {
             bubbles: true,
             composed: true,
             detail: state,
         }));
+    }
+}
+
+declare global {
+    interface HTMLElementEventMap {
+        'relewise-ui-components:recommendation-state-changed': CustomEvent<RecommendationStateChangedEventDetail>;
     }
 }

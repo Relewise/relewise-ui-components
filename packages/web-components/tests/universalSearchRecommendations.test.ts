@@ -11,12 +11,12 @@ import {
 import {
     clearUrlState,
     initializeRelewiseUI,
-    recommendationStateChangedEventName,
     UniversalSearch,
     useRecommendations,
     useSearch,
 } from '../src';
 import type { RecommendationStateChangedEventDetail, UniversalSearchRecommendationBlock } from '../src';
+import { Events } from '../src/helpers/events';
 import { UniversalSearchRecommendations } from '../src/search/universal-search-recommendations';
 import { clearRegisteredLightDomStylesForTesting } from '../src/lightDomStyles';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
@@ -332,7 +332,7 @@ suite('universal search recommendations', () => {
         assert.exists(element.renderRoot.querySelector('relewise-product-recommendation-batcher'));
         assert.deepInclude(states, { loading: true, hasResults: false });
         assert.deepInclude(states, { loading: false, hasResults: true });
-        assert.equal(recommendationStateChangedEventName, 'relewise-ui-components:recommendation-state-changed');
+        assert.equal(Events.recommendationStateChanged, 'relewise-ui-components:recommendation-state-changed');
     });
 
     test('finishes without results when a product recommendation batch fails', async() => {
