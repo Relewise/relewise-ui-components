@@ -71,6 +71,9 @@ suite('universal search recommendations', () => {
     let lastSearchTerm: string | undefined;
     let popularProductRecommendations: ProductResult[] = [];
     let popularSearchTermEntityTypes: unknown;
+    let popularProductRequests = 0;
+    let popularProductCategoryRequests = 0;
+    let popularContentRequests = 0;
 
     setup(() => {
         clearUrlState();
@@ -79,6 +82,9 @@ suite('universal search recommendations', () => {
         lastSearchTerm = undefined;
         popularProductRecommendations = [product('popular')];
         popularSearchTermEntityTypes = undefined;
+        popularProductRequests = 0;
+        popularProductCategoryRequests = 0;
+        popularContentRequests = 0;
 
         Searcher.prototype.batch = async function(requestCollection) {
             return {
@@ -117,6 +123,7 @@ suite('universal search recommendations', () => {
             } as never;
         };
         Recommender.prototype.recommendPopularProducts = async function() {
+            popularProductRequests++;
             return { recommendations: popularProductRecommendations } as never;
         };
         Recommender.prototype.recentlyViewedProducts = async function() {
@@ -126,9 +133,11 @@ suite('universal search recommendations', () => {
             return { recommendations: [product('term-based')] } as never;
         };
         Recommender.prototype.recommendPopularProductCategories = async function() {
+            popularProductCategoryRequests++;
             return { recommendations: [productCategory('popular-category')] } as never;
         };
         Recommender.prototype.recommendPopularContents = async function() {
+            popularContentRequests++;
             return { recommendations: [content('popular-content')] } as never;
         };
         Recommender.prototype.recommendPopularContentCategories = async function() {
@@ -271,6 +280,78 @@ suite('universal search recommendations', () => {
         assert.isNull(queryDeep(element, '[part="recommendation-loading"]'));
     });
 
+    test('mounts recommendations only while Universal Search is open and refreshes them when reopened', async() => {
+        let requests = 0;
+        let resolveInitial!: (value: unknown) => void;
+        const initialResponse = new Promise(resolve => resolveInitial = resolve);
+        Recommender.prototype.recommendPopularProducts = () => {
+            requests++;
+            return requests === 1
+                ? initialResponse as never
+                : Promise.resolve({ recommendations: [product('current')] }) as never;
+        };
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            universalSearch: {
+                recommendations: { initial: [{ type: 'PopularProducts' }] },
+            },
+        });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search></relewise-universal-search>`);
+        await new Promise(resolve => setTimeout(resolve, 0));
+        assert.equal(requests, 0);
+
+        element.open();
+        await waitUntil(() => requests === 1);
+        element.close();
+        await element.updateComplete;
+        assert.isNull(queryDeep(element, 'relewise-popular-products'));
+
+        resolveInitial({ recommendations: [product('stale')] });
+        await initialResponse;
+        await new Promise(resolve => setTimeout(resolve, 0));
+        assert.isNull(queryDeep(element, 'relewise-product-tile'));
+
+        element.open();
+        await waitUntil(() => queryDeep<HTMLElement & { product: ProductResult }>(element, 'relewise-product-tile')?.product.productId === 'current');
+        assert.equal(requests, 2);
+    });
+
+    test('requests no-result recommendations only for the active tab', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {}, productCategories: {}, content: {} },
+                recommendations: {
+                    noResults: {
+                        products: [{ type: 'PopularProducts' }],
+                        productCategories: [{ type: 'PopularProductCategories' }],
+                        content: [{ type: 'PopularContents' }],
+                    },
+                },
+            },
+        });
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+
+        (element as unknown as UniversalSearchTestApi).setSearchTerm('No matches');
+
+        await waitUntil(() => popularProductRequests === 1);
+        assert.equal(popularProductCategoryRequests, 0);
+        assert.equal(popularContentRequests, 0);
+
+        const tabs = [...element.renderRoot.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+        tabs[1].click();
+        await waitUntil(() => popularProductCategoryRequests === 1);
+        assert.equal(popularContentRequests, 0);
+
+        tabs[2].click();
+        await waitUntil(() => popularContentRequests === 1);
+
+        tabs[0].click();
+        await waitUntil(() => popularProductRequests === 2);
+    });
+
     test('submits a selected popular search term', async() => {
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch({
@@ -377,6 +458,86 @@ suite('universal search recommendations', () => {
         assert.deepInclude(states, { loading: true, hasResults: false });
         assert.deepInclude(states, { loading: false, hasResults: true });
         assert.equal(Events.recommendationStateChanged, 'relewise-ui-components:recommendation-state-changed');
+    });
+
+    test('aggregates loading and results across independent recommendation children', async() => {
+        let resolveProducts!: (value: unknown) => void;
+        let resolveContent!: (value: unknown) => void;
+        Recommender.prototype.recommendPopularProducts = () => new Promise(resolve => resolveProducts = resolve) as never;
+        Recommender.prototype.recommendPopularContents = () => new Promise(resolve => resolveContent = resolve) as never;
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ universalSearch: {} });
+        const states: RecommendationStateChangedEventDetail[] = [];
+
+        const element = await fixture<UniversalSearchRecommendations>(html`
+            <relewise-universal-search-recommendations
+                .recommendations=${[
+                    { type: 'PopularProducts' as const },
+                    { type: 'PopularContents' as const },
+                ]}
+                @relewise-ui-components:recommendation-state-changed=${(event: CustomEvent<RecommendationStateChangedEventDetail>) => states.push(event.detail)}>
+            </relewise-universal-search-recommendations>
+        `);
+
+        await waitUntil(() => Boolean(resolveProducts) && Boolean(resolveContent));
+        resolveProducts({ recommendations: [product('available')] });
+        await waitUntil(() => {
+            const state = states[states.length - 1];
+            return state?.loading && state.hasResults;
+        });
+        assert.isNull(element.renderRoot.querySelector('[part="recommendation-loading"]'));
+        assert.isFalse(element.renderRoot.querySelector<HTMLElement>('[part~="popular-products"]')!.hidden);
+        assert.isTrue(element.renderRoot.querySelector<HTMLElement>('[part~="popular-contents"]')!.hidden);
+
+        resolveContent({ recommendations: [] });
+        await waitUntil(() => {
+            const state = states[states.length - 1];
+            return !state?.loading && state.hasResults;
+        });
+        assert.lengthOf(queryAllDeep(element.renderRoot, 'relewise-product-tile'), 1);
+        assert.lengthOf(queryAllDeep(element.renderRoot, 'relewise-content-tile'), 0);
+    });
+
+    test('reports no results when all independent recommendation children are empty', async() => {
+        Recommender.prototype.recommendPopularProducts = async() => ({ recommendations: [] }) as never;
+        Recommender.prototype.recommendPopularContents = async() => ({ recommendations: [] }) as never;
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ universalSearch: {} });
+        const states: RecommendationStateChangedEventDetail[] = [];
+
+        const element = await fixture<UniversalSearchRecommendations>(html`
+            <relewise-universal-search-recommendations
+                .recommendations=${[
+                    { type: 'PopularProducts' as const },
+                    { type: 'PopularContents' as const },
+                ]}
+                @relewise-ui-components:recommendation-state-changed=${(event: CustomEvent<RecommendationStateChangedEventDetail>) => states.push(event.detail)}>
+            </relewise-universal-search-recommendations>
+        `);
+
+        await waitUntil(() => states.some(state => !state.loading && !state.hasResults));
+        assert.isNull(element.renderRoot.querySelector('[part="recommendation-loading"]'));
+        assert.lengthOf(queryAllDeep(element.renderRoot, 'relewise-product-tile, relewise-content-tile'), 0);
+    });
+
+    test('finishes without results when a non-batched recommendation request fails', async() => {
+        Recommender.prototype.recommendPopularContents = async() => {
+            throw new Error('Recommendations are unavailable');
+        };
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ universalSearch: {} });
+        const states: RecommendationStateChangedEventDetail[] = [];
+
+        const element = await fixture<UniversalSearchRecommendations>(html`
+            <relewise-universal-search-recommendations
+                .recommendations=${[{ type: 'PopularContents' as const }]}
+                @relewise-ui-components:recommendation-state-changed=${(event: CustomEvent<RecommendationStateChangedEventDetail>) => states.push(event.detail)}>
+            </relewise-universal-search-recommendations>
+        `);
+
+        await waitUntil(() => states.some(state => !state.loading && !state.hasResults));
+        assert.isNull(element.renderRoot.querySelector('[part="recommendation-loading"]'));
+        assert.lengthOf(queryAllDeep(element.renderRoot, 'relewise-content-tile'), 0);
     });
 
     test('finishes without results when a product recommendation batch fails', async() => {
