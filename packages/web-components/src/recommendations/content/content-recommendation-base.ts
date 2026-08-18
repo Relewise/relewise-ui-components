@@ -88,7 +88,7 @@ export abstract class ContentRecommendationBase extends RecommendationStateEleme
 
     render() {
         if (this.content && this.content.length > 0) {
-            return html`${this.content.map(content => html`<relewise-content-tile .content=${content} .user=${this.user}></relewise-content-tile>`)}`;
+            return html`${this.content.map(content => html`<relewise-content-tile part="content-tile" .content=${content} .user=${this.user}></relewise-content-tile>`)}`;
         }
     }
 

@@ -194,8 +194,14 @@ suite('universal search recommendations', () => {
             composition.renderRoot.querySelector<HTMLElement & { numberOfRecommendations: number }>('relewise-popular-products')?.numberOfRecommendations,
             2,
         );
-        assert.exists(queryDeep(element, 'relewise-product-category-tile'));
-        assert.exists(queryDeep(element, 'relewise-content-category-tile'));
+        assert.equal(queryDeep(element, 'relewise-product-tile')?.getAttribute('part'), 'product-tile');
+        assert.equal(queryDeep(element, 'relewise-content-tile')?.getAttribute('part'), 'content-tile');
+        assert.equal(queryDeep(element, 'relewise-product-category-tile')?.getAttribute('part'), 'category-tile');
+        assert.equal(queryDeep(element, 'relewise-content-category-tile')?.getAttribute('part'), 'category-tile');
+        assert.include(
+            queryDeep(element, 'relewise-popular-products')?.getAttribute('exportparts') ?? '',
+            'product-tile: recommendation-product-tile',
+        );
         assert.equal(queryDeep(element, '[part="term"]')?.textContent?.trim(), 'Trail shoes');
         assert.include(
             queryDeep(element, 'relewise-popular-search-terms')?.getAttribute('exportparts') ?? '',
@@ -203,6 +209,44 @@ suite('universal search recommendations', () => {
         );
         assert.deepEqual(popularSearchTermEntityTypes, ['Content']);
         assert.lengthOf(element.renderRoot.querySelectorAll('[role="tab"]'), 0);
+    });
+
+    test('forwards recommendation tile parts through Universal Search', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            universalSearch: {
+                recommendations: {
+                    initial: [
+                        { type: 'PopularProducts' },
+                        { type: 'PopularProductCategories' },
+                        { type: 'PopularContents' },
+                    ],
+                },
+            },
+        });
+
+        const wrapper = await fixture<HTMLElement>(html`
+            <div>
+                <style>
+                    relewise-universal-search::part(recommendation-product-tile) {
+                        outline: 7px solid rgb(1, 2, 3);
+                    }
+                    relewise-universal-search::part(recommendation-category-tile) {
+                        outline: 8px solid rgb(1, 2, 3);
+                    }
+                    relewise-universal-search::part(recommendation-content-tile) {
+                        outline: 9px solid rgb(1, 2, 3);
+                    }
+                </style>
+                <relewise-universal-search open></relewise-universal-search>
+            </div>
+        `);
+        const element = wrapper.querySelector<UniversalSearch>('relewise-universal-search')!;
+        await waitUntil(() => queryDeep(element, 'relewise-content-tile') !== null);
+
+        assert.equal(getComputedStyle(queryDeep(element, 'relewise-product-tile')!).outlineWidth, '7px');
+        assert.equal(getComputedStyle(queryDeep(element, 'relewise-product-category-tile')!).outlineWidth, '8px');
+        assert.equal(getComputedStyle(queryDeep(element, 'relewise-content-tile')!).outlineWidth, '9px');
     });
 
     test('shows the initial empty prompt after configured recommendations finish empty', async() => {
@@ -379,5 +423,9 @@ suite('universal search recommendations', () => {
         assert.isNull(element.shadowRoot);
         assert.isNull(element.querySelector('relewise-product-recommendation-batcher')?.shadowRoot ?? null);
         assert.exists(element.querySelector('[part~="recommendation-block"]'));
+        assert.equal(element.querySelector('relewise-product-tile')?.getAttribute('part'), 'product-tile');
+        const registeredStyles = document.querySelector('#relewise-light-dom-styles');
+        assert.include(registeredStyles?.textContent, 'relewise-universal-search-recommendations .rw-recommendation-blocks');
+        assert.include(registeredStyles?.textContent, 'relewise-popular-products');
     });
 });

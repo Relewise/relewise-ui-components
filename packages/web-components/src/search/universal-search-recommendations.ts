@@ -173,7 +173,8 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
         case 'PopularProducts':
             return html`
                 <relewise-popular-products
-                    part="recommendation-grid product-recommendation-grid recommendation-product-tile"
+                    part="recommendation-grid product-recommendation-grid"
+                    exportparts="product-tile: recommendation-product-tile"
                     .numberOfRecommendations=${numberOfRecommendations}
                     .displayedAtLocation=${displayedAtLocation}>
                 </relewise-popular-products>
@@ -181,7 +182,8 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
         case 'RecentlyViewedProducts':
             return html`
                 <relewise-recently-viewed-products
-                    part="recommendation-grid product-recommendation-grid recommendation-product-tile"
+                    part="recommendation-grid product-recommendation-grid"
+                    exportparts="product-tile: recommendation-product-tile"
                     .numberOfRecommendations=${numberOfRecommendations}
                     .displayedAtLocation=${displayedAtLocation}>
                 </relewise-recently-viewed-products>
@@ -189,7 +191,8 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
         case 'PopularProductCategories':
             return html`
                 <relewise-popular-product-categories
-                    part="recommendation-grid category-recommendation-grid recommendation-category-tile"
+                    part="recommendation-grid category-recommendation-grid"
+                    exportparts="category-tile: recommendation-category-tile"
                     .numberOfRecommendations=${numberOfRecommendations}
                     .displayedAtLocation=${displayedAtLocation}>
                 </relewise-popular-product-categories>
@@ -197,7 +200,8 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
         case 'PopularContents':
             return html`
                 <relewise-popular-content
-                    part="recommendation-grid content-recommendation-grid recommendation-content-tile"
+                    part="recommendation-grid content-recommendation-grid"
+                    exportparts="content-tile: recommendation-content-tile"
                     .numberOfRecommendations=${numberOfRecommendations}
                     .displayedAtLocation=${displayedAtLocation}>
                 </relewise-popular-content>
@@ -205,7 +209,8 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
         case 'PopularContentCategories':
             return html`
                 <relewise-popular-content-categories
-                    part="recommendation-grid category-recommendation-grid recommendation-category-tile"
+                    part="recommendation-grid category-recommendation-grid"
+                    exportparts="category-tile: recommendation-category-tile"
                     .numberOfRecommendations=${numberOfRecommendations}
                     .displayedAtLocation=${displayedAtLocation}>
                 </relewise-popular-content-categories>
@@ -223,7 +228,8 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
         case 'SearchTermBasedProduct':
             return html`
                 <relewise-search-term-based-products
-                    part="recommendation-grid product-recommendation-grid recommendation-product-tile"
+                    part="recommendation-grid product-recommendation-grid"
+                    exportparts="product-tile: recommendation-product-tile"
                     .numberOfRecommendations=${numberOfRecommendations}
                     .displayedAtLocation=${displayedAtLocation}
                     .term=${this.term}>

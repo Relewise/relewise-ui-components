@@ -6,7 +6,7 @@ export const universalSearchStyles = [theme, css`
         display: block;
         font-family: var(--font);
         --relewise-universal-search-color: var(--relewise-color, #212427);
-        --relewise-recommendation-term-border-color: var(--relewise-universal-search-border-color, #ddd);
+        --relewise-popular-search-term-border-color: var(--relewise-universal-search-border-color, #ddd);
     }
 
     .rw-backdrop {

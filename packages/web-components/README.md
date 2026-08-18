@@ -963,7 +963,7 @@ All configured initial blocks are mounted together. Each standalone component ow
 
 No-result recommendations are lazy. Universal Search mounts only the active zero-result tab's configured recommendations and mounts another tab's recommendations when that tab is selected. Leaving a tab disconnects its recommendation children, so returning to it starts their normal standalone lifecycle again. Recommendation results retain the configured block order.
 
-Universal Search forwards the recommendation composition CSS parts, including `recommendation-loading`, `recommendation-blocks`, `recommendation-block`, `recommendation-title`, the entity grid parts, tile-host parts, term parts, and type-specific block parts such as `popular-products` and `search-term-based-products`.
+Universal Search forwards the recommendation composition CSS parts, including `recommendation-loading`, `recommendation-blocks`, `recommendation-block`, `recommendation-title`, the entity grid parts, the actual recommendation tile parts, term parts, and type-specific block parts such as `popular-products` and `search-term-based-products`.
 
 The current tabs use load-more behavior. Additional pagination modes are not part of the initial universal-search implementation.
 
@@ -1412,6 +1412,15 @@ All CSS variables recognised by the web components are listed below together wit
 | `--relewise-popular-search-term-border-radius` | `1em` | Corner radius of recommended search-term buttons. |
 | `--relewise-popular-search-term-padding` | `0.5em 0.75em` | Internal padding of recommended search-term buttons. |
 
+#### Recommendation grids
+These variables are shared by the standalone product, content, and category recommendation components. They also apply when Universal Search composes those components into initial and no-result states.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `--relewise-recommendation-grid-columns` | `4` | Number of recommendation tile columns above the mobile breakpoint. |
+| `--relewise-recommendation-grid-mobile-columns` | `2` | Number of recommendation tile columns at widths up to `768px`. |
+| `--relewise-recommendation-grid-gap` | `1em` | Gap between recommendation tiles. |
+
 #### Product and category tiles, and pricing
 | Variable | Default | Description |
 | --- | --- | --- |
@@ -1506,16 +1515,10 @@ These variables style the recommendation blocks composed internally by `relewise
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `--relewise-recommendation-block-gap` | `2em` | Vertical gap between recommendation blocks. |
-| `--relewise-recommendation-title-margin-bottom` | `1em` | Space below a recommendation block title. |
-| `--relewise-recommendation-grid-columns` | `4` | Number of recommendation tile columns above the mobile breakpoint. |
-| `--relewise-recommendation-grid-mobile-columns` | `2` | Number of recommendation tile columns at widths up to `768px`. |
-| `--relewise-recommendation-grid-gap` | `1em` | Gap between recommendation tiles. |
-| `--relewise-recommendation-term-gap` | `0.5em` | Gap between recommended search-term buttons. |
-| `--relewise-recommendation-term-background` | `white` | Background color of recommended search-term buttons. |
-| `--relewise-recommendation-term-border-color` | `#ddd` | Border color of recommended search-term buttons. |
-| `--relewise-recommendation-term-border-radius` | `1em` | Corner radius of recommended search-term buttons. |
-| `--relewise-recommendation-term-padding` | `0.5em 0.75em` | Internal padding of recommended search-term buttons. |
+| `--relewise-universal-search-recommendation-block-gap` | `2em` | Vertical gap between recommendation blocks. |
+| `--relewise-universal-search-recommendation-title-margin-bottom` | `1em` | Space below a recommendation block title. |
+
+Recommendation tiles use the shared [recommendation grid variables](#recommendation-grids). Popular-search-term blocks use the existing [popular search term variables](#popular-search-terms), which can be set on `relewise-universal-search` and inherit into the composed component.
 
 #### Universal Search
 

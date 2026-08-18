@@ -130,7 +130,7 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
 
         if (this.products || products?.result?.recommendations) {
             return html`${(products?.result?.recommendations ?? this.products ?? []).map(product =>
-                html`<relewise-product-tile .product=${product} .user=${this.user}></relewise-product-tile>`)
+                html`<relewise-product-tile part="product-tile" .product=${product} .user=${this.user}></relewise-product-tile>`)
                 }`;
         }
     }
