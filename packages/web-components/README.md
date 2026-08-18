@@ -413,7 +413,7 @@ initializeRelewiseUI({
 ```
 
 #### Popular Search Terms
-This component renders popular search terms as buttons. Selecting a term dispatches a bubbling and composed `relewise-popular-search-terms-term-selected` event with `{ term }` in `event.detail`.
+This component renders popular search terms as buttons. Selecting a term dispatches a bubbling and composed `relewise-ui-components:popular-search-term-selected` event with `{ term }` in `event.detail`.
 
 ```html
 <relewise-popular-search-terms displayed-at-location="LOCATION"></relewise-popular-search-terms>
@@ -435,15 +435,14 @@ This component renders popular search terms as buttons. Selecting a term dispatc
 
     Selects an additional targeted configuration. You can read more [here](#targeted-recommendations).
 
-The entity types used when recommending search terms can be configured centrally during initialization. Allowed values are `Product`, `Variant`, `ProductCategory`, `Brand`, `Content`, and `ContentCategory`.
+The entity types used when recommending search terms can be configured when recommendation components are registered. Allowed values are `Product`, `Variant`, `ProductCategory`, `Brand`, `Content`, and `ContentCategory`.
 
 ```ts
 initializeRelewiseUI({
     // Other options...
-    recommendationSettings: {
-        popularSearchTerms: {
-            targetEntityTypes: ['Product', 'ProductCategory', 'Content'],
-        },
+}).useRecommendations({
+    popularSearchTerms: {
+        targetEntityTypes: ['Product', 'ProductCategory', 'Content'],
     },
 });
 ```
@@ -1467,7 +1466,7 @@ The public category tile components are:
 - `<relewise-product-category-tile>` with the JavaScript property `productCategory`.
 - `<relewise-content-category-tile>` with the JavaScript property `contentCategory`.
 
-Both are registered by `useRecommendations()` and `useSearch()`. They render `Url`, `ImageUrl`, and the display name when those values are present on the supplied result. Category recommendation requests select `ImageUrl` and `Url` by default.
+Both are registered by `useRecommendations()` and `useSearch()`. They render `Url`, `ImageUrl`, and the display name when those values are present on the supplied result. Category requests select `ImageUrl` and `Url` by default.
 
 ```ts
 initializeRelewiseUI({

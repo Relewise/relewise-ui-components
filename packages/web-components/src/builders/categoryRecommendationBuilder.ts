@@ -4,8 +4,8 @@ import {
     Settings,
 } from '@relewise/client';
 import {
-    defaultContentCategoryRecommendationProperties,
-    defaultProductCategoryRecommendationProperties,
+    defaultContentCategoryProperties,
+    defaultProductCategoryProperties,
 } from '../defaultSettings';
 import {
     getRelewiseContextSettings,
@@ -23,7 +23,7 @@ export async function getProductCategoryRecommendationBuilderWithDefaults<T exte
     const settings = await getRelewiseContextSettings(displayedAtLocation);
     const options = getRelewiseUIOptions();
     const builder = createBuilder(settings)
-        .setProductCategoryProperties(options.selectedPropertiesSettings?.productCategory ?? defaultProductCategoryRecommendationProperties)
+        .setProductCategoryProperties(options.selectedPropertiesSettings?.productCategory ?? defaultProductCategoryProperties)
         .relevanceModifiers(modifiers => options.relevanceModifiers?.productCategory?.(modifiers))
         .filters(filters => options.filters?.productCategory?.(filters));
 
@@ -44,7 +44,7 @@ export async function getContentCategoryRecommendationBuilderWithDefaults<T exte
     const settings = await getRelewiseContextSettings(displayedAtLocation);
     const options = getRelewiseUIOptions();
     const builder = createBuilder(settings)
-        .setSelectedContentCategoryProperties(options.selectedPropertiesSettings?.contentCategory ?? defaultContentCategoryRecommendationProperties)
+        .setSelectedContentCategoryProperties(options.selectedPropertiesSettings?.contentCategory ?? defaultContentCategoryProperties)
         .relevanceModifiers(modifiers => options.relevanceModifiers?.contentCategory?.(modifiers))
         .filters(filters => options.filters?.contentCategory?.(filters));
 

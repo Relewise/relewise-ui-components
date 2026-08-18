@@ -7,18 +7,15 @@ import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
 import {
     getRelewiseContextSettings,
+    getRelewiseUIRecommendationOptions,
     getRelewiseRecommendationTargetedConfigurations,
     getRelewiseUIOptions,
 } from '../../helpers/relewiseUIOptions';
 import { RelewiseLitElement } from '../../relewise-lit-element';
-import { PopularSearchTermEntityType } from '../../initialize';
+import { PopularSearchTermEntityType } from '../../app';
 import { getRecommender } from '../recommender';
 
-export type PopularSearchTermsTermSelectedEventDetail = { term: string };
-
-export const PopularSearchTermsEvents = {
-    termSelected: 'relewise-popular-search-terms-term-selected',
-} as const;
+export type PopularSearchTermSelectedEventDetail = { term: string };
 
 type RenderableSearchTermResult = SearchTermResult & { term: string };
 
@@ -84,8 +81,8 @@ export class PopularSearchTerms extends RelewiseLitElement {
         const builder = new PopularSearchTermsRecommendationBuilder(settings)
             .setTerm(this.term || undefined)
             .take(this.numberOfRecommendations);
-        const targetEntityTypes: PopularSearchTermEntityType[] = getRelewiseUIOptions()
-            .recommendationSettings?.popularSearchTerms?.targetEntityTypes ?? [];
+        const targetEntityTypes: PopularSearchTermEntityType[] = getRelewiseUIRecommendationOptions()
+            ?.popularSearchTerms?.targetEntityTypes ?? [];
 
         if (targetEntityTypes.length > 0) {
             builder.addEntityType(...targetEntityTypes);
@@ -99,7 +96,7 @@ export class PopularSearchTerms extends RelewiseLitElement {
     }
 
     private selectTerm(term: string) {
-        this.dispatchEvent(new CustomEvent<PopularSearchTermsTermSelectedEventDetail>(PopularSearchTermsEvents.termSelected, {
+        this.dispatchEvent(new CustomEvent<PopularSearchTermSelectedEventDetail>(Events.popularSearchTermSelected, {
             bubbles: true,
             composed: true,
             detail: { term },
@@ -165,6 +162,6 @@ declare global {
     }
 
     interface HTMLElementEventMap {
-        'relewise-popular-search-terms-term-selected': CustomEvent<PopularSearchTermsTermSelectedEventDetail>;
+        'relewise-ui-components:popular-search-term-selected': CustomEvent<PopularSearchTermSelectedEventDetail>;
     }
 }

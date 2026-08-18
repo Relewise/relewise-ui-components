@@ -3,8 +3,7 @@ import { PopularSearchTermsRecommendationRequest, Recommender, SearchTermResult 
 import {
     initializeRelewiseUI,
     PopularSearchTerms,
-    PopularSearchTermsEvents,
-    PopularSearchTermsTermSelectedEventDetail,
+    PopularSearchTermSelectedEventDetail,
 } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 import { clearRegisteredLightDomStylesForTesting } from '../src/lightDomStyles';
@@ -43,12 +42,11 @@ suite('relewise-popular-search-terms', () => {
                 configuration: { filters: () => targetedConfigurationApplied = true },
             }),
         };
-        options.recommendationSettings = {
+        initializeRelewiseUI(options).useRecommendations({
             popularSearchTerms: {
                 targetEntityTypes: ['Product', 'ProductCategory'],
             },
-        };
-        initializeRelewiseUI(options).useRecommendations();
+        });
         const element = await fixture<PopularSearchTerms>(html`
             <relewise-popular-search-terms
                 displayed-at-location="test"
@@ -74,8 +72,8 @@ suite('relewise-popular-search-terms', () => {
         await waitUntil(() => element.renderRoot.querySelector<HTMLButtonElement>('[part="term"]') !== null);
 
         let selectedTerm: string | null = null;
-        element.addEventListener(PopularSearchTermsEvents.termSelected, event => {
-            selectedTerm = (event as CustomEvent<PopularSearchTermsTermSelectedEventDetail>).detail.term;
+        element.addEventListener(Events.popularSearchTermSelected, event => {
+            selectedTerm = (event as CustomEvent<PopularSearchTermSelectedEventDetail>).detail.term;
             assert.isTrue(event.bubbles);
             assert.isTrue(event.composed);
         });

@@ -1,4 +1,4 @@
-import { FilterBuilder, ProductCategoryResult, ProductResult } from '@relewise/client';
+import { FilterBuilder, ProductCategoryResult, ProductResult, RecommendPopularSearchTermSettings } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { ContentCategoryTile, FilterIcon, ProductCategoryTile, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
 import { Button } from './components/button';
@@ -47,6 +47,14 @@ export interface RelewiseUISearchOptions {
     rememberScrollPosition?: boolean;
     debounceTimeInMs?: number;
     explodedVariants?: number;
+}
+
+export type PopularSearchTermEntityType = NonNullable<RecommendPopularSearchTermSettings['targetEntityTypes']>[number];
+
+export interface RelewiseUIRecommendationOptions {
+    popularSearchTerms?: {
+        targetEntityTypes?: PopularSearchTermEntityType[];
+    };
 }
 
 export interface SearchLocalization {
@@ -120,8 +128,8 @@ export interface SearchTemplates {
 }
 
 export class App {
-    useRecommendations(): App {
-        useRecommendations();
+    useRecommendations(options?: RelewiseUIRecommendationOptions): App {
+        useRecommendations(options);
         return this;
     }
 
@@ -151,7 +159,9 @@ export class App {
     }
 }
 
-export function useRecommendations() {
+export function useRecommendations(options?: RelewiseUIRecommendationOptions) {
+    window.relewiseUIRecommendationOptions = options ?? {};
+
     tryRegisterElement('relewise-product-recommendation-batcher', RecommendationBatcher);
     tryRegisterElement('relewise-popular-products', PopularProducts);
     tryRegisterElement('relewise-products-viewed-after-viewing-product', ProductsViewedAfterViewingProduct);

@@ -9,15 +9,10 @@ const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = {
 
 export const defaultProductCategoryProperties: Partial<SelectedProductCategoryPropertiesSettings> = {
     displayName: true,
-    dataKeys: ['Url'],
-};
-
-export const defaultProductCategoryRecommendationProperties: Partial<SelectedProductCategoryPropertiesSettings> = {
-    displayName: true,
     dataKeys: ['ImageUrl', 'Url'],
 };
 
-export const defaultContentCategoryRecommendationProperties: Partial<SelectedContentCategoryPropertiesSettings> = {
+export const defaultContentCategoryProperties: Partial<SelectedContentCategoryPropertiesSettings> = {
     displayName: true,
     dataKeys: ['ImageUrl', 'Url'],
 };

@@ -3,9 +3,9 @@
 import { UserFactory } from '@relewise/client';
 import {
     initializeRelewiseUI,
+    Events,
     PopularSearchTerms,
-    PopularSearchTermsEvents,
-    PopularSearchTermsTermSelectedEventDetail,
+    PopularSearchTermSelectedEventDetail,
 } from '../../../src';
 
 initializeRelewiseUI({
@@ -19,15 +19,14 @@ initializeRelewiseUI({
     clientOptions: {
         serverUrl: import.meta.env.VITE_SERVER_URL,
     },
-    recommendationSettings: {
-        popularSearchTerms: {
-            targetEntityTypes: ['Product', 'ProductCategory', 'Content'],
-        },
+}).useRecommendations({
+    popularSearchTerms: {
+        targetEntityTypes: ['Product', 'ProductCategory', 'Content'],
     },
-}).useRecommendations();
+});
 
 const popularSearchTerms = document.querySelector<PopularSearchTerms>('#popular-search-terms-example');
-popularSearchTerms?.addEventListener(PopularSearchTermsEvents.termSelected, event => {
-    const term = (event as CustomEvent<PopularSearchTermsTermSelectedEventDetail>).detail.term;
+popularSearchTerms?.addEventListener(Events.popularSearchTermSelected, event => {
+    const term = (event as CustomEvent<PopularSearchTermSelectedEventDetail>).detail.term;
     console.log('Selected popular search term:', term);
 });

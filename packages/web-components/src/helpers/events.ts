@@ -9,4 +9,5 @@ export const Events = {
     searchingForProductsCompleted: 'relewise-ui-components:search-for-products-completed',
     registerProductRecommendation: 'relewise-ui-components:register-product-recommendation-component',
     userEngagementChanged: 'relewise-ui-components:user-engagement-changed',
+    popularSearchTermSelected: 'relewise-ui-components:popular-search-term-selected',
 };
