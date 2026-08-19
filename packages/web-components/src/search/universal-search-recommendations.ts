@@ -45,7 +45,7 @@ const pendingState: RecommendationStateChangedEventDetail = {
 
 export class UniversalSearchRecommendations extends RelewiseLitElement {
     @property({ attribute: false })
-    recommendations: UniversalSearchRecommendationBlock[] = [];
+    configuration: UniversalSearchRecommendationBlock[] = [];
 
     @property()
     term = '';
@@ -61,19 +61,19 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
     private lastReportedState?: RecommendationStateChangedEventDetail;
 
     protected willUpdate(changedProperties: PropertyValues<this>): void {
-        if (changedProperties.has('recommendations')
+        if (changedProperties.has('configuration')
             || changedProperties.has('term')
             || changedProperties.has('displayedAtLocation')
             || changedProperties.has('active')) {
             this.recommendationStates = this.active
-                ? this.recommendations.map(() => pendingState)
+                ? this.configuration.map(() => pendingState)
                 : [];
         }
     }
 
     protected updated(changedProperties: PropertyValues<this>): void {
         super.updated(changedProperties);
-        if (changedProperties.has('recommendations')
+        if (changedProperties.has('configuration')
             || changedProperties.has('term')
             || changedProperties.has('displayedAtLocation')
             || changedProperties.has('active')) {
@@ -122,7 +122,7 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
     }
 
     private get shouldBatchProductRecommendations(): boolean {
-        const productRecommendations = this.recommendations.filter(recommendation =>
+        const productRecommendations = this.configuration.filter(recommendation =>
             productRecommendationTypes.has(recommendation.type));
         return productRecommendations.length > 1
             && productRecommendations.every(recommendation =>
@@ -131,11 +131,11 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
     }
 
     render() {
-        if (!this.active || this.recommendations.length === 0) {
+        if (!this.active || this.configuration.length === 0) {
             return nothing;
         }
 
-        const blocks = this.recommendations.map((recommendation, index) =>
+        const blocks = this.configuration.map((recommendation, index) =>
             this.renderBlock(recommendation, index));
         const state = this.state;
 

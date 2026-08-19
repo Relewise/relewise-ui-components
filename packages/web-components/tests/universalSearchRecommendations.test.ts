@@ -479,7 +479,7 @@ suite('universal search recommendations', () => {
 
         const element = await fixture<UniversalSearchRecommendations>(html`
             <relewise-universal-search-recommendations
-                .recommendations=${recommendations}
+                .configuration=${recommendations}
                 term="Boots"
                 @relewise-ui-components:recommendation-state-changed=${(event: CustomEvent<RecommendationStateChangedEventDetail>) => states.push(event.detail)}>
             </relewise-universal-search-recommendations>
@@ -506,7 +506,7 @@ suite('universal search recommendations', () => {
 
         const element = await fixture<UniversalSearchRecommendations>(html`
             <relewise-universal-search-recommendations
-                .recommendations=${[
+                .configuration=${[
                     { type: 'PopularProducts' as const },
                     { type: 'SearchTermBasedProduct' as const },
                 ]}
@@ -538,7 +538,7 @@ suite('universal search recommendations', () => {
 
         const element = await fixture<UniversalSearchRecommendations>(html`
             <relewise-universal-search-recommendations
-                .recommendations=${[
+                .configuration=${[
                     { type: 'PopularProducts' as const },
                     { type: 'PopularContents' as const },
                 ]}
@@ -574,7 +574,7 @@ suite('universal search recommendations', () => {
 
         const element = await fixture<UniversalSearchRecommendations>(html`
             <relewise-universal-search-recommendations
-                .recommendations=${[
+                .configuration=${[
                     { type: 'PopularProducts' as const },
                     { type: 'PopularContents' as const },
                 ]}
@@ -597,7 +597,7 @@ suite('universal search recommendations', () => {
 
         const element = await fixture<UniversalSearchRecommendations>(html`
             <relewise-universal-search-recommendations
-                .recommendations=${[{ type: 'PopularContents' as const }]}
+                .configuration=${[{ type: 'PopularContents' as const }]}
                 @relewise-ui-components:recommendation-state-changed=${(event: CustomEvent<RecommendationStateChangedEventDetail>) => states.push(event.detail)}>
             </relewise-universal-search-recommendations>
         `);
@@ -617,7 +617,7 @@ suite('universal search recommendations', () => {
 
         const element = await fixture<UniversalSearchRecommendations>(html`
             <relewise-universal-search-recommendations
-                .recommendations=${[
+                .configuration=${[
                     { type: 'PopularProducts' as const },
                     { type: 'SearchTermBasedProduct' as const },
                 ]}
@@ -639,7 +639,7 @@ suite('universal search recommendations', () => {
 
         const element = await fixture<UniversalSearchRecommendations>(html`
             <relewise-universal-search-recommendations
-                .recommendations=${[
+                .configuration=${[
                     { type: 'PopularProducts' as const },
                     { type: 'SearchTermBasedProduct' as const },
                 ]}

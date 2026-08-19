@@ -518,7 +518,7 @@ export class UniversalSearch extends RelewiseLitElement {
                         ${!this.term ? html`
                             <relewise-universal-search-recommendations
                                 exportparts=${recommendationsExportParts}
-                                .recommendations=${this.initialRecommendations}
+                                .configuration=${this.initialRecommendations}
                                 .displayedAtLocation=${this.displayedAtLocation ?? defaultDisplayedAtLocation}
                                 @relewise-ui-components:recommendation-state-changed=${this.handleInitialRecommendationStateChanged}
                                 @relewise-ui-components:popular-search-term-selected=${this.handleRecommendationTermSelected}>
@@ -544,7 +544,7 @@ export class UniversalSearch extends RelewiseLitElement {
                                 </p>
                                 <relewise-universal-search-recommendations
                                     exportparts=${recommendationsExportParts}
-                                    .recommendations=${this.allTabsHiddenNoResultRecommendations}
+                                    .configuration=${this.allTabsHiddenNoResultRecommendations}
                                     .term=${this.searchTerm}
                                     .displayedAtLocation=${this.displayedAtLocation ?? defaultDisplayedAtLocation}
                                     @relewise-ui-components:popular-search-term-selected=${this.handleRecommendationTermSelected}>
@@ -611,7 +611,7 @@ export class UniversalSearch extends RelewiseLitElement {
                                             <relewise-universal-search-recommendations
                                                 exportparts=${recommendationsExportParts}
                                                 .active=${showActiveTabRecommendations && this.activeTab === tab}
-                                                .recommendations=${this.getNoResultRecommendations(tab)}
+                                                .configuration=${this.getNoResultRecommendations(tab)}
                                                 .term=${this.searchTerm}
                                                 .displayedAtLocation=${this.displayedAtLocation ?? defaultDisplayedAtLocation}
                                                 @relewise-ui-components:recommendation-state-changed=${(event: CustomEvent<RecommendationStateChangedEventDetail>) => this.handleTabRecommendationStateChanged(tab, event)}
