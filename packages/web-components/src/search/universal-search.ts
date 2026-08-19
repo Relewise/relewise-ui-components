@@ -518,12 +518,14 @@ export class UniversalSearch extends RelewiseLitElement {
                                 ${universalSearchLocalization?.noEntitiesConfigured ?? 'No universal-search entities configured.'}
                             </p>
                         ` : html`
-                            <div class="rw-results-summary" part="results-summary">
-                                ${this.activeTab ? this.getResultsForLabel(this.activeTab) : 'Search results for'} <strong>${this.term}</strong>
-                            </div>
+                            ${showGlobalNoResults ? nothing : html`
+                                <div class="rw-results-summary" part="results-summary">
+                                    ${this.activeTab ? this.getResultsForLabel(this.activeTab) : 'Search results for'} <strong>${this.term}</strong>
+                                </div>
+                            `}
                             ${showGlobalNoResults ? html`
-                                <p class="rw-empty" part="zero-results">
-                                    ${universalSearchLocalization?.noResults ?? 'No results found.'}
+                                <p class="rw-empty rw-global-zero-results" part="zero-results">
+                                    ${universalSearchLocalization?.noResults ?? html`No results found for <strong>${this.term}</strong>.`}
                                 </p>
                                 <relewise-universal-search-recommendations
                                     exportparts=${recommendationsExportParts}

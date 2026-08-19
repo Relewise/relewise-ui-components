@@ -192,10 +192,11 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
 
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.productCategories;
+        const facetResult = this.result !== null && this.result.hits > 0 && !this.hideFacets ? this.result.facets : null;
 
         return html`
             <div class="rw-results-layout" part="results-layout">
-                ${this.result?.facets && !this.hideFacets ? html`
+                ${facetResult ? html`
                     <relewise-facets
                         class="rw-facets"
                         part="facets"
@@ -203,7 +204,7 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
                         .labels=${this.facetLabels}
                         .facetQueryKeyPrefix=${QueryKeys.productCategoryFacet}
                         .applyFacet=${this.searchOptionsChanged}
-                        .facetResult=${this.result.facets}>
+                        .facetResult=${facetResult}>
                     </relewise-facets>
                 ` : nothing}
                 <section class="rw-results" part="results">

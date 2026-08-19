@@ -700,7 +700,7 @@ suite('relewise-universal-search', () => {
         assert.equal(queryDeep(el, '[part="zero-results"]')?.textContent?.trim(), 'No products found.');
     });
 
-    test('keeps facets available when a selected filter returns zero results', async () => {
+    test('does not render facets or reserve their column when a tab has zero results', async () => {
         const facets = { items: [] };
 
         Searcher.prototype.searchProducts = async function() {
@@ -741,15 +741,15 @@ suite('relewise-universal-search', () => {
             'zero-result searches did not complete',
         );
 
-        assert.isNotNull(queryDeep(el, 'relewise-facets'));
+        assert.isNull(queryDeep(el, 'relewise-facets'));
 
         internals(el).handleSelectTab('productCategories');
         await universalSearchUpdated(el);
-        assert.isNotNull(queryDeep(el, 'relewise-facets'));
+        assert.isNull(queryDeep(el, 'relewise-facets'));
 
         internals(el).handleSelectTab('content');
         await universalSearchUpdated(el);
-        assert.isNotNull(queryDeep(el, 'relewise-facets'));
+        assert.isNull(queryDeep(el, 'relewise-facets'));
     });
 
     test('loads more products using scoped take URL state', async () => {

@@ -94,6 +94,10 @@ export const universalSearchStyles = [theme, css`
         margin-bottom: var(--relewise-universal-search-results-summary-margin-bottom, 1em);
     }
 
+    .rw-global-zero-results {
+        margin-bottom: var(--relewise-universal-search-results-summary-margin-bottom, 1em);
+    }
+
     @media (max-width: 768px) {
         .rw-header {
             align-items: stretch;

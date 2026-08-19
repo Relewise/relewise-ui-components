@@ -955,7 +955,7 @@ relewise-universal-search {
 }
 ```
 
-`SearchTermBasedProduct` may return no recommendations on a new dataset without enough search behavior. Popular entity recommendations are therefore safer defaults for no-result recovery. `PopularSearchTerms` uses the centralized `useRecommendations({ popularSearchTerms: { targetEntityTypes } })` setting. When a tab-specific recovery block returns recommendations, Universal Search hides that zero-result tab's facets and removes the otherwise empty facet column. Facets remain available when no recovery recommendations are returned, allowing users to remove active filters.
+`SearchTermBasedProduct` may return no recommendations on a new dataset without enough search behavior. Popular entity recommendations are therefore safer defaults for no-result recovery. `PopularSearchTerms` uses the centralized `useRecommendations({ popularSearchTerms: { targetEntityTypes } })` setting. Universal Search never renders facets or reserves their column for a tab with zero results. When a tab-specific recovery block returns recommendations, it also replaces that tab's zero-result message.
 
 Set `behavior.zeroResultTabs` to `show` (the default) to keep zero-result tabs and render their configured recovery blocks. Set it to `hide` to use the global recovery blocks when every enabled tab has zero results. `behavior.activateFirstTabWithResultsFromInitialState` defaults to `true`; it only changes the active tab when the user leaves the termless initial state, not after the user has selected a tab.
 

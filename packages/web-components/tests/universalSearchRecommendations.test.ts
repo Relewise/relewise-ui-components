@@ -372,7 +372,7 @@ suite('universal search recommendations', () => {
         assert.equal(lastSearchTerm, 'Trail shoes');
     });
 
-    test('hides active-tab facets only when its fallback has results', async() => {
+    test('hides the active-tab zero state when its fallback has results', async() => {
         productFacets = { items: [] };
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch({
@@ -394,7 +394,7 @@ suite('universal search recommendations', () => {
         assert.isNull(queryAllDeep(productsTab.shadowRoot!, '[part="zero-results"]')[0] ?? null);
     });
 
-    test('keeps active-tab facets when its fallback is empty', async() => {
+    test('keeps the active-tab zero state without facets when its fallback is empty', async() => {
         productFacets = { items: [] };
         popularProductRecommendations = [];
         initializeRelewiseUI(mockRelewiseOptions());
@@ -414,7 +414,7 @@ suite('universal search recommendations', () => {
         const productsTab = element.renderRoot.querySelector<HTMLElement & { hideFacets: boolean }>('relewise-universal-search-products-tab')!;
         await waitUntil(() => queryDeep(element, '[part="recommendation-loading"]') === null);
         assert.isFalse(productsTab.hideFacets);
-        assert.exists(queryAllDeep(productsTab.shadowRoot!, '[part="facets"]')[0]);
+        assert.isNull(queryAllDeep(productsTab.shadowRoot!, '[part="facets"]')[0] ?? null);
         assert.exists(queryAllDeep(productsTab.shadowRoot!, '[part="zero-results"]')[0]);
     });
 
@@ -434,7 +434,12 @@ suite('universal search recommendations', () => {
 
         await waitUntil(() => queryDeep(element, 'relewise-product-tile') !== null);
         assert.lengthOf(element.renderRoot.querySelectorAll('[role="tab"]'), 0);
-        assert.include(element.renderRoot.querySelector('[part="zero-results"]')?.textContent ?? '', 'No results');
+        const zeroResults = element.renderRoot.querySelector<HTMLElement>('[part="zero-results"]')!;
+        assert.isNull(element.renderRoot.querySelector('[part="results-summary"]'));
+        assert.equal(zeroResults.textContent?.trim(), 'No results found for Boots.');
+        assert.equal(getComputedStyle(zeroResults).fontWeight, '400');
+        assert.equal(getComputedStyle(zeroResults.querySelector('strong')!).fontWeight, '700');
+        assert.equal(getComputedStyle(zeroResults).marginBottom, '16px');
     });
 
     test('batches multiple eligible product recommendation children', async() => {
