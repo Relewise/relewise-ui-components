@@ -1,4 +1,5 @@
 import { SearchCollectionBuilder } from '@relewise/client';
+import type { ProductSearchResponse, RedirectResult, SearchResponseCollection } from '@relewise/client';
 import { html, nothing } from 'lit';
 import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
@@ -14,7 +15,8 @@ import {
 import { RelewiseLitElement } from '../relewise-lit-element';
 import type { RecommendationStateChangedEventDetail } from '../recommendations/recommendation-state';
 import type { SearchCombobox } from './components/search-combobox';
-import type { SearchComboboxTermEventDetail, SearchSuggestionsBatchSearch } from './components/search-combobox.types';
+import type { SearchComboboxRedirectEventDetail, SearchComboboxTermEventDetail, SearchSuggestionsBatchSearch } from './components/search-combobox.types';
+import { canParseRedirectDestination } from './searchRedirect';
 import { getSearcher } from './searcher';
 import { trapFocusInDialog } from './universal-search-focus';
 import { universalSearchStyles } from './universal-search.styles';
@@ -34,6 +36,7 @@ const defaultTabLabels: Record<UniversalSearchTab, string> = {
 };
 
 const defaultDisplayedAtLocation = 'Relewise Universal Search';
+const productSearchResponseType = 'Relewise.Client.Responses.Search.ProductSearchResponse, Relewise.Client';
 const recommendationsExportParts = 'recommendation-loading, recommendation-blocks, recommendation-block, recommendation-title, recommendation-grid, product-recommendation-grid, content-recommendation-grid, category-recommendation-grid, recommendation-product-tile, recommendation-content-tile, recommendation-category-tile, recommendation-terms, recommendation-term, popular-products, personal-products, recently-viewed-products, popular-product-categories, popular-contents, personal-content, popular-content-categories, popular-search-term-recommendations, search-term-based-products';
 
 const suggestionEntityTypeByTab = {
@@ -64,6 +67,7 @@ export class UniversalSearch extends RelewiseLitElement {
     isOpen = false;
 
     @state() private term = '';
+    @state() private redirects: RedirectResult[] = [];
     @state() private searchTerm = '';
     @state() private activeTab: UniversalSearchTab | null = null;
     @state() private tabHits: Record<UniversalSearchTab, number | null> = {
@@ -153,6 +157,7 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         this.term = term;
+        this.redirects = [];
         this.batchAbortController.abort();
         this.resetRecommendationState();
         this.searchTerm = '';
@@ -193,6 +198,7 @@ export class UniversalSearch extends RelewiseLitElement {
 
     private async searchEnabledTabs(term: string): Promise<void> {
         this.batchAbortController.abort();
+        this.redirects = [];
         this.resetTabRecommendationState();
         if (!term) {
             return;
@@ -240,6 +246,7 @@ export class UniversalSearch extends RelewiseLitElement {
                 return;
             }
 
+            this.applyRedirects(response);
             searches.forEach(search => search.applyResponse(response));
             this.ensureActiveTabIsVisible();
             this.activateFirstTabWithResults();
@@ -335,9 +342,25 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     private handleComboboxSearchSubmitted(): void {
+        const redirect = this.redirects[0];
+        if (redirect?.destination) {
+            window.location.href = redirect.destination;
+            return;
+        }
+
         if (getRelewiseUISearchOptions()?.universalSearch?.suggestions) {
             this.submitCurrentTerm();
         }
+    }
+
+    private handleComboboxRedirectSelected(event: CustomEvent<SearchComboboxRedirectEventDetail>): void {
+        window.location.href = event.detail.destination;
+    }
+
+    private applyRedirects(response: SearchResponseCollection): void {
+        const productResponse = response.responses?.find(item => '$type' in item
+            && item.$type === productSearchResponseType) as ProductSearchResponse | undefined;
+        this.redirects = productResponse?.redirects?.filter(redirect => canParseRedirectDestination(redirect.destination)) ?? [];
     }
 
     private handleDialogKeyDown(event: KeyboardEvent): void {
@@ -482,12 +505,14 @@ export class UniversalSearch extends RelewiseLitElement {
                             part="search-bar"
                             exportparts="search-input, search-icon, search-suggestions, predictions, popular-search-terms, suggestions-list, suggestion, suggestion-icon"
                             .term=${this.term}
+                            .redirects=${this.redirects}
                             .suggestions=${searchOptions?.universalSearch?.suggestions}
                             .targetEntityTypes=${targetEntityTypes}
                             .displayedAtLocation=${this.displayedAtLocation ?? defaultDisplayedAtLocation}
                             .placeholder=${searchBarLocalization?.placeholder ?? null}
                             @relewise-search-combobox-term-changed=${this.handleComboboxTermChanged}
                             @relewise-search-combobox-search-submitted=${this.handleComboboxSearchSubmitted}
+                            @relewise-search-combobox-redirect-selected=${this.handleComboboxRedirectSelected}
                             @relewise-search-combobox-escape-requested=${this.close}
                             autofocus>
                         </relewise-search-combobox>

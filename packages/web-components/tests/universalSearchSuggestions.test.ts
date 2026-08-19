@@ -12,12 +12,13 @@ type RenderableElement = HTMLElement & {
     updateComplete: Promise<boolean>;
 };
 
-function productSearchResponse() {
+function productSearchResponse(redirects: any[] = []) {
     return {
         $type: 'Relewise.Client.Responses.Search.ProductSearchResponse, Relewise.Client',
         hits: 0,
         results: [],
         facets: null,
+        redirects,
     } as any;
 }
 
@@ -148,6 +149,89 @@ suite('universal search suggestions', () => {
         assert.notEqual(suggestionsStyle.boxShadow, 'none');
         assert.equal(listStyle.paddingTop, '0px');
         assert.equal(listStyle.paddingBottom, '0px');
+    });
+
+    test('shows valid titled redirects before predictions and navigates when clicked', async() => {
+        const originalUrl = window.location.href;
+        Searcher.prototype.batch = async function() {
+            return {
+                responses: [
+                    productSearchResponse([
+                        { destination: '#campaign', data: { Title: 'Campaign' } },
+                        { destination: '#hidden' },
+                        { destination: 'https://[invalid', data: { Title: 'Invalid' } },
+                    ]),
+                    searchTermPredictionResponse(['Running shoes']),
+                ],
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {} },
+                suggestions: {
+                    searchTermPredictions: {},
+                },
+            },
+        });
+
+        const element = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+        const input = suggestionsRoot(element).querySelector('input')! as HTMLInputElement;
+
+        input.value = 'shoe';
+        input.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }));
+        await waitUntil(() => suggestionsRoot(element).querySelectorAll('[part~="suggestion"]').length === 2, 'redirects and predictions were not rendered');
+
+        const suggestions = [...suggestionsRoot(element).querySelectorAll<HTMLButtonElement>('[part~="suggestion"]')];
+        assert.deepEqual(suggestions.map(suggestion => suggestion.textContent?.trim()), ['Campaign', 'Running shoes']);
+        assert.isNotNull(suggestions[0].querySelector('relewise-arrow-up-icon'));
+        assert.isNull(suggestions[0].querySelector('relewise-search-icon'));
+        assert.isNotNull(suggestions[1].querySelector('relewise-search-icon'));
+        assert.equal(window.location.hash, new URL(originalUrl).hash);
+
+        suggestions[0].click();
+        assert.equal(window.location.hash, '#campaign');
+        window.history.replaceState({}, document.title, originalUrl);
+    });
+
+    test('uses an untitled redirect when the current term is submitted', async() => {
+        const originalUrl = window.location.href;
+        let searchCompleted = false;
+        Searcher.prototype.batch = async function() {
+            searchCompleted = true;
+            return {
+                responses: [productSearchResponse([{ destination: '#campaign' }])],
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {} },
+            },
+        });
+
+        const element = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+        const input = suggestionsRoot(element).querySelector('input')! as HTMLInputElement;
+
+        input.value = 'shoe';
+        input.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }));
+        await waitUntil(() => searchCompleted, 'product search did not complete');
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        assert.isNull(suggestionsRoot(element).querySelector('[part~="suggestion"]'));
+        assert.equal(window.location.hash, new URL(originalUrl).hash);
+
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }));
+        assert.equal(window.location.hash, '#campaign');
+        window.history.replaceState({}, document.title, originalUrl);
     });
 
     test('keeps the combobox and close button aligned when the shared height is customized', async() => {

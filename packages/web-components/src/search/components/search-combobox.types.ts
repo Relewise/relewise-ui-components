@@ -9,3 +9,7 @@ export type SearchSuggestionsBatchSearch = {
 export interface SearchComboboxTermEventDetail {
     term: string;
 }
+
+export interface SearchComboboxRedirectEventDetail {
+    destination: string;
+}

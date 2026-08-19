@@ -879,11 +879,13 @@ When multiple entities are configured, they are searched together in one batched
 
 Search suggestions are opt-in. Configure `popularSearchTerms` to show popular terms while the focused input is empty, and configure `searchTermPredictions` to show predictions while it contains text. Both sections default to five terms when `take` is omitted. Their `targetEntityTypes` can be configured independently; when omitted, each defaults to the enabled Universal Search entities. This allows an entity to remain searchable without using it as a prediction source. Predictions that exactly match the current input are omitted.
 
+Search redirects returned by the enabled products search follow the product-search overlay behavior. Redirects with a valid destination and a `Title` data entry appear before search-term predictions as clickable suggestions with an outbound arrow icon, including when term suggestions are not configured. Selecting one navigates directly to its destination. Pressing Enter without selecting a suggestion navigates to the first valid redirect, including an untitled redirect. Redirects are unavailable when the products entity is omitted because the other search response types do not include them.
+
 The suggestions panel supports pointer selection and Arrow Up, Arrow Down, Enter, and Escape. It closes on selection, Enter, Escape, outside interaction, or input blur. Popular terms may be empty when the dataset does not have enough engaged search history; an empty suggestions panel is not rendered.
 
 Universal Search renders its input and suggestions with the shared `relewise-search-combobox`. The existing `relewise-search-bar` and product-search overlay remain unchanged, while other search experiences can adopt the combobox later. Both `relewise-search-combobox` and `relewise-universal-search` expose the CSS parts `search-input`, `search-icon`, `search-suggestions`, `popular-search-terms`, `predictions`, `suggestions-list`, `suggestion`, and `suggestion-icon`.
 
-The combobox owns its input, suggestions popup, focus, outside-interaction dismissal, keyboard, localization, and accessibility behavior. It loads popular search terms itself and caches a completed response, including an empty response, while it remains connected. Search-term predictions participate in the parent search experience's batch instead of starting a competing request: the parent calls `prepareBatchSearch(settings)`, includes the returned request in its batch, and then calls `applyResponse(response)` or `setError()`. Universal Search handles this integration automatically. A future Product Search integration can use the same contract without changing the existing `relewise-search-bar` or product-search overlay.
+The combobox owns its input, suggestions popup, focus, outside-interaction dismissal, keyboard, localization, and accessibility behavior. Its `redirects` property accepts `RedirectResult[]` for titled redirect suggestions and emits `relewise-search-combobox-redirect-selected` when one is selected. It loads popular search terms itself and caches a completed response, including an empty response, while it remains connected. Search-term predictions participate in the parent search experience's batch instead of starting a competing request: the parent calls `prepareBatchSearch(settings)`, includes the returned request in its batch, and then calls `applyResponse(response)` or `setError()`. Universal Search handles this integration automatically. A future Product Search integration can use the same contract without changing the existing `relewise-search-bar` or product-search overlay.
 
 The public combobox updates its own `term` and emits these bubbling, composed events:
 
@@ -891,6 +893,7 @@ The public combobox updates its own `term` and emits these bubbling, composed ev
 | --- | --- | --- |
 | `relewise-search-combobox-term-changed` | `{ term: string }` | The input value changes or a suggestion is selected. |
 | `relewise-search-combobox-search-submitted` | `{ term: string }` | Enter is pressed or a suggestion is selected. |
+| `relewise-search-combobox-redirect-selected` | `{ destination: string }` | A redirect suggestion is selected. |
 | `relewise-search-combobox-escape-requested` | None | Escape is pressed when there is no open suggestions list to dismiss. |
 
 ```ts

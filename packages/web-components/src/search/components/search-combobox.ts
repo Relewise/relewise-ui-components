@@ -1,13 +1,18 @@
-import type { SearchResponseCollection, SearchTermPredictionResponse, Settings } from '@relewise/client';
+import type { RedirectResult, SearchResponseCollection, SearchTermPredictionResponse, Settings } from '@relewise/client';
 import { html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../../helpers';
 import { getRecommender } from '../../recommendations/recommender';
 import { RelewiseLitElement } from '../../relewise-lit-element';
 import type { SearchSuggestionEntityType, SearchSuggestionsOptions } from '../../app';
+import { canParseRedirectDestination } from '../searchRedirect';
 import { buildPopularSearchTermsRequest, buildSearchTermPredictionRequest } from '../searchSuggestionsRequestBuilder';
 import { searchComboboxStyles } from './search-combobox.styles';
-import type { SearchComboboxTermEventDetail, SearchSuggestionsBatchSearch } from './search-combobox.types';
+import type { SearchComboboxRedirectEventDetail, SearchComboboxTermEventDetail, SearchSuggestionsBatchSearch } from './search-combobox.types';
+
+type SearchComboboxSuggestion =
+    | { redirect: RedirectResult; term?: never }
+    | { redirect?: never; term: string };
 
 const defaultTake = 5;
 const searchTermPredictionResponseType = 'Relewise.Client.Responses.Search.SearchTermPredictionResponse, Relewise.Client';
@@ -16,6 +21,7 @@ let searchComboboxInstanceId = 0;
 export const SearchComboboxEvents = {
     termChanged: 'relewise-search-combobox-term-changed',
     searchSubmitted: 'relewise-search-combobox-search-submitted',
+    redirectSelected: 'relewise-search-combobox-redirect-selected',
     escapeRequested: 'relewise-search-combobox-escape-requested',
 } as const;
 
@@ -28,6 +34,9 @@ export class SearchCombobox extends RelewiseLitElement {
 
     @property({ attribute: false })
     targetEntityTypes: SearchSuggestionEntityType[] = [];
+
+    @property({ attribute: false })
+    redirects: RedirectResult[] = [];
 
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string;
@@ -70,7 +79,9 @@ export class SearchCombobox extends RelewiseLitElement {
     }
 
     get suggestionsEnabled(): boolean {
-        return Boolean(this.suggestions?.popularSearchTerms || this.suggestions?.searchTermPredictions);
+        return Boolean(this.suggestions?.popularSearchTerms
+            || this.suggestions?.searchTermPredictions
+            || this.redirectSuggestions.length > 0);
     }
 
     prepareBatchSearch(settings: Settings): SearchSuggestionsBatchSearch | null {
@@ -135,11 +146,11 @@ export class SearchCombobox extends RelewiseLitElement {
     }
 
     private handleInputFocus(inFocus: boolean): void {
+        this.inputInFocus = inFocus;
+
         if (!this.suggestionsEnabled) {
             return;
         }
-
-        this.inputInFocus = inFocus;
 
         if (!inFocus) {
             this.dismissSuggestions();
@@ -166,27 +177,27 @@ export class SearchCombobox extends RelewiseLitElement {
             return;
         }
 
-        const terms = this.visibleTerms;
+        const suggestions = this.visibleSuggestions;
 
-        if (event.key === 'ArrowDown' && terms.length > 0) {
+        if (event.key === 'ArrowDown' && suggestions.length > 0) {
             event.preventDefault();
-            this.selectedIndex = Math.min(this.selectedIndex + 1, terms.length - 1);
+            this.selectedIndex = Math.min(this.selectedIndex + 1, suggestions.length - 1);
             return;
         }
 
-        if (event.key === 'ArrowUp' && terms.length > 0) {
+        if (event.key === 'ArrowUp' && suggestions.length > 0) {
             event.preventDefault();
             this.selectedIndex = this.selectedIndex < 0
-                ? terms.length - 1
+                ? suggestions.length - 1
                 : Math.max(this.selectedIndex - 1, 0);
             return;
         }
 
         if (event.key === 'Enter') {
             event.preventDefault();
-            const selectedTerm = terms[this.selectedIndex];
-            if (selectedTerm) {
-                this.selectTerm(selectedTerm);
+            const selectedSuggestion = suggestions[this.selectedIndex];
+            if (selectedSuggestion) {
+                this.selectSuggestion(selectedSuggestion);
             } else {
                 this.dismissSuggestions();
                 this.submitSearch();
@@ -199,7 +210,7 @@ export class SearchCombobox extends RelewiseLitElement {
         }
 
         event.preventDefault();
-        if (terms.length > 0) {
+        if (suggestions.length > 0) {
             event.stopPropagation();
             this.dismissSuggestions();
         } else {
@@ -253,25 +264,45 @@ export class SearchCombobox extends RelewiseLitElement {
     }
 
     private get activeDescendantId(): string | null {
-        if (this.selectedIndex < 0 || !this.visibleTerms[this.selectedIndex]) {
+        if (this.selectedIndex < 0 || !this.visibleSuggestions[this.selectedIndex]) {
             return null;
         }
 
         return this.getOptionId(this.selectedIndex);
     }
 
-    private selectTerm(term: string): void {
+    private selectSuggestion(suggestion: SearchComboboxSuggestion): void {
         this.dismissSuggestions();
-        this.updateTerm(term);
+        if (suggestion.redirect) {
+            this.dispatchEvent(new CustomEvent<SearchComboboxRedirectEventDetail>(SearchComboboxEvents.redirectSelected, {
+                bubbles: true,
+                composed: true,
+                detail: { destination: suggestion.redirect.destination! },
+            }));
+            return;
+        }
+
+        this.updateTerm(suggestion.term);
         this.submitSearch();
     }
 
-    private get visibleTerms(): string[] {
+    private get redirectSuggestions(): RedirectResult[] {
+        return this.redirects.filter(redirect => redirect.data?.Title && canParseRedirectDestination(redirect.destination));
+    }
+
+    private get visibleSuggestions(): SearchComboboxSuggestion[] {
         if (!this.inputInFocus || this.dismissed) {
             return [];
         }
 
-        return this.term ? this.searchTermPredictions : this.popularSearchTerms;
+        if (!this.term) {
+            return this.popularSearchTerms.map(term => ({ term }));
+        }
+
+        return [
+            ...this.redirectSuggestions.map(redirect => ({ redirect })),
+            ...this.searchTermPredictions.map(term => ({ term })),
+        ];
     }
 
     private async loadPopularSearchTerms(): Promise<void> {
@@ -333,8 +364,8 @@ export class SearchCombobox extends RelewiseLitElement {
     }
 
     render() {
-        const terms = this.visibleTerms;
-        const expanded = terms.length > 0;
+        const suggestions = this.visibleSuggestions;
+        const expanded = suggestions.length > 0;
         const suggestionType = this.term ? 'predictions' : 'popular-search-terms';
         const suggestionsLabel = getRelewiseUISearchOptions()?.localization?.searchSuggestions?.label ?? 'Search suggestions';
 
@@ -379,7 +410,7 @@ export class SearchCombobox extends RelewiseLitElement {
                             part="suggestions-list"
                             role="listbox"
                             aria-label=${suggestionsLabel}>
-                            ${terms.map((term, index) => html`
+                            ${suggestions.map((suggestion, index) => html`
                                 <li role="none">
                                     <button
                                         class="rw-search-suggestion"
@@ -391,13 +422,21 @@ export class SearchCombobox extends RelewiseLitElement {
                                         aria-selected=${this.selectedIndex === index ? 'true' : 'false'}
                                         ?data-selected=${this.selectedIndex === index}
                                         @pointerenter=${() => this.selectedIndex = index}
-                                        @click=${() => this.selectTerm(term)}>
-                                        <span>${term}</span>
-                                        <relewise-search-icon
-                                            class="rw-suggestion-icon"
-                                            part="suggestion-icon"
-                                            aria-hidden="true">
-                                        </relewise-search-icon>
+                                        @click=${() => this.selectSuggestion(suggestion)}>
+                                        <span>${suggestion.redirect?.data?.Title ?? suggestion.term}</span>
+                                        ${suggestion.redirect ? html`
+                                            <relewise-arrow-up-icon
+                                                class="rw-suggestion-icon"
+                                                part="suggestion-icon"
+                                                aria-hidden="true">
+                                            </relewise-arrow-up-icon>
+                                        ` : html`
+                                            <relewise-search-icon
+                                                class="rw-suggestion-icon"
+                                                part="suggestion-icon"
+                                                aria-hidden="true">
+                                            </relewise-search-icon>
+                                        `}
                                     </button>
                                 </li>
                             `)}
@@ -419,6 +458,7 @@ declare global {
     interface HTMLElementEventMap {
         'relewise-search-combobox-term-changed': CustomEvent<SearchComboboxTermEventDetail>;
         'relewise-search-combobox-search-submitted': CustomEvent<SearchComboboxTermEventDetail>;
+        'relewise-search-combobox-redirect-selected': CustomEvent<SearchComboboxRedirectEventDetail>;
         'relewise-search-combobox-escape-requested': CustomEvent;
     }
 }

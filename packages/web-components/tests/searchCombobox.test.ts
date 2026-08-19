@@ -5,6 +5,7 @@ import {
     initializeRelewiseUI,
     SearchCombobox,
     SearchComboboxEvents,
+    SearchComboboxRedirectEventDetail,
     SearchComboboxTermEventDetail,
     useSearch,
 } from '../src';
@@ -84,6 +85,36 @@ suite('relewise-search-combobox', () => {
         assert.equal(changedTerm, 'shoes');
         assert.equal(submittedTerm, 'shoes');
         assert.isTrue(escapeRequested);
+    });
+
+    test('renders titled valid redirects and emits their destination when selected', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch();
+
+        const element = await fixture(html`
+            <relewise-search-combobox
+                .term=${'shoe'}
+                .redirects=${[
+                    { destination: '#campaign', data: { Title: 'Campaign' } },
+                    { destination: '#hidden' },
+                    { destination: 'https://[invalid', data: { Title: 'Invalid' } },
+                ]}
+                autofocus>
+            </relewise-search-combobox>
+        `) as SearchCombobox;
+        let destination: string | null = null;
+        element.addEventListener(SearchComboboxEvents.redirectSelected, (event: CustomEvent<SearchComboboxRedirectEventDetail>) => {
+            destination = event.detail.destination;
+        });
+
+        await waitUntil(() => element.renderRoot.querySelector('[part~="suggestion"]') !== null, 'redirect suggestion was not rendered');
+        const suggestions = [...element.renderRoot.querySelectorAll<HTMLButtonElement>('[part~="suggestion"]')];
+
+        assert.deepEqual(suggestions.map(suggestion => suggestion.textContent?.trim()), ['Campaign']);
+        assert.isNotNull(suggestions[0].querySelector('relewise-arrow-up-icon'));
+        assert.isNull(suggestions[0].querySelector('relewise-search-icon'));
+        suggestions[0].click();
+        assert.equal(destination, '#campaign');
     });
 
     test('dismisses suggestions when interacting outside the standalone combobox', async() => {
