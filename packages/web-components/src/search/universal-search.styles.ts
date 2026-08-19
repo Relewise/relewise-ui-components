@@ -7,6 +7,8 @@ export const universalSearchStyles = [theme, css`
         font-family: var(--font);
         --relewise-universal-search-color: var(--relewise-color, #212427);
         --relewise-popular-search-term-border-color: var(--relewise-universal-search-border-color, #ddd);
+        --relewise-recommendation-grid-columns: var(--relewise-universal-search-result-columns, var(--relewise-universal-search-product-columns, 5));
+        --relewise-recommendation-grid-mobile-columns: var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2));
     }
 
     .rw-backdrop {

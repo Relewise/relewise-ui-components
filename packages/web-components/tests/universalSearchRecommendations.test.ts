@@ -259,6 +259,17 @@ suite('universal search recommendations', () => {
         assert.equal(getComputedStyle(queryDeep(element, 'relewise-content-tile')!).outlineWidth, '9px');
     });
 
+    test('defaults recommendation columns to the Universal Search result columns', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ universalSearch: {} });
+
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search></relewise-universal-search>`);
+        const styles = getComputedStyle(element);
+
+        assert.equal(styles.getPropertyValue('--relewise-recommendation-grid-columns').trim(), '5');
+        assert.equal(styles.getPropertyValue('--relewise-recommendation-grid-mobile-columns').trim(), '2');
+    });
+
     test('shows the initial empty prompt after configured recommendations finish empty', async() => {
         let resolveRecommendations!: (value: unknown) => void;
         Recommender.prototype.recommendPopularProducts = () => new Promise(resolve => {

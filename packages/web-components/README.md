@@ -921,7 +921,7 @@ export interface UniversalSearchRecommendationBlock {
 }
 ```
 
-The number requested is configured with each block's `take`. The number of columns is controlled separately with CSS and defaults to four on desktop and two on mobile:
+The number requested is configured with each block's `take`. Recommendation grids composed inside Universal Search default to the same five desktop columns and two mobile columns as its result grids. Standalone recommendation grids continue to default to four desktop columns and two mobile columns.
 
 ```ts
 recommendations: {
@@ -945,13 +945,6 @@ recommendations: {
             { type: 'PopularContents', title: 'Popular content', take: 10 },
         ],
     },
-}
-```
-
-```css
-relewise-universal-search {
-    --relewise-recommendation-grid-columns: 5;
-    --relewise-recommendation-grid-mobile-columns: 2;
 }
 ```
 
