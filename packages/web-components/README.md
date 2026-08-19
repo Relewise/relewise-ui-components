@@ -838,7 +838,7 @@ useSearch({
                 { type: 'PopularProductCategories', title: 'Popular categories', take: 4 },
             ],
             noResults: {
-                global: [
+                whenAllTabsAreHidden: [
                     // Use this when the dataset has enough search-term recommendation data:
                     // { type: 'SearchTermBasedProduct', title: 'You might like', take: 4 },
                     { type: 'PopularProducts', title: 'Popular products', take: 4 },
@@ -903,7 +903,7 @@ if (predictionSearch) {
 
 The suggestions popup uses the shared rounded-corner default, clips hover backgrounds to those corners, and has no empty padding above or below the suggestion rows. Its default shadow and hover color match the product-search overlay.
 
-Universal Search can compose the standalone recommendation components into the termless `initial` state, the `global` no-result state, and each entity tab's no-result state. Every state accepts an ordered `UniversalSearchRecommendationBlock[]`; omit a state or block to disable it. The composition component is internal to Universal Search and is not registered or exported as a standalone public component.
+Universal Search can compose the standalone recommendation components into the termless `initial` state, the `whenAllTabsAreHidden` no-result state, and each entity tab's no-result state. Every state accepts an ordered `UniversalSearchRecommendationBlock[]`; omit a state or block to disable it. The composition component is internal to Universal Search and is not registered or exported as a standalone public component.
 
 Each block accepts `type`, optional `title`, and optional `take`; `take` defaults to four. Set `title` to an empty string to omit the heading.
 
@@ -936,7 +936,7 @@ recommendations: {
         { type: 'PersonalContent', title: 'Recommended content', take: 10 },
     ],
     noResults: {
-        global: [
+        whenAllTabsAreHidden: [
             { type: 'PopularProducts', title: 'You might also like', take: 10 },
         ],
         products: [
@@ -955,7 +955,7 @@ recommendations: {
 
 `SearchTermBasedProduct` may return no recommendations on a new dataset without enough search behavior. Popular entity recommendations are therefore safer defaults for no-result recovery. `PopularSearchTerms` uses the centralized `useRecommendations({ popularSearchTerms: { targetEntityTypes } })` setting. Universal Search never renders facets or reserves their column for a tab with zero results. When a tab-specific recovery block returns recommendations, it also replaces that tab's zero-result message.
 
-Set `behavior.zeroResultTabs` to `show` (the default) to keep zero-result tabs and render their configured recovery blocks. Set it to `hide` to use the global recovery blocks when every enabled tab has zero results. `behavior.activateFirstTabWithResultsFromInitialState` defaults to `true`; it only changes the active tab when the user leaves the termless initial state, not after the user has selected a tab.
+Set `behavior.zeroResultTabs` to `show` (the default) to keep zero-result tabs and render their configured recovery blocks. Set it to `hide` to use the `whenAllTabsAreHidden` recovery blocks when every enabled tab has zero results. `behavior.activateFirstTabWithResultsFromInitialState` defaults to `true`; it only changes the active tab when the user leaves the termless initial state, not after the user has selected a tab.
 
 All configured initial blocks are mounted together. Each standalone component owns its request, context lifecycle, results, and rendering. Multiple eligible product recommendation children use the existing product recommendation batcher; other recommendations use their standalone request flow.
 

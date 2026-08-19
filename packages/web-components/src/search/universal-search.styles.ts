@@ -96,7 +96,7 @@ export const universalSearchStyles = [theme, css`
         margin-bottom: var(--relewise-universal-search-results-summary-margin-bottom, 1em);
     }
 
-    .rw-global-zero-results {
+    .rw-all-tabs-hidden-zero-results {
         margin-bottom: var(--relewise-universal-search-results-summary-margin-bottom, 1em);
     }
 

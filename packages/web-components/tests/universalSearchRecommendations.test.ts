@@ -444,14 +444,14 @@ suite('universal search recommendations', () => {
         assert.exists(queryAllDeep(productsTab.shadowRoot!, '[part="zero-results"]')[0]);
     });
 
-    test('renders global recovery recommendations when zero-result tabs are hidden', async() => {
+    test('renders recovery recommendations when all zero-result tabs are hidden', async() => {
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch({
             debounceTimeInMs: 0,
             universalSearch: {
                 entities: { products: {} },
                 behavior: { zeroResultTabs: 'hide' },
-                recommendations: { noResults: { global: [{ type: 'SearchTermBasedProduct' }] } },
+                recommendations: { noResults: { whenAllTabsAreHidden: [{ type: 'SearchTermBasedProduct' }] } },
             },
         });
         const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);

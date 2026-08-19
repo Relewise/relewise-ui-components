@@ -180,7 +180,7 @@ initializeRelewiseUI(
                     { type: 'PopularSearchTerms', title: 'Popular searches', take: 10 },
                 ],
                 noResults: {
-                    global: [
+                    whenAllTabsAreHidden: [
                         // Use this when the dataset has enough search-term recommendation data:
                         // { type: 'SearchTermBasedProduct', title: 'You might like', take: 10 },
                         { type: 'PopularProducts', title: 'Popular products', take: 10 },

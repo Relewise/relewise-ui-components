@@ -297,8 +297,8 @@ export class UniversalSearch extends RelewiseLitElement {
         return getRelewiseUISearchOptions()?.universalSearch?.recommendations?.initial ?? [];
     }
 
-    private get globalNoResultRecommendations() {
-        return getRelewiseUISearchOptions()?.universalSearch?.recommendations?.noResults?.global ?? [];
+    private get allTabsHiddenNoResultRecommendations() {
+        return getRelewiseUISearchOptions()?.universalSearch?.recommendations?.noResults?.whenAllTabsAreHidden ?? [];
     }
 
     private getNoResultRecommendations(tab: UniversalSearchTab) {
@@ -469,7 +469,7 @@ export class UniversalSearch extends RelewiseLitElement {
         const visibleTabs = this.visibleTabs;
         const targetEntityTypes = enabledTabs.map(tab => suggestionEntityTypeByTab[tab]);
         const zeroResultTabs = searchOptions?.universalSearch?.behavior?.zeroResultTabs;
-        const showGlobalNoResults = zeroResultTabs === 'hide'
+        const showAllTabsHiddenNoResults = zeroResultTabs === 'hide'
             && !this.batchSearching
             && this.allEnabledTabsHaveZeroResults;
         const showActiveTabRecommendations = zeroResultTabs !== 'hide'
@@ -533,18 +533,18 @@ export class UniversalSearch extends RelewiseLitElement {
                                 ${universalSearchLocalization?.noEntitiesConfigured ?? 'No universal-search entities configured.'}
                             </p>
                         ` : html`
-                            ${showGlobalNoResults ? nothing : html`
+                            ${showAllTabsHiddenNoResults ? nothing : html`
                                 <div class="rw-results-summary" part="results-summary">
                                     ${this.activeTab ? this.getResultsForLabel(this.activeTab) : 'Search results for'} <strong>${this.term}</strong>
                                 </div>
                             `}
-                            ${showGlobalNoResults ? html`
-                                <p class="rw-empty rw-global-zero-results" part="zero-results">
+                            ${showAllTabsHiddenNoResults ? html`
+                                <p class="rw-empty rw-all-tabs-hidden-zero-results" part="zero-results">
                                     ${universalSearchLocalization?.noResults ?? html`No results found for <strong>${this.term}</strong>.`}
                                 </p>
                                 <relewise-universal-search-recommendations
                                     exportparts=${recommendationsExportParts}
-                                    .recommendations=${this.globalNoResultRecommendations}
+                                    .recommendations=${this.allTabsHiddenNoResultRecommendations}
                                     .term=${this.searchTerm}
                                     .displayedAtLocation=${this.displayedAtLocation ?? defaultDisplayedAtLocation}
                                     @relewise-ui-components:popular-search-term-selected=${this.handleRecommendationTermSelected}>

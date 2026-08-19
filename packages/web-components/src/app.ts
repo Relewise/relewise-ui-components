@@ -71,7 +71,7 @@ export interface UniversalSearchBehaviorOptions {
 export interface UniversalSearchRecommendationOptions {
     initial?: UniversalSearchRecommendationBlock[];
     noResults?: {
-        global?: UniversalSearchRecommendationBlock[];
+        whenAllTabsAreHidden?: UniversalSearchRecommendationBlock[];
         products?: UniversalSearchRecommendationBlock[];
         productCategories?: UniversalSearchRecommendationBlock[];
         content?: UniversalSearchRecommendationBlock[];
