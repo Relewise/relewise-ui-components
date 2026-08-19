@@ -7,36 +7,155 @@ import { RecommendationStateChangedEventDetail } from '../recommendations/recomm
 import { RelewiseLitElement } from '../relewise-lit-element';
 import { theme } from '../theme';
 
-const defaultTitles: Record<UniversalSearchRecommendationBlock['type'], string> = {
-    PopularProducts: 'Popular products',
-    PersonalProducts: 'Recommended products',
-    RecentlyViewedProducts: 'Recently viewed products',
-    PopularProductCategories: 'Popular categories',
-    PopularContents: 'Popular content',
-    PersonalContent: 'Recommended content',
-    PopularContentCategories: 'Popular content categories',
-    PopularSearchTerms: 'Popular searches',
-    SearchTermBasedProduct: 'Recommended products',
-};
+interface RecommendationBlockRenderContext {
+    take: number;
+    displayedAtLocation: string;
+    term: string;
+}
 
-const partByType: Record<UniversalSearchRecommendationBlock['type'], string> = {
-    PopularProducts: 'popular-products',
-    PersonalProducts: 'personal-products',
-    RecentlyViewedProducts: 'recently-viewed-products',
-    PopularProductCategories: 'popular-product-categories',
-    PopularContents: 'popular-contents',
-    PersonalContent: 'personal-content',
-    PopularContentCategories: 'popular-content-categories',
-    PopularSearchTerms: 'popular-search-term-recommendations',
-    SearchTermBasedProduct: 'search-term-based-products',
-};
+interface RecommendationBlockDefinition {
+    defaultTitle: string;
+    part: string;
+    productRecommendation: boolean;
+    batchable: (term: string) => boolean;
+    render: (context: RecommendationBlockRenderContext) => TemplateResult;
+}
 
-const productRecommendationTypes = new Set<UniversalSearchRecommendationBlock['type']>([
-    'PopularProducts',
-    'PersonalProducts',
-    'RecentlyViewedProducts',
-    'SearchTermBasedProduct',
-]);
+type RecommendationBlockDefinitions = Record<
+    UniversalSearchRecommendationBlock['type'],
+    RecommendationBlockDefinition
+>;
+
+const recommendationBlockDefinitions = {
+    PopularProducts: {
+        defaultTitle: 'Popular products',
+        part: 'popular-products',
+        productRecommendation: true,
+        batchable: () => true,
+        render: context => html`
+            <relewise-popular-products
+                part="recommendation-grid product-recommendation-grid"
+                exportparts="product-tile: recommendation-product-tile"
+                .numberOfRecommendations=${context.take}
+                .displayedAtLocation=${context.displayedAtLocation}>
+            </relewise-popular-products>
+        `,
+    },
+    PersonalProducts: {
+        defaultTitle: 'Recommended products',
+        part: 'personal-products',
+        productRecommendation: true,
+        batchable: () => true,
+        render: context => html`
+            <relewise-personal-products
+                part="recommendation-grid product-recommendation-grid"
+                exportparts="product-tile: recommendation-product-tile"
+                .numberOfRecommendations=${context.take}
+                .displayedAtLocation=${context.displayedAtLocation}>
+            </relewise-personal-products>
+        `,
+    },
+    RecentlyViewedProducts: {
+        defaultTitle: 'Recently viewed products',
+        part: 'recently-viewed-products',
+        productRecommendation: true,
+        batchable: () => false,
+        render: context => html`
+            <relewise-recently-viewed-products
+                part="recommendation-grid product-recommendation-grid"
+                exportparts="product-tile: recommendation-product-tile"
+                .numberOfRecommendations=${context.take}
+                .displayedAtLocation=${context.displayedAtLocation}>
+            </relewise-recently-viewed-products>
+        `,
+    },
+    PopularProductCategories: {
+        defaultTitle: 'Popular categories',
+        part: 'popular-product-categories',
+        productRecommendation: false,
+        batchable: () => false,
+        render: context => html`
+            <relewise-popular-product-categories
+                part="recommendation-grid category-recommendation-grid"
+                exportparts="category-tile: recommendation-category-tile"
+                .numberOfRecommendations=${context.take}
+                .displayedAtLocation=${context.displayedAtLocation}>
+            </relewise-popular-product-categories>
+        `,
+    },
+    PopularContents: {
+        defaultTitle: 'Popular content',
+        part: 'popular-contents',
+        productRecommendation: false,
+        batchable: () => false,
+        render: context => html`
+            <relewise-popular-content
+                part="recommendation-grid content-recommendation-grid"
+                exportparts="content-tile: recommendation-content-tile"
+                .numberOfRecommendations=${context.take}
+                .displayedAtLocation=${context.displayedAtLocation}>
+            </relewise-popular-content>
+        `,
+    },
+    PersonalContent: {
+        defaultTitle: 'Recommended content',
+        part: 'personal-content',
+        productRecommendation: false,
+        batchable: () => false,
+        render: context => html`
+            <relewise-personal-content
+                part="recommendation-grid content-recommendation-grid"
+                exportparts="content-tile: recommendation-content-tile"
+                .numberOfRecommendations=${context.take}
+                .displayedAtLocation=${context.displayedAtLocation}>
+            </relewise-personal-content>
+        `,
+    },
+    PopularContentCategories: {
+        defaultTitle: 'Popular content categories',
+        part: 'popular-content-categories',
+        productRecommendation: false,
+        batchable: () => false,
+        render: context => html`
+            <relewise-popular-content-categories
+                part="recommendation-grid category-recommendation-grid"
+                exportparts="category-tile: recommendation-category-tile"
+                .numberOfRecommendations=${context.take}
+                .displayedAtLocation=${context.displayedAtLocation}>
+            </relewise-popular-content-categories>
+        `,
+    },
+    PopularSearchTerms: {
+        defaultTitle: 'Popular searches',
+        part: 'popular-search-term-recommendations',
+        productRecommendation: false,
+        batchable: () => false,
+        render: context => html`
+            <relewise-popular-search-terms
+                part="popular-search-term-recommendations"
+                exportparts="terms: recommendation-terms, term: recommendation-term"
+                .numberOfRecommendations=${context.take}
+                .displayedAtLocation=${context.displayedAtLocation}
+                .term=${context.term}>
+            </relewise-popular-search-terms>
+        `,
+    },
+    SearchTermBasedProduct: {
+        defaultTitle: 'Recommended products',
+        part: 'search-term-based-products',
+        productRecommendation: true,
+        batchable: term => Boolean(term),
+        render: context => html`
+            <relewise-search-term-based-products
+                part="recommendation-grid product-recommendation-grid"
+                exportparts="product-tile: recommendation-product-tile"
+                .numberOfRecommendations=${context.take}
+                .displayedAtLocation=${context.displayedAtLocation}
+                .term=${context.term}>
+            </relewise-search-term-based-products>
+        `,
+    },
+} satisfies RecommendationBlockDefinitions;
 
 const pendingState: RecommendationStateChangedEventDetail = {
     loading: true,
@@ -122,12 +241,11 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
     }
 
     private get shouldBatchProductRecommendations(): boolean {
-        const productRecommendations = this.configuration.filter(recommendation =>
-            productRecommendationTypes.has(recommendation.type));
+        const productRecommendations = this.configuration
+            .map(configuration => recommendationBlockDefinitions[configuration.type])
+            .filter(definition => definition.productRecommendation);
         return productRecommendations.length > 1
-            && productRecommendations.every(recommendation =>
-                recommendation.type !== 'RecentlyViewedProducts'
-                && (recommendation.type !== 'SearchTermBasedProduct' || Boolean(this.term)));
+            && productRecommendations.every(definition => definition.batchable(this.term));
     }
 
     render() {
@@ -153,112 +271,27 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
         `;
     }
 
-    private renderBlock(recommendation: UniversalSearchRecommendationBlock, index: number): TemplateResult {
-        const title = recommendation.title ?? defaultTitles[recommendation.type];
+    private renderBlock(configuration: UniversalSearchRecommendationBlock, index: number): TemplateResult {
+        const definition = recommendationBlockDefinitions[configuration.type];
+        const title = configuration.title ?? definition.defaultTitle;
         const state = this.recommendationStates[index];
-        const key = JSON.stringify({ index, recommendation, term: this.term, displayedAtLocation: this.displayedAtLocation });
+        const key = JSON.stringify({ index, configuration, term: this.term, displayedAtLocation: this.displayedAtLocation });
+        const context: RecommendationBlockRenderContext = {
+            take: configuration.take ?? 4,
+            displayedAtLocation: this.displayedAtLocation ?? 'Relewise Universal Search',
+            term: this.term,
+        };
 
         return html`
             <section
                 class="rw-recommendation-block"
-                part=${`recommendation-block ${partByType[recommendation.type]}`}
+                part=${`recommendation-block ${definition.part}`}
                 ?hidden=${!state?.hasResults}
                 @relewise-ui-components:recommendation-state-changed=${(event: CustomEvent<RecommendationStateChangedEventDetail>) => this.handleRecommendationStateChanged(index, event)}>
                 ${title ? html`<h2 class="rw-recommendation-title" part="recommendation-title">${title}</h2>` : nothing}
-                ${keyed(key, this.renderRecommendation(recommendation))}
+                ${keyed(key, definition.render(context))}
             </section>
         `;
-    }
-
-    private renderRecommendation(recommendation: UniversalSearchRecommendationBlock): TemplateResult {
-        const numberOfRecommendations = recommendation.take ?? 4;
-        const displayedAtLocation = this.displayedAtLocation ?? 'Relewise Universal Search';
-
-        switch (recommendation.type) {
-        case 'PopularProducts':
-            return html`
-                <relewise-popular-products
-                    part="recommendation-grid product-recommendation-grid"
-                    exportparts="product-tile: recommendation-product-tile"
-                    .numberOfRecommendations=${numberOfRecommendations}
-                    .displayedAtLocation=${displayedAtLocation}>
-                </relewise-popular-products>
-            `;
-        case 'PersonalProducts':
-            return html`
-                <relewise-personal-products
-                    part="recommendation-grid product-recommendation-grid"
-                    exportparts="product-tile: recommendation-product-tile"
-                    .numberOfRecommendations=${numberOfRecommendations}
-                    .displayedAtLocation=${displayedAtLocation}>
-                </relewise-personal-products>
-            `;
-        case 'RecentlyViewedProducts':
-            return html`
-                <relewise-recently-viewed-products
-                    part="recommendation-grid product-recommendation-grid"
-                    exportparts="product-tile: recommendation-product-tile"
-                    .numberOfRecommendations=${numberOfRecommendations}
-                    .displayedAtLocation=${displayedAtLocation}>
-                </relewise-recently-viewed-products>
-            `;
-        case 'PopularProductCategories':
-            return html`
-                <relewise-popular-product-categories
-                    part="recommendation-grid category-recommendation-grid"
-                    exportparts="category-tile: recommendation-category-tile"
-                    .numberOfRecommendations=${numberOfRecommendations}
-                    .displayedAtLocation=${displayedAtLocation}>
-                </relewise-popular-product-categories>
-            `;
-        case 'PopularContents':
-            return html`
-                <relewise-popular-content
-                    part="recommendation-grid content-recommendation-grid"
-                    exportparts="content-tile: recommendation-content-tile"
-                    .numberOfRecommendations=${numberOfRecommendations}
-                    .displayedAtLocation=${displayedAtLocation}>
-                </relewise-popular-content>
-            `;
-        case 'PersonalContent':
-            return html`
-                <relewise-personal-content
-                    part="recommendation-grid content-recommendation-grid"
-                    exportparts="content-tile: recommendation-content-tile"
-                    .numberOfRecommendations=${numberOfRecommendations}
-                    .displayedAtLocation=${displayedAtLocation}>
-                </relewise-personal-content>
-            `;
-        case 'PopularContentCategories':
-            return html`
-                <relewise-popular-content-categories
-                    part="recommendation-grid category-recommendation-grid"
-                    exportparts="category-tile: recommendation-category-tile"
-                    .numberOfRecommendations=${numberOfRecommendations}
-                    .displayedAtLocation=${displayedAtLocation}>
-                </relewise-popular-content-categories>
-            `;
-        case 'PopularSearchTerms':
-            return html`
-                <relewise-popular-search-terms
-                    part="popular-search-term-recommendations"
-                    exportparts="terms: recommendation-terms, term: recommendation-term"
-                    .numberOfRecommendations=${numberOfRecommendations}
-                    .displayedAtLocation=${displayedAtLocation}
-                    .term=${this.term}>
-                </relewise-popular-search-terms>
-            `;
-        case 'SearchTermBasedProduct':
-            return html`
-                <relewise-search-term-based-products
-                    part="recommendation-grid product-recommendation-grid"
-                    exportparts="product-tile: recommendation-product-tile"
-                    .numberOfRecommendations=${numberOfRecommendations}
-                    .displayedAtLocation=${displayedAtLocation}
-                    .term=${this.term}>
-                </relewise-search-term-based-products>
-            `;
-        }
     }
 
     static styles = [theme, css`
