@@ -9,9 +9,11 @@ import { theme } from '../theme';
 
 const defaultTitles: Record<UniversalSearchRecommendationBlock['type'], string> = {
     PopularProducts: 'Popular products',
+    PersonalProducts: 'Recommended products',
     RecentlyViewedProducts: 'Recently viewed products',
     PopularProductCategories: 'Popular categories',
     PopularContents: 'Popular content',
+    PersonalContent: 'Recommended content',
     PopularContentCategories: 'Popular content categories',
     PopularSearchTerms: 'Popular searches',
     SearchTermBasedProduct: 'Recommended products',
@@ -19,9 +21,11 @@ const defaultTitles: Record<UniversalSearchRecommendationBlock['type'], string> 
 
 const partByType: Record<UniversalSearchRecommendationBlock['type'], string> = {
     PopularProducts: 'popular-products',
+    PersonalProducts: 'personal-products',
     RecentlyViewedProducts: 'recently-viewed-products',
     PopularProductCategories: 'popular-product-categories',
     PopularContents: 'popular-contents',
+    PersonalContent: 'personal-content',
     PopularContentCategories: 'popular-content-categories',
     PopularSearchTerms: 'popular-search-term-recommendations',
     SearchTermBasedProduct: 'search-term-based-products',
@@ -29,6 +33,7 @@ const partByType: Record<UniversalSearchRecommendationBlock['type'], string> = {
 
 const productRecommendationTypes = new Set<UniversalSearchRecommendationBlock['type']>([
     'PopularProducts',
+    'PersonalProducts',
     'RecentlyViewedProducts',
     'SearchTermBasedProduct',
 ]);
@@ -179,6 +184,15 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
                     .displayedAtLocation=${displayedAtLocation}>
                 </relewise-popular-products>
             `;
+        case 'PersonalProducts':
+            return html`
+                <relewise-personal-products
+                    part="recommendation-grid product-recommendation-grid"
+                    exportparts="product-tile: recommendation-product-tile"
+                    .numberOfRecommendations=${numberOfRecommendations}
+                    .displayedAtLocation=${displayedAtLocation}>
+                </relewise-personal-products>
+            `;
         case 'RecentlyViewedProducts':
             return html`
                 <relewise-recently-viewed-products
@@ -205,6 +219,15 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
                     .numberOfRecommendations=${numberOfRecommendations}
                     .displayedAtLocation=${displayedAtLocation}>
                 </relewise-popular-content>
+            `;
+        case 'PersonalContent':
+            return html`
+                <relewise-personal-content
+                    part="recommendation-grid content-recommendation-grid"
+                    exportparts="content-tile: recommendation-content-tile"
+                    .numberOfRecommendations=${numberOfRecommendations}
+                    .displayedAtLocation=${displayedAtLocation}>
+                </relewise-personal-content>
             `;
         case 'PopularContentCategories':
             return html`

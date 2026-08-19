@@ -82,9 +82,11 @@ export interface UniversalSearchRecommendationBlock {
     title?: string;
     type:
         | 'PopularProducts'
+        | 'PersonalProducts'
         | 'RecentlyViewedProducts'
         | 'PopularProductCategories'
         | 'PopularContents'
+        | 'PersonalContent'
         | 'PopularContentCategories'
         | 'PopularSearchTerms'
         | 'SearchTermBasedProduct';
@@ -322,9 +324,11 @@ export function useSearch(options?: RelewiseUISearchOptions) {
         tryRegisterElement('relewise-universal-search-load-more', UniversalSearchLoadMore);
         tryRegisterElement('relewise-product-recommendation-batcher', RecommendationBatcher);
         tryRegisterElement('relewise-popular-products', PopularProducts);
+        tryRegisterElement('relewise-personal-products', PersonalProducts);
         tryRegisterElement('relewise-recently-viewed-products', RecentlyViewedProducts);
         tryRegisterElement('relewise-search-term-based-products', SearchTermBasedProducts);
         tryRegisterElement('relewise-popular-content', PopularContent);
+        tryRegisterElement('relewise-personal-content', PersonalContent);
         tryRegisterElement('relewise-popular-product-categories', PopularProductCategories);
         tryRegisterElement('relewise-popular-content-categories', PopularContentCategories);
         tryRegisterElement('relewise-popular-search-terms', PopularSearchTerms);

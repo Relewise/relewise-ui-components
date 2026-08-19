@@ -60,10 +60,12 @@ suite('universal search recommendations', () => {
     const originalBatchSearch = Searcher.prototype.batch;
     const originalBatchProducts = Recommender.prototype.batchProductRecommendations;
     const originalPopularProducts = Recommender.prototype.recommendPopularProducts;
+    const originalPersonalProducts = Recommender.prototype.recommendPersonalProducts;
     const originalRecentlyViewedProducts = Recommender.prototype.recentlyViewedProducts;
     const originalSearchTermBasedProducts = Recommender.prototype.recommendSearchTermBasedProducts;
     const originalPopularProductCategories = Recommender.prototype.recommendPopularProductCategories;
     const originalPopularContents = Recommender.prototype.recommendPopularContents;
+    const originalPersonalContents = Recommender.prototype.recommendPersonalContents;
     const originalPopularContentCategories = Recommender.prototype.recommendPopularContentCategories;
     const originalPopularSearchTerms = Recommender.prototype.recommendPopularSearchTerms;
 
@@ -127,6 +129,9 @@ suite('universal search recommendations', () => {
             popularProductRequests++;
             return { recommendations: popularProductRecommendations } as never;
         };
+        Recommender.prototype.recommendPersonalProducts = async function() {
+            return { recommendations: [product('personal')] } as never;
+        };
         Recommender.prototype.recentlyViewedProducts = async function() {
             return { recommendations: [product('recent')] } as never;
         };
@@ -140,6 +145,9 @@ suite('universal search recommendations', () => {
         Recommender.prototype.recommendPopularContents = async function() {
             popularContentRequests++;
             return { recommendations: [content('popular-content')] } as never;
+        };
+        Recommender.prototype.recommendPersonalContents = async function() {
+            return { recommendations: [content('personal-content')] } as never;
         };
         Recommender.prototype.recommendPopularContentCategories = async function() {
             return { recommendations: [contentCategory('popular-content-category')] } as never;
@@ -160,10 +168,12 @@ suite('universal search recommendations', () => {
         Searcher.prototype.batch = originalBatchSearch;
         Recommender.prototype.batchProductRecommendations = originalBatchProducts;
         Recommender.prototype.recommendPopularProducts = originalPopularProducts;
+        Recommender.prototype.recommendPersonalProducts = originalPersonalProducts;
         Recommender.prototype.recentlyViewedProducts = originalRecentlyViewedProducts;
         Recommender.prototype.recommendSearchTermBasedProducts = originalSearchTermBasedProducts;
         Recommender.prototype.recommendPopularProductCategories = originalPopularProductCategories;
         Recommender.prototype.recommendPopularContents = originalPopularContents;
+        Recommender.prototype.recommendPersonalContents = originalPersonalContents;
         Recommender.prototype.recommendPopularContentCategories = originalPopularContentCategories;
         Recommender.prototype.recommendPopularSearchTerms = originalPopularSearchTerms;
     });
@@ -179,9 +189,11 @@ suite('universal search recommendations', () => {
                 recommendations: {
                     initial: [
                         { type: 'PopularProducts', title: 'Products', take: 2 },
+                        { type: 'PersonalProducts', title: 'Personal products' },
                         { type: 'RecentlyViewedProducts', title: 'Recent' },
                         { type: 'PopularProductCategories', title: 'Categories' },
                         { type: 'PopularContents', title: 'Content' },
+                        { type: 'PersonalContent', title: 'Personal content' },
                         { type: 'PopularContentCategories', title: 'Content categories' },
                         { type: 'PopularSearchTerms', title: 'Searches' },
                     ],
@@ -190,7 +202,8 @@ suite('universal search recommendations', () => {
         });
 
         const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
-        await waitUntil(() => queryAllDeep(element.renderRoot, 'relewise-product-tile').length === 2);
+        await waitUntil(() => queryAllDeep(element.renderRoot, 'relewise-product-tile').length >= 3
+            && queryAllDeep(element.renderRoot, 'relewise-content-tile').length >= 2);
 
         const composition = element.renderRoot.querySelector<UniversalSearchRecommendations>('relewise-universal-search-recommendations')!;
         assert.include(composition.getAttribute('exportparts') ?? '', 'recommendation-loading');
@@ -198,7 +211,7 @@ suite('universal search recommendations', () => {
         const sections = [...composition.renderRoot.querySelectorAll<HTMLElement>('[part~="recommendation-block"]')];
         assert.deepEqual(
             sections.map(section => section.querySelector('[part="recommendation-title"]')?.textContent),
-            ['Products', 'Recent', 'Categories', 'Content', 'Content categories', 'Searches'],
+            ['Products', 'Personal products', 'Recent', 'Categories', 'Content', 'Personal content', 'Content categories', 'Searches'],
         );
         assert.equal(
             composition.renderRoot.querySelector<HTMLElement & { numberOfRecommendations: number }>('relewise-popular-products')?.numberOfRecommendations,
@@ -206,6 +219,8 @@ suite('universal search recommendations', () => {
         );
         assert.equal(queryDeep(element, 'relewise-product-tile')?.getAttribute('part'), 'product-tile');
         assert.equal(queryDeep(element, 'relewise-content-tile')?.getAttribute('part'), 'content-tile');
+        assert.exists(queryDeep(element, 'relewise-personal-products'));
+        assert.exists(queryDeep(element, 'relewise-personal-content'));
         assert.equal(queryDeep(element, 'relewise-product-category-tile')?.getAttribute('part'), 'category-tile');
         assert.equal(queryDeep(element, 'relewise-content-category-tile')?.getAttribute('part'), 'category-tile');
         assert.include(

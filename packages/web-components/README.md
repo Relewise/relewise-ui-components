@@ -833,6 +833,7 @@ useSearch({
         recommendations: {
             initial: [
                 { type: 'PopularProducts', title: 'Popular products', take: 4 },
+                { type: 'PersonalProducts', title: 'Recommended products', take: 4 },
                 { type: 'RecentlyViewedProducts', title: 'Recently viewed', take: 4 },
                 { type: 'PopularProductCategories', title: 'Popular categories', take: 4 },
             ],
@@ -911,9 +912,11 @@ export interface UniversalSearchRecommendationBlock {
     title?: string;
     type:
         | 'PopularProducts'
+        | 'PersonalProducts'
         | 'RecentlyViewedProducts'
         | 'PopularProductCategories'
         | 'PopularContents'
+        | 'PersonalContent'
         | 'PopularContentCategories'
         | 'PopularSearchTerms'
         | 'SearchTermBasedProduct';
@@ -927,8 +930,10 @@ The number requested is configured with each block's `take`. Recommendation grid
 recommendations: {
     initial: [
         { type: 'PopularProducts', title: 'Popular products', take: 10 },
+        { type: 'PersonalProducts', title: 'Recommended products', take: 10 },
         { type: 'PopularProductCategories', title: 'Popular categories', take: 5 },
         { type: 'PopularContents', title: 'Popular content', take: 10 },
+        { type: 'PersonalContent', title: 'Recommended content', take: 10 },
     ],
     noResults: {
         global: [

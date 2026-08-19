@@ -34,7 +34,7 @@ const defaultTabLabels: Record<UniversalSearchTab, string> = {
 };
 
 const defaultDisplayedAtLocation = 'Relewise Universal Search';
-const recommendationsExportParts = 'recommendation-loading, recommendation-blocks, recommendation-block, recommendation-title, recommendation-grid, product-recommendation-grid, content-recommendation-grid, category-recommendation-grid, recommendation-product-tile, recommendation-content-tile, recommendation-category-tile, recommendation-terms, recommendation-term, popular-products, recently-viewed-products, popular-product-categories, popular-contents, popular-content-categories, popular-search-term-recommendations, search-term-based-products';
+const recommendationsExportParts = 'recommendation-loading, recommendation-blocks, recommendation-block, recommendation-title, recommendation-grid, product-recommendation-grid, content-recommendation-grid, category-recommendation-grid, recommendation-product-tile, recommendation-content-tile, recommendation-category-tile, recommendation-terms, recommendation-term, popular-products, personal-products, recently-viewed-products, popular-product-categories, popular-contents, personal-content, popular-content-categories, popular-search-term-recommendations, search-term-based-products';
 
 const suggestionEntityTypeByTab = {
     products: 'Product',
