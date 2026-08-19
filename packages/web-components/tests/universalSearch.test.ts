@@ -1031,6 +1031,79 @@ suite('relewise-universal-search', () => {
         assert.equal(queryAllDeep(el.renderRoot, 'relewise-content-tile').length, 1);
     });
 
+    test('preserves the result component when hiding zero-result tabs', async () => {
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([]);
+        };
+        Searcher.prototype.searchProductCategories = async function() {
+            return productCategorySearchResponse([]);
+        };
+        Searcher.prototype.searchContents = async function() {
+            return contentSearchResponse([content('guide')]);
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {}, productCategories: {}, content: {} },
+                behavior: { zeroResultTabs: 'hide' },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('guide');
+        await waitUntil(() => contentResults(el).length === 1, 'content result was not preserved');
+
+        const tabs = queryAllDeep<HTMLElement>(el.renderRoot, '[part="tab"]');
+        assert.lengthOf(tabs, 1);
+        assert.include(tabs[0].textContent ?? '', 'Content');
+        assert.equal(internals(el).activeTab, 'content');
+        assert.equal(queryAllDeep(el.renderRoot, 'relewise-content-tile').length, 1);
+    });
+
+    test('selects a remaining result tab after the active tab receives zero results', async () => {
+        Searcher.prototype.searchProducts = async function(request) {
+            return productSearchResponse(request.term === 'shirt' ? [product('shirt')] : []);
+        };
+        Searcher.prototype.searchProductCategories = async function() {
+            return productCategorySearchResponse([]);
+        };
+        Searcher.prototype.searchContents = async function(request) {
+            return contentSearchResponse(request.term === 'guide' ? [content('guide')] : []);
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {}, productCategories: {}, content: {} },
+                behavior: { zeroResultTabs: 'hide' },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('shirt');
+        await waitUntil(() => products(el).length === 1, 'product result was not rendered');
+        assert.equal(internals(el).activeTab, 'products');
+
+        internals(el).setSearchTerm('guide');
+        await waitUntil(() => contentResults(el).length === 1, 'content result was not rendered');
+
+        const tabs = queryAllDeep<HTMLElement>(el.renderRoot, '[part="tab"]');
+        assert.lengthOf(tabs, 1);
+        assert.include(tabs[0].textContent ?? '', 'Content');
+        assert.equal(internals(el).activeTab, 'content');
+        assert.equal(queryAllDeep(el.renderRoot, 'relewise-product-tile').length, 0);
+        assert.equal(queryAllDeep(el.renderRoot, 'relewise-content-tile').length, 1);
+    });
+
     test('renders enabled tabs in configuration order', async () => {
         Searcher.prototype.searchContents = async function() {
             return contentSearchResponse([content('1')]);

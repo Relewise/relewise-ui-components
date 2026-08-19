@@ -2,6 +2,7 @@ import { SearchCollectionBuilder } from '@relewise/client';
 import { html, nothing } from 'lit';
 import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import { repeat } from 'lit/directives/repeat.js';
 import type { SearchSuggestionEntityType } from '../app';
 import {
     QueryKeys,
@@ -249,6 +250,7 @@ export class UniversalSearch extends RelewiseLitElement {
             }
 
             searches.forEach(search => search.applyResponse(response));
+            this.ensureActiveTabIsVisible();
             this.activateFirstResultTabFromInitialState();
         } catch {
             if (!abortController.signal.aborted) {
@@ -283,7 +285,7 @@ export class UniversalSearch extends RelewiseLitElement {
             return enabledTabs;
         }
 
-        return enabledTabs.filter(tab => this.tabHits[tab] !== 0 || tab === this.activeTab);
+        return enabledTabs.filter(tab => this.tabHits[tab] !== 0);
     }
 
     private get allEnabledTabsHaveZeroResults(): boolean {
@@ -310,6 +312,16 @@ export class UniversalSearch extends RelewiseLitElement {
 
         this.activateTabAfterInitialSearch = false;
         if (getRelewiseUISearchOptions()?.universalSearch?.behavior?.activateFirstTabWithResultsFromInitialState === false) {
+            return;
+        }
+
+        this.activeTab = this.enabledTabs.find(tab => (this.tabHits[tab] ?? 0) > 0) ?? this.activeTab;
+    }
+
+    private ensureActiveTabIsVisible(): void {
+        if (getRelewiseUISearchOptions()?.universalSearch?.behavior?.zeroResultTabs !== 'hide'
+            || this.activeTab === null
+            || this.tabHits[this.activeTab] !== 0) {
             return;
         }
 
@@ -389,6 +401,9 @@ export class UniversalSearch extends RelewiseLitElement {
                 ? loadingRecommendationState
                 : emptyRecommendationState,
         };
+        if (!this.batchSearching) {
+            this.ensureActiveTabIsVisible();
+        }
     }
 
     private handleInitialRecommendationStateChanged(event: CustomEvent<RecommendationStateChangedEventDetail>): void {
@@ -540,7 +555,7 @@ export class UniversalSearch extends RelewiseLitElement {
                                     part="tabs"
                                     role="tablist"
                                     aria-label=${universalSearchLocalization?.tabsLabel ?? 'Search result tabs'}>
-                                    ${visibleTabs.map(tab => html`
+                                    ${repeat(visibleTabs, tab => tab, tab => html`
                                         <button
                                             class="rw-tab"
                                             part="tab"
@@ -559,7 +574,7 @@ export class UniversalSearch extends RelewiseLitElement {
                                         </button>
                                     `)}
                                 </nav>
-                                ${visibleTabs.map(tab => html`
+                                ${repeat(visibleTabs, tab => tab, tab => html`
                                     <div
                                         id=${this.getPanelId(tab)}
                                         role="tabpanel"
