@@ -22,7 +22,7 @@ const defaultContentProperties: Partial<SelectedContentPropertiesSettings> = {
     dataKeys: ['Url', 'ImageUrl', 'Summary'],
 };
 
-export const defaultExplodedVariants = 1;
+export const defaultMaxVariantsPerProduct = 1;
 
 export function getSelectedProductProperties(options: RelewiseUIOptions): Partial<SelectedProductPropertiesSettings> {
     const base = options.selectedPropertiesSettings?.product ?? defaultProductProperties;

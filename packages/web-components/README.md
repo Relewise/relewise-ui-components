@@ -879,16 +879,22 @@ useSearch({
 });
 ```
 
-#### Exploded Variants
-This allows you to control how many variants you want returned, if they match the search term, for both the search overlay and the product search.
+#### Variant Request Settings
+This allows you to control how many variants are returned per product and how they are sorted for both the search overlay and the product search.
 
 This setting is part of the configuration supplied to the `useSearch` function.
 
 ```ts
 useSearch({
-    explodedVariants: 1
+    variantRequestSettings: builder => builder
+        .setMaxVariantsPerProduct(1)
+        .setSorting('ByRelevance'),
 });
 ```
+
+`maxVariantsPerProduct` can be `0` for product-only results, `1` for one selected variant per product, or `2+` for multiple variants per product. Sorting defaults to `GroupedByProduct`; use `ByRelevance` when concrete variants should be ordered by variant-level relevance.
+
+The `explodedVariants` option is deprecated. Existing configurations remain supported and are mapped to `maxVariantsPerProduct`, but `variantRequestSettings` takes precedence when both options are provided.
 
 #### Facets
 By default the component will not render any facets.
