@@ -905,7 +905,7 @@ The suggestions popup uses the shared rounded-corner default, clips hover backgr
 
 Universal Search can compose the standalone recommendation components into the termless `initial` state, the `whenAllTabsAreHidden` no-result state, and each entity tab's no-result state. Every state accepts an ordered `UniversalSearchRecommendationBlock[]`; omit a state or block to disable it. The composition component is internal to Universal Search and is not registered or exported as a standalone public component.
 
-Each block accepts `type`, optional `title`, and optional `take`; `take` defaults to four. Set `title` to an empty string to omit the heading.
+Each block accepts `type`, optional `title`, and optional `take`; `take` defaults to five so a block fills the default desktop row. Set `title` to an empty string to omit the heading.
 
 ```ts
 export interface UniversalSearchRecommendationBlock {

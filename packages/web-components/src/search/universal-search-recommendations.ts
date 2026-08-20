@@ -161,6 +161,7 @@ const pendingState: RecommendationStateChangedEventDetail = {
     loading: true,
     hasResults: false,
 };
+const defaultNumberOfRecommendations = 5;
 
 export class UniversalSearchRecommendations extends RelewiseLitElement {
     @property({ attribute: false })
@@ -277,7 +278,7 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
         const state = this.recommendationStates[index];
         const key = JSON.stringify({ index, configuration, term: this.term, displayedAtLocation: this.displayedAtLocation });
         const context: RecommendationBlockRenderContext = {
-            take: configuration.take ?? 4,
+            take: configuration.take ?? defaultNumberOfRecommendations,
             displayedAtLocation: this.displayedAtLocation ?? 'Relewise Universal Search',
             term: this.term,
         };

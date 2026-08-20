@@ -217,6 +217,10 @@ suite('universal search recommendations', () => {
             composition.renderRoot.querySelector<HTMLElement & { numberOfRecommendations: number }>('relewise-popular-products')?.numberOfRecommendations,
             2,
         );
+        assert.equal(
+            composition.renderRoot.querySelector<HTMLElement & { numberOfRecommendations: number }>('relewise-personal-products')?.numberOfRecommendations,
+            5,
+        );
         assert.equal(queryDeep(element, 'relewise-product-tile')?.getAttribute('part'), 'product-tile');
         assert.equal(queryDeep(element, 'relewise-content-tile')?.getAttribute('part'), 'content-tile');
         assert.exists(queryDeep(element, 'relewise-personal-products'));
