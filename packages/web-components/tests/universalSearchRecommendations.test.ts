@@ -407,7 +407,7 @@ suite('universal search recommendations', () => {
         assert.equal(lastSearchTerm, 'Trail shoes');
     });
 
-    test('hides the active-tab zero state when its fallback has results', async() => {
+    test('keeps the active-tab zero state when its fallback has results', async() => {
         productFacets = { items: [] };
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch({
@@ -426,7 +426,15 @@ suite('universal search recommendations', () => {
         const productsTab = element.renderRoot.querySelector<HTMLElement & { hideFacets: boolean }>('relewise-universal-search-products-tab')!;
         await waitUntil(() => productsTab.hideFacets && queryDeep(element, 'relewise-product-tile') !== null);
         assert.isNull(queryAllDeep(productsTab.shadowRoot!, '[part="facets"]')[0] ?? null);
-        assert.isNull(queryAllDeep(productsTab.shadowRoot!, '[part="zero-results"]')[0] ?? null);
+        assert.exists(queryAllDeep(productsTab.shadowRoot!, '[part="zero-results"]')[0]);
+        assert.equal(
+            queryAllDeep(productsTab.shadowRoot!, '[part="zero-results-title"]')[0]?.textContent?.trim(),
+            'No products found.',
+        );
+        assert.equal(
+            queryAllDeep(productsTab.shadowRoot!, '[part="zero-results-hint"]')[0]?.textContent?.trim(),
+            'Try another search term or check the spelling.',
+        );
     });
 
     test('keeps the active-tab zero state without facets when its fallback is empty', async() => {
@@ -471,10 +479,76 @@ suite('universal search recommendations', () => {
         assert.lengthOf(element.renderRoot.querySelectorAll('[role="tab"]'), 0);
         const zeroResults = element.renderRoot.querySelector<HTMLElement>('[part="zero-results"]')!;
         assert.isNull(element.renderRoot.querySelector('[part="results-summary"]'));
-        assert.equal(zeroResults.textContent?.trim(), 'No results found for Boots.');
-        assert.equal(getComputedStyle(zeroResults).fontWeight, '400');
+        assert.equal(zeroResults.getAttribute('role'), 'status');
+        assert.equal(zeroResults.querySelector('[part="zero-results-title"]')?.textContent?.trim(), 'No results found for Boots.');
+        assert.equal(zeroResults.querySelector('[part="zero-results-hint"]')?.textContent?.trim(), 'Try another search term or check the spelling.');
+        assert.exists(zeroResults.querySelector('[part="zero-results-icon"] relewise-search-icon'));
         assert.equal(getComputedStyle(zeroResults.querySelector('strong')!).fontWeight, '700');
+        assert.equal(getComputedStyle(zeroResults).backgroundColor, 'rgb(246, 246, 246)');
         assert.equal(getComputedStyle(zeroResults).marginBottom, '16px');
+    });
+
+    test('uses global no-result localization and allows the hint to be omitted', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {} },
+                behavior: { zeroResultTabs: 'hide' },
+            },
+            localization: {
+                universalSearch: {
+                    noResults: 'Ingen resultater fundet.',
+                    noResultsHint: '',
+                },
+            },
+        });
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+
+        (element as unknown as UniversalSearchTestApi).setSearchTerm('Støvler');
+
+        await waitUntil(() => element.renderRoot.querySelector('[part="zero-results"]') !== null);
+        assert.equal(
+            element.renderRoot.querySelector('[part="zero-results-title"]')?.textContent?.trim(),
+            'Ingen resultater fundet.',
+        );
+        assert.isNull(element.renderRoot.querySelector('[part="zero-results-hint"]'));
+    });
+
+    test('forwards tab zero-result parts through Universal Search', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {} },
+                behavior: { zeroResultTabs: 'show' },
+            },
+        });
+
+        const wrapper = await fixture<HTMLElement>(html`
+            <div>
+                <style>
+                    relewise-universal-search {
+                        --relewise-universal-search-zero-results-background: rgb(7, 8, 9);
+                    }
+                    relewise-universal-search::part(zero-results-title) {
+                        color: rgb(1, 2, 3);
+                    }
+                    relewise-universal-search::part(zero-results-hint) {
+                        color: rgb(4, 5, 6);
+                    }
+                </style>
+                <relewise-universal-search open></relewise-universal-search>
+            </div>
+        `);
+        const element = wrapper.querySelector<UniversalSearch>('relewise-universal-search')!;
+
+        (element as unknown as UniversalSearchTestApi).setSearchTerm('No matches');
+
+        await waitUntil(() => queryDeep(element, '[part="zero-results-hint"]') !== null);
+        assert.equal(getComputedStyle(queryDeep(element, '[part="zero-results"]')!).backgroundColor, 'rgb(7, 8, 9)');
+        assert.equal(getComputedStyle(queryDeep(element, '[part="zero-results-title"]')!).color, 'rgb(1, 2, 3)');
+        assert.equal(getComputedStyle(queryDeep(element, '[part="zero-results-hint"]')!).color, 'rgb(4, 5, 6)');
     });
 
     test('requests multiple product recommendation children independently', async() => {

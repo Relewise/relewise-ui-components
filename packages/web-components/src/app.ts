@@ -144,6 +144,7 @@ export interface UniversalSearchLocalization {
     emptyState?: string;
     noEntitiesConfigured?: string;
     noResults?: string;
+    noResultsHint?: string;
     tabsLabel?: string;
     products?: UniversalSearchTabLocalization;
     productCategories?: UniversalSearchTabLocalization;
@@ -157,6 +158,7 @@ export interface UniversalSearchTabLocalization {
     result?: string;
     results?: string;
     noResults?: string;
+    noResultsHint?: string;
     error?: string;
 }
 

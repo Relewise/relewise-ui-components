@@ -22,7 +22,6 @@ const tab = 'productCategories';
 export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
     @property() term = '';
     @property({ attribute: false }) hideFacets = false;
-    @property({ attribute: false }) hideZeroResults = false;
     @property({ attribute: 'displayed-at-location' }) displayedAtLocation?: string;
 
     @state() private result: ProductCategorySearchResponse | null = null;
@@ -192,6 +191,7 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
 
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.productCategories;
+        const noResultsHint = localization?.noResultsHint ?? 'Try another search term or check the spelling.';
         const facetResult = this.result !== null && this.result.hits > 0 && !this.hideFacets ? this.result.facets : null;
 
         return html`
@@ -208,24 +208,38 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
                     </relewise-facets>
                 ` : nothing}
                 <section class="rw-results" part="results">
-                    <header class="rw-results-header" part="results-header">
-                        <div>
-                            <h2 class="rw-results-title" part="results-title">${localization?.resultsTitle ?? 'Categories'}</h2>
-                            ${this.result ? html`
-                                <span class="rw-results-count" part="results-count">
-                                    ${this.result.hits} ${this.result.hits === 1 ? localization?.result ?? 'Result' : localization?.results ?? 'Results'}
-                                </span>
-                            ` : nothing}
-                        </div>
-                    </header>
+                    ${this.result?.hits !== 0 ? html`
+                        <header class="rw-results-header" part="results-header">
+                            <div>
+                                <h2 class="rw-results-title" part="results-title">${localization?.resultsTitle ?? 'Categories'}</h2>
+                                ${this.result ? html`
+                                    <span class="rw-results-count" part="results-count">
+                                        ${this.result.hits} ${this.result.hits === 1 ? localization?.result ?? 'Result' : localization?.results ?? 'Results'}
+                                    </span>
+                                ` : nothing}
+                            </div>
+                        </header>
+                    ` : nothing}
                     ${this.error ? html`
                         <p class="rw-empty" part="error-state">${this.error}</p>
                     ` : this.loading && this.productCategories.length === 0 ? html`
                         <div class="rw-loading" part="loading-state">
                             <relewise-loading-spinner></relewise-loading-spinner>
                         </div>
-                    ` : !this.result ? nothing : this.productCategories.length === 0 ? this.hideZeroResults ? nothing : html`
-                        <p class="rw-empty" part="zero-results">${localization?.noResults ?? 'No product categories found.'}</p>
+                    ` : !this.result ? nothing : this.productCategories.length === 0 ? html`
+                        <div class="rw-zero-results" part="zero-results" role="status">
+                            <span class="rw-zero-results-icon" part="zero-results-icon" aria-hidden="true">
+                                <relewise-search-icon></relewise-search-icon>
+                            </span>
+                            <div>
+                                <p class="rw-zero-results-title" part="zero-results-title">${localization?.noResults ?? 'No product categories found.'}</p>
+                                ${noResultsHint ? html`
+                                    <p class="rw-zero-results-hint" part="zero-results-hint">
+                                        ${noResultsHint}
+                                    </p>
+                                ` : nothing}
+                            </div>
+                        </div>
                     ` : html`
                         <div class="rw-result-grid" part="category-grid">
                             ${this.productCategories.map(category => html`

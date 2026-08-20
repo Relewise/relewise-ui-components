@@ -731,6 +731,7 @@ useSearch({
             emptyState: 'Start typing to search.',
             noEntitiesConfigured: 'No universal-search entities configured.',
             noResults: 'No results found.',
+            noResultsHint: 'Try another search term or check the spelling.',
             tabsLabel: 'Search result tabs',
             products: {
                 tab: 'Products',
@@ -738,6 +739,8 @@ useSearch({
                 resultsTitle: 'Products',
                 result: 'Result',
                 results: 'Results',
+                noResults: 'No products found.',
+                noResultsHint: 'Try another search term or check the spelling.',
                 error: 'Could not load products.',
             },
             productCategories: {
@@ -746,6 +749,8 @@ useSearch({
                 resultsTitle: 'Categories',
                 result: 'Result',
                 results: 'Results',
+                noResults: 'No product categories found.',
+                noResultsHint: 'Try another search term or check the spelling.',
                 error: 'Could not load categories.',
             },
             content: {
@@ -754,6 +759,8 @@ useSearch({
                 resultsTitle: 'Content',
                 result: 'Result',
                 results: 'Results',
+                noResults: 'No content found.',
+                noResultsHint: 'Try another search term or check the spelling.',
                 error: 'Could not load content.',
             },
         },
@@ -905,6 +912,8 @@ The suggestions popup uses the shared rounded-corner default, clips hover backgr
 
 Universal Search can compose the standalone recommendation components into the termless `initial` state, the `whenAllTabsAreHidden` no-result state, and each entity tab's no-result state. Every state accepts an ordered `UniversalSearchRecommendationBlock[]`; omit a state or block to disable it. The composition component is internal to Universal Search and is not registered or exported as a standalone public component.
 
+The top-level `localization.universalSearch.noResults` and `noResultsHint` values customize the no-result state shown when all zero-result tabs are hidden. The corresponding values under `products`, `productCategories`, and `content` customize the state shown inside a visible zero-result tab. Set a `noResultsHint` to an empty string to omit the secondary guidance.
+
 Each block accepts `type`, optional `title`, and optional `take`; `take` defaults to five so a block fills the default desktop row. Set `title` to an empty string to omit the heading.
 
 ```ts
@@ -953,7 +962,7 @@ recommendations: {
 }
 ```
 
-`SearchTermBasedProduct` may return no recommendations on a new dataset without enough search behavior. Popular entity recommendations are therefore safer defaults for no-result recovery. `PopularSearchTerms` uses the centralized `useRecommendations({ popularSearchTerms: { targetEntityTypes } })` setting. Universal Search never renders facets or reserves their column for a tab with zero results. When a tab-specific recovery block returns recommendations, it also replaces that tab's zero-result message.
+`SearchTermBasedProduct` may return no recommendations on a new dataset without enough search behavior. Popular entity recommendations are therefore safer defaults for no-result recovery. `PopularSearchTerms` uses the centralized `useRecommendations({ popularSearchTerms: { targetEntityTypes } })` setting. Universal Search never renders facets, reserves their column, or renders the redundant entity heading and `0 Results` count for a tab with zero results. The tab-specific zero-result message remains visible above any recovery recommendations so the recommendations are not mistaken for search hits.
 
 Set `behavior.zeroResultTabs` to `show` (the default) to keep zero-result tabs and render their configured recovery blocks. Set it to `hide` to use the `whenAllTabsAreHidden` recovery blocks when every enabled tab has zero results. `behavior.activateFirstTabWithResults` defaults to `true`; after each term search, it selects the first tab with results when the active tab has zero results. Set it to `false` to retain the active zero-result tab when zero-result tabs are shown. Hidden zero-result tabs can never remain active.
 
@@ -962,6 +971,8 @@ All configured initial blocks are mounted together. Each standalone component ow
 No-result recommendations are lazy. Universal Search mounts only the active zero-result tab's configured recommendations and mounts another tab's recommendations when that tab is selected. Leaving a tab disconnects its recommendation children, so returning to it starts their normal standalone lifecycle again. Recommendation results retain the configured block order.
 
 Universal Search forwards the recommendation composition CSS parts, including `recommendation-loading`, `recommendation-blocks`, `recommendation-block`, `recommendation-title`, the entity grid parts, the actual recommendation tile parts, term parts, and type-specific block parts such as `popular-products` and `search-term-based-products`.
+
+Both the tabbed and tabless no-result states expose the CSS parts `zero-results`, `zero-results-icon`, `zero-results-title`, and `zero-results-hint` through `relewise-universal-search`.
 
 The current tabs use load-more behavior. Additional pagination modes are not part of the initial universal-search implementation.
 
@@ -1539,6 +1550,19 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-tab-padding` | `0.5em 0` | Padding inside each result tab. |
 | `--relewise-universal-search-tab-active-border-color` | `currentColor` | Underline color of the active result tab. |
 | `--relewise-universal-search-results-summary-margin-bottom` | `1em` | Space below the search-term summary. |
+| `--relewise-universal-search-zero-results-gap` | `1em` | Gap between the no-result icon and its text. |
+| `--relewise-universal-search-zero-results-margin-bottom` | `var(--relewise-universal-search-tabs-margin-bottom, 1em)` | Space below the no-result state; by default this matches the space between the tabs and the state. |
+| `--relewise-universal-search-zero-results-padding` | `1.5em` | Padding inside the no-result state. |
+| `--relewise-universal-search-zero-results-border-radius` | `0.5em` | Corner radius of the no-result state. |
+| `--relewise-universal-search-zero-results-background` | `#f6f6f6` | Background of the no-result state. |
+| `--relewise-universal-search-zero-results-icon-size` | `2.5em` | Width and height of the no-result icon container. |
+| `--relewise-universal-search-zero-results-icon-border-color` | `var(--relewise-universal-search-border-color, #ddd)` | Border color of the no-result icon container. |
+| `--relewise-universal-search-zero-results-icon-color` | `currentColor` | Color of the no-result search icon. |
+| `--relewise-universal-search-zero-results-icon-background` | `white` | Background of the no-result icon container. |
+| `--relewise-universal-search-zero-results-title-font-size` | `1.1em` | Font size of the primary no-result message. |
+| `--relewise-universal-search-zero-results-hint-margin-top` | `0.25em` | Space above the secondary no-result guidance. |
+| `--relewise-universal-search-zero-results-hint-color` | `#60646c` | Color of the secondary no-result guidance. |
+| `--relewise-universal-search-zero-results-hint-font-size` | `0.95em` | Font size of the secondary no-result guidance. |
 | `--relewise-universal-search-layout-gap` | `1em` | Gap between the facet column and results. |
 | `--relewise-universal-search-facets-width` | `18em` | Preferred width of the desktop facet column. |
 | `--relewise-universal-search-results-header-margin-bottom` | `1em` | Space below an entity result header. |
@@ -1903,4 +1927,3 @@ This component sends a [track brand view](https://docs.relewise.com/docs/develop
 - **brand-id**:
     
     The id of the brand that has been viewed.
-

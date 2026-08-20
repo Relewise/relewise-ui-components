@@ -209,6 +209,27 @@ suite('relewise-universal-search', () => {
         assert.isNotNull(el.querySelector('[role="dialog"]'));
     });
 
+    test('renders the zero-result treatment in light DOM', async() => {
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([], 0);
+        };
+        const options = mockRelewiseOptions();
+        options.components = { domMode: 'light' };
+        initializeRelewiseUI(options);
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: {} } } });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => el.querySelector('[part="zero-results-hint"]') !== null);
+
+        assert.isNull(el.shadowRoot);
+        assert.equal(el.querySelector('[part="zero-results-title"]')?.textContent?.trim(), 'No products found.');
+        assert.equal(el.querySelector('[part="zero-results-hint"]')?.textContent?.trim(), 'Try another search term or check the spelling.');
+    });
+
     test('prefills term from URL without opening', async () => {
         updateUrlState(QueryKeys.term, 'shoe');
 
@@ -629,7 +650,7 @@ suite('relewise-universal-search', () => {
         assert.isNull(readCurrentUrlState(QueryKeys.productSorting));
     });
 
-    test('uses products tab localization', async () => {
+    test('uses products tab no-result localization', async () => {
         Searcher.prototype.searchProducts = async function() {
             return productSearchResponse([], 0);
         };
@@ -644,10 +665,8 @@ suite('relewise-universal-search', () => {
                     products: {
                         tab: 'Varer',
                         resultsFor: 'Søgeresultater for',
-                        resultsTitle: 'Vareresultater',
-                        result: 'vare',
-                        results: 'varer',
                         noResults: 'Ingen varer fundet.',
+                        noResultsHint: 'Prøv et andet søgeord, eller kontrollér stavningen.',
                     },
                 },
             },
@@ -663,9 +682,43 @@ suite('relewise-universal-search', () => {
         assert.equal(queryDeep(el, '[part="tabs"]')?.getAttribute('aria-label'), 'Søgeresultatfaner');
         assert.include(queryDeep(el, '[part="tab"]')?.textContent ?? '', 'Varer');
         assert.include(queryDeep(el, '[part="results-summary"]')?.textContent ?? '', 'Søgeresultater for');
+        assert.isNull(queryDeep(el, '[part="results-header"]'));
+        assert.equal(queryDeep(el, '[part="zero-results-title"]')?.textContent?.trim(), 'Ingen varer fundet.');
+        assert.equal(
+            queryDeep(el, '[part="zero-results-hint"]')?.textContent?.trim(),
+            'Prøv et andet søgeord, eller kontrollér stavningen.',
+        );
+    });
+
+    test('uses products tab result localization when results exist', async() => {
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([product('shoe')], 1);
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: { entities: { products: { pageSize: 2 } } },
+            localization: {
+                universalSearch: {
+                    products: {
+                        resultsTitle: 'Vareresultater',
+                        result: 'vare',
+                        results: 'varer',
+                    },
+                },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('sko');
+        await waitUntil(() => queryDeep(el, '[part="product-tile"]') !== null, 'product result was not rendered');
+
         assert.equal(queryDeep(el, '[part="results-title"]')?.textContent?.trim(), 'Vareresultater');
-        assert.equal(queryDeep(el, '[part="results-count"]')?.textContent?.trim(), '0 varer');
-        assert.equal(queryDeep(el, '[part="zero-results"]')?.textContent?.trim(), 'Ingen varer fundet.');
+        assert.equal(queryDeep(el, '[part="results-count"]')?.textContent?.trim(), '1 vare');
     });
 
     test('uses default labels for properties omitted from tab localization', async () => {
@@ -695,9 +748,40 @@ suite('relewise-universal-search', () => {
 
         assert.include(queryDeep(el, '[part="tab"]')?.textContent ?? '', 'Items');
         assert.include(queryDeep(el, '[part="results-summary"]')?.textContent ?? '', 'Search results for');
-        assert.equal(queryDeep(el, '[part="results-title"]')?.textContent?.trim(), 'Products');
-        assert.equal(queryDeep(el, '[part="results-count"]')?.textContent?.trim(), '0 Results');
-        assert.equal(queryDeep(el, '[part="zero-results"]')?.textContent?.trim(), 'No products found.');
+        assert.isNull(queryDeep(el, '[part="results-header"]'));
+        assert.equal(queryDeep(el, '[part="zero-results-title"]')?.textContent?.trim(), 'No products found.');
+        assert.equal(
+            queryDeep(el, '[part="zero-results-hint"]')?.textContent?.trim(),
+            'Try another search term or check the spelling.',
+        );
+    });
+
+    test('allows the tab no-result hint to be omitted', async() => {
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([], 0);
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: { entities: { products: {} } },
+            localization: {
+                universalSearch: {
+                    products: {
+                        noResultsHint: '',
+                    },
+                },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => queryDeep(el, '[part="zero-results"]') !== null, 'zero-results was not rendered');
+
+        assert.isNull(queryDeep(el, '[part="zero-results-hint"]'));
     });
 
     test('does not render facets or reserve their column when a tab has zero results', async () => {
@@ -742,14 +826,20 @@ suite('relewise-universal-search', () => {
         );
 
         assert.isNull(queryDeep(el, 'relewise-facets'));
+        assert.isNull(productsTab(el).renderRoot.querySelector('[part="results-header"]'));
+        assert.isNotNull(productsTab(el).renderRoot.querySelector('[part="zero-results"]'));
 
         internals(el).handleSelectTab('productCategories');
         await universalSearchUpdated(el);
         assert.isNull(queryDeep(el, 'relewise-facets'));
+        assert.isNull(productCategoriesTab(el).renderRoot.querySelector('[part="results-header"]'));
+        assert.isNotNull(productCategoriesTab(el).renderRoot.querySelector('[part="zero-results"]'));
 
         internals(el).handleSelectTab('content');
         await universalSearchUpdated(el);
         assert.isNull(queryDeep(el, 'relewise-facets'));
+        assert.isNull(contentTab(el).renderRoot.querySelector('[part="results-header"]'));
+        assert.isNotNull(contentTab(el).renderRoot.querySelector('[part="zero-results"]'));
     });
 
     test('loads more products using scoped take URL state', async () => {

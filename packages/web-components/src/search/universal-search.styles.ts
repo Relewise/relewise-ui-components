@@ -1,7 +1,8 @@
 import { css } from 'lit';
 import { theme } from '../theme';
+import { universalSearchZeroResultsStyles } from './universal-search-zero-results.styles';
 
-export const universalSearchStyles = [theme, css`
+export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, css`
     :host {
         display: block;
         font-family: var(--font);
@@ -93,10 +94,6 @@ export const universalSearchStyles = [theme, css`
     }
 
     .rw-results-summary {
-        margin-bottom: var(--relewise-universal-search-results-summary-margin-bottom, 1em);
-    }
-
-    .rw-all-tabs-hidden-zero-results {
         margin-bottom: var(--relewise-universal-search-results-summary-margin-bottom, 1em);
     }
 

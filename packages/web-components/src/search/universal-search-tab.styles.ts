@@ -1,7 +1,8 @@
 import { css } from 'lit';
 import { theme } from '../theme';
+import { universalSearchZeroResultsStyles } from './universal-search-zero-results.styles';
 
-export const universalSearchTabStyles = [theme, css`
+export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles, css`
     :host {
         display: block;
         font-family: var(--font);
