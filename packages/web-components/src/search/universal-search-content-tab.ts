@@ -21,6 +21,7 @@ const tab = 'content';
 
 export class UniversalSearchContentTab extends RelewiseLitElement {
     @property() term = '';
+    @property({ attribute: false }) hideFacets = false;
     @property({ attribute: 'displayed-at-location' }) displayedAtLocation?: string;
 
     @state() private result: ContentSearchResponse | null = null;
@@ -193,10 +194,12 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
 
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.content;
+        const noResultsHint = localization?.noResultsHint ?? 'Try another search term or check the spelling.';
+        const facetResult = this.result !== null && this.result.hits > 0 && !this.hideFacets ? this.result.facets : null;
 
         return html`
             <div class="rw-results-layout" part="results-layout">
-                ${this.result?.facets ? html`
+                ${facetResult ? html`
                     <relewise-facets
                         class="rw-facets"
                         part="facets"
@@ -204,20 +207,22 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
                         .labels=${this.facetLabels}
                         .facetQueryKeyPrefix=${QueryKeys.contentFacet}
                         .applyFacet=${this.searchOptionsChanged}
-                        .facetResult=${this.result.facets}>
+                        .facetResult=${facetResult}>
                     </relewise-facets>
                 ` : nothing}
                 <section class="rw-results" part="results">
-                    <header class="rw-results-header" part="results-header">
-                        <div>
-                            <h2 class="rw-results-title" part="results-title">${localization?.resultsTitle ?? 'Content'}</h2>
-                            ${this.result ? html`
-                                <span class="rw-results-count" part="results-count">
-                                    ${this.result.hits} ${this.result.hits === 1 ? localization?.result ?? 'Result' : localization?.results ?? 'Results'}
-                                </span>
-                            ` : nothing}
-                        </div>
-                    </header>
+                    ${this.result?.hits !== 0 ? html`
+                        <header class="rw-results-header" part="results-header">
+                            <div>
+                                <h2 class="rw-results-title" part="results-title">${localization?.resultsTitle ?? 'Content'}</h2>
+                                ${this.result ? html`
+                                    <span class="rw-results-count" part="results-count">
+                                        ${this.result.hits} ${this.result.hits === 1 ? localization?.result ?? 'Result' : localization?.results ?? 'Results'}
+                                    </span>
+                                ` : nothing}
+                            </div>
+                        </header>
+                    ` : nothing}
                     ${this.error ? html`
                         <p class="rw-empty" part="error-state">${this.error}</p>
                     ` : this.loading && this.content.length === 0 ? html`
@@ -225,7 +230,19 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
                             <relewise-loading-spinner></relewise-loading-spinner>
                         </div>
                     ` : !this.result ? nothing : this.content.length === 0 ? html`
-                        <p class="rw-empty" part="zero-results">${localization?.noResults ?? 'No content found.'}</p>
+                        <div class="rw-zero-results" part="zero-results" role="status">
+                            <span class="rw-zero-results-icon" part="zero-results-icon" aria-hidden="true">
+                                <relewise-search-icon></relewise-search-icon>
+                            </span>
+                            <div>
+                                <p class="rw-zero-results-title" part="zero-results-title">${localization?.noResults ?? 'No content found.'}</p>
+                                ${noResultsHint ? html`
+                                    <p class="rw-zero-results-hint" part="zero-results-hint">
+                                        ${noResultsHint}
+                                    </p>
+                                ` : nothing}
+                            </div>
+                        </div>
                     ` : html`
                         <div class="rw-result-grid" part="content-grid">
                             ${this.content.map(content => html`

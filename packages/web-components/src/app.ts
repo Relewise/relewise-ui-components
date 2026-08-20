@@ -1,7 +1,7 @@
 import { FilterBuilder, ProductCategoryResult, ProductResult, RecommendPopularSearchTermSettings } from '@relewise/client';
 import type { SearchTermPredictionRequest } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
-import { CategoryTile, ContentCategoryTile, FilterIcon, ProductCategoryTile, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
+import { ContentCategoryTile, FilterIcon, ProductCategoryTile, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
 import { Button } from './components/button';
 import { LoadingSpinner } from './components/loading-spinner';
 import { FavoriteButtonContent } from './components/content-favorite-button';
@@ -42,6 +42,7 @@ import { UniversalSearchContentTab } from './search/universal-search-content-tab
 import { UniversalSearchLoadMore } from './search/universal-search-load-more';
 import { UniversalSearchProductCategoriesTab } from './search/universal-search-product-categories-tab';
 import { UniversalSearchProductsTab } from './search/universal-search-products-tab';
+import { UniversalSearchRecommendations } from './search/universal-search-recommendations';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -58,6 +59,38 @@ export interface RelewiseUISearchOptions {
 export interface UniversalSearchOptions {
     entities?: UniversalSearchEntitiesOptions;
     suggestions?: SearchSuggestionsOptions;
+    behavior?: UniversalSearchBehaviorOptions;
+    recommendations?: UniversalSearchRecommendationOptions;
+}
+
+export interface UniversalSearchBehaviorOptions {
+    zeroResultTabs?: 'show' | 'hide';
+    activateFirstTabWithResults?: boolean;
+}
+
+export interface UniversalSearchRecommendationOptions {
+    initial?: UniversalSearchRecommendationBlock[];
+    noResults?: {
+        whenAllTabsAreHidden?: UniversalSearchRecommendationBlock[];
+        products?: UniversalSearchRecommendationBlock[];
+        productCategories?: UniversalSearchRecommendationBlock[];
+        content?: UniversalSearchRecommendationBlock[];
+    };
+}
+
+export interface UniversalSearchRecommendationBlock {
+    title?: string;
+    type:
+        | 'PopularProducts'
+        | 'PersonalProducts'
+        | 'RecentlyViewedProducts'
+        | 'PopularProductCategories'
+        | 'PopularContents'
+        | 'PersonalContent'
+        | 'PopularContentCategories'
+        | 'PopularSearchTerms'
+        | 'SearchTermBasedProduct';
+    take?: number;
 }
 
 export type SearchSuggestionEntityType = NonNullable<
@@ -110,6 +143,8 @@ export interface UniversalSearchLocalization {
     close?: string;
     emptyState?: string;
     noEntitiesConfigured?: string;
+    noResults?: string;
+    noResultsHint?: string;
     tabsLabel?: string;
     products?: UniversalSearchTabLocalization;
     productCategories?: UniversalSearchTabLocalization;
@@ -123,6 +158,7 @@ export interface UniversalSearchTabLocalization {
     result?: string;
     results?: string;
     noResults?: string;
+    noResultsHint?: string;
     error?: string;
 }
 
@@ -283,10 +319,20 @@ export function useSearch(options?: RelewiseUISearchOptions) {
 
     if (window.relewiseUISearchOptions.universalSearch) {
         tryRegisterElement('relewise-universal-search', UniversalSearch);
+        tryRegisterElement('relewise-universal-search-recommendations', UniversalSearchRecommendations);
         tryRegisterElement('relewise-universal-search-products-tab', UniversalSearchProductsTab);
         tryRegisterElement('relewise-universal-search-product-categories-tab', UniversalSearchProductCategoriesTab);
         tryRegisterElement('relewise-universal-search-content-tab', UniversalSearchContentTab);
         tryRegisterElement('relewise-universal-search-load-more', UniversalSearchLoadMore);
+        tryRegisterElement('relewise-popular-products', PopularProducts);
+        tryRegisterElement('relewise-personal-products', PersonalProducts);
+        tryRegisterElement('relewise-recently-viewed-products', RecentlyViewedProducts);
+        tryRegisterElement('relewise-search-term-based-products', SearchTermBasedProducts);
+        tryRegisterElement('relewise-popular-content', PopularContent);
+        tryRegisterElement('relewise-personal-content', PersonalContent);
+        tryRegisterElement('relewise-popular-product-categories', PopularProductCategories);
+        tryRegisterElement('relewise-popular-content-categories', PopularContentCategories);
+        tryRegisterElement('relewise-popular-search-terms', PopularSearchTerms);
     }
 
     tryRegisterElement('relewise-product-search-overlay', ProductSearchOverlay);
@@ -314,7 +360,6 @@ export function useSearch(options?: RelewiseUISearchOptions) {
 function registerGenericComponents() {
     tryRegisterElement('relewise-product-category-tile', ProductCategoryTile);
     tryRegisterElement('relewise-content-category-tile', ContentCategoryTile);
-    tryRegisterElement('relewise-category-tile', CategoryTile);
     tryRegisterElement('relewise-content-tile', ContentTile);
     tryRegisterElement('relewise-product-tile', ProductTile);
     tryRegisterElement('relewise-search-icon', SearchIcon);

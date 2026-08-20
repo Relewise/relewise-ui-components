@@ -5,6 +5,7 @@ import {
     Recommender,
 } from '@relewise/client';
 import { initializeRelewiseUI, PopularProductCategories } from '../src';
+import type { RecommendationStateChangedEventDetail } from '../src';
 import { Events } from '../src/helpers/events';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
@@ -33,11 +34,13 @@ suite('relewise-popular-product-categories', () => {
 
     test('registers, requests, and renders product categories', async() => {
         initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+        const states: RecommendationStateChangedEventDetail[] = [];
         const element = await fixture<PopularProductCategories>(html`
             <relewise-popular-product-categories
                 displayed-at-location="test"
                 number-of-recommendations="2"
-                since-minutes-ago="60">
+                since-minutes-ago="60"
+                @relewise-ui-components:recommendation-state-changed=${(event: CustomEvent<RecommendationStateChangedEventDetail>) => states.push(event.detail)}>
             </relewise-popular-product-categories>
         `);
 
@@ -47,6 +50,9 @@ suite('relewise-popular-product-categories', () => {
         assert.equal(requests[0].settings.numberOfRecommendations, 2);
         assert.equal(requests[0].sinceMinutesAgo, 60);
         assert.equal(element.renderRoot.querySelectorAll('relewise-product-category-tile').length, 2);
+        assert.deepInclude(states, { loading: true, hasResults: false });
+        assert.deepInclude(states, { loading: false, hasResults: true });
+        assert.equal(Events.recommendationStateChanged, 'relewise-ui-components:recommendation-state-changed');
     });
 
     test('refreshes recommendations when context changes', async() => {

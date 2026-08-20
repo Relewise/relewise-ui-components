@@ -63,6 +63,13 @@ initializeRelewiseUI(
                     'Priority',
                 ],
             },
+            contentCategory: {
+                displayName: true,
+                dataKeys: [
+                    'Url',
+                    'ImageUrl',
+                ],
+            },
             content: {
                 displayName: true,
                 dataKeys: [
@@ -82,6 +89,11 @@ initializeRelewiseUI(
         ...(useCustomTemplates ? { templates: customTemplates } : {}),
     },
 )
+    .useRecommendations({
+        popularSearchTerms: {
+            targetEntityTypes: ['Product', 'ProductCategory', 'Content'],
+        },
+    })
     .useSearch({
         facets: {
             product(builder) {
@@ -151,6 +163,38 @@ initializeRelewiseUI(
                 searchTermPredictions: {
                     take: 5,
                     targetEntityTypes: ['Product'],
+                },
+            },
+            behavior: {
+                zeroResultTabs: 'show',
+                activateFirstTabWithResults: true,
+            },
+            recommendations: {
+                initial: [
+                    { type: 'PopularProducts', title: 'Popular products', take: 10 },
+                    { type: 'PersonalProducts', title: 'Recommended products', take: 10 },
+                    { type: 'PopularProductCategories', title: 'Popular product categories', take: 5 },
+                    { type: 'PopularContents', title: 'Popular content', take: 10 },
+                    { type: 'PersonalContent', title: 'Recommended content', take: 10 },
+                    { type: 'PopularContentCategories', title: 'Popular content categories', take: 5 },
+                    { type: 'PopularSearchTerms', title: 'Popular searches', take: 10 },
+                ],
+                noResults: {
+                    whenAllTabsAreHidden: [
+                        // Use this when the dataset has enough search-term recommendation data:
+                        // { type: 'SearchTermBasedProduct', title: 'You might like', take: 10 },
+                        { type: 'PopularProducts', title: 'Popular products', take: 10 },
+                    ],
+                    products: [
+                        // { type: 'SearchTermBasedProduct', title: 'You might like', take: 10 },
+                        { type: 'PopularProducts', title: 'Popular products', take: 10 },
+                    ],
+                    productCategories: [
+                        { type: 'PopularProductCategories', title: 'Popular categories', take: 10 },
+                    ],
+                    content: [
+                        { type: 'PopularContents', title: 'Popular content', take: 10 },
+                    ],
                 },
             },
         },

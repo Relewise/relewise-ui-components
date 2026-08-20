@@ -93,6 +93,35 @@ export const customTemplates: Templates = {
             </article>
         `;
     },
+    contentCategory(contentCategory, { html, helpers }) {
+        const url = dataString(contentCategory.data, 'Url');
+        const image = dataString(contentCategory.data, 'ImageUrl');
+        const content = html`
+            ${image ? html`
+                <img
+                    style="display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#f7f7f7;"
+                    src=${image}
+                    alt=${contentCategory.displayName ?? ''}>
+            ` : helpers.nothing}
+            <div style="padding:.75rem;">
+                <strong>${contentCategory.displayName}</strong>
+            </div>
+        `;
+
+        if (url) {
+            return html`
+                <a style="display:block;height:100%;color:inherit;text-decoration:none;border:1px solid #ddd;" href=${url}>
+                    ${content}
+                </a>
+            `;
+        }
+
+        return html`
+            <article style="height:100%;border:1px solid #ddd;">
+                ${content}
+            </article>
+        `;
+    },
     content(content, { html, helpers }) {
         const url = dataString(content.data, 'Url');
         const image = dataString(content.data, 'ImageUrl');

@@ -29,6 +29,9 @@
         <li>Enabled tabs are searched together in a batched search request.</li>
         <li>Facet and sorting changes search only the active tab.</li>
         <li>A focused, empty input shows popular search terms, and a focused input with text shows search-term predictions.</li>
+        <li>The termless state requests ten product, content, and search-term recommendations, five category recommendations, and renders tile blocks in five columns.</li>
+        <li>Zero-result tabs render popular recovery recommendations and hide the unused facet column.</li>
+        <li>Each zero-result tab mounts its recovery recommendation components only while that tab is active.</li>
     </ul>
 
     <button onclick="document.querySelector('relewise-universal-search').open()">
