@@ -167,7 +167,7 @@ initializeRelewiseUI(
             },
             behavior: {
                 zeroResultTabs: 'show',
-                activateFirstTabWithResultsFromInitialState: true,
+                activateFirstTabWithResults: true,
             },
             recommendations: {
                 initial: [

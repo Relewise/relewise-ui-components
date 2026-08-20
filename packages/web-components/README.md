@@ -828,7 +828,7 @@ useSearch({
         },
         behavior: {
             zeroResultTabs: 'show',
-            activateFirstTabWithResultsFromInitialState: true,
+            activateFirstTabWithResults: true,
         },
         recommendations: {
             initial: [
@@ -955,7 +955,7 @@ recommendations: {
 
 `SearchTermBasedProduct` may return no recommendations on a new dataset without enough search behavior. Popular entity recommendations are therefore safer defaults for no-result recovery. `PopularSearchTerms` uses the centralized `useRecommendations({ popularSearchTerms: { targetEntityTypes } })` setting. Universal Search never renders facets or reserves their column for a tab with zero results. When a tab-specific recovery block returns recommendations, it also replaces that tab's zero-result message.
 
-Set `behavior.zeroResultTabs` to `show` (the default) to keep zero-result tabs and render their configured recovery blocks. Set it to `hide` to use the `whenAllTabsAreHidden` recovery blocks when every enabled tab has zero results. `behavior.activateFirstTabWithResultsFromInitialState` defaults to `true`; it only changes the active tab when the user leaves the termless initial state, not after the user has selected a tab.
+Set `behavior.zeroResultTabs` to `show` (the default) to keep zero-result tabs and render their configured recovery blocks. Set it to `hide` to use the `whenAllTabsAreHidden` recovery blocks when every enabled tab has zero results. `behavior.activateFirstTabWithResults` defaults to `true`; after each term search, it selects the first tab with results when the active tab has zero results. Set it to `false` to retain the active zero-result tab when zero-result tabs are shown. Hidden zero-result tabs can never remain active.
 
 All configured initial blocks are mounted together. Each standalone component owns its request, context lifecycle, results, and rendering. Multiple eligible product recommendation children use the existing product recommendation batcher; other recommendations use their standalone request flow.
 

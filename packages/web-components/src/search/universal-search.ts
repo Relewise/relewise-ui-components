@@ -88,7 +88,6 @@ export class UniversalSearch extends RelewiseLitElement {
     private readonly accessibilityId = `relewise-universal-search-${universalSearchInstanceId++}`;
     private previouslyFocusedElement: HTMLElement | null = null;
     private openStateActive = false;
-    private activateTabAfterInitialSearch = false;
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -153,12 +152,6 @@ export class UniversalSearch extends RelewiseLitElement {
             return;
         }
 
-        if (!this.term && term) {
-            this.activateTabAfterInitialSearch = true;
-        } else if (!term) {
-            this.activateTabAfterInitialSearch = false;
-        }
-
         this.term = term;
         this.batchAbortController.abort();
         this.resetRecommendationState();
@@ -206,7 +199,6 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         if (this.enabledTabs.length === 0) {
-            this.activateTabAfterInitialSearch = false;
             return;
         }
 
@@ -245,16 +237,14 @@ export class UniversalSearch extends RelewiseLitElement {
             }
 
             if (!response) {
-                this.activateTabAfterInitialSearch = false;
                 return;
             }
 
             searches.forEach(search => search.applyResponse(response));
             this.ensureActiveTabIsVisible();
-            this.activateFirstResultTabFromInitialState();
+            this.activateFirstTabWithResults();
         } catch {
             if (!abortController.signal.aborted) {
-                this.activateTabAfterInitialSearch = false;
                 searches.forEach(search => search.setError());
             }
         } finally {
@@ -305,13 +295,10 @@ export class UniversalSearch extends RelewiseLitElement {
         return getRelewiseUISearchOptions()?.universalSearch?.recommendations?.noResults?.[tab] ?? [];
     }
 
-    private activateFirstResultTabFromInitialState(): void {
-        if (!this.activateTabAfterInitialSearch) {
-            return;
-        }
-
-        this.activateTabAfterInitialSearch = false;
-        if (getRelewiseUISearchOptions()?.universalSearch?.behavior?.activateFirstTabWithResultsFromInitialState === false) {
+    private activateFirstTabWithResults(): void {
+        if (getRelewiseUISearchOptions()?.universalSearch?.behavior?.activateFirstTabWithResults === false
+            || this.activeTab === null
+            || this.tabHits[this.activeTab] !== 0) {
             return;
         }
 
@@ -361,7 +348,6 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     private handleSelectTab(tab: UniversalSearchTab): void {
-        this.activateTabAfterInitialSearch = false;
         this.activeTab = tab;
     }
 

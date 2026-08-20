@@ -65,7 +65,7 @@ export interface UniversalSearchOptions {
 
 export interface UniversalSearchBehaviorOptions {
     zeroResultTabs?: 'show' | 'hide';
-    activateFirstTabWithResultsFromInitialState?: boolean;
+    activateFirstTabWithResults?: boolean;
 }
 
 export interface UniversalSearchRecommendationOptions {

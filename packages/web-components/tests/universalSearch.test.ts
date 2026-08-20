@@ -1065,6 +1065,79 @@ suite('relewise-universal-search', () => {
         assert.equal(queryAllDeep(el.renderRoot, 'relewise-content-tile').length, 1);
     });
 
+    test('selects the first result tab when the active tab loses its results after a term search', async() => {
+        Searcher.prototype.searchProducts = async function(request) {
+            return productSearchResponse(request.term === 'war' ? [product('war')] : []);
+        };
+        Searcher.prototype.searchContents = async function(request) {
+            return contentSearchResponse([content(request.term!)]);
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {}, content: {} },
+                behavior: {
+                    zeroResultTabs: 'show',
+                    activateFirstTabWithResults: true,
+                },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('war');
+        await waitUntil(() => products(el)[0]?.productId === 'war'
+            && contentResults(el)[0]?.contentId === 'war', 'initial results were not rendered');
+        assert.equal(internals(el).activeTab, 'products');
+
+        internals(el).setSearchTerm('wardrobe');
+        await waitUntil(() => products(el).length === 0
+            && contentResults(el)[0]?.contentId === 'wardrobe', 'updated results were not rendered');
+
+        assert.lengthOf(queryAllDeep(el.renderRoot, '[part="tab"]'), 2);
+        assert.equal(internals(el).activeTab, 'content');
+    });
+
+    test('retains the active zero-result tab when automatic result-tab activation is disabled', async() => {
+        Searcher.prototype.searchProducts = async function(request) {
+            return productSearchResponse(request.term === 'war' ? [product('war')] : []);
+        };
+        Searcher.prototype.searchContents = async function(request) {
+            return contentSearchResponse([content(request.term!)]);
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {}, content: {} },
+                behavior: {
+                    zeroResultTabs: 'show',
+                    activateFirstTabWithResults: false,
+                },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('war');
+        await waitUntil(() => products(el)[0]?.productId === 'war'
+            && contentResults(el)[0]?.contentId === 'war', 'initial results were not rendered');
+
+        internals(el).setSearchTerm('wardrobe');
+        await waitUntil(() => products(el).length === 0
+            && contentResults(el)[0]?.contentId === 'wardrobe', 'updated results were not rendered');
+
+        assert.equal(internals(el).activeTab, 'products');
+        assert.exists(productsTab(el).renderRoot.querySelector('[part="zero-results"]'));
+    });
+
     test('selects a remaining result tab after the active tab receives zero results', async () => {
         Searcher.prototype.searchProducts = async function(request) {
             return productSearchResponse(request.term === 'shirt' ? [product('shirt')] : []);
@@ -1081,7 +1154,10 @@ suite('relewise-universal-search', () => {
             debounceTimeInMs: 0,
             universalSearch: {
                 entities: { products: {}, productCategories: {}, content: {} },
-                behavior: { zeroResultTabs: 'hide' },
+                behavior: {
+                    zeroResultTabs: 'hide',
+                    activateFirstTabWithResults: false,
+                },
             },
         });
 
