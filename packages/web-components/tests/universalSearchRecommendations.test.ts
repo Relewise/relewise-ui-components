@@ -3,7 +3,6 @@ import {
     ContentCategoryResult,
     ContentResult,
     ProductCategoryResult,
-    ProductRecommendationRequest,
     ProductResult,
     Recommender,
     Searcher,
@@ -16,7 +15,7 @@ import {
     useRecommendations,
     useSearch,
 } from '../src';
-import type { RecommendationBatcher, RecommendationStateChangedEventDetail, UniversalSearchRecommendationBlock } from '../src';
+import type { RecommendationStateChangedEventDetail, UniversalSearchRecommendationBlock } from '../src';
 import { Events } from '../src/helpers/events';
 import { UniversalSearchRecommendations } from '../src/search/universal-search-recommendations';
 import { clearRegisteredLightDomStylesForTesting } from '../src/lightDomStyles';
@@ -74,7 +73,9 @@ suite('universal search recommendations', () => {
     let lastSearchTerm: string | undefined;
     let popularProductRecommendations: ProductResult[] = [];
     let popularSearchTermEntityTypes: unknown;
+    let productBatchRequests = 0;
     let popularProductRequests = 0;
+    let searchTermRecommendationTerms: string[] = [];
     let popularProductCategoryRequests = 0;
     let popularContentRequests = 0;
 
@@ -85,7 +86,9 @@ suite('universal search recommendations', () => {
         lastSearchTerm = undefined;
         popularProductRecommendations = [product('popular')];
         popularSearchTermEntityTypes = undefined;
+        productBatchRequests = 0;
         popularProductRequests = 0;
+        searchTermRecommendationTerms = [];
         popularProductCategoryRequests = 0;
         popularContentRequests = 0;
 
@@ -119,6 +122,7 @@ suite('universal search recommendations', () => {
             } as never;
         };
         Recommender.prototype.batchProductRecommendations = async function(requestCollection) {
+            productBatchRequests++;
             return {
                 responses: requestCollection.requests?.map(request => ({
                     recommendations: [product(request.$type.includes('SearchTermBased') ? 'term-based' : 'popular')],
@@ -135,7 +139,8 @@ suite('universal search recommendations', () => {
         Recommender.prototype.recentlyViewedProducts = async function() {
             return { recommendations: [product('recent')] } as never;
         };
-        Recommender.prototype.recommendSearchTermBasedProducts = async function() {
+        Recommender.prototype.recommendSearchTermBasedProducts = async function(request) {
+            searchTermRecommendationTerms.push(request.term);
             return { recommendations: [product('term-based')] } as never;
         };
         Recommender.prototype.recommendPopularProductCategories = async function() {
@@ -472,7 +477,7 @@ suite('universal search recommendations', () => {
         assert.equal(getComputedStyle(zeroResults).marginBottom, '16px');
     });
 
-    test('batches multiple eligible product recommendation children', async() => {
+    test('requests multiple product recommendation children independently', async() => {
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch({ universalSearch: {} });
         const states: RecommendationStateChangedEventDetail[] = [];
@@ -490,21 +495,16 @@ suite('universal search recommendations', () => {
         `);
 
         await waitUntil(() => queryAllDeep(element.renderRoot, 'relewise-product-tile').length === 2);
-        assert.exists(element.renderRoot.querySelector('relewise-product-recommendation-batcher'));
+        assert.isNull(element.renderRoot.querySelector('relewise-product-recommendation-batcher'));
+        assert.equal(productBatchRequests, 0);
+        assert.equal(popularProductRequests, 1);
+        assert.deepEqual(searchTermRecommendationTerms, ['Boots']);
         assert.deepInclude(states, { loading: true, hasResults: false });
         assert.deepInclude(states, { loading: false, hasResults: true });
         assert.equal(Events.recommendationStateChanged, 'relewise-ui-components:recommendation-state-changed');
     });
 
-    test('replaces disconnected registrations when keyed recommendation children change', async() => {
-        const batches: ProductRecommendationRequest[][] = [];
-        Recommender.prototype.batchProductRecommendations = async requestCollection => {
-            const requests = [...(requestCollection.requests ?? [])];
-            batches.push(requests);
-            return {
-                responses: requests.map(() => ({ recommendations: [product('result')] })),
-            } as never;
-        };
+    test('refreshes standalone recommendation children when their term changes', async() => {
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch({ universalSearch: {} });
 
@@ -517,18 +517,15 @@ suite('universal search recommendations', () => {
                 term="Boots">
             </relewise-universal-search-recommendations>
         `);
-        await waitUntil(() => batches.length === 1);
+        await waitUntil(() => searchTermRecommendationTerms.includes('Boots'));
 
         element.term = 'Shoes';
         await element.updateComplete;
-        await waitUntil(() => batches.length === 2);
+        await waitUntil(() => searchTermRecommendationTerms.includes('Shoes'));
 
-        assert.lengthOf(batches[1], 2);
-        assert.isFalse(batches[1].some(request => 'term' in request && request.term === 'Boots'));
-        assert.isTrue(batches[1].some(request => 'term' in request && request.term === 'Shoes'));
-        const batcher = element.renderRoot.querySelector<RecommendationBatcher>('relewise-product-recommendation-batcher')!;
-        assert.lengthOf(batcher.data.requests, 2);
-        assert.isTrue(batcher.data.requests.every(request => request.id.isConnected && batcher.contains(request.id)));
+        assert.deepEqual(searchTermRecommendationTerms, ['Boots', 'Shoes']);
+        assert.equal(productBatchRequests, 0);
+        assert.equal(popularProductRequests, 2);
     });
 
     test('aggregates loading and results across independent recommendation children', async() => {
@@ -591,7 +588,7 @@ suite('universal search recommendations', () => {
         assert.lengthOf(queryAllDeep(element.renderRoot, 'relewise-product-tile, relewise-content-tile'), 0);
     });
 
-    test('finishes without results when a non-batched recommendation request fails', async() => {
+    test('finishes without results when a standalone content recommendation request fails', async() => {
         Recommender.prototype.recommendPopularContents = async() => {
             throw new Error('Recommendations are unavailable');
         };
@@ -611,8 +608,11 @@ suite('universal search recommendations', () => {
         assert.lengthOf(queryAllDeep(element.renderRoot, 'relewise-content-tile'), 0);
     });
 
-    test('finishes without results when a product recommendation batch fails', async() => {
-        Recommender.prototype.batchProductRecommendations = async function() {
+    test('finishes without results when standalone product recommendation requests fail', async() => {
+        Recommender.prototype.recommendPopularProducts = async function() {
+            throw new Error('Recommendations are unavailable');
+        };
+        Recommender.prototype.recommendSearchTermBasedProducts = async function() {
             throw new Error('Recommendations are unavailable');
         };
         initializeRelewiseUI(mockRelewiseOptions());
@@ -631,6 +631,7 @@ suite('universal search recommendations', () => {
         `);
 
         await waitUntil(() => states.some(state => !state.loading && !state.hasResults));
+        assert.equal(productBatchRequests, 0);
         assert.isNull(element.renderRoot.querySelector('[part="recommendation-loading"]'));
         assert.lengthOf(queryAllDeep(element.renderRoot, 'relewise-product-tile'), 0);
     });
@@ -653,7 +654,7 @@ suite('universal search recommendations', () => {
 
         await waitUntil(() => element.querySelectorAll('relewise-product-tile').length === 2);
         assert.isNull(element.shadowRoot);
-        assert.isNull(element.querySelector('relewise-product-recommendation-batcher')?.shadowRoot ?? null);
+        assert.isNull(element.querySelector('relewise-product-recommendation-batcher'));
         assert.exists(element.querySelector('[part~="recommendation-block"]'));
         assert.equal(element.querySelector('relewise-product-tile')?.getAttribute('part'), 'product-tile');
         const registeredStyles = document.querySelector('#relewise-light-dom-styles');

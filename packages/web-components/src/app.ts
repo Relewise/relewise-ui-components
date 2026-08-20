@@ -322,7 +322,6 @@ export function useSearch(options?: RelewiseUISearchOptions) {
         tryRegisterElement('relewise-universal-search-product-categories-tab', UniversalSearchProductCategoriesTab);
         tryRegisterElement('relewise-universal-search-content-tab', UniversalSearchContentTab);
         tryRegisterElement('relewise-universal-search-load-more', UniversalSearchLoadMore);
-        tryRegisterElement('relewise-product-recommendation-batcher', RecommendationBatcher);
         tryRegisterElement('relewise-popular-products', PopularProducts);
         tryRegisterElement('relewise-personal-products', PersonalProducts);
         tryRegisterElement('relewise-recently-viewed-products', RecentlyViewedProducts);

@@ -957,7 +957,7 @@ recommendations: {
 
 Set `behavior.zeroResultTabs` to `show` (the default) to keep zero-result tabs and render their configured recovery blocks. Set it to `hide` to use the `whenAllTabsAreHidden` recovery blocks when every enabled tab has zero results. `behavior.activateFirstTabWithResults` defaults to `true`; after each term search, it selects the first tab with results when the active tab has zero results. Set it to `false` to retain the active zero-result tab when zero-result tabs are shown. Hidden zero-result tabs can never remain active.
 
-All configured initial blocks are mounted together. Each standalone component owns its request, context lifecycle, results, and rendering. Multiple eligible product recommendation children use the existing product recommendation batcher; other recommendations use their standalone request flow.
+All configured initial blocks are mounted together. Each standalone component owns its request, context lifecycle, results, and rendering. Universal Search does not batch recommendation requests.
 
 No-result recommendations are lazy. Universal Search mounts only the active zero-result tab's configured recommendations and mounts another tab's recommendations when that tab is selected. Leaving a tab disconnects its recommendation children, so returning to it starts their normal standalone lifecycle again. Recommendation results retain the configured block order.
 

@@ -1,5 +1,5 @@
 import { ProductRecommendationRequest, ProductRecommendationResponse, ProductResult, User } from '@relewise/client';
-import { css, html, PropertyValues } from 'lit';
+import { css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
 import { consume } from '@lit/context';
@@ -30,12 +30,23 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
 
     private requestGeneration = 0;
     private loading = false;
-    private batchRequestSkipped = false;
 
     abstract fetchProducts(): Promise<ProductRecommendationResponse | undefined> | undefined;
     abstract buildRequest(): Promise<ProductRecommendationRequest | undefined>;
 
     fetchAndUpdateProductsBound = this.fetchAndUpdateProducts.bind(this);
+
+    constructor() {
+        super();
+        setTimeout(async() => {
+            if (this.providedData !== undefined) {
+                const request = await this.buildRequest();
+                if (request) {
+                    this.dispatchEvent(new CustomEvent(Events.registerProductRecommendation, { bubbles: true, composed: true, detail: request }));
+                }
+            }
+        }, 0);
+    }
 
     async connectedCallback() {
         super.connectedCallback();
@@ -68,19 +79,6 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
 
             this.user = user;
             if (this.providedData !== undefined) {
-                const request = await this.buildRequest();
-                if (generation !== this.requestGeneration || !this.isConnected) {
-                    return;
-                }
-
-                this.batchRequestSkipped = !request;
-                if (request) {
-                    this.dispatchEvent(new CustomEvent(Events.registerProductRecommendation, {
-                        bubbles: true,
-                        composed: true,
-                        detail: request,
-                    }));
-                }
                 return;
             }
 
@@ -103,25 +101,10 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
         }
     };
 
-    protected updated(changedProperties: PropertyValues<this>): void {
-        super.updated(changedProperties);
-        if (changedProperties.has('providedData') || changedProperties.has('products')) {
-            this.reportCurrentRecommendationState();
-        }
-    }
-
     private reportCurrentRecommendationState(): void {
-        const batchedRequest = this.providedData?.requests.find(request => request.id === this);
-        const recommendations = this.providedData !== undefined
-            ? batchedRequest?.result?.recommendations
-            : this.products;
-        const loading = this.providedData !== undefined
-            ? !this.batchRequestSkipped && batchedRequest?.result === undefined
-            : this.loading;
-
         this.reportRecommendationState({
-            loading,
-            hasResults: Boolean(recommendations?.length),
+            loading: this.loading,
+            hasResults: Boolean(this.products?.length),
         });
     }
 

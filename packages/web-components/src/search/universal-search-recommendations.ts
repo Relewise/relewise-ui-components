@@ -16,8 +16,6 @@ interface RecommendationBlockRenderContext {
 interface RecommendationBlockDefinition {
     defaultTitle: string;
     part: string;
-    productRecommendation: boolean;
-    batchable: (term: string) => boolean;
     render: (context: RecommendationBlockRenderContext) => TemplateResult;
 }
 
@@ -30,8 +28,6 @@ const recommendationBlockDefinitions = {
     PopularProducts: {
         defaultTitle: 'Popular products',
         part: 'popular-products',
-        productRecommendation: true,
-        batchable: () => true,
         render: context => html`
             <relewise-popular-products
                 part="recommendation-grid product-recommendation-grid"
@@ -44,8 +40,6 @@ const recommendationBlockDefinitions = {
     PersonalProducts: {
         defaultTitle: 'Recommended products',
         part: 'personal-products',
-        productRecommendation: true,
-        batchable: () => true,
         render: context => html`
             <relewise-personal-products
                 part="recommendation-grid product-recommendation-grid"
@@ -58,8 +52,6 @@ const recommendationBlockDefinitions = {
     RecentlyViewedProducts: {
         defaultTitle: 'Recently viewed products',
         part: 'recently-viewed-products',
-        productRecommendation: true,
-        batchable: () => false,
         render: context => html`
             <relewise-recently-viewed-products
                 part="recommendation-grid product-recommendation-grid"
@@ -72,8 +64,6 @@ const recommendationBlockDefinitions = {
     PopularProductCategories: {
         defaultTitle: 'Popular categories',
         part: 'popular-product-categories',
-        productRecommendation: false,
-        batchable: () => false,
         render: context => html`
             <relewise-popular-product-categories
                 part="recommendation-grid category-recommendation-grid"
@@ -86,8 +76,6 @@ const recommendationBlockDefinitions = {
     PopularContents: {
         defaultTitle: 'Popular content',
         part: 'popular-contents',
-        productRecommendation: false,
-        batchable: () => false,
         render: context => html`
             <relewise-popular-content
                 part="recommendation-grid content-recommendation-grid"
@@ -100,8 +88,6 @@ const recommendationBlockDefinitions = {
     PersonalContent: {
         defaultTitle: 'Recommended content',
         part: 'personal-content',
-        productRecommendation: false,
-        batchable: () => false,
         render: context => html`
             <relewise-personal-content
                 part="recommendation-grid content-recommendation-grid"
@@ -114,8 +100,6 @@ const recommendationBlockDefinitions = {
     PopularContentCategories: {
         defaultTitle: 'Popular content categories',
         part: 'popular-content-categories',
-        productRecommendation: false,
-        batchable: () => false,
         render: context => html`
             <relewise-popular-content-categories
                 part="recommendation-grid category-recommendation-grid"
@@ -128,8 +112,6 @@ const recommendationBlockDefinitions = {
     PopularSearchTerms: {
         defaultTitle: 'Popular searches',
         part: 'popular-search-term-recommendations',
-        productRecommendation: false,
-        batchable: () => false,
         render: context => html`
             <relewise-popular-search-terms
                 part="popular-search-term-recommendations"
@@ -143,8 +125,6 @@ const recommendationBlockDefinitions = {
     SearchTermBasedProduct: {
         defaultTitle: 'Recommended products',
         part: 'search-term-based-products',
-        productRecommendation: true,
-        batchable: term => Boolean(term),
         render: context => html`
             <relewise-search-term-based-products
                 part="recommendation-grid product-recommendation-grid"
@@ -241,14 +221,6 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
         }));
     }
 
-    private get shouldBatchProductRecommendations(): boolean {
-        const productRecommendations = this.configuration
-            .map(configuration => recommendationBlockDefinitions[configuration.type])
-            .filter(definition => definition.productRecommendation);
-        return productRecommendations.length > 1
-            && productRecommendations.every(definition => definition.batchable(this.term));
-    }
-
     render() {
         if (!this.active || this.configuration.length === 0) {
             return nothing;
@@ -265,9 +237,7 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
                         <relewise-loading-spinner></relewise-loading-spinner>
                     </div>
                 ` : nothing}
-                ${this.shouldBatchProductRecommendations
-                ? html`<relewise-product-recommendation-batcher>${blocks}</relewise-product-recommendation-batcher>`
-                : blocks}
+                ${blocks}
             </div>
         `;
     }
@@ -301,8 +271,7 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
             font-family: var(--font);
         }
 
-        .rw-recommendation-blocks,
-        relewise-product-recommendation-batcher {
+        .rw-recommendation-blocks {
             display: grid;
             gap: var(--relewise-universal-search-recommendation-block-gap, 2em);
         }
