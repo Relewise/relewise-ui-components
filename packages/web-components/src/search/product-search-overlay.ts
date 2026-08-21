@@ -6,7 +6,7 @@ import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOp
 import { getSearcher } from './searcher';
 import { theme } from '../theme';
 import { createProductSearchBuilder, createProductCategorySearchBuilder } from '../builders';
-import { canParseRedirectDestination } from './searchRedirect';
+import { canParseRedirectDestination } from '../helpers/searchRedirect';
 
 export type SearchResult = {
     title?: string;

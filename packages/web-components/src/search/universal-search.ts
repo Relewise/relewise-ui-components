@@ -16,7 +16,7 @@ import { RelewiseLitElement } from '../relewise-lit-element';
 import type { RecommendationStateChangedEventDetail } from '../recommendations/recommendation-state';
 import type { SearchCombobox } from './components/search-combobox';
 import type { SearchComboboxRedirectEventDetail, SearchComboboxTermEventDetail, SearchSuggestionsBatchSearch } from './components/search-combobox.types';
-import { canParseRedirectDestination } from './searchRedirect';
+import { canParseRedirectDestination } from '../helpers/searchRedirect';
 import { getSearcher } from './searcher';
 import { trapFocusInDialog } from './universal-search-focus';
 import { universalSearchStyles } from './universal-search.styles';
