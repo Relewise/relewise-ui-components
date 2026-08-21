@@ -138,8 +138,19 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         }
 
         .rw-tabs {
+            flex-wrap: wrap;
+            gap: var(--relewise-universal-search-mobile-tabs-gap, 0.75em);
             justify-content: safe center;
             max-width: min(100%, var(--relewise-universal-search-mobile-tabs-width, var(--relewise-universal-search-tabs-width, 100%)));
+            overflow-x: visible;
+        }
+
+        .rw-tab {
+            flex: 0 1 auto;
+            max-width: 100%;
+            min-width: 0;
+            overflow-wrap: anywhere;
+            white-space: normal;
         }
 
         .rw-results-summary {

@@ -118,6 +118,34 @@ suite('universal search layout', () => {
         assert.equal(getComputedStyle(resultsSummary).marginTop, '0px');
     });
 
+    test('wraps compact tabs instead of introducing horizontal scrolling', async () => {
+        const element = await fixture<UniversalSearch>(html`
+            <relewise-universal-search
+                open
+                style="--relewise-universal-search-width: 20rem;">
+            </relewise-universal-search>
+        `);
+        (element as any).term = 'shoe';
+        (element as any).activeTab = 'products';
+        element.requestUpdate();
+        await element.updateComplete;
+        await new Promise(requestAnimationFrame);
+
+        const tabs = element.renderRoot.querySelector<HTMLElement>('[part="tabs"]')!;
+        const tabButtons = [...tabs.querySelectorAll<HTMLElement>('[part~="tab"]')];
+        const tabsBounds = tabs.getBoundingClientRect();
+        const styles = getComputedStyle(tabs);
+
+        assert.equal(styles.flexWrap, 'wrap');
+        assert.notEqual(styles.overflowX, 'auto');
+        assert.isAtMost(tabs.scrollWidth, tabs.clientWidth);
+        tabButtons.forEach(tab => {
+            const bounds = tab.getBoundingClientRect();
+            assert.isAtLeast(bounds.left, tabsBounds.left - 1);
+            assert.isAtMost(bounds.right, tabsBounds.right + 1);
+        });
+    });
+
     test('registers container-query styles in Light DOM', async () => {
         const options = mockRelewiseOptions();
         options.components = { domMode: 'light' };

@@ -1574,6 +1574,7 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-layout-width` | `100%` | Maximum width of the dialog's body content. |
 | `--relewise-universal-search-mobile-layout-width` | Desktop layout width | Maximum body-content width in dialog containers below `64rem`. |
 | `--relewise-universal-search-tabs-gap` | `1.5em` | Gap between result tabs. |
+| `--relewise-universal-search-mobile-tabs-gap` | `0.75em` | Gap between wrapped result tabs in dialog containers below `64rem`. |
 | `--relewise-universal-search-tabs-width` | `100%` | Maximum width of the tab list. |
 | `--relewise-universal-search-mobile-tabs-width` | Desktop tab width | Maximum tab-list width in dialog containers below `64rem`. |
 | `--relewise-universal-search-tabs-padding-top` | `0.5em` | Space above the result tabs. |
