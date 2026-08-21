@@ -97,8 +97,12 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
             flex-direction: column;
         }
 
-        .rw-results-layout:has(.rw-facets) .rw-facets,
-        .rw-results-layout:has(.rw-facets) .rw-sorting {
+        .rw-facets {
+            width: 100%;
+        }
+
+        .rw-results-layout:has(.rw-facets):has(.rw-sorting) .rw-facets,
+        .rw-results-layout:has(.rw-facets):has(.rw-sorting) .rw-sorting {
             width: calc((100% - var(--relewise-universal-search-layout-gap, 1em)) / 2);
         }
 
@@ -123,6 +127,7 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
 
         .rw-sorting::part(select) {
             flex: 1;
+            height: 100%;
             min-width: 0;
         }
     }

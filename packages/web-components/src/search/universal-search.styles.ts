@@ -136,6 +136,8 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
     @container universal-search-dialog (width <= 48rem) {
         .rw-header {
             align-items: flex-start;
+            gap: var(--relewise-universal-search-mobile-header-spacing, var(--relewise-universal-search-header-gap, 0.75em));
+            padding-inline: var(--relewise-universal-search-mobile-header-spacing, var(--relewise-universal-search-header-gap, 0.75em));
         }
 
         relewise-search-combobox {
@@ -158,8 +160,8 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
 
         .rw-header {
             padding-top: max(var(--relewise-universal-search-header-padding, 1em), env(safe-area-inset-top));
-            padding-right: max(var(--relewise-universal-search-header-padding, 1em), env(safe-area-inset-right));
-            padding-left: max(var(--relewise-universal-search-header-padding, 1em), env(safe-area-inset-left));
+            padding-right: max(var(--relewise-universal-search-mobile-header-spacing, var(--relewise-universal-search-header-gap, 0.75em)), env(safe-area-inset-right));
+            padding-left: max(var(--relewise-universal-search-mobile-header-spacing, var(--relewise-universal-search-header-gap, 0.75em)), env(safe-area-inset-left));
         }
 
         .rw-body {

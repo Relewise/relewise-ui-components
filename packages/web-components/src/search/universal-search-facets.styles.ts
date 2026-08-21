@@ -48,13 +48,13 @@ export const universalSearchFacetsStyles = [theme, css`
         display: none;
         height: 100%;
         inset-block: 0;
-        inset-inline-start: 0;
+        inset-inline: 0;
         max-width: 100%;
         overscroll-behavior: contain;
         overflow: auto;
         padding: 1em;
         position: absolute;
-        width: min(100%, var(--relewise-universal-search-mobile-facet-drawer-width, var(--relewise-universal-search-facet-drawer-width, 24em)));
+        width: 100%;
         z-index: 2;
     }
 
@@ -67,7 +67,9 @@ export const universalSearchFacetsStyles = [theme, css`
         display: flex;
         gap: 1em;
         justify-content: space-between;
+        margin-inline: auto;
         margin-bottom: 1em;
+        max-width: min(100%, var(--relewise-universal-search-mobile-facet-content-width, var(--relewise-universal-search-mobile-facet-drawer-width, var(--relewise-universal-search-facet-drawer-width, 24em))));
     }
 
     .rw-drawer-title {
@@ -79,7 +81,10 @@ export const universalSearchFacetsStyles = [theme, css`
 
     relewise-facets {
         display: block;
+        margin-inline: auto;
+        max-width: min(100%, var(--relewise-universal-search-mobile-facet-content-width, var(--relewise-universal-search-mobile-facet-drawer-width, var(--relewise-universal-search-facet-drawer-width, 24em))));
         min-width: 0;
+        width: 100%;
     }
 
     @container universal-search-dialog (width >= 64rem) {
@@ -99,6 +104,12 @@ export const universalSearchFacetsStyles = [theme, css`
             overflow: visible;
             padding: 0;
             position: static;
+            width: auto;
+        }
+
+        relewise-facets {
+            margin-inline: 0;
+            max-width: none;
             width: auto;
         }
     }

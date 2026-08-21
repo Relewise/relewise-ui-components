@@ -93,6 +93,31 @@ suite('universal search facets', () => {
         assert.deepEqual(controlledIds, drawerIds);
     });
 
+    test('uses a full-width compact drawer with centered facet content', async () => {
+        const wrapper = await fixture<HTMLElement>(html`
+            <div style="container: universal-search-dialog / inline-size; height: 30rem; position: relative; width: 30rem;">
+                <relewise-universal-search-facets
+                    style="--relewise-universal-search-mobile-facet-content-width: 20rem;"
+                    .facetResult=${facetResult()}
+                    .labels=${['Color']}>
+                </relewise-universal-search-facets>
+            </div>
+        `);
+        const element = wrapper.querySelector<UniversalSearchFacets>('relewise-universal-search-facets')!;
+        element.renderRoot.querySelector<HTMLButtonElement>('.rw-trigger')!.click();
+        await element.updateComplete;
+
+        const drawer = element.renderRoot.querySelector<HTMLElement>('.rw-drawer')!;
+        const facets = element.renderRoot.querySelector<HTMLElement>('relewise-facets')!;
+        const wrapperBounds = wrapper.getBoundingClientRect();
+        const drawerBounds = drawer.getBoundingClientRect();
+        const facetBounds = facets.getBoundingClientRect();
+
+        assert.closeTo(drawerBounds.width, wrapperBounds.width, 1);
+        assert.closeTo(facetBounds.width, 320, 1);
+        assert.closeTo(facetBounds.left - drawerBounds.left, drawerBounds.right - facetBounds.right, 1);
+    });
+
     test('supports Light DOM and keeps long labels inside the facet panel', async () => {
         const options = mockRelewiseOptions();
         options.components = { domMode: 'light' };

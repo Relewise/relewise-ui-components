@@ -1566,6 +1566,7 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-border-color` | `var(--relewise-checklist-facet-border-color, #eee)` | Border color used within Universal Search. |
 | `--relewise-universal-search-header-gap` | `1em` | Gap between the combobox and close button. |
 | `--relewise-universal-search-header-padding` | `1em` | Padding inside the Universal Search header. |
+| `--relewise-universal-search-mobile-header-spacing` | `var(--relewise-universal-search-header-gap, 0.75em)` | Shared compact spacing between the dialog edge, search input, and close button. |
 | `--relewise-universal-search-close-button-padding` | `0 0.75em` | Padding inside the close button. |
 | `--relewise-universal-search-body-padding` | `1em` | Padding around the Universal Search body. |
 | `--relewise-universal-search-search-width` | `100%` | Maximum width of the search combobox. |
@@ -1596,8 +1597,9 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-zero-results-hint-font-size` | `0.95em` | Font size of the secondary no-result guidance. |
 | `--relewise-universal-search-layout-gap` | `1em` | Gap between the facet column and results. |
 | `--relewise-universal-search-facets-width` | `18em` | Preferred width of the desktop facet column. |
-| `--relewise-universal-search-facet-drawer-width` | `24em` | Default width of the compact facet drawer. |
-| `--relewise-universal-search-mobile-facet-drawer-width` | Drawer width | Width of the facet drawer in compact dialog containers. |
+| `--relewise-universal-search-facet-drawer-width` | `24em` | Compatibility fallback for the centered compact facet content width. |
+| `--relewise-universal-search-mobile-facet-content-width` | `var(--relewise-universal-search-mobile-facet-drawer-width, var(--relewise-universal-search-facet-drawer-width, 24em))` | Maximum width of the centered facet content inside the full-width compact drawer. |
+| `--relewise-universal-search-mobile-facet-drawer-width` | Facet drawer width | Compatibility fallback for the compact facet content width. |
 | `--relewise-universal-search-results-width` | `100%` | Maximum width of an entity result layout. |
 | `--relewise-universal-search-mobile-results-width` | Desktop results width | Maximum result-layout width in dialog containers below `64rem`. |
 | `--relewise-universal-search-results-header-margin-bottom` | `1em` | Space below an entity result header. |

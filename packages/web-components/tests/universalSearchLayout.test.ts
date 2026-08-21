@@ -21,7 +21,7 @@ suite('universal search layout', () => {
                 style="
                     --relewise-universal-search-width: 30rem;
                     --relewise-universal-search-search-width: 28rem;
-                    --relewise-universal-search-mobile-search-width: 20rem;
+                    --relewise-universal-search-mobile-search-width: 100%;
                     --relewise-universal-search-layout-width: 26rem;
                     --relewise-universal-search-mobile-layout-width: 18rem;
                 ">
@@ -35,11 +35,15 @@ suite('universal search layout', () => {
         const search = element.renderRoot.querySelector<HTMLElement>('relewise-search-combobox')!;
         const close = element.renderRoot.querySelector<HTMLElement>('[part="close-button"]')!;
         const bodyChild = element.renderRoot.querySelector<HTMLElement>('[part="body"] > *')!;
+        const dialogBounds = dialog.getBoundingClientRect();
+        const searchBounds = search.getBoundingClientRect();
+        const closeBounds = close.getBoundingClientRect();
 
-        assert.equal(dialog.getBoundingClientRect().width, 480);
+        assert.equal(dialogBounds.width, 480);
         assert.equal(getComputedStyle(header).flexDirection, 'row');
-        assert.closeTo(search.getBoundingClientRect().top, close.getBoundingClientRect().top, 1);
-        assert.isBelow(search.getBoundingClientRect().right, close.getBoundingClientRect().left);
+        assert.closeTo(searchBounds.top, closeBounds.top, 1);
+        assert.closeTo(searchBounds.left - dialogBounds.left, closeBounds.left - searchBounds.right, 1);
+        assert.closeTo(closeBounds.left - searchBounds.right, dialogBounds.right - closeBounds.right, 1);
         assert.equal(bodyChild.getBoundingClientRect().width, 288);
         assert.isAtMost(dialog.scrollWidth, dialog.clientWidth);
     });

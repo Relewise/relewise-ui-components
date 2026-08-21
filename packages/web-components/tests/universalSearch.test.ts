@@ -848,10 +848,14 @@ suite('relewise-universal-search', () => {
             return productSearchResponse([product('1'), product('2'), product('3')], 3, { items: [] });
         };
         Searcher.prototype.searchProductCategories = async function() {
-            return productCategorySearchResponse([productCategory('1'), productCategory('2'), productCategory('3')]);
+            return productCategorySearchResponse(
+                [productCategory('1'), productCategory('2'), productCategory('3')],
+                3,
+                { items: [] },
+            );
         };
         Searcher.prototype.searchContents = async function() {
-            return contentSearchResponse([content('1'), content('2'), content('3')]);
+            return contentSearchResponse([content('1'), content('2'), content('3')], 3, { items: [] });
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -886,6 +890,7 @@ suite('relewise-universal-search', () => {
         const resultsSummaryStyles = getComputedStyle(resultsSummary);
         assert.equal(getComputedStyle(productGrid).gridTemplateColumns.split(' ').length, 1);
         assert.closeTo(facetTrigger.getBoundingClientRect().top, sorting.getBoundingClientRect().top, 1);
+        assert.closeTo(facetTrigger.getBoundingClientRect().height, sorting.getBoundingClientRect().height, 1);
         assert.isBelow(facetTrigger.getBoundingClientRect().right, sorting.getBoundingClientRect().left);
         assert.equal(getComputedStyle(sortingLabel).display, 'none');
         assert.equal(resultsSummaryStyles.textAlign, 'center');
@@ -895,13 +900,21 @@ suite('relewise-universal-search', () => {
         internals(el).handleSelectTab('productCategories');
         await universalSearchUpdated(el);
         const categoryGrid = productCategoriesTab(el).renderRoot.querySelector<HTMLElement>('[part="category-grid"]')!;
+        const categoryLayout = productCategoriesTab(el).renderRoot.querySelector<HTMLElement>('[part="results-layout"]')!;
+        const categoryFacets = productCategoriesTab(el).renderRoot.querySelector('relewise-universal-search-facets') as any;
+        const categoryFacetTrigger = categoryFacets.renderRoot.querySelector('[part="facet-trigger"]') as HTMLElement;
         assert.equal(getComputedStyle(categoryGrid).gridTemplateColumns.split(' ').length, 2);
+        assert.closeTo(categoryFacetTrigger.getBoundingClientRect().width, categoryLayout.getBoundingClientRect().width, 1);
         assert.isAtMost(categoryGrid.scrollWidth, categoryGrid.clientWidth);
 
         internals(el).handleSelectTab('content');
         await universalSearchUpdated(el);
         const contentGrid = contentTab(el).renderRoot.querySelector<HTMLElement>('[part="content-grid"]')!;
+        const contentLayout = contentTab(el).renderRoot.querySelector<HTMLElement>('[part="results-layout"]')!;
+        const contentFacets = contentTab(el).renderRoot.querySelector('relewise-universal-search-facets') as any;
+        const contentFacetTrigger = contentFacets.renderRoot.querySelector('[part="facet-trigger"]') as HTMLElement;
         assert.equal(getComputedStyle(contentGrid).gridTemplateColumns.split(' ').length, 3);
+        assert.closeTo(contentFacetTrigger.getBoundingClientRect().width, contentLayout.getBoundingClientRect().width, 1);
         assert.isAtMost(contentGrid.scrollWidth, contentGrid.clientWidth);
     });
 
