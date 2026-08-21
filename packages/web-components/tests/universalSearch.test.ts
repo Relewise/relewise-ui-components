@@ -886,6 +886,7 @@ suite('relewise-universal-search', () => {
         const facetTrigger = facets.renderRoot.querySelector('[part="facet-trigger"]') as HTMLElement;
         const sorting = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="sorting"]')!;
         const sortingLabel = (sorting as any).renderRoot.querySelector('[part="label"]') as HTMLElement;
+        const sortingSelect = (sorting as any).renderRoot.querySelector('[part="select"]') as HTMLSelectElement;
         const resultsSummary = el.renderRoot.querySelector<HTMLElement>('[part="results-summary"]')!;
         const resultsSummaryStyles = getComputedStyle(resultsSummary);
         assert.equal(getComputedStyle(productGrid).gridTemplateColumns.split(' ').length, 1);
@@ -894,6 +895,8 @@ suite('relewise-universal-search', () => {
         assert.isBelow(facetTrigger.getBoundingClientRect().right, sorting.getBoundingClientRect().left);
         assert.equal(getComputedStyle(sortingLabel).position, 'absolute');
         assert.equal(getComputedStyle(sortingLabel).width, '1px');
+        assert.equal(getComputedStyle(sortingSelect).textAlignLast, 'center');
+        assert.equal(getComputedStyle(sortingSelect.options[0]).textAlign, 'start');
         assert.equal(resultsSummaryStyles.textAlign, 'center');
         assert.equal(resultsSummaryStyles.marginTop, resultsSummaryStyles.marginBottom);
         assert.isAtMost(productGrid.scrollWidth, productGrid.clientWidth);

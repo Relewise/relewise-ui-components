@@ -49,6 +49,10 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
         width: 1px;
     }
 
+    .rw-sorting::part(select) {
+        text-align-last: center;
+    }
+
     .rw-result-grid {
         display: grid;
         grid-template-columns: repeat(var(--relewise-universal-search-result-columns, var(--relewise-universal-search-product-columns, 5)), minmax(0, 1fr));

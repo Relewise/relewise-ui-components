@@ -109,6 +109,11 @@ export class ProductSearchSorting extends RelewiseLitElement {
             font-size: 0.8em;   
         }
 
+        .rw-select option {
+            text-align: start;
+            text-align-last: start;
+        }
+
         .rw-label {
             font-size: 0.9em;
             color: var(--relewise-button-text-color, #333);
