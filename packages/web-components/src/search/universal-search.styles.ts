@@ -123,6 +123,16 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
     }
 
     @container universal-search-dialog (width < 64rem) {
+        .rw-header {
+            gap: 0;
+            padding-inline-end: 0;
+            padding-inline-start: var(--relewise-universal-search-mobile-header-spacing, var(--relewise-universal-search-header-gap, 0.75em));
+        }
+
+        .rw-close {
+            padding-inline: var(--relewise-universal-search-mobile-header-spacing, var(--relewise-universal-search-header-gap, 0.75em));
+        }
+
         .rw-body > * {
             max-width: min(100%, var(--relewise-universal-search-mobile-layout-width, var(--relewise-universal-search-layout-width, 100%)));
         }
@@ -136,8 +146,6 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
     @container universal-search-dialog (width <= 48rem) {
         .rw-header {
             align-items: flex-start;
-            gap: var(--relewise-universal-search-mobile-header-spacing, var(--relewise-universal-search-header-gap, 0.75em));
-            padding-inline: var(--relewise-universal-search-mobile-header-spacing, var(--relewise-universal-search-header-gap, 0.75em));
         }
 
         relewise-search-combobox {
@@ -160,8 +168,12 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
 
         .rw-header {
             padding-top: max(var(--relewise-universal-search-header-padding, 1em), env(safe-area-inset-top));
-            padding-right: max(var(--relewise-universal-search-mobile-header-spacing, var(--relewise-universal-search-header-gap, 0.75em)), env(safe-area-inset-right));
-            padding-left: max(var(--relewise-universal-search-mobile-header-spacing, var(--relewise-universal-search-header-gap, 0.75em)), env(safe-area-inset-left));
+            padding-inline-end: 0;
+            padding-inline-start: max(var(--relewise-universal-search-mobile-header-spacing, var(--relewise-universal-search-header-gap, 0.75em)), env(safe-area-inset-left));
+        }
+
+        .rw-close {
+            padding-inline-end: max(var(--relewise-universal-search-mobile-header-spacing, var(--relewise-universal-search-header-gap, 0.75em)), env(safe-area-inset-right));
         }
 
         .rw-body {

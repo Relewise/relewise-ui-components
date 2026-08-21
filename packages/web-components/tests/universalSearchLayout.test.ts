@@ -34,10 +34,12 @@ suite('universal search layout', () => {
         const header = element.renderRoot.querySelector<HTMLElement>('[part="header"]')!;
         const search = element.renderRoot.querySelector<HTMLElement>('relewise-search-combobox')!;
         const close = element.renderRoot.querySelector<HTMLElement>('[part="close-button"]')!;
+        const searchControl = (search as any).renderRoot.querySelector('[part="search-input"]') as HTMLElement;
+        const closeControl = (close as any).renderRoot.querySelector('button') as HTMLElement;
         const bodyChild = element.renderRoot.querySelector<HTMLElement>('[part="body"] > *')!;
         const dialogBounds = dialog.getBoundingClientRect();
-        const searchBounds = search.getBoundingClientRect();
-        const closeBounds = close.getBoundingClientRect();
+        const searchBounds = searchControl.getBoundingClientRect();
+        const closeBounds = closeControl.getBoundingClientRect();
 
         assert.equal(dialogBounds.width, 480);
         assert.equal(getComputedStyle(header).flexDirection, 'row');
@@ -46,6 +48,36 @@ suite('universal search layout', () => {
         assert.closeTo(closeBounds.left - searchBounds.right, dialogBounds.right - closeBounds.right, 1);
         assert.equal(bodyChild.getBoundingClientRect().width, 288);
         assert.isAtMost(dialog.scrollWidth, dialog.clientWidth);
+    });
+
+    test('balances the visible header controls throughout the compact range', async () => {
+        const element = await fixture<UniversalSearch>(html`
+            <relewise-universal-search
+                open
+                style="
+                    --relewise-universal-search-width: 50rem;
+                    --relewise-universal-search-mobile-header-spacing: 10px;
+                ">
+            </relewise-universal-search>
+        `);
+        await element.updateComplete;
+        await new Promise(requestAnimationFrame);
+
+        const dialog = element.renderRoot.querySelector<HTMLElement>('[part="dialog"]')!;
+        const search = element.renderRoot.querySelector<any>('relewise-search-combobox')!;
+        const close = element.renderRoot.querySelector<any>('[part="close-button"]')!;
+        const searchControl = search.renderRoot.querySelector('[part="search-input"]') as HTMLElement;
+        const closeControl = close.renderRoot.querySelector('button') as HTMLElement;
+        const dialogBounds = dialog.getBoundingClientRect();
+        const searchBounds = searchControl.getBoundingClientRect();
+        const closeBounds = closeControl.getBoundingClientRect();
+        const leftSpacing = searchBounds.left - dialogBounds.left;
+        const controlSpacing = closeBounds.left - searchBounds.right;
+        const rightSpacing = dialogBounds.right - closeBounds.right;
+
+        assert.closeTo(leftSpacing, 10, 1);
+        assert.closeTo(leftSpacing, controlSpacing, 1);
+        assert.closeTo(controlSpacing, rightSpacing, 1);
     });
 
     test('registers container-query styles in Light DOM', async () => {
