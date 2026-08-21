@@ -241,7 +241,7 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
                             </div>
                         </div>
                     ` : html`
-                        <div class="rw-result-grid" part="category-grid">
+                        <div class="rw-result-grid rw-category-grid" part="category-grid">
                             ${this.productCategories.map(category => html`
                                 <relewise-product-category-tile
                                     class="rw-category-tile"

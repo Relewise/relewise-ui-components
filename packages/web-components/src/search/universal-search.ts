@@ -607,7 +607,7 @@ export class UniversalSearch extends RelewiseLitElement {
                                         ?hidden=${this.activeTab !== tab}>
                                         ${tab === 'products' ? html`
                                             <relewise-universal-search-products-tab
-                                                exportparts="results-layout, facets, facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, sorting, sorting-select, sorting-label, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, product-grid, product-tile, load-more"
+                                                exportparts="results-layout, facets, facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, sorting, sorting-container, sorting-select, sorting-label, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, product-grid, product-tile, load-more"
                                                 .term=${this.searchTerm}
                                                 .target=${this.target}
                                                 .hideFacets=${showActiveTabRecommendations && this.activeTab === tab && this.tabRecommendationStates[tab].hasResults}

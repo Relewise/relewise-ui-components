@@ -234,7 +234,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
                                     .target=${this.target}
                                     .sortingQueryKey=${QueryKeys.productSorting}
                                     .applySorting=${this.searchOptionsChanged}
-                                    exportparts="select: sorting-select, label: sorting-label">
+                                    exportparts="container: sorting-container, select: sorting-select, label: sorting-label">
                                 </relewise-product-search-sorting>
                             ` : nothing}
                         </header>
@@ -260,7 +260,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
                             </div>
                         </div>
                     ` : html`
-                        <div class="rw-result-grid" part="product-grid">
+                        <div class="rw-result-grid rw-product-grid" part="product-grid">
                             ${this.products.map(product => html`
                                 <relewise-product-tile
                                     class="rw-product-tile"

@@ -826,6 +826,7 @@ suite('relewise-universal-search', () => {
         );
 
         assert.isNull(queryDeep(el, 'relewise-facets'));
+        assert.isNull(queryDeep(el, 'relewise-product-search-sorting'));
         assert.isNull(productsTab(el).renderRoot.querySelector('[part="results-header"]'));
         assert.isNotNull(productsTab(el).renderRoot.querySelector('[part="zero-results"]'));
 
@@ -840,6 +841,57 @@ suite('relewise-universal-search', () => {
         assert.isNull(queryDeep(el, 'relewise-facets'));
         assert.isNull(contentTab(el).renderRoot.querySelector('[part="results-header"]'));
         assert.isNotNull(contentTab(el).renderRoot.querySelector('[part="zero-results"]'));
+    });
+
+    test('uses entity-specific compact columns without overflowing the result layout', async () => {
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([product('1'), product('2'), product('3')]);
+        };
+        Searcher.prototype.searchProductCategories = async function() {
+            return productCategorySearchResponse([productCategory('1'), productCategory('2'), productCategory('3')]);
+        };
+        Searcher.prototype.searchContents = async function() {
+            return contentSearchResponse([content('1'), content('2'), content('3')]);
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {}, productCategories: {}, content: {} },
+            },
+        });
+        const el = await fixture<UniversalSearch>(html`
+            <relewise-universal-search
+                open
+                style="
+                    --relewise-universal-search-width: 30rem;
+                    --relewise-universal-search-mobile-product-columns: 1;
+                    --relewise-universal-search-mobile-category-columns: 2;
+                    --relewise-universal-search-mobile-content-columns: 3;
+                ">
+            </relewise-universal-search>
+        `);
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el).length === 3 && productCategories(el).length === 3 && contentResults(el).length === 3);
+        await universalSearchUpdated(el);
+
+        const productGrid = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="product-grid"]')!;
+        assert.equal(getComputedStyle(productGrid).gridTemplateColumns.split(' ').length, 1);
+        assert.isAtMost(productGrid.scrollWidth, productGrid.clientWidth);
+
+        internals(el).handleSelectTab('productCategories');
+        await universalSearchUpdated(el);
+        const categoryGrid = productCategoriesTab(el).renderRoot.querySelector<HTMLElement>('[part="category-grid"]')!;
+        assert.equal(getComputedStyle(categoryGrid).gridTemplateColumns.split(' ').length, 2);
+        assert.isAtMost(categoryGrid.scrollWidth, categoryGrid.clientWidth);
+
+        internals(el).handleSelectTab('content');
+        await universalSearchUpdated(el);
+        const contentGrid = contentTab(el).renderRoot.querySelector<HTMLElement>('[part="content-grid"]')!;
+        assert.equal(getComputedStyle(contentGrid).gridTemplateColumns.split(' ').length, 3);
+        assert.isAtMost(contentGrid.scrollWidth, contentGrid.clientWidth);
     });
 
     test('loads more products using scoped take URL state', async () => {

@@ -284,6 +284,50 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
             display: flex;
             justify-content: center;
         }
+
+        [part~="recommendation-grid"] {
+            max-width: 100%;
+            min-width: 0;
+        }
+
+        [part~="product-recommendation-grid"] {
+            --relewise-recommendation-grid-columns: var(--relewise-universal-search-product-columns, var(--relewise-universal-search-result-columns, 5));
+            --relewise-recommendation-grid-mobile-columns: var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 2));
+        }
+
+        [part~="category-recommendation-grid"] {
+            --relewise-recommendation-grid-columns: var(--relewise-universal-search-category-columns, var(--relewise-universal-search-result-columns, var(--relewise-universal-search-product-columns, 5)));
+            --relewise-recommendation-grid-mobile-columns: var(--relewise-universal-search-mobile-category-columns, var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2)));
+        }
+
+        [part~="content-recommendation-grid"] {
+            --relewise-recommendation-grid-columns: var(--relewise-universal-search-content-columns, var(--relewise-universal-search-result-columns, var(--relewise-universal-search-product-columns, 5)));
+            --relewise-recommendation-grid-mobile-columns: var(--relewise-universal-search-mobile-content-columns, var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2)));
+        }
+
+        [part~="recommendation-grid"]::part(recommendation-product-tile),
+        [part~="recommendation-grid"]::part(recommendation-category-tile),
+        [part~="recommendation-grid"]::part(recommendation-content-tile),
+        [part~="product-tile"],
+        [part~="category-tile"],
+        [part~="content-tile"] {
+            max-width: 100%;
+            min-width: 0;
+        }
+
+        @container universal-search-dialog (width < 64rem) {
+            [part~="product-recommendation-grid"] {
+                --relewise-recommendation-grid-columns: var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 2));
+            }
+
+            [part~="category-recommendation-grid"] {
+                --relewise-recommendation-grid-columns: var(--relewise-universal-search-mobile-category-columns, var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2)));
+            }
+
+            [part~="content-recommendation-grid"] {
+                --relewise-recommendation-grid-columns: var(--relewise-universal-search-mobile-content-columns, var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2)));
+            }
+        }
     `];
 }
 

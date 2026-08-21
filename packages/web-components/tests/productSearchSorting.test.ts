@@ -25,6 +25,7 @@ suite('product-search-sorting', () => {
 
         const options = Array.from(element.shadowRoot!.querySelectorAll('option')).map(option => option.value);
 
+        assert.equal(element.shadowRoot!.querySelector('label')?.getAttribute('part'), 'container');
         assert.deepEqual(options, [
             'Relevance',
             'SalesPriceAsc',

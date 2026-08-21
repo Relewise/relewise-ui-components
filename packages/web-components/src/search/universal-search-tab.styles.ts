@@ -44,8 +44,21 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
         gap: var(--relewise-universal-search-result-grid-gap, var(--relewise-universal-search-product-grid-gap, 1em));
     }
 
+    .rw-product-grid {
+        grid-template-columns: repeat(var(--relewise-universal-search-product-columns, var(--relewise-universal-search-result-columns, 5)), minmax(0, 1fr));
+    }
+
+    .rw-category-grid {
+        grid-template-columns: repeat(var(--relewise-universal-search-category-columns, var(--relewise-universal-search-result-columns, var(--relewise-universal-search-product-columns, 5))), minmax(0, 1fr));
+    }
+
+    .rw-content-grid {
+        grid-template-columns: repeat(var(--relewise-universal-search-content-columns, var(--relewise-universal-search-result-columns, var(--relewise-universal-search-product-columns, 5))), minmax(0, 1fr));
+    }
+
     .rw-results,
     .rw-result-grid > * {
+        max-width: 100%;
         min-width: 0;
     }
 
@@ -59,12 +72,39 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
         .rw-result-grid {
             grid-template-columns: repeat(var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2)), minmax(0, 1fr));
         }
+
+        .rw-product-grid {
+            grid-template-columns: repeat(var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 2)), minmax(0, 1fr));
+        }
+
+        .rw-category-grid {
+            grid-template-columns: repeat(var(--relewise-universal-search-mobile-category-columns, var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2))), minmax(0, 1fr));
+        }
+
+        .rw-content-grid {
+            grid-template-columns: repeat(var(--relewise-universal-search-mobile-content-columns, var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2))), minmax(0, 1fr));
+        }
     }
 
     @container universal-search-dialog (width <= 48rem) {
         .rw-results-header {
             align-items: stretch;
             flex-direction: column;
+        }
+
+        .rw-sorting {
+            min-width: 0;
+            width: 100%;
+        }
+
+        .rw-sorting::part(container) {
+            display: flex;
+            width: 100%;
+        }
+
+        .rw-sorting::part(select) {
+            flex: 1;
+            min-width: 0;
         }
     }
 

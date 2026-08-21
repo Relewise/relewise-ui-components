@@ -67,7 +67,7 @@ export class ProductSearchSorting extends RelewiseLitElement {
         const selectedOptionId = this.selectedOption ?? options[0].id ?? null;
         const localization = getRelewiseUISearchOptions()?.localization?.sortingButton;
         return html`
-            <label class="rw-label-wrapper">
+            <label class="rw-label-wrapper" part="container">
                 <span class="rw-label" part="label">${localization?.sortBy ?? 'Sort by:'}</span>
                 <select @change=${this.setSelectedValue} class="rw-select rw-border" part="select">
                 ${options.map((item) => {
@@ -83,13 +83,20 @@ export class ProductSearchSorting extends RelewiseLitElement {
     }
 
     static styles = [theme, css`
+        :host {
+            min-width: 0;
+        }
+
         .rw-label-wrapper {
             display: inline-flex;
             align-items: center;
+            min-width: 0;
         }
 
         .rw-select {
             font-family: var(--font);
+            max-width: 100%;
+            min-width: 0;
 
             padding: var(--relewise-product-search-sorting-padding, .5em);
 

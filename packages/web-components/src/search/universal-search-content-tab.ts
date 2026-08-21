@@ -244,7 +244,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
                             </div>
                         </div>
                     ` : html`
-                        <div class="rw-result-grid" part="content-grid">
+                        <div class="rw-result-grid rw-content-grid" part="content-grid">
                             ${this.content.map(content => html`
                                 <relewise-content-tile
                                     class="rw-content-tile"
