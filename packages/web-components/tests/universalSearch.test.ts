@@ -1422,7 +1422,7 @@ suite('relewise-universal-search', () => {
 
         internals(el).handleSelectTab('content');
         await universalSearchUpdated(el);
-        const facets = contentTab(el).renderRoot.querySelector<any>('relewise-facets')!;
+        const facets = contentTab(el).renderRoot.querySelector<any>('relewise-universal-search-facets')!;
         facets.applyFacet();
 
         await waitUntil(() => contentResults(el).length === 1 && contentResults(el)[0].contentId === '2', 'active tab search did not replace content results');
@@ -1504,7 +1504,8 @@ suite('relewise-universal-search', () => {
         await waitUntil(() => products(el).length === 1 && contentResults(el).length === 1, 'initial results did not load');
 
         internals(el).handleSelectTab('content');
-        contentTab(el).renderRoot.querySelector<any>('relewise-facets')!.applyFacet();
+        contentTab(el).renderRoot.querySelector<any>('relewise-universal-search-facets')!
+            .dispatchEvent(new CustomEvent('universal-search-facets-changed'));
         await waitUntil(() => contentTab(el).renderRoot.querySelector('[part="error-state"]') !== null, 'localized error was not rendered');
 
         assert.equal(contentTab(el).renderRoot.querySelector('[part="error-state"]')?.textContent, 'Could not refresh content.');

@@ -39,6 +39,7 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         display: flex;
         flex-direction: column;
         min-width: 0;
+        position: relative;
     }
 
     .rw-header {

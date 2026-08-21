@@ -169,6 +169,27 @@ suite('facet generalization', () => {
         assert.include(renderedFacets[0].shadowRoot!.textContent!, 'Guide');
         assert.notInclude(renderedFacets[0].shadowRoot!.textContent!, 'Empty');
     });
+
+    test('keeps the existing toggle by default and supports an always-expanded presentation', async () => {
+        const defaultFacets = await fixture<Facets>(html`
+            <relewise-facets
+                .facetResult=${productStringFacetResult()}
+                .labels=${['Color']}>
+            </relewise-facets>
+        `);
+        assert.isNotNull(defaultFacets.renderRoot.querySelector('.rw-facet-button'));
+
+        const expandedFacets = await fixture<Facets>(html`
+            <relewise-facets
+                expanded
+                .facetResult=${productStringFacetResult()}
+                .labels=${['Color']}>
+            </relewise-facets>
+        `);
+
+        assert.isNull(expandedFacets.renderRoot.querySelector('.rw-facet-button'));
+        assert.isNotNull(expandedFacets.renderRoot.querySelector('.rw-facets-container'));
+    });
 });
 
 function productStringFacetResult(): ProductFacetResult {

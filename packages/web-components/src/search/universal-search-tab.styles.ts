@@ -6,6 +6,7 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
     :host {
         display: block;
         font-family: var(--font);
+        min-width: 0;
     }
 
     .rw-empty {
@@ -16,10 +17,8 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
         display: grid;
         grid-template-columns: minmax(0, 1fr);
         gap: var(--relewise-universal-search-layout-gap, 1em);
-    }
-
-    .rw-results-layout:has(.rw-facets) {
-        grid-template-columns: minmax(10em, var(--relewise-universal-search-facets-width, 18em)) minmax(0, 1fr);
+        margin-inline: auto;
+        max-width: min(100%, var(--relewise-universal-search-mobile-results-width, var(--relewise-universal-search-results-width, 100%)));
     }
 
     .rw-results-header {
@@ -45,24 +44,37 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
         gap: var(--relewise-universal-search-result-grid-gap, var(--relewise-universal-search-product-grid-gap, 1em));
     }
 
+    .rw-results,
+    .rw-result-grid > * {
+        min-width: 0;
+    }
+
     .rw-loading {
         display: flex;
         justify-content: center;
         padding: var(--relewise-universal-search-loading-padding, 2em 0);
     }
 
-    @media (max-width: 768px) {
+    @container universal-search-dialog (width < 64rem) {
+        .rw-result-grid {
+            grid-template-columns: repeat(var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2)), minmax(0, 1fr));
+        }
+    }
+
+    @container universal-search-dialog (width <= 48rem) {
         .rw-results-header {
             align-items: stretch;
             flex-direction: column;
         }
+    }
 
-        .rw-results-layout:has(.rw-facets) {
-            grid-template-columns: minmax(0, 1fr);
+    @container universal-search-dialog (width >= 64rem) {
+        .rw-results-layout {
+            max-width: min(100%, var(--relewise-universal-search-results-width, 100%));
         }
 
-        .rw-result-grid {
-            grid-template-columns: repeat(var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2)), minmax(0, 1fr));
+        .rw-results-layout:has(.rw-facets) {
+            grid-template-columns: minmax(10em, var(--relewise-universal-search-facets-width, 18em)) minmax(0, 1fr);
         }
     }
 `];

@@ -155,9 +155,18 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
             gap: 0.3em;
             line-height: 1.1;
             align-items: center;
-            word-break: break-all;
+            min-width: 0;
+            overflow-wrap: anywhere;
             margin-top: .25em;
             margin-bottom: .25em;
+        }
+
+        .rw-label [part="value"] {
+            min-width: 0;
+        }
+
+        .rw-hits {
+            flex: none;
         }
 
         .rw-label input {
