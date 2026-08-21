@@ -32,11 +32,14 @@ export function updateUrlState(queryParamName: string, value: string | null) {
     
     if (!value) {
         currentUrl.searchParams.delete(queryParamName);
-        window.history.replaceState({}, document.title, currentUrl);
+    } else {
+        currentUrl.searchParams.set(queryParamName, value);
+    }
+
+    if (currentUrl.href === window.location.href) {
         return;
     }
-    
-    currentUrl.searchParams.set(queryParamName, value);
+
     window.history.replaceState({}, document.title, currentUrl);
 }
 
@@ -56,7 +59,11 @@ export function updateUrlStateValues(queryParamName: string, values: string[]) {
     values.forEach(value => {
         currentUrl.searchParams.append(queryParamName, value);
     });
-    
+
+    if (currentUrl.href === window.location.href) {
+        return;
+    }
+
     window.history.replaceState({}, document.title, currentUrl);
 }
 

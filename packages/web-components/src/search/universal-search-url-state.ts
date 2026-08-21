@@ -21,5 +21,9 @@ export function updateUrlStateForUniversalSearchTerm(term: string): void {
         .filter(queryParamName => facetQueryKeyPrefixes.some(prefix => queryParamName.startsWith(prefix)))
         .forEach(queryParamName => currentUrl.searchParams.delete(queryParamName));
 
+    if (currentUrl.href === window.location.href) {
+        return;
+    }
+
     window.history.replaceState({}, document.title, currentUrl);
 }

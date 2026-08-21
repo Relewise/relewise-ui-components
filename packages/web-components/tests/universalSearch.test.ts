@@ -1,6 +1,7 @@
 import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
 import { ContentResult, ProductCategoryResult, ProductResult, Searcher } from '@relewise/client';
 import { Button, clearUrlState, UniversalSearch, UniversalSearchTab, initializeRelewiseUI, QueryKeys, readCurrentUrlState, universalSearchTabs, updateUrlState, updateUrlStateValues, useSearch } from '../src';
+import { updateUrlStateForUniversalSearchTerm } from '../src/search/universal-search-url-state';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 function product(productId: string): ProductResult {
@@ -171,7 +172,8 @@ suite('relewise-universal-search', () => {
     });
 
     teardown(() => {
-        clearUrlState();
+        // URL state is reset in setup. Repeating the History API cleanup here
+        // can exceed WebKit's replacement limit in this large test suite.
         fixtureCleanup();
         window.relewiseUISearchOptions = undefined!;
         window.relewiseUIOptions = undefined!;
@@ -187,6 +189,26 @@ suite('relewise-universal-search', () => {
             'productCategories',
             'content',
         ]);
+    });
+
+    test('skips history replacements when URL state is unchanged', () => {
+        const originalReplaceState = window.history.replaceState;
+        let replaceStateCalls = 0;
+        window.history.replaceState = (data: unknown, unused: string, url?: string | URL | null) => {
+            replaceStateCalls++;
+            originalReplaceState.call(window.history, data, unused, url);
+        };
+
+        try {
+            const missingQueryKey = 'rw-missing-test-key';
+            updateUrlState(missingQueryKey, null);
+            updateUrlStateValues(missingQueryKey, []);
+            updateUrlStateForUniversalSearchTerm(readCurrentUrlState(QueryKeys.term) ?? '');
+
+            assert.equal(replaceStateCalls, 0);
+        } finally {
+            window.history.replaceState = originalReplaceState;
+        }
     });
 
     test('is registered through useSearch', () => {
