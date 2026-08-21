@@ -1605,6 +1605,8 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-mobile-results-width` | Desktop results width | Maximum result-layout width in dialog containers below `64rem`. |
 | `--relewise-universal-search-results-header-margin-bottom` | `1em` | Space below an entity result header. |
 | `--relewise-universal-search-results-title-font-size` | `1.1em` | Font size of entity result titles. |
+| `--relewise-universal-search-sorting-arrow-inset` | `0.8em` | Distance between the sorting arrow and the right edge of the control. |
+| `--relewise-universal-search-sorting-arrow-space` | `2.25em` | Space reserved for the sorting arrow inside the control. |
 | `--relewise-universal-search-result-columns` | `5` | Generic entity column fallback for dialog containers at least `64rem` wide. |
 | `--relewise-universal-search-product-columns` | Generic result columns | Product result and recommendation columns in wide dialog containers. |
 | `--relewise-universal-search-category-columns` | Generic result columns | Category result and recommendation columns in wide dialog containers. |

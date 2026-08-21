@@ -39,6 +39,42 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
         font-size: 0.9em;
     }
 
+    .rw-product-results-layout {
+        grid-template-areas:
+            "facets facets"
+            "header sorting"
+            "results results";
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .rw-product-results-layout:not(:has(.rw-facets)) {
+        grid-template-areas:
+            "header sorting"
+            "results results";
+    }
+
+    .rw-product-results-layout:not(:has(.rw-results-header)):not(:has(.rw-sorting)) {
+        grid-template-areas: "results results";
+    }
+
+    .rw-product-results-layout .rw-facets {
+        grid-area: facets;
+    }
+
+    .rw-product-results-layout .rw-results-header {
+        grid-area: header;
+        margin-bottom: 0;
+    }
+
+    .rw-product-results-layout .rw-sorting {
+        align-self: center;
+        grid-area: sorting;
+    }
+
+    .rw-product-results-layout .rw-results {
+        grid-area: results;
+    }
+
     .rw-sorting::part(label) {
         clip: rect(0 0 0 0);
         clip-path: inset(50%);
@@ -111,22 +147,34 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
             width: 100%;
         }
 
-        .rw-results-layout:has(.rw-facets):has(.rw-sorting) .rw-facets,
-        .rw-results-layout:has(.rw-facets):has(.rw-sorting) .rw-sorting {
-            width: calc((100% - var(--relewise-universal-search-layout-gap, 1em)) / 2);
+        .rw-product-results-layout:has(.rw-facets):has(.rw-sorting) {
+            grid-template-areas:
+                "facets sorting"
+                "header header"
+                "results results";
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
-        .rw-sorting {
+        .rw-product-results-layout:has(.rw-facets):not(:has(.rw-sorting)) {
+            grid-template-areas:
+                "facets"
+                "header"
+                "results";
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .rw-product-results-layout:has(.rw-sorting):not(:has(.rw-facets)) {
+            grid-template-areas:
+                "sorting"
+                "header"
+                "results";
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .rw-product-results-layout .rw-sorting {
             height: 2.75em;
-            inset-block-start: 0;
-            inset-inline-end: 0;
             min-width: 0;
-            position: absolute;
             width: 100%;
-        }
-
-        .rw-results-layout:not(:has(.rw-facets)) .rw-results-header {
-            padding-top: calc(2.75em + var(--relewise-universal-search-layout-gap, 1em));
         }
 
         .rw-sorting::part(container) {
@@ -149,6 +197,25 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
 
         .rw-results-layout:has(.rw-facets) {
             grid-template-columns: minmax(10em, var(--relewise-universal-search-facets-width, 18em)) minmax(0, 1fr);
+        }
+
+        .rw-product-results-layout:has(.rw-facets) {
+            grid-template-areas:
+                "facets header sorting"
+                "facets results results";
+            grid-template-columns: minmax(10em, var(--relewise-universal-search-facets-width, 18em)) minmax(0, 1fr) auto;
+            grid-template-rows: minmax(min-content, 3em) auto;
+        }
+
+        .rw-product-results-layout:not(:has(.rw-facets)) {
+            grid-template-areas:
+                "header sorting"
+                "results results";
+            grid-template-columns: minmax(0, 1fr) auto;
+        }
+
+        .rw-product-results-layout:not(:has(.rw-results-header)):not(:has(.rw-sorting)) {
+            grid-template-areas: "results results";
         }
     }
 `];

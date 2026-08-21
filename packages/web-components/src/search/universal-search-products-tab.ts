@@ -202,43 +202,44 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.products;
         const noResultsHint = localization?.noResultsHint ?? 'Try another search term or check the spelling.';
         const facetResult = this.result !== null && this.result.hits > 0 && !this.hideFacets ? this.result.facets : null;
-
+        const facets = facetResult ? html`
+            <relewise-universal-search-facets
+                class="rw-facets"
+                part="facets"
+                exportparts="facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits"
+                .labels=${this.facetLabels}
+                .facetQueryKeyPrefix=${QueryKeys.productFacet}
+                .facetResult=${facetResult}
+                @universal-search-facets-changed=${this.searchOptionsChanged}>
+            </relewise-universal-search-facets>
+        ` : nothing;
+        const sorting = this.products.length > 0 ? html`
+            <relewise-product-search-sorting
+                class="rw-sorting rw-universal-search-sorting"
+                part="sorting"
+                .target=${this.target}
+                .sortingQueryKey=${QueryKeys.productSorting}
+                .applySorting=${this.searchOptionsChanged}
+                exportparts="container: sorting-container, select: sorting-select, label: sorting-label">
+            </relewise-product-search-sorting>
+        ` : nothing;
         return html`
-            <div class="rw-results-layout" part="results-layout">
-                ${facetResult ? html`
-                    <relewise-universal-search-facets
-                        class="rw-facets"
-                        part="facets"
-                        exportparts="facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits"
-                        .labels=${this.facetLabels}
-                        .facetQueryKeyPrefix=${QueryKeys.productFacet}
-                        .facetResult=${facetResult}
-                        @universal-search-facets-changed=${this.searchOptionsChanged}>
-                    </relewise-universal-search-facets>
+            <div class="rw-results-layout rw-product-results-layout" part="results-layout">
+                ${facets}
+                ${sorting}
+                ${this.result?.hits !== 0 ? html`
+                    <header class="rw-results-header" part="results-header">
+                        <div>
+                            <h2 class="rw-results-title" part="results-title">${localization?.resultsTitle ?? 'Products'}</h2>
+                            ${this.result ? html`
+                                <span class="rw-results-count" part="results-count">
+                                    ${this.result.hits} ${this.result.hits === 1 ? localization?.result ?? 'Result' : localization?.results ?? 'Results'}
+                                </span>
+                            ` : nothing}
+                        </div>
+                    </header>
                 ` : nothing}
                 <section class="rw-results" part="results">
-                    ${this.result?.hits !== 0 ? html`
-                        <header class="rw-results-header" part="results-header">
-                            <div>
-                                <h2 class="rw-results-title" part="results-title">${localization?.resultsTitle ?? 'Products'}</h2>
-                                ${this.result ? html`
-                                    <span class="rw-results-count" part="results-count">
-                                        ${this.result.hits} ${this.result.hits === 1 ? localization?.result ?? 'Result' : localization?.results ?? 'Results'}
-                                    </span>
-                                ` : nothing}
-                            </div>
-                            ${this.products.length > 0 ? html`
-                                <relewise-product-search-sorting
-                                    class="rw-sorting"
-                                    part="sorting"
-                                    .target=${this.target}
-                                    .sortingQueryKey=${QueryKeys.productSorting}
-                                    .applySorting=${this.searchOptionsChanged}
-                                    exportparts="container: sorting-container, select: sorting-select, label: sorting-label">
-                                </relewise-product-search-sorting>
-                            ` : nothing}
-                        </header>
-                    ` : nothing}
                     ${this.error ? html`
                         <p class="rw-empty" part="error-state">${this.error}</p>
                     ` : this.loading && this.products.length === 0 ? html`

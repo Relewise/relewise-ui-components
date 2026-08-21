@@ -843,6 +843,40 @@ suite('relewise-universal-search', () => {
         assert.isNotNull(contentTab(el).renderRoot.querySelector('[part="zero-results"]'));
     });
 
+    test('keeps the wide product header close to the results when facets are taller', async () => {
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([product('1')], 1, { items: [] });
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: { entities: { products: {} } },
+        });
+        const el = await fixture<UniversalSearch>(html`
+            <relewise-universal-search
+                open
+                style="--relewise-universal-search-width: 70rem;">
+            </relewise-universal-search>
+        `);
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el).length === 1);
+        await universalSearchUpdated(el);
+
+        const productLayout = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="results-layout"]')!;
+        const facets = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="facets"]')!;
+        const resultsHeader = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="results-header"]')!;
+        const results = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="results"]')!;
+        facets.style.height = '30rem';
+
+        const rowGap = parseFloat(getComputedStyle(productLayout).rowGap);
+        const maximumHeaderHeight = parseFloat(getComputedStyle(productLayout).fontSize) * 3;
+
+        assert.isAtMost(resultsHeader.getBoundingClientRect().height, maximumHeaderHeight);
+        assert.closeTo(results.getBoundingClientRect().top - resultsHeader.getBoundingClientRect().bottom, rowGap, 1);
+    });
+
     test('uses entity-specific compact columns without overflowing the result layout', async () => {
         Searcher.prototype.searchProducts = async function() {
             return productSearchResponse([product('1'), product('2'), product('3')], 3, { items: [] });
@@ -882,19 +916,27 @@ suite('relewise-universal-search', () => {
         await universalSearchUpdated(el);
 
         const productGrid = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="product-grid"]')!;
+        const productLayout = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="results-layout"]')!;
         const facets = productsTab(el).renderRoot.querySelector('relewise-universal-search-facets') as any;
         const facetTrigger = facets.renderRoot.querySelector('[part="facet-trigger"]') as HTMLElement;
         const sorting = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="sorting"]')!;
+        const sortingContainer = (sorting as any).renderRoot.querySelector('[part="container"]') as HTMLElement;
         const sortingLabel = (sorting as any).renderRoot.querySelector('[part="label"]') as HTMLElement;
         const sortingSelect = (sorting as any).renderRoot.querySelector('[part="select"]') as HTMLSelectElement;
         const resultsSummary = el.renderRoot.querySelector<HTMLElement>('[part="results-summary"]')!;
         const resultsSummaryStyles = getComputedStyle(resultsSummary);
+        const controls = [...productLayout.children]
+            .filter(control => control.matches('[part="facets"], [part="sorting"]'))
+            .map(control => control.getAttribute('part'));
+        assert.deepEqual(controls, ['facets', 'sorting']);
         assert.equal(getComputedStyle(productGrid).gridTemplateColumns.split(' ').length, 1);
         assert.closeTo(facetTrigger.getBoundingClientRect().top, sorting.getBoundingClientRect().top, 1);
         assert.closeTo(facetTrigger.getBoundingClientRect().height, sorting.getBoundingClientRect().height, 1);
         assert.isBelow(facetTrigger.getBoundingClientRect().right, sorting.getBoundingClientRect().left);
         assert.equal(getComputedStyle(sortingLabel).position, 'absolute');
         assert.equal(getComputedStyle(sortingLabel).width, '1px');
+        assert.equal(getComputedStyle(sortingSelect).appearance, 'none');
+        assert.equal(getComputedStyle(sortingContainer, '::after').pointerEvents, 'none');
         assert.equal(getComputedStyle(sortingSelect).textAlignLast, 'center');
         assert.equal(getComputedStyle(sortingSelect.options[0]).textAlign, 'start');
         assert.equal(resultsSummaryStyles.textAlign, 'center');
