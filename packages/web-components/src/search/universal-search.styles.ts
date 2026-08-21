@@ -12,6 +12,12 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         --relewise-recommendation-grid-mobile-columns: var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2));
     }
 
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
     .rw-backdrop {
         position: fixed;
         inset: 0;
@@ -26,10 +32,13 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         background: var(--relewise-universal-search-background, white);
         color: var(--relewise-universal-search-color);
         --color: var(--relewise-universal-search-color);
-        width: var(--relewise-universal-search-width, 100%);
-        height: var(--relewise-universal-search-height, 100%);
+        container: universal-search-dialog / inline-size;
+        width: min(100%, var(--relewise-universal-search-width, 100%));
+        height: min(100dvh, var(--relewise-universal-search-height, 100%));
+        max-height: 100dvh;
         display: flex;
         flex-direction: column;
+        min-width: 0;
     }
 
     .rw-header {
@@ -43,7 +52,9 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
     relewise-search-combobox {
         display: block;
         flex: 1;
+        max-width: min(100%, var(--relewise-universal-search-search-width, 100%));
         min-width: 0;
+        width: min(100%, var(--relewise-universal-search-search-width, 100%));
     }
 
     .rw-close {
@@ -57,8 +68,15 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
 
     .rw-body {
         flex: 1;
+        min-width: 0;
         overflow: auto;
+        overscroll-behavior: contain;
         padding: var(--relewise-universal-search-body-padding, 1em);
+    }
+
+    .rw-body > * {
+        margin-inline: auto;
+        max-width: min(100%, var(--relewise-universal-search-layout-width, 100%));
     }
 
     .rw-empty {
@@ -69,6 +87,8 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         display: flex;
         gap: var(--relewise-universal-search-tabs-gap, 1.5em);
         border-bottom: 1px solid var(--relewise-universal-search-border-color, var(--relewise-checklist-facet-border-color, #eee));
+        max-width: min(100%, var(--relewise-universal-search-tabs-width, 100%));
+        overflow-x: auto;
         padding-top: var(--relewise-universal-search-tabs-padding-top, 0.5em);
         margin-bottom: var(--relewise-universal-search-tabs-margin-bottom, 1em);
     }
@@ -79,8 +99,10 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         border: 0;
         border-bottom: 2px solid transparent;
         cursor: pointer;
+        flex: none;
         font: inherit;
         padding: var(--relewise-universal-search-tab-padding, 0.5em 0);
+        white-space: nowrap;
     }
 
     .rw-tab[aria-selected="true"] {
@@ -95,16 +117,53 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
 
     .rw-results-summary {
         margin-bottom: var(--relewise-universal-search-results-summary-margin-bottom, 1em);
+        overflow-wrap: anywhere;
     }
 
-    @media (max-width: 768px) {
+    @container universal-search-dialog (width < 64rem) {
+        .rw-body > * {
+            max-width: min(100%, var(--relewise-universal-search-mobile-layout-width, var(--relewise-universal-search-layout-width, 100%)));
+        }
+
+        .rw-tabs {
+            justify-content: safe center;
+            max-width: min(100%, var(--relewise-universal-search-mobile-tabs-width, var(--relewise-universal-search-tabs-width, 100%)));
+        }
+    }
+
+    @container universal-search-dialog (width <= 48rem) {
         .rw-header {
             align-items: stretch;
             flex-direction: column;
         }
 
         relewise-search-combobox {
-            width: 100%;
+            max-width: min(100%, var(--relewise-universal-search-mobile-search-width, var(--relewise-universal-search-search-width, 100%)));
+            width: min(100%, var(--relewise-universal-search-mobile-search-width, var(--relewise-universal-search-search-width, 100%)));
+        }
+
+        relewise-search-combobox::part(search-suggestions) {
+            margin-top: var(--relewise-search-suggestions-offset, 0.25em);
+            position: static;
+        }
+    }
+
+    @media (max-width: 48rem) {
+        .rw-dialog {
+            width: min(100%, var(--relewise-universal-search-mobile-width, var(--relewise-universal-search-width, 100%)));
+            height: min(100dvh, var(--relewise-universal-search-mobile-height, var(--relewise-universal-search-height, 100%)));
+        }
+
+        .rw-header {
+            padding-top: max(var(--relewise-universal-search-header-padding, 1em), env(safe-area-inset-top));
+            padding-right: max(var(--relewise-universal-search-header-padding, 1em), env(safe-area-inset-right));
+            padding-left: max(var(--relewise-universal-search-header-padding, 1em), env(safe-area-inset-left));
+        }
+
+        .rw-body {
+            padding-right: max(var(--relewise-universal-search-body-padding, 1em), env(safe-area-inset-right));
+            padding-bottom: max(var(--relewise-universal-search-body-padding, 1em), env(safe-area-inset-bottom));
+            padding-left: max(var(--relewise-universal-search-body-padding, 1em), env(safe-area-inset-left));
         }
     }
 `];
