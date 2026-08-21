@@ -39,6 +39,25 @@ suite('product-search-sorting', () => {
         ]);
     });
 
+    test('uses logical arrow spacing for Universal Search sorting', async () => {
+        useSearch();
+
+        const element = await fixture<ProductSearchSorting>(html`
+            <relewise-product-search-sorting
+                class="rw-universal-search-sorting"
+                dir="rtl"
+                style="display: block; width: 12rem;">
+            </relewise-product-search-sorting>
+        `);
+        const label = element.shadowRoot!.querySelector<HTMLElement>('.rw-label-wrapper')!;
+        const select = element.shadowRoot!.querySelector<HTMLSelectElement>('.rw-select')!;
+        const arrowStyles = getComputedStyle(label, '::after');
+        const selectStyles = getComputedStyle(select);
+
+        assert.isAbove(parseFloat(selectStyles.paddingLeft), parseFloat(selectStyles.paddingRight));
+        assert.isBelow(parseFloat(arrowStyles.left), parseFloat(arrowStyles.right));
+    });
+
     test('uses localization for built-in sorting options', async () => {
         useSearch({
             localization: {

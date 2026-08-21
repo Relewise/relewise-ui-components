@@ -104,7 +104,7 @@ export class ProductSearchSorting extends RelewiseLitElement {
             height: 0.45em;
             pointer-events: none;
             position: absolute;
-            right: var(--relewise-universal-search-sorting-arrow-inset, 0.8em);
+            inset-inline-end: var(--relewise-universal-search-sorting-arrow-inset, 0.8em);
             top: 50%;
             transform: translateY(-70%) rotate(45deg);
             width: 0.45em;
@@ -128,7 +128,7 @@ export class ProductSearchSorting extends RelewiseLitElement {
 
         :host(.rw-universal-search-sorting) .rw-select {
             appearance: none;
-            padding-right: var(--relewise-universal-search-sorting-arrow-space, 2.25em);
+            padding-inline-end: var(--relewise-universal-search-sorting-arrow-space, 2.25em);
         }
 
         .rw-select option {
