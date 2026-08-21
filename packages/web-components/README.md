@@ -1564,10 +1564,10 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-mobile-width` | Desktop width | Dialog width at viewport widths up to `48rem`. |
 | `--relewise-universal-search-mobile-height` | Desktop height | Dialog height at viewport widths up to `48rem`. |
 | `--relewise-universal-search-border-color` | `var(--relewise-checklist-facet-border-color, #eee)` | Border color used within Universal Search. |
-| `--relewise-universal-search-header-gap` | `1em` | Gap between the combobox and close button. |
-| `--relewise-universal-search-header-padding` | `1em` | Padding inside the Universal Search header. |
+| `--relewise-universal-search-header-gap` | `1em` | Shared desktop spacing between the dialog edge, search input, and close button. |
+| `--relewise-universal-search-header-padding` | `1em` | Block padding inside the Universal Search header. |
 | `--relewise-universal-search-mobile-header-spacing` | `var(--relewise-universal-search-header-gap, 0.75em)` | Shared compact spacing between the dialog edge, search input, and close button. |
-| `--relewise-universal-search-close-button-padding` | `0 0.75em` | Padding inside the close button. |
+| `--relewise-universal-search-close-button-padding` | `0 0.75em` | Base close-button host padding; inline placement is normalized by the header spacing variables. |
 | `--relewise-universal-search-body-padding` | `1em` | Padding around the Universal Search body. |
 | `--relewise-universal-search-search-width` | `100%` | Maximum width of the search combobox. |
 | `--relewise-universal-search-mobile-search-width` | Desktop search width | Maximum search width in dialog containers up to `48rem`. |
@@ -1580,8 +1580,8 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-tabs-margin-bottom` | `1em` | Space below the result tabs. |
 | `--relewise-universal-search-tab-padding` | `0.5em 0` | Padding inside each result tab. |
 | `--relewise-universal-search-tab-active-border-color` | `currentColor` | Underline color of the active result tab. |
-| `--relewise-universal-search-results-summary-spacing` | `var(--relewise-universal-search-results-summary-margin-bottom, 1em)` | Equal space above and below the search-term summary. |
-| `--relewise-universal-search-results-summary-margin-bottom` | `1em` | Compatibility fallback for the search-term summary spacing. |
+| `--relewise-universal-search-results-summary-spacing` | `var(--relewise-universal-search-results-summary-margin-bottom, 1em)` | Equal compact-layout space above and below the search-term summary. |
+| `--relewise-universal-search-results-summary-margin-bottom` | `1em` | Desktop space below the search-term summary and compatibility fallback for compact spacing. |
 | `--relewise-universal-search-zero-results-gap` | `1em` | Gap between the no-result icon and its text. |
 | `--relewise-universal-search-zero-results-margin-bottom` | `var(--relewise-universal-search-tabs-margin-bottom, 1em)` | Space below the no-result state; by default this matches the space between the tabs and the state. |
 | `--relewise-universal-search-zero-results-padding` | `1.5em` | Padding inside the no-result state. |

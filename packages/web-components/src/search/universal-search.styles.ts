@@ -44,9 +44,11 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
 
     .rw-header {
         display: flex;
-        gap: var(--relewise-universal-search-header-gap, 1em);
+        gap: 0;
         align-items: center;
         padding: var(--relewise-universal-search-header-padding, 1em);
+        padding-inline-end: 0;
+        padding-inline-start: var(--relewise-universal-search-header-gap, 1em);
         border-bottom: 1px solid var(--relewise-universal-search-border-color, var(--relewise-checklist-facet-border-color, #eee));
     }
 
@@ -63,6 +65,7 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         height: var(--relewise-search-combobox-height, var(--relewise-product-search-bar-height, 3em));
         margin: 0;
         padding: var(--relewise-universal-search-close-button-padding, 0 0.75em);
+        padding-inline: var(--relewise-universal-search-header-gap, 1em);
         --relewise-button-icon-padding: 0;
         --relewise-button-text-color: var(--relewise-universal-search-color);
     }
@@ -117,15 +120,12 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
     }
 
     .rw-results-summary {
-        margin-block: var(--relewise-universal-search-results-summary-spacing, var(--relewise-universal-search-results-summary-margin-bottom, 1em));
+        margin-bottom: var(--relewise-universal-search-results-summary-margin-bottom, 1em);
         overflow-wrap: anywhere;
-        text-align: center;
     }
 
     @container universal-search-dialog (width < 64rem) {
         .rw-header {
-            gap: 0;
-            padding-inline-end: 0;
             padding-inline-start: var(--relewise-universal-search-mobile-header-spacing, var(--relewise-universal-search-header-gap, 0.75em));
         }
 
@@ -140,6 +140,11 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         .rw-tabs {
             justify-content: safe center;
             max-width: min(100%, var(--relewise-universal-search-mobile-tabs-width, var(--relewise-universal-search-tabs-width, 100%)));
+        }
+
+        .rw-results-summary {
+            margin-block: var(--relewise-universal-search-results-summary-spacing, var(--relewise-universal-search-results-summary-margin-bottom, 1em));
+            text-align: center;
         }
     }
 

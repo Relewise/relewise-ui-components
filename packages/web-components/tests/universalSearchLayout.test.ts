@@ -80,6 +80,44 @@ suite('universal search layout', () => {
         assert.closeTo(controlSpacing, rightSpacing, 1);
     });
 
+    test('balances visible desktop controls and keeps the result summary left-aligned', async () => {
+        const element = await fixture<UniversalSearch>(html`
+            <relewise-universal-search
+                open
+                style="--relewise-universal-search-header-gap: 14px;">
+            </relewise-universal-search>
+        `);
+        await element.updateComplete;
+
+        const dialog = element.renderRoot.querySelector<HTMLElement>('[part="dialog"]')!;
+        dialog.style.flex = 'none';
+        dialog.style.width = '70rem';
+        (element as any).term = 'shoe';
+        (element as any).activeTab = 'products';
+        element.requestUpdate();
+        await element.updateComplete;
+        await new Promise(requestAnimationFrame);
+
+        const search = element.renderRoot.querySelector<any>('relewise-search-combobox')!;
+        const close = element.renderRoot.querySelector<any>('[part="close-button"]')!;
+        const searchControl = search.renderRoot.querySelector('[part="search-input"]') as HTMLElement;
+        const closeControl = close.renderRoot.querySelector('button') as HTMLElement;
+        const resultsSummary = element.renderRoot.querySelector<HTMLElement>('[part="results-summary"]')!;
+        const dialogBounds = dialog.getBoundingClientRect();
+        const searchBounds = searchControl.getBoundingClientRect();
+        const closeBounds = closeControl.getBoundingClientRect();
+        const leftSpacing = searchBounds.left - dialogBounds.left;
+        const controlSpacing = closeBounds.left - searchBounds.right;
+        const rightSpacing = dialogBounds.right - closeBounds.right;
+
+        assert.isAtLeast(dialogBounds.width, 1024);
+        assert.closeTo(leftSpacing, 14, 1);
+        assert.closeTo(leftSpacing, controlSpacing, 1);
+        assert.closeTo(controlSpacing, rightSpacing, 1);
+        assert.equal(getComputedStyle(resultsSummary).textAlign, 'start');
+        assert.equal(getComputedStyle(resultsSummary).marginTop, '0px');
+    });
+
     test('registers container-query styles in Light DOM', async () => {
         const options = mockRelewiseOptions();
         options.components = { domMode: 'light' };
