@@ -892,7 +892,8 @@ suite('relewise-universal-search', () => {
         assert.closeTo(facetTrigger.getBoundingClientRect().top, sorting.getBoundingClientRect().top, 1);
         assert.closeTo(facetTrigger.getBoundingClientRect().height, sorting.getBoundingClientRect().height, 1);
         assert.isBelow(facetTrigger.getBoundingClientRect().right, sorting.getBoundingClientRect().left);
-        assert.equal(getComputedStyle(sortingLabel).display, 'none');
+        assert.equal(getComputedStyle(sortingLabel).position, 'absolute');
+        assert.equal(getComputedStyle(sortingLabel).width, '1px');
         assert.equal(resultsSummaryStyles.textAlign, 'center');
         assert.equal(resultsSummaryStyles.marginTop, resultsSummaryStyles.marginBottom);
         assert.isAtMost(productGrid.scrollWidth, productGrid.clientWidth);
