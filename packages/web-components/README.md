@@ -875,7 +875,7 @@ useSearch({
 
 The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
 
-Universal Search bases its internal responsive layout on the available dialog width. Dialogs below `64rem` use the compact result columns and a facet drawer; dialogs at least `64rem` wide use the desktop columns and facet rail. At up to `48rem`, the header stacks and the search suggestions join the normal document flow. This also makes a consumer-configured narrow dialog behave compactly on a wide viewport.
+Universal Search bases its internal responsive layout on the available dialog width. Dialogs below `64rem` use the compact result columns and a facet drawer; dialogs at least `64rem` wide use the desktop columns and facet rail. At up to `48rem`, the search input and close button remain on one line, filter and sorting controls share a row, and search suggestions join the normal document flow. This also makes a consumer-configured narrow dialog behave compactly on a wide viewport.
 
 The default appearance is intentionally neutral. Use the documented CSS custom properties for sizing and columns, and CSS parts for detailed presentation, without changing the component's search behavior.
 
@@ -1579,7 +1579,8 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-tabs-margin-bottom` | `1em` | Space below the result tabs. |
 | `--relewise-universal-search-tab-padding` | `0.5em 0` | Padding inside each result tab. |
 | `--relewise-universal-search-tab-active-border-color` | `currentColor` | Underline color of the active result tab. |
-| `--relewise-universal-search-results-summary-margin-bottom` | `1em` | Space below the search-term summary. |
+| `--relewise-universal-search-results-summary-spacing` | `var(--relewise-universal-search-results-summary-margin-bottom, 1em)` | Equal space above and below the search-term summary. |
+| `--relewise-universal-search-results-summary-margin-bottom` | `1em` | Compatibility fallback for the search-term summary spacing. |
 | `--relewise-universal-search-zero-results-gap` | `1em` | Gap between the no-result icon and its text. |
 | `--relewise-universal-search-zero-results-margin-bottom` | `var(--relewise-universal-search-tabs-margin-bottom, 1em)` | Space below the no-result state; by default this matches the space between the tabs and the state. |
 | `--relewise-universal-search-zero-results-padding` | `1.5em` | Padding inside the no-result state. |

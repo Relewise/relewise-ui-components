@@ -19,6 +19,7 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
         gap: var(--relewise-universal-search-layout-gap, 1em);
         margin-inline: auto;
         max-width: min(100%, var(--relewise-universal-search-mobile-results-width, var(--relewise-universal-search-results-width, 100%)));
+        position: relative;
     }
 
     .rw-results-header {
@@ -36,6 +37,10 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
 
     .rw-results-count {
         font-size: 0.9em;
+    }
+
+    .rw-sorting::part(label) {
+        display: none;
     }
 
     .rw-result-grid {
@@ -92,13 +97,27 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
             flex-direction: column;
         }
 
+        .rw-results-layout:has(.rw-facets) .rw-facets,
+        .rw-results-layout:has(.rw-facets) .rw-sorting {
+            width: calc((100% - var(--relewise-universal-search-layout-gap, 1em)) / 2);
+        }
+
         .rw-sorting {
+            height: 2.75em;
+            inset-block-start: 0;
+            inset-inline-end: 0;
             min-width: 0;
+            position: absolute;
             width: 100%;
+        }
+
+        .rw-results-layout:not(:has(.rw-facets)) .rw-results-header {
+            padding-top: calc(2.75em + var(--relewise-universal-search-layout-gap, 1em));
         }
 
         .rw-sorting::part(container) {
             display: flex;
+            height: 100%;
             width: 100%;
         }
 

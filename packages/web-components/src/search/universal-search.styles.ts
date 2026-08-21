@@ -117,8 +117,9 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
     }
 
     .rw-results-summary {
-        margin-bottom: var(--relewise-universal-search-results-summary-margin-bottom, 1em);
+        margin-block: var(--relewise-universal-search-results-summary-spacing, var(--relewise-universal-search-results-summary-margin-bottom, 1em));
         overflow-wrap: anywhere;
+        text-align: center;
     }
 
     @container universal-search-dialog (width < 64rem) {
@@ -134,13 +135,13 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
 
     @container universal-search-dialog (width <= 48rem) {
         .rw-header {
-            align-items: stretch;
-            flex-direction: column;
+            align-items: flex-start;
         }
 
         relewise-search-combobox {
+            flex: 1 1 auto;
             max-width: min(100%, var(--relewise-universal-search-mobile-search-width, var(--relewise-universal-search-search-width, 100%)));
-            width: min(100%, var(--relewise-universal-search-mobile-search-width, var(--relewise-universal-search-search-width, 100%)));
+            width: auto;
         }
 
         relewise-search-combobox::part(search-suggestions) {

@@ -845,7 +845,7 @@ suite('relewise-universal-search', () => {
 
     test('uses entity-specific compact columns without overflowing the result layout', async () => {
         Searcher.prototype.searchProducts = async function() {
-            return productSearchResponse([product('1'), product('2'), product('3')]);
+            return productSearchResponse([product('1'), product('2'), product('3')], 3, { items: [] });
         };
         Searcher.prototype.searchProductCategories = async function() {
             return productCategorySearchResponse([productCategory('1'), productCategory('2'), productCategory('3')]);
@@ -878,7 +878,18 @@ suite('relewise-universal-search', () => {
         await universalSearchUpdated(el);
 
         const productGrid = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="product-grid"]')!;
+        const facets = productsTab(el).renderRoot.querySelector('relewise-universal-search-facets') as any;
+        const facetTrigger = facets.renderRoot.querySelector('[part="facet-trigger"]') as HTMLElement;
+        const sorting = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="sorting"]')!;
+        const sortingLabel = (sorting as any).renderRoot.querySelector('[part="label"]') as HTMLElement;
+        const resultsSummary = el.renderRoot.querySelector<HTMLElement>('[part="results-summary"]')!;
+        const resultsSummaryStyles = getComputedStyle(resultsSummary);
         assert.equal(getComputedStyle(productGrid).gridTemplateColumns.split(' ').length, 1);
+        assert.closeTo(facetTrigger.getBoundingClientRect().top, sorting.getBoundingClientRect().top, 1);
+        assert.isBelow(facetTrigger.getBoundingClientRect().right, sorting.getBoundingClientRect().left);
+        assert.equal(getComputedStyle(sortingLabel).display, 'none');
+        assert.equal(resultsSummaryStyles.textAlign, 'center');
+        assert.equal(resultsSummaryStyles.marginTop, resultsSummaryStyles.marginBottom);
         assert.isAtMost(productGrid.scrollWidth, productGrid.clientWidth);
 
         internals(el).handleSelectTab('productCategories');

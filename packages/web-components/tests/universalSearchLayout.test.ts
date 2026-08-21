@@ -33,11 +33,13 @@ suite('universal search layout', () => {
         const dialog = element.renderRoot.querySelector<HTMLElement>('[part="dialog"]')!;
         const header = element.renderRoot.querySelector<HTMLElement>('[part="header"]')!;
         const search = element.renderRoot.querySelector<HTMLElement>('relewise-search-combobox')!;
+        const close = element.renderRoot.querySelector<HTMLElement>('[part="close-button"]')!;
         const bodyChild = element.renderRoot.querySelector<HTMLElement>('[part="body"] > *')!;
 
         assert.equal(dialog.getBoundingClientRect().width, 480);
-        assert.equal(getComputedStyle(header).flexDirection, 'column');
-        assert.equal(search.getBoundingClientRect().width, 320);
+        assert.equal(getComputedStyle(header).flexDirection, 'row');
+        assert.closeTo(search.getBoundingClientRect().top, close.getBoundingClientRect().top, 1);
+        assert.isBelow(search.getBoundingClientRect().right, close.getBoundingClientRect().left);
         assert.equal(bodyChild.getBoundingClientRect().width, 288);
         assert.isAtMost(dialog.scrollWidth, dialog.clientWidth);
     });
