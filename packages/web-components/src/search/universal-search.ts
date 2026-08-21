@@ -18,6 +18,7 @@ import type { SearchCombobox } from './components/search-combobox';
 import type { SearchComboboxRedirectEventDetail, SearchComboboxTermEventDetail, SearchSuggestionsBatchSearch } from './components/search-combobox.types';
 import { canParseRedirectDestination } from '../helpers/searchRedirect';
 import { getSearcher } from './searcher';
+import type { UniversalSearchFacetsDrawerStateChangedEventDetail } from './universal-search-facets';
 import { trapFocusInDialog } from './universal-search-focus';
 import { universalSearchStyles } from './universal-search.styles';
 import { updateUrlStateForUniversalSearchTerm } from './universal-search-url-state';
@@ -85,6 +86,7 @@ export class UniversalSearch extends RelewiseLitElement {
     };
 
     @state() private batchSearching = false;
+    @state() private facetsDrawerOpen = false;
 
     private debounceTimeoutHandlerId: ReturnType<typeof setTimeout> | null = null;
     private batchAbortController = new AbortController();
@@ -146,6 +148,7 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         this.batchAbortController.abort();
+        this.facetsDrawerOpen = false;
         this.resetRecommendationState();
         this.previouslyFocusedElement?.focus();
         this.previouslyFocusedElement = null;
@@ -157,6 +160,7 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         this.term = term;
+        this.facetsDrawerOpen = false;
         this.redirects = [];
         this.batchAbortController.abort();
         this.resetRecommendationState();
@@ -371,7 +375,12 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     private handleSelectTab(tab: UniversalSearchTab): void {
+        this.facetsDrawerOpen = false;
         this.activeTab = tab;
+    }
+
+    private handleFacetsDrawerStateChanged(event: CustomEvent<UniversalSearchFacetsDrawerStateChangedEventDetail>): void {
+        this.facetsDrawerOpen = event.detail.open;
     }
 
     private handleTabKeyDown(event: KeyboardEvent, tab: UniversalSearchTab): void {
@@ -524,8 +533,9 @@ export class UniversalSearch extends RelewiseLitElement {
                         </relewise-button>
                     </header>
                     <div
-                        class="rw-body"
+                        class=${this.facetsDrawerOpen ? 'rw-body rw-facets-open' : 'rw-body'}
                         part="body"
+                        @universal-search-facets-drawer-state-changed=${this.handleFacetsDrawerStateChanged}
                         @universal-search-tab-state-changed=${this.handleTabStateChanged}>
                         ${!this.term ? html`
                             <relewise-universal-search-recommendations

@@ -262,6 +262,29 @@ suite('relewise-universal-search', () => {
         assert.isNull(queryDeep(el, '[role="dialog"]'));
     });
 
+    test('locks body scrolling while a facets drawer is open', async () => {
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+        const body = el.renderRoot.querySelector<HTMLElement>('.rw-body')!;
+
+        body.dispatchEvent(new CustomEvent('universal-search-facets-drawer-state-changed', {
+            bubbles: true,
+            composed: true,
+            detail: { open: true },
+        }));
+        await el.updateComplete;
+        assert.isTrue(body.classList.contains('rw-facets-open'));
+
+        body.dispatchEvent(new CustomEvent('universal-search-facets-drawer-state-changed', {
+            bubbles: true,
+            composed: true,
+            detail: { open: false },
+        }));
+        await el.updateComplete;
+        assert.isFalse(body.classList.contains('rw-facets-open'));
+    });
+
     test('contains focus while open and restores focus when closed', async () => {
         const opener = await fixture<HTMLButtonElement>(html`<button type="button">Open search</button>`);
         opener.focus();

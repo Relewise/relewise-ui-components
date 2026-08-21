@@ -76,6 +76,7 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         overflow: auto;
         overscroll-behavior: contain;
         padding: var(--relewise-universal-search-body-padding, 1em);
+        position: relative;
     }
 
     .rw-body > * {
@@ -125,6 +126,10 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
     }
 
     @container universal-search-dialog (width < 64rem) {
+        .rw-body.rw-facets-open {
+            overflow: hidden;
+        }
+
         .rw-header {
             padding-inline-start: var(--relewise-universal-search-mobile-header-spacing, var(--relewise-universal-search-header-gap, 0.75em));
         }

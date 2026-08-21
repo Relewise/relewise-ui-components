@@ -120,6 +120,10 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
     }
 
     @container universal-search-dialog (width < 64rem) {
+        .rw-results-layout {
+            position: static;
+        }
+
         .rw-result-grid {
             grid-template-columns: repeat(var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2)), minmax(0, 1fr));
         }

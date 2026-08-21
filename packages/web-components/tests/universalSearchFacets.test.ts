@@ -1,4 +1,4 @@
-import { assert, fixture, fixtureCleanup, html } from '@open-wc/testing';
+import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
 import type { ProductFacetResult } from '@relewise/client';
 import { initializeRelewiseUI, useSearch } from '../src';
 import type { Facets } from '../src/search/components/facets';
@@ -37,8 +37,11 @@ suite('universal search facets', () => {
     });
 
     test('opens and closes the drawer and restores focus to its trigger', async () => {
+        const drawerStates: boolean[] = [];
         const element = await fixture<UniversalSearchFacets>(html`
-            <relewise-universal-search-facets></relewise-universal-search-facets>
+            <relewise-universal-search-facets
+                @universal-search-facets-drawer-state-changed=${(event: CustomEvent<{ open: boolean }>) => drawerStates.push(event.detail.open)}>
+            </relewise-universal-search-facets>
         `);
         const trigger = element.renderRoot.querySelector<HTMLButtonElement>('.rw-trigger')!;
 
@@ -58,6 +61,7 @@ suite('universal search facets', () => {
 
         assert.equal(trigger.getAttribute('aria-expanded'), 'false');
         assert.equal(element.shadowRoot!.activeElement, trigger);
+        assert.deepEqual(drawerStates, [true, false]);
     });
 
     test('forwards facet changes as a bubbling composed event', async () => {
@@ -70,10 +74,14 @@ suite('universal search facets', () => {
             </relewise-universal-search-facets>
         `);
         const facets = element.renderRoot.querySelector<Facets>('relewise-facets')!;
+        element.renderRoot.querySelector<HTMLButtonElement>('.rw-trigger')!.click();
+        await element.updateComplete;
 
         facets.applyFacet();
+        await element.updateComplete;
 
         assert.equal(eventCount, 1);
+        assert.isFalse(element.renderRoot.querySelector('.rw-drawer')!.hasAttribute('open'));
         assert.isTrue(facets.expanded);
         assert.include(facets.getAttribute('exportparts') ?? '', 'container: facet-container');
     });
@@ -116,6 +124,32 @@ suite('universal search facets', () => {
         assert.closeTo(drawerBounds.width, wrapperBounds.width, 1);
         assert.closeTo(facetBounds.width, 320, 1);
         assert.closeTo(facetBounds.left - drawerBounds.left, drawerBounds.right - facetBounds.right, 1);
+        assert.notEqual(getComputedStyle(drawer).overscrollBehavior, 'auto');
+    });
+
+    test('clears modal state when the compact drawer becomes a desktop facet rail', async () => {
+        const drawerStates: boolean[] = [];
+        const wrapper = await fixture<HTMLElement>(html`
+            <div style="container: universal-search-dialog / inline-size; width: 30rem;">
+                <relewise-universal-search-facets
+                    @universal-search-facets-drawer-state-changed=${(event: CustomEvent<{ open: boolean }>) => drawerStates.push(event.detail.open)}>
+                </relewise-universal-search-facets>
+            </div>
+        `);
+        const element = wrapper.querySelector<UniversalSearchFacets>('relewise-universal-search-facets')!;
+        const trigger = element.renderRoot.querySelector<HTMLButtonElement>('.rw-trigger')!;
+        const drawer = element.renderRoot.querySelector<HTMLElement>('.rw-drawer')!;
+        trigger.click();
+        await element.updateComplete;
+
+        wrapper.style.width = '64rem';
+        await waitUntil(() => !drawer.hasAttribute('open'));
+
+        assert.equal(trigger.getAttribute('aria-expanded'), 'false');
+        assert.isNull(drawer.getAttribute('role'));
+        assert.isNull(drawer.getAttribute('aria-modal'));
+        assert.equal(element.shadowRoot!.activeElement, drawer);
+        assert.deepEqual(drawerStates, [true, false]);
     });
 
     test('supports Light DOM and keeps long labels inside the facet panel', async () => {
