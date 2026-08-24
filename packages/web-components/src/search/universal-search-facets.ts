@@ -56,7 +56,6 @@ export class UniversalSearchFacets extends RelewiseLitElement {
     }
 
     private readonly applyFacet = (): void => {
-        this.closeDrawer();
         this.dispatchEvent(new CustomEvent(universalSearchFacetsChangedEvent, {
             bubbles: true,
             composed: true,

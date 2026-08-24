@@ -64,7 +64,7 @@ suite('universal search facets', () => {
         assert.deepEqual(drawerStates, [true, false]);
     });
 
-    test('forwards facet changes as a bubbling composed event', async () => {
+    test('forwards facet changes without closing the drawer', async () => {
         let eventCount = 0;
         const element = await fixture<UniversalSearchFacets>(html`
             <relewise-universal-search-facets
@@ -81,7 +81,7 @@ suite('universal search facets', () => {
         await element.updateComplete;
 
         assert.equal(eventCount, 1);
-        assert.isFalse(element.renderRoot.querySelector('.rw-drawer')!.hasAttribute('open'));
+        assert.isTrue(element.renderRoot.querySelector('.rw-drawer')!.hasAttribute('open'));
         assert.isTrue(facets.expanded);
         assert.include(facets.getAttribute('exportparts') ?? '', 'container: facet-container');
     });
