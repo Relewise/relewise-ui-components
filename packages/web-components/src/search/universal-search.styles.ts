@@ -58,6 +58,7 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         max-width: min(100%, var(--relewise-universal-search-search-width, 100%));
         min-width: 0;
         width: min(100%, var(--relewise-universal-search-search-width, 100%));
+        --color: var(--relewise-universal-search-color);
     }
 
     .rw-close {

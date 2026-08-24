@@ -97,6 +97,25 @@ suite('universal search layout', () => {
         assert.closeTo(controlSpacing, rightSpacing, 1);
     });
 
+    test('uses the Universal Search foreground color for the input placeholder', async () => {
+        const element = await fixture<UniversalSearch>(html`
+            <relewise-universal-search
+                open
+                style="--relewise-universal-search-color: rgb(30 40 50);">
+            </relewise-universal-search>
+        `);
+        await element.updateComplete;
+
+        const dialog = element.renderRoot.querySelector<HTMLElement>('[part="dialog"]')!;
+        const search = element.renderRoot.querySelector<any>('relewise-search-combobox')!;
+        await search.updateComplete;
+        const input = search.renderRoot.querySelector<HTMLInputElement>('[part="search-input"]')!;
+
+        assert.equal(getComputedStyle(search).getPropertyValue('--color').trim(), 'rgb(30 40 50)');
+        assert.notEqual(getComputedStyle(input, '::placeholder').color, 'rgb(238, 238, 238)');
+        assert.equal(getComputedStyle(dialog).color, 'rgb(30, 40, 50)');
+    });
+
     test('balances visible desktop controls and keeps the result summary left-aligned', async () => {
         const element = await fixture<UniversalSearch>(html`
             <relewise-universal-search
