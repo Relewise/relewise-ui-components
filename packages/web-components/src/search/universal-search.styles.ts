@@ -128,6 +128,7 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
     @container universal-search-dialog (width < 64rem) {
         .rw-body.rw-facets-open {
             overflow: hidden;
+            position: static;
         }
 
         .rw-header {

@@ -1,6 +1,23 @@
 import { assert, fixture, fixtureCleanup, html } from '@open-wc/testing';
+import type { ProductFacetResult } from '@relewise/client';
 import { initializeRelewiseUI, UniversalSearch, useSearch } from '../src';
+import type { UniversalSearchFacets } from '../src/search/universal-search-facets';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
+
+function facetResult(): ProductFacetResult {
+    return {
+        items: [{
+            '$type': 'Relewise.Client.DataTypes.Search.Facets.Result.ProductDataStringValueFacetResult, Relewise.Client',
+            field: 'Data',
+            key: 'Color',
+            available: [{
+                value: 'Blue',
+                hits: 1,
+                selected: false,
+            }],
+        }],
+    } as ProductFacetResult;
+}
 
 suite('universal search layout', () => {
     setup(() => {
@@ -144,6 +161,45 @@ suite('universal search layout', () => {
             assert.isAtLeast(bounds.left, tabsBounds.left - 1);
             assert.isAtMost(bounds.right, tabsBounds.right + 1);
         });
+    });
+
+    test('covers the entire compact dialog with the facets drawer', async () => {
+        const element = await fixture<UniversalSearch>(html`
+            <relewise-universal-search
+                open
+                style="--relewise-universal-search-width: 30rem;">
+            </relewise-universal-search>
+        `);
+        (element as any).term = 'shoe';
+        (element as any).activeTab = 'products';
+        element.requestUpdate();
+        await element.updateComplete;
+
+        const productsTab = element.renderRoot.querySelector<any>('relewise-universal-search-products-tab')!;
+        productsTab.result = {
+            hits: 1,
+            results: [],
+            facets: facetResult(),
+        };
+        productsTab.facetLabels = ['Color'];
+        productsTab.requestUpdate();
+        await productsTab.updateComplete;
+
+        const facets = productsTab.renderRoot.querySelector<UniversalSearchFacets>('relewise-universal-search-facets')!;
+        facets.renderRoot.querySelector<HTMLButtonElement>('.rw-trigger')!.click();
+        await facets.updateComplete;
+        await element.updateComplete;
+        await new Promise(requestAnimationFrame);
+
+        const dialog = element.renderRoot.querySelector<HTMLElement>('[part="dialog"]')!;
+        const drawer = facets.renderRoot.querySelector<HTMLElement>('.rw-drawer')!;
+        const dialogBounds = dialog.getBoundingClientRect();
+        const drawerBounds = drawer.getBoundingClientRect();
+
+        assert.closeTo(drawerBounds.top, dialogBounds.top, 1);
+        assert.closeTo(drawerBounds.right, dialogBounds.right, 1);
+        assert.closeTo(drawerBounds.bottom, dialogBounds.bottom, 1);
+        assert.closeTo(drawerBounds.left, dialogBounds.left, 1);
     });
 
     test('registers container-query styles in Light DOM', async () => {
