@@ -39,6 +39,7 @@ import { DislikeIcon } from './components/icons/dislike';
 import { DislikeFilledIcon } from './components/icons/dislike-filled';
 import { SearchSortingOptionsBuilder } from './search/searchSortingBuilder';
 import { UniversalSearchContentTab } from './search/universal-search-content-tab';
+import { UniversalSearchFacets } from './search/universal-search-facets';
 import { UniversalSearchLoadMore } from './search/universal-search-load-more';
 import { UniversalSearchProductCategoriesTab } from './search/universal-search-product-categories-tab';
 import { UniversalSearchProductsTab } from './search/universal-search-products-tab';
@@ -323,6 +324,7 @@ export function useSearch(options?: RelewiseUISearchOptions) {
         tryRegisterElement('relewise-universal-search-products-tab', UniversalSearchProductsTab);
         tryRegisterElement('relewise-universal-search-product-categories-tab', UniversalSearchProductCategoriesTab);
         tryRegisterElement('relewise-universal-search-content-tab', UniversalSearchContentTab);
+        tryRegisterElement('relewise-universal-search-facets', UniversalSearchFacets);
         tryRegisterElement('relewise-universal-search-load-more', UniversalSearchLoadMore);
         tryRegisterElement('relewise-popular-products', PopularProducts);
         tryRegisterElement('relewise-personal-products', PersonalProducts);

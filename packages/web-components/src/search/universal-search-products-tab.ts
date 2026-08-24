@@ -52,7 +52,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
 
     private readonly searchOptionsChanged = (): void => {
         updateUrlState(QueryKeys.productTake, null);
-        void this.search(true);
+        void this.search(true, true);
     };
 
     private async loadMore(): Promise<void> {
@@ -85,7 +85,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         };
     }
 
-    private async search(reset: boolean): Promise<boolean> {
+    private async search(reset: boolean, preserveCurrentResults = false): Promise<boolean> {
         this.abortController.abort();
 
         if (!this.term) {
@@ -94,7 +94,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         }
 
         if (reset) {
-            this.resetForSearch();
+            this.resetForSearch(preserveCurrentResults);
         } else {
             this.error = null;
         }
@@ -144,14 +144,16 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         });
     }
 
-    private resetForSearch(): void {
+    private resetForSearch(preserveCurrentResults = false): void {
         const resultsToFetch = this.getResultsToFetch();
         this.page = resultsToFetch ? Math.ceil(resultsToFetch / this.pageSize) : 1;
-        this.result = null;
-        this.products = [];
-        this.facetLabels = [];
         this.error = null;
-        this.reportHits();
+        if (!preserveCurrentResults) {
+            this.result = null;
+            this.products = [];
+            this.facetLabels = [];
+            this.reportHits();
+        }
     }
 
     private applyBatchResponse(response: SearchResponseCollection, facetLabels: string[]): void {
@@ -202,43 +204,45 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.products;
         const noResultsHint = localization?.noResultsHint ?? 'Try another search term or check the spelling.';
         const facetResult = this.result !== null && this.result.hits > 0 && !this.hideFacets ? this.result.facets : null;
-
+        const facets = facetResult ? html`
+            <relewise-universal-search-facets
+                class="rw-facets"
+                part="facets"
+                exportparts="facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits"
+                .labels=${this.facetLabels}
+                .facetQueryKeyPrefix=${QueryKeys.productFacet}
+                .facetResult=${facetResult}
+                @universal-search-facets-changed=${this.searchOptionsChanged}>
+            </relewise-universal-search-facets>
+        ` : nothing;
+        const sorting = this.products.length > 0 ? html`
+            <div class="rw-sorting" part="sorting">
+                <relewise-product-search-sorting
+                    .target=${this.target}
+                    .sortingQueryKey=${QueryKeys.productSorting}
+                    .applySorting=${this.searchOptionsChanged}
+                    exportparts="container: sorting-container, select: sorting-select, label: sorting-label">
+                </relewise-product-search-sorting>
+                <span class="rw-sorting-chevron" aria-hidden="true"></span>
+            </div>
+        ` : nothing;
         return html`
-            <div class="rw-results-layout" part="results-layout">
-                ${facetResult ? html`
-                    <relewise-facets
-                        class="rw-facets"
-                        part="facets"
-                        exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
-                        .labels=${this.facetLabels}
-                        .facetQueryKeyPrefix=${QueryKeys.productFacet}
-                        .applyFacet=${this.searchOptionsChanged}
-                        .facetResult=${facetResult}>
-                    </relewise-facets>
+            <div class="rw-results-layout rw-product-results-layout" part="results-layout">
+                ${facets}
+                ${sorting}
+                ${this.result?.hits !== 0 ? html`
+                    <header class="rw-results-header" part="results-header">
+                        <div>
+                            <h2 class="rw-results-title" part="results-title">${localization?.resultsTitle ?? 'Products'}</h2>
+                            ${this.result ? html`
+                                <span class="rw-results-count" part="results-count">
+                                    ${this.result.hits} ${this.result.hits === 1 ? localization?.result ?? 'Result' : localization?.results ?? 'Results'}
+                                </span>
+                            ` : nothing}
+                        </div>
+                    </header>
                 ` : nothing}
                 <section class="rw-results" part="results">
-                    ${this.result?.hits !== 0 ? html`
-                        <header class="rw-results-header" part="results-header">
-                            <div>
-                                <h2 class="rw-results-title" part="results-title">${localization?.resultsTitle ?? 'Products'}</h2>
-                                ${this.result ? html`
-                                    <span class="rw-results-count" part="results-count">
-                                        ${this.result.hits} ${this.result.hits === 1 ? localization?.result ?? 'Result' : localization?.results ?? 'Results'}
-                                    </span>
-                                ` : nothing}
-                            </div>
-                            ${this.products.length > 0 ? html`
-                                <relewise-product-search-sorting
-                                    class="rw-sorting"
-                                    part="sorting"
-                                    .target=${this.target}
-                                    .sortingQueryKey=${QueryKeys.productSorting}
-                                    .applySorting=${this.searchOptionsChanged}
-                                    exportparts="select: sorting-select, label: sorting-label">
-                                </relewise-product-search-sorting>
-                            ` : nothing}
-                        </header>
-                    ` : nothing}
                     ${this.error ? html`
                         <p class="rw-empty" part="error-state">${this.error}</p>
                     ` : this.loading && this.products.length === 0 ? html`
@@ -260,7 +264,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
                             </div>
                         </div>
                     ` : html`
-                        <div class="rw-result-grid" part="product-grid">
+                        <div class="rw-result-grid rw-product-grid" part="product-grid">
                             ${this.products.map(product => html`
                                 <relewise-product-tile
                                     class="rw-product-tile"

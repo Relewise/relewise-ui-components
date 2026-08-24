@@ -875,6 +875,10 @@ useSearch({
 
 The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
 
+Universal Search bases its internal responsive layout on the available dialog width. Dialogs below `64rem` (typically `1024px`) use the compact result columns and a facet drawer; dialogs at least `64rem` wide use the desktop columns and facet rail. At up to `48rem` (typically `768px`), the search input and close button remain on one line, filter and sorting controls share a row, and search suggestions join the normal document flow. This also makes a consumer-configured narrow dialog behave compactly on a wide viewport.
+
+The default appearance is intentionally neutral. Use the documented CSS custom properties for sizing and columns, and CSS parts for detailed presentation, without changing the component's search behavior.
+
 When multiple entities are configured, they are searched together in one batched request when the search term changes. A single configured entity uses its direct search endpoint. Omitted entities are not rendered and are not requested. Facet, sorting, and load-more changes only search the active tab.
 
 Search suggestions are opt-in. Configure `popularSearchTerms` to show popular terms while the focused input is empty, and configure `searchTermPredictions` to show predictions while it contains text. Both sections default to five terms when `take` is omitted. Their `targetEntityTypes` can be configured independently; when omitted, each defaults to the enabled Universal Search entities. This allows an entity to remain searchable without using it as a prediction source. Predictions that exactly match the current input are omitted.
@@ -936,7 +940,7 @@ export interface UniversalSearchRecommendationBlock {
 }
 ```
 
-The number requested is configured with each block's `take`. Recommendation grids composed inside Universal Search default to the same five desktop columns and two mobile columns as its result grids. Standalone recommendation grids continue to default to four desktop columns and two mobile columns.
+The number requested is configured with each block's `take`. Recommendation grids composed inside Universal Search use the same entity-specific desktop and compact column variables as its result grids. Standalone recommendation grids continue to default to four desktop columns and two mobile columns.
 
 ```ts
 recommendations: {
@@ -976,6 +980,19 @@ No-result recommendations are lazy. Universal Search mounts only the active zero
 Universal Search forwards the recommendation composition CSS parts, including `recommendation-loading`, `recommendation-blocks`, `recommendation-block`, `recommendation-title`, the entity grid parts, the actual recommendation tile parts, term parts, and type-specific block parts such as `popular-products` and `search-term-based-products`.
 
 Both the tabbed and tabless no-result states expose the CSS parts `zero-results`, `zero-results-icon`, `zero-results-title`, and `zero-results-hint` through `relewise-universal-search`.
+
+##### Responsive layout parts
+
+| Area | Parts |
+| --- | --- |
+| Shell | `backdrop`, `dialog`, `header`, `search-bar`, `close-button`, `body` |
+| Navigation | `results-summary`, `tabs`, `tab`, `tab-count` |
+| Facets | `facets`, `facet-trigger`, `facet-panel`, `facet-drawer`, `facet-drawer-backdrop`, `facet-drawer-header`, `facet-drawer-close`, `facet-container`, `facet-title`, `facet-input`, `facet-label`, `facet-value`, `facet-hits` |
+| Results | `results-layout`, `results`, `results-header`, `results-title`, `results-count`, `product-grid`, `category-grid`, `content-grid`, `product-tile`, `category-tile`, `content-tile` |
+| Sorting | `sorting`, `sorting-container`, `sorting-select`, `sorting-label` |
+| States and pagination | `empty-state`, `error-state`, `loading-state`, `zero-results`, `zero-results-icon`, `zero-results-title`, `zero-results-hint`, `load-more` |
+
+Recommendation parts are listed above. Parts originating inside the combobox, facet, sorting, tile, load-more, and recommendation components are forwarded through `relewise-universal-search`.
 
 The current tabs use load-more behavior. Additional pagination modes are not part of the initial universal-search implementation.
 
@@ -1141,6 +1158,8 @@ By default the component will not render any facets.
 To start doing so, include your facet configuration in the `useSearch` function.
 
 The label will be displayed at the top of the facet card.
+
+`relewise-facets` manages its own responsive filter toggle by default. Add the `expanded` attribute when an outer layout owns that presentation and the facet content should always render without the internal toggle. Universal Search uses this mode inside its facet rail and drawer; the default Product Search behavior is unchanged.
 
 ```ts
 useSearch({
@@ -1542,17 +1561,29 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-color` | `var(--relewise-color, #212427)` | Text color inherited by the Universal Search dialog. |
 | `--relewise-universal-search-width` | `100%` | Width of the Universal Search dialog. |
 | `--relewise-universal-search-height` | `100%` | Height of the Universal Search dialog. |
+| `--relewise-universal-search-dialog-margin` | `0` | Space between the dialog and viewport. Accepts CSS margin shorthand values. |
+| `--relewise-universal-search-mobile-width` | Desktop width | Dialog width at viewport widths up to `48rem` (typically `768px`). |
+| `--relewise-universal-search-mobile-height` | Desktop height | Dialog height at viewport widths up to `48rem` (typically `768px`). |
 | `--relewise-universal-search-border-color` | `var(--relewise-checklist-facet-border-color, #eee)` | Border color used within Universal Search. |
-| `--relewise-universal-search-header-gap` | `1em` | Gap between the combobox and close button. |
-| `--relewise-universal-search-header-padding` | `1em` | Padding inside the Universal Search header. |
-| `--relewise-universal-search-close-button-padding` | `0 0.75em` | Padding inside the close button. |
+| `--relewise-universal-search-header-gap` | `1em` | Shared desktop spacing between the dialog edge, search input, and close button. |
+| `--relewise-universal-search-header-padding` | `1em` | Block padding inside the Universal Search header. |
+| `--relewise-universal-search-mobile-header-spacing` | `var(--relewise-universal-search-header-gap, 0.75em)` | Shared compact spacing between the dialog edge, search input, and close button. |
+| `--relewise-universal-search-close-button-padding` | `0 0.75em` | Base close-button host padding; inline placement is normalized by the header spacing variables. |
 | `--relewise-universal-search-body-padding` | `1em` | Padding around the Universal Search body. |
+| `--relewise-universal-search-search-width` | `100%` | Maximum width of the search combobox. |
+| `--relewise-universal-search-mobile-search-width` | Desktop search width | Maximum search width in dialog containers up to `48rem` (typically `768px`). |
+| `--relewise-universal-search-layout-width` | `100%` | Maximum width of the dialog's body content. |
+| `--relewise-universal-search-mobile-layout-width` | Desktop layout width | Maximum body-content width in dialog containers below `64rem` (typically `1024px`). |
 | `--relewise-universal-search-tabs-gap` | `1.5em` | Gap between result tabs. |
+| `--relewise-universal-search-mobile-tabs-gap` | `0.75em` | Gap between wrapped result tabs in dialog containers below `64rem` (typically `1024px`). |
+| `--relewise-universal-search-tabs-width` | `100%` | Maximum width of the tab list. |
+| `--relewise-universal-search-mobile-tabs-width` | Desktop tab width | Maximum tab-list width in dialog containers below `64rem` (typically `1024px`). |
 | `--relewise-universal-search-tabs-padding-top` | `0.5em` | Space above the result tabs. |
 | `--relewise-universal-search-tabs-margin-bottom` | `1em` | Space below the result tabs. |
 | `--relewise-universal-search-tab-padding` | `0.5em 0` | Padding inside each result tab. |
 | `--relewise-universal-search-tab-active-border-color` | `currentColor` | Underline color of the active result tab. |
-| `--relewise-universal-search-results-summary-margin-bottom` | `1em` | Space below the search-term summary. |
+| `--relewise-universal-search-results-summary-spacing` | `var(--relewise-universal-search-results-summary-margin-bottom, 1em)` | Equal compact-layout space above and below the search-term summary. |
+| `--relewise-universal-search-results-summary-margin-bottom` | `1em` | Desktop space below the search-term summary and compatibility fallback for compact spacing. |
 | `--relewise-universal-search-zero-results-gap` | `1em` | Gap between the no-result icon and its text. |
 | `--relewise-universal-search-zero-results-margin-bottom` | `var(--relewise-universal-search-tabs-margin-bottom, 1em)` | Space below the no-result state; by default this matches the space between the tabs and the state. |
 | `--relewise-universal-search-zero-results-padding` | `1.5em` | Padding inside the no-result state. |
@@ -1568,12 +1599,23 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-zero-results-hint-font-size` | `0.95em` | Font size of the secondary no-result guidance. |
 | `--relewise-universal-search-layout-gap` | `1em` | Gap between the facet column and results. |
 | `--relewise-universal-search-facets-width` | `18em` | Preferred width of the desktop facet column. |
+| `--relewise-universal-search-facet-drawer-width` | `24em` | Compatibility fallback for the centered compact facet content width. |
+| `--relewise-universal-search-mobile-facet-content-width` | `var(--relewise-universal-search-mobile-facet-drawer-width, var(--relewise-universal-search-facet-drawer-width, 24em))` | Maximum width of the centered facet content inside the full-width compact drawer. |
+| `--relewise-universal-search-mobile-facet-drawer-width` | Facet drawer width | Compatibility fallback for the compact facet content width. |
+| `--relewise-universal-search-results-width` | `100%` | Maximum width of an entity result layout. |
+| `--relewise-universal-search-mobile-results-width` | Desktop results width | Maximum result-layout width in dialog containers below `64rem` (typically `1024px`). |
 | `--relewise-universal-search-results-header-margin-bottom` | `1em` | Space below an entity result header. |
 | `--relewise-universal-search-results-title-font-size` | `1.1em` | Font size of entity result titles. |
-| `--relewise-universal-search-result-columns` | `5` | Number of entity result columns above the mobile breakpoint. |
-| `--relewise-universal-search-product-columns` | `5` | Compatibility fallback for result columns when `--relewise-universal-search-result-columns` is unset. |
-| `--relewise-universal-search-mobile-result-columns` | `2` | Number of entity result columns at widths up to `768px`. |
-| `--relewise-universal-search-mobile-product-columns` | `2` | Compatibility fallback for mobile result columns when `--relewise-universal-search-mobile-result-columns` is unset. |
+| `--relewise-universal-search-sorting-arrow-inset` | `0.8em` | Distance between the sorting arrow and the right edge of the control. |
+| `--relewise-universal-search-sorting-arrow-space` | `2.25em` | Space reserved for the sorting arrow inside the control. |
+| `--relewise-universal-search-result-columns` | `5` | Generic entity column fallback for dialog containers at least `64rem` (typically `1024px`) wide. |
+| `--relewise-universal-search-product-columns` | Generic result columns | Product result and recommendation columns in wide dialog containers. |
+| `--relewise-universal-search-category-columns` | Generic result columns | Category result and recommendation columns in wide dialog containers. |
+| `--relewise-universal-search-content-columns` | Generic result columns | Content result and recommendation columns in wide dialog containers. |
+| `--relewise-universal-search-mobile-result-columns` | `2` | Generic entity column fallback for dialog containers below `64rem` (typically `1024px`). |
+| `--relewise-universal-search-mobile-product-columns` | Generic compact columns | Product result and recommendation columns in compact dialog containers. |
+| `--relewise-universal-search-mobile-category-columns` | Generic compact columns | Category result and recommendation columns in compact dialog containers. |
+| `--relewise-universal-search-mobile-content-columns` | Generic compact columns | Content result and recommendation columns in compact dialog containers. |
 | `--relewise-universal-search-result-grid-gap` | `1em` | Gap between entity result tiles. |
 | `--relewise-universal-search-product-grid-gap` | `1em` | Compatibility fallback for the result grid gap when `--relewise-universal-search-result-grid-gap` is unset. |
 | `--relewise-universal-search-loading-padding` | `2em 0` | Vertical padding around Universal Search loading indicators. |

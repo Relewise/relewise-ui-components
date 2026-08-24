@@ -32,11 +32,16 @@
         <li>The termless state requests ten product, content, and search-term recommendations, five category recommendations, and renders tile blocks in five columns.</li>
         <li>Zero-result tabs render popular recovery recommendations and hide the unused facet column.</li>
         <li>Each zero-result tab mounts its recovery recommendation components only while that tab is active.</li>
+        <li>Dialog-width controls exercise the container-responsive header, facet drawer/rail, and entity grids.</li>
     </ul>
 
-    <button onclick="document.querySelector('relewise-universal-search').open()">
-        Open universal search
-    </button>
+    <fieldset>
+        <legend>Open at a configured dialog width</legend>
+        <button type="button" data-dialog-width="100%">Full width</button>
+        <button type="button" data-dialog-width="64rem">64rem boundary</button>
+        <button type="button" data-dialog-width="48rem">48rem boundary</button>
+        <button type="button" data-dialog-width="20rem">20rem narrow</button>
+    </fieldset>
 
     <relewise-universal-search displayed-at-location="web component dev"></relewise-universal-search>
 </body>

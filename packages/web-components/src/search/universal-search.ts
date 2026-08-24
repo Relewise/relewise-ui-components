@@ -18,6 +18,7 @@ import type { SearchCombobox } from './components/search-combobox';
 import type { SearchComboboxRedirectEventDetail, SearchComboboxTermEventDetail, SearchSuggestionsBatchSearch } from './components/search-combobox.types';
 import { canParseRedirectDestination } from '../helpers/searchRedirect';
 import { getSearcher } from './searcher';
+import type { UniversalSearchFacetsDrawerStateChangedEventDetail } from './universal-search-facets';
 import { trapFocusInDialog } from './universal-search-focus';
 import { universalSearchStyles } from './universal-search.styles';
 import { updateUrlStateForUniversalSearchTerm } from './universal-search-url-state';
@@ -85,6 +86,7 @@ export class UniversalSearch extends RelewiseLitElement {
     };
 
     @state() private batchSearching = false;
+    @state() private facetsDrawerOpen = false;
 
     private debounceTimeoutHandlerId: ReturnType<typeof setTimeout> | null = null;
     private batchAbortController = new AbortController();
@@ -146,6 +148,7 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         this.batchAbortController.abort();
+        this.facetsDrawerOpen = false;
         this.resetRecommendationState();
         this.previouslyFocusedElement?.focus();
         this.previouslyFocusedElement = null;
@@ -157,6 +160,7 @@ export class UniversalSearch extends RelewiseLitElement {
         }
 
         this.term = term;
+        this.facetsDrawerOpen = false;
         this.redirects = [];
         this.batchAbortController.abort();
         this.resetRecommendationState();
@@ -371,7 +375,12 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     private handleSelectTab(tab: UniversalSearchTab): void {
+        this.facetsDrawerOpen = false;
         this.activeTab = tab;
+    }
+
+    private handleFacetsDrawerStateChanged(event: CustomEvent<UniversalSearchFacetsDrawerStateChangedEventDetail>): void {
+        this.facetsDrawerOpen = event.detail.open;
     }
 
     private handleTabKeyDown(event: KeyboardEvent, tab: UniversalSearchTab): void {
@@ -524,8 +533,9 @@ export class UniversalSearch extends RelewiseLitElement {
                         </relewise-button>
                     </header>
                     <div
-                        class="rw-body"
+                        class=${this.facetsDrawerOpen ? 'rw-body rw-facets-open' : 'rw-body'}
                         part="body"
+                        @universal-search-facets-drawer-state-changed=${this.handleFacetsDrawerStateChanged}
                         @universal-search-tab-state-changed=${this.handleTabStateChanged}>
                         ${!this.term ? html`
                             <relewise-universal-search-recommendations
@@ -607,7 +617,7 @@ export class UniversalSearch extends RelewiseLitElement {
                                         ?hidden=${this.activeTab !== tab}>
                                         ${tab === 'products' ? html`
                                             <relewise-universal-search-products-tab
-                                                exportparts="results-layout, facets, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, sorting, sorting-select, sorting-label, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, product-grid, product-tile, load-more"
+                                                exportparts="results-layout, facets, facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, sorting, sorting-container, sorting-select, sorting-label, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, product-grid, product-tile, load-more"
                                                 .term=${this.searchTerm}
                                                 .target=${this.target}
                                                 .hideFacets=${showActiveTabRecommendations && this.activeTab === tab && this.tabRecommendationStates[tab].hasResults}
@@ -615,14 +625,14 @@ export class UniversalSearch extends RelewiseLitElement {
                                             </relewise-universal-search-products-tab>
                                         ` : tab === 'productCategories' ? html`
                                             <relewise-universal-search-product-categories-tab
-                                                exportparts="results-layout, facets, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, category-grid, category-tile, load-more"
+                                                exportparts="results-layout, facets, facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, category-grid, category-tile, load-more"
                                                 .term=${this.searchTerm}
                                                 .hideFacets=${showActiveTabRecommendations && this.activeTab === tab && this.tabRecommendationStates[tab].hasResults}
                                                 .displayedAtLocation=${this.displayedAtLocation}>
                                             </relewise-universal-search-product-categories-tab>
                                         ` : html`
                                             <relewise-universal-search-content-tab
-                                                exportparts="results-layout, facets, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, content-grid, content-tile, load-more"
+                                                exportparts="results-layout, facets, facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, content-grid, content-tile, load-more"
                                                 .term=${this.searchTerm}
                                                 .hideFacets=${showActiveTabRecommendations && this.activeTab === tab && this.tabRecommendationStates[tab].hasResults}
                                                 .displayedAtLocation=${this.displayedAtLocation}>

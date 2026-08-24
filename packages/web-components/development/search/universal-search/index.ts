@@ -199,3 +199,11 @@ initializeRelewiseUI(
             },
         },
     });
+
+const universalSearch = document.querySelector<HTMLElement & { open(): void }>('relewise-universal-search');
+document.querySelectorAll<HTMLButtonElement>('[data-dialog-width]').forEach(button => {
+    button.addEventListener('click', () => {
+        universalSearch?.style.setProperty('--relewise-universal-search-width', button.dataset.dialogWidth ?? '100%');
+        universalSearch?.open();
+    });
+});

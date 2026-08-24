@@ -51,7 +51,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
 
     private readonly searchOptionsChanged = (): void => {
         updateUrlState(QueryKeys.contentTake, null);
-        void this.search(true);
+        void this.search(true, true);
     };
 
     private async loadMore(): Promise<void> {
@@ -84,7 +84,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
         };
     }
 
-    private async search(reset: boolean): Promise<boolean> {
+    private async search(reset: boolean, preserveCurrentResults = false): Promise<boolean> {
         this.abortController.abort();
 
         if (!this.term) {
@@ -93,7 +93,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
         }
 
         if (reset) {
-            this.resetForSearch();
+            this.resetForSearch(preserveCurrentResults);
         } else {
             this.error = null;
         }
@@ -138,14 +138,16 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
         });
     }
 
-    private resetForSearch(): void {
+    private resetForSearch(preserveCurrentResults = false): void {
         const resultsToFetch = this.getResultsToFetch();
         this.page = resultsToFetch ? Math.ceil(resultsToFetch / this.pageSize) : 1;
-        this.result = null;
-        this.content = [];
-        this.facetLabels = [];
         this.error = null;
-        this.reportHits();
+        if (!preserveCurrentResults) {
+            this.result = null;
+            this.content = [];
+            this.facetLabels = [];
+            this.reportHits();
+        }
     }
 
     private applyBatchResponse(response: SearchResponseCollection, facetLabels: string[]): void {
@@ -200,15 +202,15 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
         return html`
             <div class="rw-results-layout" part="results-layout">
                 ${facetResult ? html`
-                    <relewise-facets
+                    <relewise-universal-search-facets
                         class="rw-facets"
                         part="facets"
-                        exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
+                        exportparts="facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits"
                         .labels=${this.facetLabels}
                         .facetQueryKeyPrefix=${QueryKeys.contentFacet}
-                        .applyFacet=${this.searchOptionsChanged}
-                        .facetResult=${facetResult}>
-                    </relewise-facets>
+                        .facetResult=${facetResult}
+                        @universal-search-facets-changed=${this.searchOptionsChanged}>
+                    </relewise-universal-search-facets>
                 ` : nothing}
                 <section class="rw-results" part="results">
                     ${this.result?.hits !== 0 ? html`
@@ -244,7 +246,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
                             </div>
                         </div>
                     ` : html`
-                        <div class="rw-result-grid" part="content-grid">
+                        <div class="rw-result-grid rw-content-grid" part="content-grid">
                             ${this.content.map(content => html`
                                 <relewise-content-tile
                                     class="rw-content-tile"

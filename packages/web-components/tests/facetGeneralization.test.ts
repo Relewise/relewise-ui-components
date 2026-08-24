@@ -104,6 +104,32 @@ suite('facet generalization', () => {
         assert.deepEqual(searchParams.getAll(QueryKeys.facet + 'DataColor'), []);
     });
 
+    test('keeps only the selected checkbox checked when selected values move first', async () => {
+        const el = await fixture(html`
+            <relewise-facets
+                .facetResult=${productColorFacetResult()}
+                .labels=${['Color']}>
+            </relewise-facets>
+        `) as Facets;
+
+        el.showFacets = true;
+        await el.updateComplete;
+
+        const facet = el.shadowRoot!.querySelector('relewise-checklist-string-value-facet')!;
+        await waitUntil(() => facet.shadowRoot?.querySelectorAll('input').length === 3, 'facet inputs were not rendered');
+        const blueInput = facet.shadowRoot!.querySelectorAll('input')[1];
+        blueInput.click();
+
+        el.facetResult = productColorFacetResult('Blue');
+        await el.updateComplete;
+        await facet.updateComplete;
+
+        const inputs = [...facet.shadowRoot!.querySelectorAll('input')];
+        assert.equal(inputs[0], blueInput);
+        assert.equal(inputs.filter(input => input.checked).length, 1);
+        assert.include(inputs[0].closest('label')?.textContent ?? '', 'Blue');
+    });
+
     test('derives range URL keys from the facet prefix', async () => {
         const el = await fixture(html`
             <relewise-facets
@@ -169,6 +195,27 @@ suite('facet generalization', () => {
         assert.include(renderedFacets[0].shadowRoot!.textContent!, 'Guide');
         assert.notInclude(renderedFacets[0].shadowRoot!.textContent!, 'Empty');
     });
+
+    test('keeps the existing toggle by default and supports an always-expanded presentation', async () => {
+        const defaultFacets = await fixture<Facets>(html`
+            <relewise-facets
+                .facetResult=${productStringFacetResult()}
+                .labels=${['Color']}>
+            </relewise-facets>
+        `);
+        assert.isNotNull(defaultFacets.renderRoot.querySelector('.rw-facet-button'));
+
+        const expandedFacets = await fixture<Facets>(html`
+            <relewise-facets
+                expanded
+                .facetResult=${productStringFacetResult()}
+                .labels=${['Color']}>
+            </relewise-facets>
+        `);
+
+        assert.isNull(expandedFacets.renderRoot.querySelector('.rw-facet-button'));
+        assert.isNotNull(expandedFacets.renderRoot.querySelector('.rw-facets-container'));
+    });
 });
 
 function productStringFacetResult(): ProductFacetResult {
@@ -182,6 +229,21 @@ function productStringFacetResult(): ProductFacetResult {
                 hits: 12,
                 selected: false,
             }],
+        }],
+    } as ProductFacetResult;
+}
+
+function productColorFacetResult(selectedValue?: string): ProductFacetResult {
+    return {
+        items: [{
+            $type: 'Relewise.Client.DataTypes.Search.Facets.Result.ProductDataStringValueFacetResult, Relewise.Client',
+            field: 'Data',
+            key: 'Color',
+            available: ['Red', 'Blue', 'Green'].map(value => ({
+                value,
+                hits: 12,
+                selected: value === selectedValue,
+            })),
         }],
     } as ProductFacetResult;
 }

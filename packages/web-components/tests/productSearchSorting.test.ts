@@ -24,7 +24,12 @@ suite('product-search-sorting', () => {
         `);
 
         const options = Array.from(element.shadowRoot!.querySelectorAll('option')).map(option => option.value);
+        const label = element.shadowRoot!.querySelector('label')!;
+        const select = element.shadowRoot!.querySelector('select')!;
 
+        assert.equal(label.getAttribute('part'), 'container');
+        assert.notEqual(getComputedStyle(select).appearance, 'none');
+        assert.equal(getComputedStyle(label, '::after').content, 'none');
         assert.deepEqual(options, [
             'Relevance',
             'SalesPriceAsc',

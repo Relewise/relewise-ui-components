@@ -1,6 +1,7 @@
 import { RelewiseLitElement } from '../../../relewise-lit-element';
 import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import { repeat } from 'lit/directives/repeat.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlStateValues, updateUrlStateValues } from '../../../helpers';
 import { theme } from '../../../theme';
 import { CheckListFacet, CheckListFacetValue } from '../../types';
@@ -85,7 +86,7 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
 
         const facetResultsToShow = this.showAll
             ? this.result.available
-            : this.result.available.sort((a, b) => {
+            : [...this.result.available].sort((a, b) => {
                 if (a.selected && !b.selected) {
                     return -1; // a comes before b
                 } else if (!a.selected && b.selected) {
@@ -103,8 +104,7 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
         return html`
         <div class="rw-facet-content">
             <h3 part="title">${this.label}</h3>
-            ${facetResultsToShow.map((item, index) => {
-            return html`
+            ${repeat(facetResultsToShow, item => JSON.stringify(item.value), (item, index) => html`
                     ${item.value !== undefined ? html`
                         <div>
                             <label class="rw-label" part="label" for=${`${this.result?.field}-${this.result?.$type}-${index}`}>
@@ -120,8 +120,7 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
                             </label>
                         </div>
                     ` : nothing}
-                        `;
-        })}
+            `)}
             ${this.result.available.length > 10 ? html`
                 ${this.showAll ? html`
                     <relewise-button
@@ -155,9 +154,18 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
             gap: 0.3em;
             line-height: 1.1;
             align-items: center;
-            word-break: break-all;
+            min-width: 0;
+            overflow-wrap: anywhere;
             margin-top: .25em;
             margin-bottom: .25em;
+        }
+
+        .rw-label [part="value"] {
+            min-width: 0;
+        }
+
+        .rw-hits {
+            flex: none;
         }
 
         .rw-label input {

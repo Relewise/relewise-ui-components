@@ -294,6 +294,41 @@ suite('universal search recommendations', () => {
         assert.equal(styles.getPropertyValue('--relewise-recommendation-grid-mobile-columns').trim(), '2');
     });
 
+    test('uses entity-specific compact columns for recommendation grids', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            universalSearch: {
+                recommendations: {
+                    initial: [
+                        { type: 'PopularProducts' },
+                        { type: 'PopularProductCategories' },
+                        { type: 'PopularContents' },
+                    ],
+                },
+            },
+        });
+        const element = await fixture<UniversalSearch>(html`
+            <relewise-universal-search
+                open
+                style="
+                    --relewise-universal-search-width: 30rem;
+                    --relewise-universal-search-mobile-product-columns: 1;
+                    --relewise-universal-search-mobile-category-columns: 2;
+                    --relewise-universal-search-mobile-content-columns: 3;
+                ">
+            </relewise-universal-search>
+        `);
+        await waitUntil(() => queryDeep(element, 'relewise-content-tile') !== null);
+
+        const productGrid = queryDeep<HTMLElement>(element, 'relewise-popular-products')!;
+        const categoryGrid = queryDeep<HTMLElement>(element, 'relewise-popular-product-categories')!;
+        const contentGrid = queryDeep<HTMLElement>(element, 'relewise-popular-content')!;
+
+        assert.equal(getComputedStyle(productGrid).getPropertyValue('--relewise-recommendation-grid-columns').trim(), '1');
+        assert.equal(getComputedStyle(categoryGrid).getPropertyValue('--relewise-recommendation-grid-columns').trim(), '2');
+        assert.equal(getComputedStyle(contentGrid).getPropertyValue('--relewise-recommendation-grid-columns').trim(), '3');
+    });
+
     test('shows the initial empty prompt after configured recommendations finish empty', async() => {
         let resolveRecommendations!: (value: unknown) => void;
         Recommender.prototype.recommendPopularProducts = () => new Promise(resolve => {

@@ -1,6 +1,7 @@
 import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
 import { ContentResult, ProductCategoryResult, ProductResult, Searcher } from '@relewise/client';
 import { Button, clearUrlState, UniversalSearch, UniversalSearchTab, initializeRelewiseUI, QueryKeys, readCurrentUrlState, universalSearchTabs, updateUrlState, updateUrlStateValues, useSearch } from '../src';
+import { updateUrlStateForUniversalSearchTerm } from '../src/search/universal-search-url-state';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 function product(productId: string): ProductResult {
@@ -171,7 +172,8 @@ suite('relewise-universal-search', () => {
     });
 
     teardown(() => {
-        clearUrlState();
+        // URL state is reset in setup. Repeating the History API cleanup here
+        // can exceed WebKit's replacement limit in this large test suite.
         fixtureCleanup();
         window.relewiseUISearchOptions = undefined!;
         window.relewiseUIOptions = undefined!;
@@ -187,6 +189,26 @@ suite('relewise-universal-search', () => {
             'productCategories',
             'content',
         ]);
+    });
+
+    test('skips history replacements when URL state is unchanged', () => {
+        const originalReplaceState = window.history.replaceState;
+        let replaceStateCalls = 0;
+        window.history.replaceState = (data: unknown, unused: string, url?: string | URL | null) => {
+            replaceStateCalls++;
+            originalReplaceState.call(window.history, data, unused, url);
+        };
+
+        try {
+            const missingQueryKey = 'rw-missing-test-key';
+            updateUrlState(missingQueryKey, null);
+            updateUrlStateValues(missingQueryKey, []);
+            updateUrlStateForUniversalSearchTerm(readCurrentUrlState(QueryKeys.term) ?? '');
+
+            assert.equal(replaceStateCalls, 0);
+        } finally {
+            window.history.replaceState = originalReplaceState;
+        }
     });
 
     test('is registered through useSearch', () => {
@@ -260,6 +282,29 @@ suite('relewise-universal-search', () => {
         assert.isFalse(el.isOpen);
         assert.isFalse(el.hasAttribute('open'));
         assert.isNull(queryDeep(el, '[role="dialog"]'));
+    });
+
+    test('locks body scrolling while a facets drawer is open', async () => {
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+        const body = el.renderRoot.querySelector<HTMLElement>('.rw-body')!;
+
+        body.dispatchEvent(new CustomEvent('universal-search-facets-drawer-state-changed', {
+            bubbles: true,
+            composed: true,
+            detail: { open: true },
+        }));
+        await el.updateComplete;
+        assert.isTrue(body.classList.contains('rw-facets-open'));
+
+        body.dispatchEvent(new CustomEvent('universal-search-facets-drawer-state-changed', {
+            bubbles: true,
+            composed: true,
+            detail: { open: false },
+        }));
+        await el.updateComplete;
+        assert.isFalse(body.classList.contains('rw-facets-open'));
     });
 
     test('contains focus while open and restores focus when closed', async () => {
@@ -826,6 +871,7 @@ suite('relewise-universal-search', () => {
         );
 
         assert.isNull(queryDeep(el, 'relewise-facets'));
+        assert.isNull(queryDeep(el, 'relewise-product-search-sorting'));
         assert.isNull(productsTab(el).renderRoot.querySelector('[part="results-header"]'));
         assert.isNotNull(productsTab(el).renderRoot.querySelector('[part="zero-results"]'));
 
@@ -840,6 +886,135 @@ suite('relewise-universal-search', () => {
         assert.isNull(queryDeep(el, 'relewise-facets'));
         assert.isNull(contentTab(el).renderRoot.querySelector('[part="results-header"]'));
         assert.isNotNull(contentTab(el).renderRoot.querySelector('[part="zero-results"]'));
+    });
+
+    test('keeps the wide product header close to the results when facets are taller', async () => {
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([product('1')], 1, { items: [] });
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: { entities: { products: {} } },
+        });
+        const el = await fixture<UniversalSearch>(html`
+            <relewise-universal-search
+                open
+                style="--relewise-universal-search-width: 70rem;">
+            </relewise-universal-search>
+        `);
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el).length === 1);
+        await universalSearchUpdated(el);
+
+        const productLayout = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="results-layout"]')!;
+        const facets = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="facets"]')!;
+        const resultsHeader = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="results-header"]')!;
+        const results = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="results"]')!;
+        facets.style.height = '30rem';
+
+        const rowGap = parseFloat(getComputedStyle(productLayout).rowGap);
+        const maximumHeaderHeight = parseFloat(getComputedStyle(productLayout).fontSize) * 3;
+
+        assert.isAtMost(resultsHeader.getBoundingClientRect().height, maximumHeaderHeight);
+        assert.closeTo(results.getBoundingClientRect().top - resultsHeader.getBoundingClientRect().bottom, rowGap, 1);
+    });
+
+    test('uses entity-specific compact columns without overflowing the result layout', async () => {
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([product('1'), product('2'), product('3')], 3, { items: [] });
+        };
+        Searcher.prototype.searchProductCategories = async function() {
+            return productCategorySearchResponse(
+                [productCategory('1'), productCategory('2'), productCategory('3')],
+                3,
+                { items: [] },
+            );
+        };
+        Searcher.prototype.searchContents = async function() {
+            return contentSearchResponse([content('1'), content('2'), content('3')], 3, { items: [] });
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {}, productCategories: {}, content: {} },
+            },
+        });
+        const el = await fixture<UniversalSearch>(html`
+            <relewise-universal-search
+                open
+                style="
+                    --relewise-universal-search-width: 30rem;
+                    --relewise-universal-search-mobile-product-columns: 1;
+                    --relewise-universal-search-mobile-category-columns: 2;
+                    --relewise-universal-search-mobile-content-columns: 3;
+                ">
+            </relewise-universal-search>
+        `);
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el).length === 3 && productCategories(el).length === 3 && contentResults(el).length === 3);
+        await universalSearchUpdated(el);
+
+        const productGrid = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="product-grid"]')!;
+        const productLayout = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="results-layout"]')!;
+        const facets = productsTab(el).renderRoot.querySelector('relewise-universal-search-facets') as any;
+        const facetTrigger = facets.renderRoot.querySelector('[part="facet-trigger"]') as HTMLElement;
+        const sorting = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="sorting"]')!;
+        const sortingComponent = sorting.querySelector<any>('relewise-product-search-sorting')!;
+        const sortingLabel = sortingComponent.renderRoot.querySelector('[part="label"]') as HTMLElement;
+        const sortingSelect = sortingComponent.renderRoot.querySelector('[part="select"]') as HTMLSelectElement;
+        const sortingChevron = sorting.querySelector<HTMLElement>('.rw-sorting-chevron')!;
+        const resultsSummary = el.renderRoot.querySelector<HTMLElement>('[part="results-summary"]')!;
+        const resultsSummaryStyles = getComputedStyle(resultsSummary);
+        const controls = [...productLayout.children]
+            .filter(control => control.matches('[part="facets"], [part="sorting"]'))
+            .map(control => control.getAttribute('part'));
+        assert.deepEqual(controls, ['facets', 'sorting']);
+        assert.equal(getComputedStyle(productGrid).gridTemplateColumns.split(' ').length, 1);
+        assert.closeTo(facetTrigger.getBoundingClientRect().top, sorting.getBoundingClientRect().top, 1);
+        assert.closeTo(facetTrigger.getBoundingClientRect().height, sorting.getBoundingClientRect().height, 1);
+        assert.isBelow(facetTrigger.getBoundingClientRect().right, sorting.getBoundingClientRect().left);
+        assert.equal(getComputedStyle(sortingLabel).position, 'absolute');
+        assert.equal(getComputedStyle(sortingLabel).width, '1px');
+        assert.equal(getComputedStyle(sortingSelect).appearance, 'none');
+        assert.equal(getComputedStyle(sortingChevron).pointerEvents, 'none');
+        assert.equal(getComputedStyle(sortingSelect).textAlignLast, 'center');
+        assert.equal(getComputedStyle(sortingSelect.options[0]).textAlign, 'start');
+        assert.equal(resultsSummaryStyles.textAlign, 'center');
+        assert.equal(resultsSummaryStyles.marginTop, resultsSummaryStyles.marginBottom);
+        assert.isAtMost(productGrid.scrollWidth, productGrid.clientWidth);
+
+        sorting.dir = 'rtl';
+        await new Promise(requestAnimationFrame);
+        const rtlSelectStyles = getComputedStyle(sortingSelect);
+        const rtlChevronStyles = getComputedStyle(sortingChevron);
+        assert.isAbove(parseFloat(rtlSelectStyles.paddingLeft), parseFloat(rtlSelectStyles.paddingRight));
+        assert.isBelow(parseFloat(rtlChevronStyles.left), parseFloat(rtlChevronStyles.right));
+
+        internals(el).handleSelectTab('productCategories');
+        await universalSearchUpdated(el);
+        const categoryGrid = productCategoriesTab(el).renderRoot.querySelector<HTMLElement>('[part="category-grid"]')!;
+        const categoryLayout = productCategoriesTab(el).renderRoot.querySelector<HTMLElement>('[part="results-layout"]')!;
+        const categoryFacets = productCategoriesTab(el).renderRoot.querySelector('relewise-universal-search-facets') as any;
+        const categoryFacetTrigger = categoryFacets.renderRoot.querySelector('[part="facet-trigger"]') as HTMLElement;
+        assert.equal(getComputedStyle(categoryGrid).gridTemplateColumns.split(' ').length, 2);
+        assert.closeTo(categoryFacetTrigger.getBoundingClientRect().width, categoryLayout.getBoundingClientRect().width, 1);
+        assert.isAtMost(categoryGrid.scrollWidth, categoryGrid.clientWidth);
+
+        internals(el).handleSelectTab('content');
+        await universalSearchUpdated(el);
+        const contentGrid = contentTab(el).renderRoot.querySelector<HTMLElement>('[part="content-grid"]')!;
+        const contentLayout = contentTab(el).renderRoot.querySelector<HTMLElement>('[part="results-layout"]')!;
+        const contentFacets = contentTab(el).renderRoot.querySelector('relewise-universal-search-facets') as any;
+        const contentFacetTrigger = contentFacets.renderRoot.querySelector('[part="facet-trigger"]') as HTMLElement;
+        assert.equal(getComputedStyle(contentGrid).gridTemplateColumns.split(' ').length, 3);
+        assert.closeTo(contentFacetTrigger.getBoundingClientRect().width, contentLayout.getBoundingClientRect().width, 1);
+        assert.isAtMost(contentGrid.scrollWidth, contentGrid.clientWidth);
     });
 
     test('loads more products using scoped take URL state', async () => {
@@ -1386,6 +1561,7 @@ suite('relewise-universal-search', () => {
         let productSearchCount = 0;
         let contentSearchCount = 0;
         let batchSearchCount = 0;
+        let resolveContentRefresh: ((response: ReturnType<typeof contentSearchResponse>) => void) | undefined;
         const batch = Searcher.prototype.batch;
         Searcher.prototype.batch = async function(requestCollection, options) {
             batchSearchCount++;
@@ -1397,9 +1573,13 @@ suite('relewise-universal-search', () => {
             return productSearchResponse([product('1')]);
         };
 
-        Searcher.prototype.searchContents = async function() {
+        Searcher.prototype.searchContents = function() {
             contentSearchCount++;
-            return contentSearchResponse([content(contentSearchCount.toString())], 1, { items: [] });
+            if (contentSearchCount === 1) {
+                return Promise.resolve(contentSearchResponse([content('1')], 1, { items: [] }));
+            }
+
+            return new Promise(resolve => resolveContentRefresh = resolve);
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -1422,11 +1602,22 @@ suite('relewise-universal-search', () => {
 
         internals(el).handleSelectTab('content');
         await universalSearchUpdated(el);
-        const facets = contentTab(el).renderRoot.querySelector<any>('relewise-facets')!;
+        const facets = contentTab(el).renderRoot.querySelector<any>('relewise-universal-search-facets')!;
+        (facets.renderRoot.querySelector('.rw-trigger') as HTMLButtonElement)!.click();
+        await facets.updateComplete;
         facets.applyFacet();
+
+        await waitUntil(() => contentSearchCount === 2, 'active tab refresh did not start');
+        assert.equal(contentTab(el).renderRoot.querySelector('relewise-universal-search-facets'), facets);
+        assert.isTrue(facets.renderRoot.querySelector('.rw-drawer')!.hasAttribute('open'));
+        assert.equal(contentResults(el)[0].contentId, '1');
+
+        resolveContentRefresh!(contentSearchResponse([content('2')], 1, { items: [] }));
 
         await waitUntil(() => contentResults(el).length === 1 && contentResults(el)[0].contentId === '2', 'active tab search did not replace content results');
 
+        assert.equal(contentTab(el).renderRoot.querySelector('relewise-universal-search-facets'), facets);
+        assert.isTrue(facets.renderRoot.querySelector('.rw-drawer')!.hasAttribute('open'));
         assert.equal(productSearchCount, 1);
         assert.equal(contentSearchCount, 2);
         assert.equal(batchSearchCount, 1);
@@ -1504,7 +1695,8 @@ suite('relewise-universal-search', () => {
         await waitUntil(() => products(el).length === 1 && contentResults(el).length === 1, 'initial results did not load');
 
         internals(el).handleSelectTab('content');
-        contentTab(el).renderRoot.querySelector<any>('relewise-facets')!.applyFacet();
+        contentTab(el).renderRoot.querySelector<any>('relewise-universal-search-facets')!
+            .dispatchEvent(new CustomEvent('universal-search-facets-changed'));
         await waitUntil(() => contentTab(el).renderRoot.querySelector('[part="error-state"]') !== null, 'localized error was not rendered');
 
         assert.equal(contentTab(el).renderRoot.querySelector('[part="error-state"]')?.textContent, 'Could not refresh content.');

@@ -19,6 +19,9 @@ export class Facets extends RelewiseLitElement {
     @property({ attribute: 'facet-query-key-prefix' })
     facetQueryKeyPrefix: string = QueryKeys.facet;
 
+    @property({ type: Boolean, reflect: true })
+    expanded = false;
+
     @state()
     showFacets: boolean = window.innerWidth >= 1024;
 
@@ -194,15 +197,15 @@ export class Facets extends RelewiseLitElement {
         const visibleItems = this.facetResult?.items?.filter(item => this.shouldRenderFacet(item)) ?? [];
 
         return html`
-            <relewise-button
+            ${!this.expanded ? html`<relewise-button
                 button-text=${localization?.filter ?? 'Filters'} 
                 class="rw-facet-button"
                 @click=${() => this.showFacets = !this.showFacets}>
                     ${this.showFacets ?
                 html`<relewise-x-icon class="rw-icon"></relewise-x-icon>` :
                 html`<relewise-filter-icon class="rw-icon"></relewise-filter-icon>`}
-            </relewise-button>
-            ${this.showFacets ?
+            </relewise-button>` : nothing}
+            ${this.expanded || this.showFacets ?
                 html`
                 ${visibleItems.length > 0 ? html`
                 <div class="rw-facets-container">

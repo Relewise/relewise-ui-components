@@ -203,7 +203,9 @@ export class NumberRangeFacet extends RelewiseLitElement {
         }
 
         .rw-input-container {
+            box-sizing: border-box;
             display: flex;
+            min-width: 0;
             align-items: center;
             padding-left: 1em;
             padding-right: 1em;
@@ -227,6 +229,7 @@ export class NumberRangeFacet extends RelewiseLitElement {
 
         .rw-flex {
             display: flex;
+            min-width: 0;
             margin-bottom: 0.3em;
         }
 

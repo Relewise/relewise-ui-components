@@ -29,7 +29,7 @@ function getFocusableElements(root: ParentNode): HTMLElement[] {
     const focusableElements: HTMLElement[] = [];
 
     root.querySelectorAll<HTMLElement>('*').forEach(element => {
-        if (element.matches(focusableSelector) && !element.hidden) {
+        if (element.matches(focusableSelector) && !element.hidden && element.getClientRects().length > 0) {
             focusableElements.push(element);
         }
         if (element.shadowRoot) {
