@@ -26,6 +26,7 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         display: flex;
         justify-content: center;
         align-items: stretch;
+        padding: var(--relewise-universal-search-dialog-margin, 0);
     }
 
     .rw-dialog {
@@ -35,7 +36,7 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         container: universal-search-dialog / inline-size;
         width: min(100%, var(--relewise-universal-search-width, 100%));
         height: min(100dvh, var(--relewise-universal-search-height, 100%));
-        max-height: 100dvh;
+        max-height: 100%;
         display: flex;
         flex-direction: column;
         min-width: 0;

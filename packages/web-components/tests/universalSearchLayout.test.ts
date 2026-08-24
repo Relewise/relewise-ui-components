@@ -67,6 +67,27 @@ suite('universal search layout', () => {
         assert.isAtMost(dialog.scrollWidth, dialog.clientWidth);
     });
 
+    test('keeps configured dialog margins inside the viewport', async () => {
+        const element = await fixture<UniversalSearch>(html`
+            <relewise-universal-search
+                open
+                style="--relewise-universal-search-dialog-margin: 20px 30px;">
+            </relewise-universal-search>
+        `);
+        await element.updateComplete;
+        await new Promise(requestAnimationFrame);
+
+        const backdrop = element.renderRoot.querySelector<HTMLElement>('[part="backdrop"]')!;
+        const dialog = element.renderRoot.querySelector<HTMLElement>('[part="dialog"]')!;
+        const backdropBounds = backdrop.getBoundingClientRect();
+        const dialogBounds = dialog.getBoundingClientRect();
+
+        assert.closeTo(dialogBounds.top - backdropBounds.top, 20, 1);
+        assert.closeTo(backdropBounds.bottom - dialogBounds.bottom, 20, 1);
+        assert.closeTo(dialogBounds.left - backdropBounds.left, 30, 1);
+        assert.closeTo(backdropBounds.right - dialogBounds.right, 30, 1);
+    });
+
     test('balances the visible header controls throughout the compact range', async () => {
         const element = await fixture<UniversalSearch>(html`
             <relewise-universal-search
