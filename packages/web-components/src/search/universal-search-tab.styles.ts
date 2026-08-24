@@ -69,13 +69,14 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
     .rw-product-results-layout .rw-sorting {
         align-self: center;
         grid-area: sorting;
+        position: relative;
     }
 
     .rw-product-results-layout .rw-results {
         grid-area: results;
     }
 
-    .rw-sorting::part(label) {
+    .rw-sorting relewise-product-search-sorting::part(label) {
         clip: rect(0 0 0 0);
         clip-path: inset(50%);
         height: 1px;
@@ -85,8 +86,22 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
         width: 1px;
     }
 
-    .rw-sorting::part(select) {
+    .rw-sorting relewise-product-search-sorting::part(select) {
+        appearance: none;
+        padding-inline-end: var(--relewise-universal-search-sorting-arrow-space, 2.25em);
         text-align-last: center;
+    }
+
+    .rw-sorting-chevron {
+        border-bottom: 0.14em solid currentColor;
+        border-right: 0.14em solid currentColor;
+        height: 0.45em;
+        inset-inline-end: var(--relewise-universal-search-sorting-arrow-inset, 0.8em);
+        pointer-events: none;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-70%) rotate(45deg);
+        width: 0.45em;
     }
 
     .rw-result-grid {
@@ -181,13 +196,19 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
             width: 100%;
         }
 
-        .rw-sorting::part(container) {
+        .rw-sorting relewise-product-search-sorting {
+            display: block;
+            height: 100%;
+            width: 100%;
+        }
+
+        .rw-sorting relewise-product-search-sorting::part(container) {
             display: flex;
             height: 100%;
             width: 100%;
         }
 
-        .rw-sorting::part(select) {
+        .rw-sorting relewise-product-search-sorting::part(select) {
             flex: 1;
             height: 100%;
             min-width: 0;

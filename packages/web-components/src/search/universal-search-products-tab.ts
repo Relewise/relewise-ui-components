@@ -216,14 +216,15 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             </relewise-universal-search-facets>
         ` : nothing;
         const sorting = this.products.length > 0 ? html`
-            <relewise-product-search-sorting
-                class="rw-sorting rw-universal-search-sorting"
-                part="sorting"
-                .target=${this.target}
-                .sortingQueryKey=${QueryKeys.productSorting}
-                .applySorting=${this.searchOptionsChanged}
-                exportparts="container: sorting-container, select: sorting-select, label: sorting-label">
-            </relewise-product-search-sorting>
+            <div class="rw-sorting" part="sorting">
+                <relewise-product-search-sorting
+                    .target=${this.target}
+                    .sortingQueryKey=${QueryKeys.productSorting}
+                    .applySorting=${this.searchOptionsChanged}
+                    exportparts="container: sorting-container, select: sorting-select, label: sorting-label">
+                </relewise-product-search-sorting>
+                <span class="rw-sorting-chevron" aria-hidden="true"></span>
+            </div>
         ` : nothing;
         return html`
             <div class="rw-results-layout rw-product-results-layout" part="results-layout">

@@ -965,9 +965,10 @@ suite('relewise-universal-search', () => {
         const facets = productsTab(el).renderRoot.querySelector('relewise-universal-search-facets') as any;
         const facetTrigger = facets.renderRoot.querySelector('[part="facet-trigger"]') as HTMLElement;
         const sorting = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="sorting"]')!;
-        const sortingContainer = (sorting as any).renderRoot.querySelector('[part="container"]') as HTMLElement;
-        const sortingLabel = (sorting as any).renderRoot.querySelector('[part="label"]') as HTMLElement;
-        const sortingSelect = (sorting as any).renderRoot.querySelector('[part="select"]') as HTMLSelectElement;
+        const sortingComponent = sorting.querySelector<any>('relewise-product-search-sorting')!;
+        const sortingLabel = sortingComponent.renderRoot.querySelector('[part="label"]') as HTMLElement;
+        const sortingSelect = sortingComponent.renderRoot.querySelector('[part="select"]') as HTMLSelectElement;
+        const sortingChevron = sorting.querySelector<HTMLElement>('.rw-sorting-chevron')!;
         const resultsSummary = el.renderRoot.querySelector<HTMLElement>('[part="results-summary"]')!;
         const resultsSummaryStyles = getComputedStyle(resultsSummary);
         const controls = [...productLayout.children]
@@ -981,12 +982,19 @@ suite('relewise-universal-search', () => {
         assert.equal(getComputedStyle(sortingLabel).position, 'absolute');
         assert.equal(getComputedStyle(sortingLabel).width, '1px');
         assert.equal(getComputedStyle(sortingSelect).appearance, 'none');
-        assert.equal(getComputedStyle(sortingContainer, '::after').pointerEvents, 'none');
+        assert.equal(getComputedStyle(sortingChevron).pointerEvents, 'none');
         assert.equal(getComputedStyle(sortingSelect).textAlignLast, 'center');
         assert.equal(getComputedStyle(sortingSelect.options[0]).textAlign, 'start');
         assert.equal(resultsSummaryStyles.textAlign, 'center');
         assert.equal(resultsSummaryStyles.marginTop, resultsSummaryStyles.marginBottom);
         assert.isAtMost(productGrid.scrollWidth, productGrid.clientWidth);
+
+        sorting.dir = 'rtl';
+        await new Promise(requestAnimationFrame);
+        const rtlSelectStyles = getComputedStyle(sortingSelect);
+        const rtlChevronStyles = getComputedStyle(sortingChevron);
+        assert.isAbove(parseFloat(rtlSelectStyles.paddingLeft), parseFloat(rtlSelectStyles.paddingRight));
+        assert.isBelow(parseFloat(rtlChevronStyles.left), parseFloat(rtlChevronStyles.right));
 
         internals(el).handleSelectTab('productCategories');
         await universalSearchUpdated(el);

@@ -93,23 +93,6 @@ export class ProductSearchSorting extends RelewiseLitElement {
             min-width: 0;
         }
 
-        :host(.rw-universal-search-sorting) .rw-label-wrapper {
-            position: relative;
-        }
-
-        :host(.rw-universal-search-sorting) .rw-label-wrapper::after {
-            border-bottom: 0.14em solid currentColor;
-            border-right: 0.14em solid currentColor;
-            content: '';
-            height: 0.45em;
-            pointer-events: none;
-            position: absolute;
-            inset-inline-end: var(--relewise-universal-search-sorting-arrow-inset, 0.8em);
-            top: 50%;
-            transform: translateY(-70%) rotate(45deg);
-            width: 0.45em;
-        }
-
         .rw-select {
             font-family: var(--font);
             max-width: 100%;
@@ -124,11 +107,6 @@ export class ProductSearchSorting extends RelewiseLitElement {
             border-radius: 0.5em;
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
             font-size: 0.8em;   
-        }
-
-        :host(.rw-universal-search-sorting) .rw-select {
-            appearance: none;
-            padding-inline-end: var(--relewise-universal-search-sorting-arrow-space, 2.25em);
         }
 
         .rw-select option {
