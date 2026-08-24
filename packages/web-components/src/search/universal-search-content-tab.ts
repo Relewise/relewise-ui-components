@@ -51,7 +51,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
 
     private readonly searchOptionsChanged = (): void => {
         updateUrlState(QueryKeys.contentTake, null);
-        void this.search(true);
+        void this.search(true, true);
     };
 
     private async loadMore(): Promise<void> {
@@ -84,7 +84,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
         };
     }
 
-    private async search(reset: boolean): Promise<boolean> {
+    private async search(reset: boolean, preserveCurrentResults = false): Promise<boolean> {
         this.abortController.abort();
 
         if (!this.term) {
@@ -93,7 +93,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
         }
 
         if (reset) {
-            this.resetForSearch();
+            this.resetForSearch(preserveCurrentResults);
         } else {
             this.error = null;
         }
@@ -138,14 +138,16 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
         });
     }
 
-    private resetForSearch(): void {
+    private resetForSearch(preserveCurrentResults = false): void {
         const resultsToFetch = this.getResultsToFetch();
         this.page = resultsToFetch ? Math.ceil(resultsToFetch / this.pageSize) : 1;
-        this.result = null;
-        this.content = [];
-        this.facetLabels = [];
         this.error = null;
-        this.reportHits();
+        if (!preserveCurrentResults) {
+            this.result = null;
+            this.content = [];
+            this.facetLabels = [];
+            this.reportHits();
+        }
     }
 
     private applyBatchResponse(response: SearchResponseCollection, facetLabels: string[]): void {

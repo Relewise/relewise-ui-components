@@ -1553,6 +1553,7 @@ suite('relewise-universal-search', () => {
         let productSearchCount = 0;
         let contentSearchCount = 0;
         let batchSearchCount = 0;
+        let resolveContentRefresh: ((response: ReturnType<typeof contentSearchResponse>) => void) | undefined;
         const batch = Searcher.prototype.batch;
         Searcher.prototype.batch = async function(requestCollection, options) {
             batchSearchCount++;
@@ -1564,9 +1565,13 @@ suite('relewise-universal-search', () => {
             return productSearchResponse([product('1')]);
         };
 
-        Searcher.prototype.searchContents = async function() {
+        Searcher.prototype.searchContents = function() {
             contentSearchCount++;
-            return contentSearchResponse([content(contentSearchCount.toString())], 1, { items: [] });
+            if (contentSearchCount === 1) {
+                return Promise.resolve(contentSearchResponse([content('1')], 1, { items: [] }));
+            }
+
+            return new Promise(resolve => resolveContentRefresh = resolve);
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -1590,10 +1595,21 @@ suite('relewise-universal-search', () => {
         internals(el).handleSelectTab('content');
         await universalSearchUpdated(el);
         const facets = contentTab(el).renderRoot.querySelector<any>('relewise-universal-search-facets')!;
+        facets.renderRoot.querySelector<HTMLButtonElement>('.rw-trigger')!.click();
+        await facets.updateComplete;
         facets.applyFacet();
+
+        await waitUntil(() => contentSearchCount === 2, 'active tab refresh did not start');
+        assert.equal(contentTab(el).renderRoot.querySelector('relewise-universal-search-facets'), facets);
+        assert.isTrue(facets.renderRoot.querySelector('.rw-drawer')!.hasAttribute('open'));
+        assert.equal(contentResults(el)[0].contentId, '1');
+
+        resolveContentRefresh!(contentSearchResponse([content('2')], 1, { items: [] }));
 
         await waitUntil(() => contentResults(el).length === 1 && contentResults(el)[0].contentId === '2', 'active tab search did not replace content results');
 
+        assert.equal(contentTab(el).renderRoot.querySelector('relewise-universal-search-facets'), facets);
+        assert.isTrue(facets.renderRoot.querySelector('.rw-drawer')!.hasAttribute('open'));
         assert.equal(productSearchCount, 1);
         assert.equal(contentSearchCount, 2);
         assert.equal(batchSearchCount, 1);
