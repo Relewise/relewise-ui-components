@@ -33,6 +33,7 @@ export const universalSearchFacetsStyles = [theme, css`
     .rw-trigger relewise-filter-icon {
         flex: none;
         width: 1em;
+        --relewise-icon-color: currentColor;
     }
 
     .rw-backdrop {

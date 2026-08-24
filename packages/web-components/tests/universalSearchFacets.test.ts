@@ -101,6 +101,18 @@ suite('universal search facets', () => {
         assert.deepEqual(controlledIds, drawerIds);
     });
 
+    test('uses the trigger text color for the filter icon', async () => {
+        const element = await fixture<UniversalSearchFacets>(html`
+            <relewise-universal-search-facets></relewise-universal-search-facets>
+        `);
+        const trigger = element.renderRoot.querySelector<HTMLButtonElement>('.rw-trigger')!;
+        const icon = element.renderRoot.querySelector<any>('relewise-filter-icon')!;
+        await icon.updateComplete;
+
+        const path = icon.renderRoot.querySelector<SVGPathElement>('path')!;
+        assert.equal(getComputedStyle(path).fill, getComputedStyle(trigger).color);
+    });
+
     test('uses a full-width compact drawer with centered facet content', async () => {
         const wrapper = await fixture<HTMLElement>(html`
             <div style="container: universal-search-dialog / inline-size; height: 30rem; position: relative; width: 30rem;">
