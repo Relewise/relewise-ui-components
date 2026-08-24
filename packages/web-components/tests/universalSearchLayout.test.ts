@@ -109,7 +109,7 @@ suite('universal search layout', () => {
         const dialog = element.renderRoot.querySelector<HTMLElement>('[part="dialog"]')!;
         const search = element.renderRoot.querySelector<any>('relewise-search-combobox')!;
         await search.updateComplete;
-        const input = search.renderRoot.querySelector<HTMLInputElement>('[part="search-input"]')!;
+        const input = search.renderRoot.querySelector('[part="search-input"]') as HTMLInputElement;
 
         assert.equal(getComputedStyle(search).getPropertyValue('--color').trim(), 'rgb(30 40 50)');
         assert.notEqual(getComputedStyle(input, '::placeholder').color, 'rgb(238, 238, 238)');
@@ -204,14 +204,14 @@ suite('universal search layout', () => {
         productsTab.requestUpdate();
         await productsTab.updateComplete;
 
-        const facets = productsTab.renderRoot.querySelector<UniversalSearchFacets>('relewise-universal-search-facets')!;
-        facets.renderRoot.querySelector<HTMLButtonElement>('.rw-trigger')!.click();
+        const facets = productsTab.renderRoot.querySelector('relewise-universal-search-facets') as UniversalSearchFacets;
+        (facets.renderRoot.querySelector('.rw-trigger') as HTMLButtonElement).click();
         await facets.updateComplete;
         await element.updateComplete;
         await new Promise(requestAnimationFrame);
 
         const dialog = element.renderRoot.querySelector<HTMLElement>('[part="dialog"]')!;
-        const drawer = facets.renderRoot.querySelector<HTMLElement>('.rw-drawer')!;
+        const drawer = facets.renderRoot.querySelector('.rw-drawer') as HTMLElement;
         const dialogBounds = dialog.getBoundingClientRect();
         const drawerBounds = drawer.getBoundingClientRect();
 

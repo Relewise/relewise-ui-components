@@ -109,7 +109,7 @@ suite('universal search facets', () => {
         const icon = element.renderRoot.querySelector<any>('relewise-filter-icon')!;
         await icon.updateComplete;
 
-        const path = icon.renderRoot.querySelector<SVGPathElement>('path')!;
+        const path = icon.renderRoot.querySelector('path') as SVGPathElement;
         assert.equal(getComputedStyle(path).fill, getComputedStyle(trigger).color);
     });
 

@@ -1603,7 +1603,7 @@ suite('relewise-universal-search', () => {
         internals(el).handleSelectTab('content');
         await universalSearchUpdated(el);
         const facets = contentTab(el).renderRoot.querySelector<any>('relewise-universal-search-facets')!;
-        facets.renderRoot.querySelector<HTMLButtonElement>('.rw-trigger')!.click();
+        (facets.renderRoot.querySelector('.rw-trigger') as HTMLButtonElement)!.click();
         await facets.updateComplete;
         facets.applyFacet();
 
