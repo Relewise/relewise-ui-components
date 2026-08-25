@@ -1,4 +1,4 @@
-import { FilterBuilder, ProductCategoryResult, ProductResult, RecommendPopularSearchTermSettings } from '@relewise/client';
+import { FilterBuilder, ProductCategoryResult, ProductResult, RecommendPopularSearchTermSettings, VariantSearchRequestSettingsBuilder } from '@relewise/client';
 import type { SearchTermPredictionRequest } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { ContentCategoryTile, FilterIcon, ProductCategoryTile, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
@@ -53,6 +53,10 @@ export interface RelewiseUISearchOptions {
     localization?: SearchLocalization;
     rememberScrollPosition?: boolean;
     debounceTimeInMs?: number;
+    variantRequestSettings?: (builder: VariantSearchRequestSettingsBuilder) => void;
+    /**
+     * @deprecated Use `variantRequestSettings` and set `maxVariantsPerProduct` instead.
+     */
     explodedVariants?: number;
     universalSearch?: UniversalSearchOptions;
 }
