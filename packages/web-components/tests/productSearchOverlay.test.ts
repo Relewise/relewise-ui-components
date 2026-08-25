@@ -39,6 +39,44 @@ suite('product search overlay', () => {
         assert.deepEqual(el.results?.map(result => result.redirect?.destination), ['/campaign', 'https://example.com/campaign']);
     });
 
+    test('does not search until the minimum query length is reached', async() => {
+        let searchCalls = 0;
+        initializeRelewiseUI(mockRelewiseOptions()).useSearch({
+            debounceTimeInMs: 0,
+            minimumQueryLength: 3,
+        });
+        const el = await fixture<ProductSearchOverlay>(html`<relewise-product-search-overlay></relewise-product-search-overlay>`);
+        el.search = async() => {
+            searchCalls++;
+        };
+
+        el.setSearchTerm('ab');
+        await new Promise(resolve => setTimeout(resolve, 0));
+        assert.equal(searchCalls, 0);
+
+        el.setSearchTerm('abc');
+        await new Promise(resolve => setTimeout(resolve, 0));
+        assert.equal(searchCalls, 1);
+    });
+
+    test('cancels a pending search when the term becomes too short', async() => {
+        let searchCalls = 0;
+        initializeRelewiseUI(mockRelewiseOptions()).useSearch({
+            debounceTimeInMs: 10,
+            minimumQueryLength: 3,
+        });
+        const el = await fixture<ProductSearchOverlay>(html`<relewise-product-search-overlay></relewise-product-search-overlay>`);
+        el.search = async() => {
+            searchCalls++;
+        };
+
+        el.setSearchTerm('abc');
+        el.setSearchTerm('ab');
+        await new Promise(resolve => setTimeout(resolve, 20));
+
+        assert.equal(searchCalls, 0);
+    });
+
     test('uses a relative redirect destination when submitting the matching term', async() => {
         const originalUrl = window.location.href;
         const el = await fixture<ProductSearchOverlay>(html`<relewise-product-search-overlay></relewise-product-search-overlay>`);

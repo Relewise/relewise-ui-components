@@ -97,6 +97,10 @@ export class ProductSearchOverlay extends RelewiseLitElement {
     disconnectedCallback() {
         document.removeEventListener('pointerdown', this.handleDocumentPointerDown, true);
         document.removeEventListener('touchstart', this.handleDocumentPointerDown, true);
+        if (this.debounceTimeoutHandlerId) {
+            clearTimeout(this.debounceTimeoutHandlerId);
+        }
+        this.abortController.abort();
         super.disconnectedCallback();
     }
 
@@ -104,8 +108,17 @@ export class ProductSearchOverlay extends RelewiseLitElement {
         this.term = term;
         this.selectedIndex = -1;
 
-        if (!term) {
+        if (this.debounceTimeoutHandlerId) {
+            clearTimeout(this.debounceTimeoutHandlerId);
+            this.debounceTimeoutHandlerId = null;
+        }
+
+        const minimumQueryLength = getRelewiseUISearchOptions()?.minimumQueryLength ?? 1;
+        if (term.length < minimumQueryLength) {
+            this.abortController.abort();
             this.results = null;
+            this.redirects = null;
+            this.productSearchResultHits = 0;
             this.hasCompletedSearchRequest = false;
             this.overlayIsClosed = false;
             return;
@@ -113,11 +126,8 @@ export class ProductSearchOverlay extends RelewiseLitElement {
 
         this.overlayIsClosed = false;
 
-        if (this.debounceTimeoutHandlerId) {
-            clearTimeout(this.debounceTimeoutHandlerId);
-        }
-
         this.debounceTimeoutHandlerId = setTimeout(() => {
+            this.debounceTimeoutHandlerId = null;
             this.search(term);
         }, getRelewiseUISearchOptions()?.debounceTimeInMs);
     }

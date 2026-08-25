@@ -83,6 +83,7 @@ export class ProductSearch extends RelewiseLitElement {
             window.removeEventListener('scroll', this.handleScrollEventBound);
         }
 
+        this.abortController.abort();
         super.disconnectedCallback();
     }
 
@@ -112,6 +113,18 @@ export class ProductSearch extends RelewiseLitElement {
         }
 
         const term = readCurrentUrlState(QueryKeys.term) ?? null;
+
+        const minimumQueryLength = getRelewiseUISearchOptions()?.minimumQueryLength ?? 1;
+        if (term && term.length < minimumQueryLength) {
+            this.products = [];
+            this.searchResult = null;
+            this.facetLabels = [];
+            if (this.renderRoot) {
+                this.setSearchResultOnSlotChilderen();
+            }
+            window.dispatchEvent(new CustomEvent(Events.searchingForProductsCompleted));
+            return;
+        }
 
         const numberOfProductsToFetch = getNumberOfProductsToFetch();
 
