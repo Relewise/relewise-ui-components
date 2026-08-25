@@ -284,6 +284,69 @@ suite('relewise-universal-search', () => {
         assert.isNull(queryDeep(el, '[role="dialog"]'));
     });
 
+    test('locks document scrolling while open and restores existing inline values', async () => {
+        const originalDocumentElementOverflow = document.documentElement.style.overflow;
+        const originalBodyOverflow = document.body.style.overflow;
+        document.documentElement.style.overflow = 'auto';
+        document.body.style.overflow = 'scroll';
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search"></relewise-universal-search>
+        `) as UniversalSearch;
+
+        try {
+            el.open();
+            await universalSearchUpdated(el);
+
+            assert.equal(document.documentElement.style.overflow, 'hidden');
+            assert.equal(document.body.style.overflow, 'hidden');
+
+            el.close();
+            await universalSearchUpdated(el);
+
+            assert.equal(document.documentElement.style.overflow, 'auto');
+            assert.equal(document.body.style.overflow, 'scroll');
+        } finally {
+            el.close();
+            document.documentElement.style.overflow = originalDocumentElementOverflow;
+            document.body.style.overflow = originalBodyOverflow;
+        }
+    });
+
+    test('keeps document scrolling locked until every open instance closes or disconnects', async () => {
+        const originalDocumentElementOverflow = document.documentElement.style.overflow;
+        const originalBodyOverflow = document.body.style.overflow;
+        document.documentElement.style.overflow = 'auto';
+        document.body.style.overflow = 'scroll';
+
+        const first = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search"></relewise-universal-search>
+        `) as UniversalSearch;
+        const second = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search"></relewise-universal-search>
+        `) as UniversalSearch;
+
+        try {
+            first.open();
+            second.open();
+            await Promise.all([universalSearchUpdated(first), universalSearchUpdated(second)]);
+
+            first.close();
+            await universalSearchUpdated(first);
+            assert.equal(document.documentElement.style.overflow, 'hidden');
+            assert.equal(document.body.style.overflow, 'hidden');
+
+            second.remove();
+            assert.equal(document.documentElement.style.overflow, 'auto');
+            assert.equal(document.body.style.overflow, 'scroll');
+        } finally {
+            first.close();
+            second.remove();
+            document.documentElement.style.overflow = originalDocumentElementOverflow;
+            document.body.style.overflow = originalBodyOverflow;
+        }
+    });
+
     test('locks body scrolling while a facets drawer is open', async () => {
         const el = await fixture(html`
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>

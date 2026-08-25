@@ -29,6 +29,33 @@ export { universalSearchTabs };
 export type { UniversalSearchTab };
 
 let universalSearchInstanceId = 0;
+const openUniversalSearches = new Set<UniversalSearch>();
+let documentElementOverflowBeforeLock = '';
+let bodyOverflowBeforeLock = '';
+
+function lockDocumentScrolling(instance: UniversalSearch): void {
+    if (openUniversalSearches.has(instance)) {
+        return;
+    }
+
+    if (openUniversalSearches.size === 0) {
+        documentElementOverflowBeforeLock = document.documentElement.style.overflow;
+        bodyOverflowBeforeLock = document.body.style.overflow;
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+    }
+
+    openUniversalSearches.add(instance);
+}
+
+function unlockDocumentScrolling(instance: UniversalSearch): void {
+    if (!openUniversalSearches.delete(instance) || openUniversalSearches.size > 0) {
+        return;
+    }
+
+    document.documentElement.style.overflow = documentElementOverflowBeforeLock;
+    document.body.style.overflow = bodyOverflowBeforeLock;
+}
 
 const defaultTabLabels: Record<UniversalSearchTab, string> = {
     products: 'Products',
@@ -112,6 +139,7 @@ export class UniversalSearch extends RelewiseLitElement {
             this.debounceTimeoutHandlerId = null;
         }
         this.batchAbortController.abort();
+        unlockDocumentScrolling(this);
         this.openStateActive = false;
         this.previouslyFocusedElement = null;
         super.disconnectedCallback();
@@ -140,6 +168,7 @@ export class UniversalSearch extends RelewiseLitElement {
 
         this.openStateActive = this.isOpen;
         if (this.isOpen) {
+            lockDocumentScrolling(this);
             this.previouslyFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
             if (this.searchTerm) {
                 void this.searchEnabledTabs(this.searchTerm);
@@ -147,6 +176,7 @@ export class UniversalSearch extends RelewiseLitElement {
             return;
         }
 
+        unlockDocumentScrolling(this);
         this.batchAbortController.abort();
         this.facetsDrawerOpen = false;
         this.resetRecommendationState();
