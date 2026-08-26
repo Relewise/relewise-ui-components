@@ -4,14 +4,29 @@ import {
     ProductCategoryRecommendationResponse,
     ProductCategoryResult,
 } from '@relewise/client';
+import { consume } from '@lit/context';
 import { html } from 'lit';
-import { property } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 import { getProductCategoryRecommendationBuilderWithDefaults } from '../../builders/categoryRecommendationBuilder';
+import { Events } from '../../helpers/events';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
+import {
+    productCategoryRecommendationBatchingContext,
+} from './category-recommendation-batching';
+import { RecommendationBatchingContextValue } from '../recommendation-batching';
 import { CategoryRecommendationBase } from './category-recommendation-base';
 import { getRecommender } from '../recommender';
 
-export class PopularProductCategories extends CategoryRecommendationBase<ProductCategoryResult, PopularProductCategoriesRecommendationRequest> {
+export class PopularProductCategories extends CategoryRecommendationBase<
+    ProductCategoryResult,
+    PopularProductCategoriesRecommendationRequest,
+    ProductCategoryRecommendationResponse
+> {
+    @consume({ context: productCategoryRecommendationBatchingContext, subscribe: true })
+    @state()
+    protected providedData?: RecommendationBatchingContextValue<PopularProductCategoriesRecommendationRequest, ProductCategoryRecommendationResponse>;
+
+    protected readonly registerRecommendationEvent = Events.registerProductCategoryRecommendation;
 
     @property({ type: Number, attribute: 'since-minutes-ago' })
     sinceMinutesAgo = 20160;

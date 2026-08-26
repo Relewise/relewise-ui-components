@@ -5,13 +5,11 @@ import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { ProductRecommendationRequest, ProductRecommendationResponse, ProductsRecommendationCollectionBuilder } from '@relewise/client';
 import { provide, createContext } from '@lit/context';
 import { Events } from '../helpers';
+import { RecommendationBatchingContextValue } from './recommendation-batching';
 
 const contextKey = Symbol('product-batcher');
 
-export type BatchingContextValue = {
-    requests: { request: ProductRecommendationRequest, id: EventTarget | null, result?: ProductRecommendationResponse | null }[]
-    enabled?: boolean;
-}
+export type BatchingContextValue = RecommendationBatchingContextValue<ProductRecommendationRequest, ProductRecommendationResponse>;
 export const context = createContext<BatchingContextValue>(contextKey);
 
 export class RecommendationBatcher extends RelewiseLitElement {
