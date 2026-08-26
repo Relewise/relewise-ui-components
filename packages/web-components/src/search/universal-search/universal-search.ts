@@ -126,6 +126,9 @@ export class UniversalSearch extends RelewiseLitElement {
         super.connectedCallback();
         this.term = readCurrentUrlState(QueryKeys.term) ?? '';
         this.searchTerm = this.term;
+        if (this.term) {
+            this.isOpen = true;
+        }
         this.activeTab = this.term ? this.firstEnabledTab : null;
         this.resetRecommendationState();
         window.addEventListener('keydown', this.handleWindowKeyDownBound);

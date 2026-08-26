@@ -252,7 +252,13 @@ suite('relewise-universal-search', () => {
         assert.equal(el.querySelector('[part="zero-results-hint"]')?.textContent?.trim(), 'Try another search term or check the spelling.');
     });
 
-    test('prefills term from URL without opening', async () => {
+    test('restores the open Universal Search state from a URL term', async () => {
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([], 0);
+        };
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: {} } } });
+
         updateUrlState(QueryKeys.term, 'shoe');
 
         const el = await fixture(html`
@@ -260,8 +266,8 @@ suite('relewise-universal-search', () => {
         `) as UniversalSearch;
 
         assert.equal(internals(el).term, 'shoe');
-        assert.isFalse(el.isOpen);
-        assert.isFalse(el.hasAttribute('open'));
+        assert.isTrue(el.isOpen);
+        assert.isTrue(el.hasAttribute('open'));
     });
 
     test('opens and closes through methods', async () => {
