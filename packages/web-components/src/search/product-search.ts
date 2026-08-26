@@ -239,11 +239,12 @@ export class ProductSearch extends RelewiseLitElement {
             </relewise-product-search-bar>
           
             <div class="result-container">
-                ${this.products.length > 0 && hasRenderableFacets(this.searchResult?.facets) ? html`
+                ${this.products.length > 0 && hasRenderableFacets(this.searchResult?.facets, this.searchResult?.hits) ? html`
                     <relewise-facets
                         exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
                         .labels=${this.facetLabels}
                         .facetResult=${this.searchResult?.facets}
+                        .totalHits=${this.searchResult?.hits}
                         class="rw-facets">
                     </relewise-facets>
                 `: nothing}

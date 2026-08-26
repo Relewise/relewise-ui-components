@@ -22,6 +22,9 @@ export class UniversalSearchFacets extends RelewiseLitElement {
     @property({ type: Array, attribute: 'labels' })
     labels: string[] = [];
 
+    @property({ type: Number, attribute: 'total-hits' })
+    totalHits?: number;
+
     @property({ attribute: 'facet-query-key-prefix' })
     facetQueryKeyPrefix: string = QueryKeys.facet;
 
@@ -167,7 +170,8 @@ export class UniversalSearchFacets extends RelewiseLitElement {
                     .labels=${this.labels}
                     .facetQueryKeyPrefix=${this.facetQueryKeyPrefix}
                     .applyFacet=${this.applyFacet}
-                    .facetResult=${this.facetResult}>
+                    .facetResult=${this.facetResult}
+                    .totalHits=${this.totalHits}>
                 </relewise-facets>
             </aside>
         `;

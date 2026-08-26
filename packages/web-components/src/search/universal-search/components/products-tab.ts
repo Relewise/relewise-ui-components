@@ -255,7 +255,8 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         const hasSearchTermAndSelectedFacets = Boolean(readCurrentUrlState(QueryKeys.term))
             && hasUrlStateWithPrefix(QueryKeys.productFacet);
         const facetResult = this.result !== null && !this.hideFacets && (this.result.hits > 0 || hasSearchTermAndSelectedFacets) ? this.result.facets : null;
-        const facets = facetResult && hasRenderableFacets(facetResult) ? html`
+        const totalHits = this.result?.hits;
+        const facets = facetResult && hasRenderableFacets(facetResult, totalHits) ? html`
             <relewise-universal-search-facets
                 class="rw-facets"
                 part="facets"
@@ -263,6 +264,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
                 .labels=${this.facetLabels}
                 .facetQueryKeyPrefix=${QueryKeys.productFacet}
                 .facetResult=${facetResult}
+                .totalHits=${totalHits}
                 @universal-search-facets-changed=${this.searchOptionsChanged}>
             </relewise-universal-search-facets>
         ` : nothing;

@@ -14,6 +14,9 @@ export class Facets extends RelewiseLitElement {
     @property({ type: Array, attribute: 'labels' })
     labels: string[] = [];
 
+    @property({ type: Number, attribute: 'total-hits' })
+    totalHits?: number;
+
     @property({ attribute: false })
     applyFacet = () => window.dispatchEvent(new CustomEvent(Events.applyFacet));
 
@@ -65,7 +68,7 @@ export class Facets extends RelewiseLitElement {
     }
 
     renderFacet(label: string, facetResult: FacetResult, styling: string, isLast: boolean): TemplateResult<1> | typeof nothing {
-        if (!shouldRenderFacetResult(facetResult)) {
+        if (!shouldRenderFacetResult(facetResult, this.totalHits)) {
             return nothing;
         }
 
@@ -183,7 +186,7 @@ export class Facets extends RelewiseLitElement {
 
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.facets;
-        const visibleItems = this.facetResult?.items?.filter(shouldRenderFacetResult) ?? [];
+        const visibleItems = this.facetResult?.items?.filter(item => shouldRenderFacetResult(item, this.totalHits)) ?? [];
 
         return html`
             ${!this.expanded && visibleItems.length > 0 ? html`<relewise-button

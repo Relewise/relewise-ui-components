@@ -302,6 +302,7 @@ suite('facet generalization', () => {
         const el = await fixture(html`
             <relewise-facets
                 .facetResult=${productSingleOptionFacetResult(false)}
+                .totalHits=${12}
                 .labels=${['Category']}>
             </relewise-facets>
         `) as Facets;
@@ -312,6 +313,22 @@ suite('facet generalization', () => {
         assert.isNull(el.renderRoot.querySelector('.rw-facet-button'));
         assert.isNull(el.renderRoot.querySelector('.rw-facets-container'));
         assert.isNull(el.renderRoot.querySelector('relewise-checklist-string-value-facet'));
+    });
+
+    test('renders an unselected single option when it excludes some search results', async () => {
+        const el = await fixture(html`
+            <relewise-facets
+                .facetResult=${productSingleOptionFacetResult(false)}
+                .totalHits=${20}
+                .labels=${['Category']}>
+            </relewise-facets>
+        `) as Facets;
+
+        el.showFacets = true;
+        await el.updateComplete;
+
+        assert.isNotNull(el.renderRoot.querySelector('.rw-facets-container'));
+        assert.isNotNull(el.renderRoot.querySelector('relewise-checklist-string-value-facet'));
     });
 
     test('keeps a selected single-option facet visible so it can be removed', async () => {
