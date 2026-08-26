@@ -633,6 +633,19 @@ Call the useSearch function to start rendering search components.
 useSearch();
 ```
 
+#### Request timing
+
+Search requests are debounced by 300 milliseconds and begin from the first character by default. Configure either behavior through `useSearch`:
+
+```ts
+useSearch({
+    debounceTimeInMs: 500,
+    minimumQueryLength: 3,
+});
+```
+
+`minimumQueryLength` applies to non-empty terms in both the product search overlay and full-page product search. An empty full-page term continues to load products as before.
+
 To specify which filters should be used when searching, call the useSearch function with a configuration.
 
 *Note: These filters will be applied on top of the filters defined when initializing Relewise UI.*
@@ -796,10 +809,6 @@ useSearch({
 
     When true, clicking a search term suggestion immediately redirects to the configured search page using that term. Requires **search-page-url** to be set; otherwise the overlay falls back to autofilling the input and logs a warning.
 
-- **debounce-time** (Optional, *Default 250*): 
-
-    The amount of time, in milliseconds, that must pass between requests to Relewise with a new search call.
-
 - **autofocus** (Optional, true/false):
 
     Toggle whether or not the input field should be focused on load.
@@ -822,10 +831,6 @@ This component renders a search component that [searches for products](https://d
 - **number-of-products** (Optional, *Default 16*): 
 
     The number of products to search for initially.
-
-- **debounce-time** (Optional, *Default 250*): 
-
-    The amount of time, in milliseconds, that must pass between requests to Relewise with a new search call.
 
 - **target** (Optional):
 
