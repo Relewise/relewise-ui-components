@@ -1298,6 +1298,50 @@ suite('relewise-universal-search', () => {
         assert.equal(readCurrentUrlState(QueryKeys.productTake), '10000');
     });
 
+    test('restores the actual final product page when a saved window exceeds the current hits', async () => {
+        const requestedPagination: Array<{ skip: number; take: number }> = [];
+        const totalProducts = 23;
+
+        Searcher.prototype.searchProducts = async function(request) {
+            const skip = (request as any).skip as number;
+            const take = (request as any).take as number;
+            requestedPagination.push({ skip, take });
+            const available = Math.max(0, Math.min(take, totalProducts - skip));
+
+            return productSearchResponse(
+                Array.from({ length: available }, (_, index) => product((skip + index + 1).toString())),
+                totalProducts,
+            );
+        };
+
+        window.history.pushState({}, '', `?${QueryKeys.term}=shoe&${QueryKeys.productTake}=10000`);
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: { entities: { products: { pageSize: 15 } } },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        await waitUntil(() => products(el).length === 15, 'actual last product page was restored');
+        await universalSearchUpdated(el);
+
+        assert.deepEqual(requestedPagination, [
+            { skip: 9985, take: 15 },
+            { skip: 8, take: 15 },
+        ]);
+        assert.equal(productsTab(el).resultOffset, 8);
+        assert.equal(products(el)[0].productId, '9');
+        assert.equal(products(el)[14].productId, '23');
+        assert.equal(readCurrentUrlState(QueryKeys.productTake), '23');
+        assert.exists(queryDeep<HTMLElement>(el, '[part="load-previous"]'));
+        assert.isNull(queryDeep<HTMLElement>(el, '[part="load-more"]'));
+        assert.isNull(queryDeep<HTMLElement>(el, '[part="zero-results"]'));
+    });
+
     test('loads more content using scoped take URL state', async () => {
         let searchCount = 0;
 

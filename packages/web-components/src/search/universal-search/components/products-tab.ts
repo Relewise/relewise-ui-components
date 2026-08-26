@@ -191,6 +191,14 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
     private applyBatchResponse(response: SearchResponseCollection, facetLabels: string[], resultOffset: number): void {
         const productResponse = response.responses?.find(item => '$type' in item
             && item.$type === 'Relewise.Client.Responses.Search.ProductSearchResponse, Relewise.Client') as ProductSearchResponse | undefined;
+        if (productResponse?.hits
+            && !productResponse.results?.length
+            && resultOffset >= productResponse.hits) {
+            updateUrlState(QueryKeys.productTake, productResponse.hits.toString());
+            void this.search(true);
+            return;
+        }
+
         this.applyResponse(productResponse ?? null, facetLabels, true, false, resultOffset);
         this.loading = false;
     }
