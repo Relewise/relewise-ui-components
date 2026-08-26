@@ -49,7 +49,8 @@ export class RecommendationBatcher extends RelewiseLitElement {
             return;
         }
 
-        const builder = new ProductsRecommendationCollectionBuilder();
+        const builder = new ProductsRecommendationCollectionBuilder()
+            .requireDistinctProductsAcrossResults();
 
         this.data.requests.forEach(x => builder.addRequest(x.request));
 
