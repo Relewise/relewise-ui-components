@@ -272,7 +272,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             <div class="rw-results-layout rw-product-results-layout" part="results-layout">
                 ${facets}
                 ${sorting}
-                ${this.result?.hits !== 0 ? html`
+                ${this.result && this.result.hits !== 0 ? html`
                     <header class="rw-results-header" part="results-header">
                         <div>
                             <h2 class="rw-results-title" part="results-title">${localization?.resultsTitle ?? 'Products'}</h2>

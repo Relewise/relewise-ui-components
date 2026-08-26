@@ -643,6 +643,44 @@ suite('relewise-universal-search', () => {
         await waitUntil(() => queryDeep(el, '[part="zero-results"]') !== null, 'zero-results was not rendered after search response');
     });
 
+    test('does not render entity headings before their search responses arrive', async () => {
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([product('1')]);
+        };
+        Searcher.prototype.searchProductCategories = async function() {
+            return productCategorySearchResponse([productCategory('1')]);
+        };
+        Searcher.prototype.searchContents = async function() {
+            return contentSearchResponse([content('1')]);
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 50,
+            universalSearch: {
+                entities: {
+                    products: {},
+                    productCategories: {},
+                    content: {},
+                },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('shoe');
+        await universalSearchUpdated(el);
+
+        assert.lengthOf(queryAllDeep(el.renderRoot, '[part="results-title"]'), 0);
+
+        await waitUntil(
+            () => queryAllDeep(el.renderRoot, '[part="results-title"]').length === 3,
+            'entity headings were not rendered after the search responses',
+        );
+    });
+
     test('clears previous products when the search term changes', async () => {
         Searcher.prototype.searchProducts = async function(request) {
             const term = request.term ?? 'missing';

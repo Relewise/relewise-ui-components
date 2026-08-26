@@ -217,7 +217,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
                     </relewise-universal-search-facets>
                 ` : nothing}
                 <section class="rw-results" part="results">
-                    ${this.result?.hits !== 0 ? html`
+                    ${this.result && this.result.hits !== 0 ? html`
                         <header class="rw-results-header" part="results-header">
                             <div>
                                 <h2 class="rw-results-title" part="results-title">${localization?.resultsTitle ?? 'Content'}</h2>
