@@ -30,10 +30,11 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
     @state() private products: ProductResult[] = [];
     @state() private facetLabels: string[] = [];
     @state() private loading = false;
+    @state() private loadingDirection: 'next' | 'previous' | null = null;
     @state() private error: string | null = null;
     @state() private user: User | null = null;
 
-    private page = 1;
+    private resultOffset = 0;
     private abortController = new AbortController();
 
     private get pageSize(): number {
@@ -61,15 +62,19 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             return;
         }
 
-        const previousPage = this.page;
-        this.page++;
-
         if (!await this.search(false)) {
-            this.page = previousPage;
             return;
         }
 
-        updateUrlState(QueryKeys.productTake, (this.pageSize * this.page).toString());
+        updateUrlState(QueryKeys.productTake, (this.resultOffset + this.products.length).toString());
+    }
+
+    private async loadPrevious(): Promise<void> {
+        if (this.loading || this.resultOffset === 0) {
+            return;
+        }
+
+        await this.search(false, false, 'previous');
     }
 
     prepareBatchSearch(settings: Settings): UniversalSearchBatchSearch {
@@ -81,12 +86,12 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
 
         return {
             request: requestResult.request,
-            applyResponse: response => this.applyBatchResponse(response, requestResult.facetLabels),
+            applyResponse: response => this.applyBatchResponse(response, requestResult.facetLabels, requestResult.request.skip),
             setError: () => this.setError(),
         };
     }
 
-    private async search(reset: boolean, preserveCurrentResults = false): Promise<boolean> {
+    private async search(reset: boolean, preserveCurrentResults = false, direction: 'next' | 'previous' = 'next'): Promise<boolean> {
         this.abortController.abort();
 
         if (!this.term) {
@@ -101,6 +106,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         }
 
         this.loading = true;
+        this.loadingDirection = reset ? null : direction;
         const abortController = new AbortController();
         this.abortController = abortController;
 
@@ -108,7 +114,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             // Let targeted runtime configuration register before the automatic search starts.
             await new Promise(resolve => setTimeout(resolve, 0));
             const settings = await getRelewiseContextSettings(this.displayedAtLocation ?? 'Relewise Universal Search');
-            const requestResult = this.buildRequest(settings, reset);
+            const requestResult = this.buildRequest(settings, reset, direction);
             const response = await getSearcher(getRelewiseUIOptions()).searchProducts(requestResult.request, { abortSignal: abortController.signal });
 
             if (abortController.signal.aborted) {
@@ -116,7 +122,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             }
 
             this.user = settings.user;
-            this.applyResponse(response ?? null, requestResult.facetLabels, reset);
+            this.applyResponse(response ?? null, requestResult.facetLabels, reset, direction === 'previous', requestResult.request.skip);
             return true;
         } catch {
             if (!abortController.signal.aborted) {
@@ -126,28 +132,51 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         } finally {
             if (!abortController.signal.aborted) {
                 this.loading = false;
+                this.loadingDirection = null;
             }
         }
     }
 
-    private buildRequest(settings: Settings, reset: boolean) {
-        const resultsToFetch = this.getResultsToFetch();
-        return buildProductSearchRequest({
+    private buildRequest(settings: Settings, reset: boolean, direction: 'next' | 'previous' = 'next') {
+        const pagination = this.getPagination(reset, direction);
+        const requestResult = buildProductSearchRequest({
             term: this.term,
             settings,
-            page: reset && resultsToFetch ? 1 : this.page,
-            pageSize: reset && resultsToFetch ? resultsToFetch : this.pageSize,
+            page: 1,
+            pageSize: pagination.take,
             productsLoaded: this.products.length,
             productsToFetch: null,
             target: this.target,
             facetQueryKeyPrefix: QueryKeys.productFacet,
             sortingQueryKey: QueryKeys.productSorting,
         });
+        requestResult.request.take = pagination.take;
+        requestResult.request.skip = pagination.skip;
+
+        return requestResult;
+    }
+
+    private getPagination(reset: boolean, direction: 'next' | 'previous'): { take: number; skip: number } {
+        const resultsToFetch = this.getResultsToFetch();
+        if (reset && resultsToFetch) {
+            const take = Math.min(resultsToFetch, this.pageSize);
+            return { take, skip: resultsToFetch - take };
+        }
+
+        if (direction === 'previous') {
+            const take = Math.min(this.resultOffset, this.pageSize);
+            return { take, skip: this.resultOffset - take };
+        }
+
+        return {
+            take: this.pageSize,
+            skip: reset ? 0 : this.resultOffset + this.products.length,
+        };
     }
 
     private resetForSearch(preserveCurrentResults = false): void {
         const resultsToFetch = this.getResultsToFetch();
-        this.page = resultsToFetch ? Math.ceil(resultsToFetch / this.pageSize) : 1;
+        this.resultOffset = resultsToFetch ? Math.max(0, resultsToFetch - this.pageSize) : 0;
         this.error = null;
         if (!preserveCurrentResults) {
             this.result = null;
@@ -157,16 +186,24 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         }
     }
 
-    private applyBatchResponse(response: SearchResponseCollection, facetLabels: string[]): void {
+    private applyBatchResponse(response: SearchResponseCollection, facetLabels: string[], resultOffset: number): void {
         const productResponse = response.responses?.find(item => '$type' in item
             && item.$type === 'Relewise.Client.Responses.Search.ProductSearchResponse, Relewise.Client') as ProductSearchResponse | undefined;
-        this.applyResponse(productResponse ?? null, facetLabels, true);
+        this.applyResponse(productResponse ?? null, facetLabels, true, false, resultOffset);
         this.loading = false;
     }
 
-    private applyResponse(response: ProductSearchResponse | null, facetLabels: string[], reset: boolean): void {
+    private applyResponse(response: ProductSearchResponse | null, facetLabels: string[], reset: boolean, prepend: boolean, resultOffset: number): void {
         this.result = response;
-        this.products = reset ? response?.results ?? [] : this.products.concat(response?.results ?? []);
+        const results = response?.results ?? [];
+        this.products = reset
+            ? results
+            : prepend
+                ? results.concat(this.products)
+                : this.products.concat(results);
+        if (reset || prepend) {
+            this.resultOffset = resultOffset;
+        }
         this.facetLabels = facetLabels;
         this.reportHits();
     }
@@ -183,7 +220,8 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         this.facetLabels = [];
         this.error = null;
         this.loading = false;
-        this.page = 1;
+        this.resultOffset = 0;
+        this.loadingDirection = null;
         this.reportHits();
     }
 
@@ -266,6 +304,16 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
                             </div>
                         </div>
                     ` : html`
+                        <relewise-universal-search-load-more
+                            direction="previous"
+                            exportparts="loading-state, load-previous"
+                            .offset=${this.resultOffset}
+                            .loaded=${this.products.length}
+                            .total=${this.result.hits ?? 0}
+                            .showStatus=${false}
+                            .loading=${this.loading && this.loadingDirection === 'previous'}
+                            @universal-search-load-previous=${this.loadPrevious}>
+                        </relewise-universal-search-load-more>
                         <div class="rw-result-grid rw-product-grid" part="product-grid">
                             ${this.products.map(product => html`
                                 <relewise-product-tile
@@ -278,10 +326,11 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
                         </div>
                         <relewise-universal-search-load-more
                             exportparts="loading-state, load-more"
+                            .offset=${this.resultOffset}
                             .loaded=${this.products.length}
                             .total=${this.result.hits ?? 0}
                             resultLabel=${localization?.results ?? 'products'}
-                            .loading=${this.loading}
+                            .loading=${this.loading && this.loadingDirection === 'next'}
                             @universal-search-load-more=${this.loadMore}>
                         </relewise-universal-search-load-more>
                     `}

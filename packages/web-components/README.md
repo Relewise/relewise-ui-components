@@ -735,6 +735,7 @@ useSearch({
         },
         loadMoreButton: {
             loadMore: 'Hent flere!',
+            loadPrevious: 'Hent tidligere!',
             showing: 'Viser',
             outOf: 'ud af',
             products: 'produkter',
@@ -1003,11 +1004,11 @@ Both the tabbed and tabless no-result states expose the CSS parts `zero-results`
 | Facets | `facets`, `facet-trigger`, `facet-panel`, `facet-drawer`, `facet-drawer-backdrop`, `facet-drawer-header`, `facet-drawer-close`, `facet-container`, `facet-title`, `facet-input`, `facet-label`, `facet-value`, `facet-hits` |
 | Results | `results-layout`, `results`, `results-header`, `results-title`, `results-count`, `product-grid`, `category-grid`, `content-grid`, `product-tile`, `category-tile`, `content-tile` |
 | Sorting | `sorting`, `sorting-container`, `sorting-select`, `sorting-label` |
-| States and pagination | `empty-state`, `error-state`, `loading-state`, `zero-results`, `zero-results-icon`, `zero-results-title`, `zero-results-hint`, `load-more` |
+| States and pagination | `empty-state`, `error-state`, `loading-state`, `zero-results`, `zero-results-icon`, `zero-results-title`, `zero-results-hint`, `load-previous`, `load-more` |
 
 Recommendation parts are listed above. Parts originating inside the combobox, facet, sorting, tile, load-more, and recommendation components are forwarded through `relewise-universal-search`.
 
-The current tabs use load-more behavior. Additional pagination modes are not part of the initial universal-search implementation.
+The current tabs use load-more behavior. When a product result count is restored from `rw-product-take`, Universal Search requests only the last configured page and exposes `load-previous` when earlier products can be loaded. Additional pagination modes are not part of the initial universal-search implementation.
 
 ##### Attributes
 
@@ -1631,6 +1632,7 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-product-grid-gap` | `1em` | Compatibility fallback for the result grid gap when `--relewise-universal-search-result-grid-gap` is unset. |
 | `--relewise-universal-search-loading-padding` | `2em 0` | Vertical padding around Universal Search loading indicators. |
 | `--relewise-universal-search-load-more-margin-top` | `1em` | Space above an entity's load-more control. |
+| `--relewise-universal-search-load-previous-margin-bottom` | `1em` | Space below the product load-previous control. |
 
 #### Search overlay container and messaging
 | Variable | Default | Description |

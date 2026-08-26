@@ -195,6 +195,7 @@ export interface SortingLocalization {
 
 export interface LoadMoreLocalization {
     loadMore?: string;
+    loadPrevious?: string;
     showing?: string;
     outOf?: string;
     products?: string;

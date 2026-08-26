@@ -87,9 +87,10 @@ type UniversalSearchTestApi = {
 
 type TabTestApi<TResult> = {
     result: unknown;
-    page: number;
+    resultOffset: number;
     facetLabels: string[];
     loadMore: () => Promise<void>;
+    loadPrevious: () => Promise<void>;
     renderRoot: HTMLElement | DocumentFragment;
 } & TResult;
 
@@ -732,15 +733,19 @@ suite('relewise-universal-search', () => {
             return productSearchResponse([], 0);
         };
 
-        updateUrlStateValues(QueryKeys.facet + 'Brand', ['Adidas', 'Nike']);
-        updateUrlStateValues(QueryKeys.productFacet + 'Brand', ['Adidas', 'Nike']);
-        updateUrlStateValues(QueryKeys.productCategoryFacet + 'DataDepartment', ['Electronics']);
-        updateUrlStateValues(QueryKeys.contentFacet + 'DataTopic', ['Guide']);
-        updateUrlState(QueryKeys.productTake, '4');
-        updateUrlState(QueryKeys.productCategoryTake, '4');
-        updateUrlState(QueryKeys.contentTake, '4');
-        updateUrlState(QueryKeys.sortBy, 'price');
-        updateUrlState(QueryKeys.productSorting, 'SalesPriceAsc');
+        const url = new URL(window.location.href);
+        url.searchParams.append(QueryKeys.facet + 'Brand', 'Adidas');
+        url.searchParams.append(QueryKeys.facet + 'Brand', 'Nike');
+        url.searchParams.append(QueryKeys.productFacet + 'Brand', 'Adidas');
+        url.searchParams.append(QueryKeys.productFacet + 'Brand', 'Nike');
+        url.searchParams.set(QueryKeys.productCategoryFacet + 'DataDepartment', 'Electronics');
+        url.searchParams.set(QueryKeys.contentFacet + 'DataTopic', 'Guide');
+        url.searchParams.set(QueryKeys.productTake, '4');
+        url.searchParams.set(QueryKeys.productCategoryTake, '4');
+        url.searchParams.set(QueryKeys.contentTake, '4');
+        url.searchParams.set(QueryKeys.sortBy, 'price');
+        url.searchParams.set(QueryKeys.productSorting, 'SalesPriceAsc');
+        window.history.replaceState({}, document.title, url);
 
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: {} } } });
@@ -1108,7 +1113,7 @@ suite('relewise-universal-search', () => {
         void productsTab(el).loadMore();
         await waitUntil(() => products(el).length === 3, 'more products were not appended');
 
-        assert.equal(readCurrentUrlState(QueryKeys.productTake), '4');
+        assert.equal(readCurrentUrlState(QueryKeys.productTake), '3');
         assert.isNull(readCurrentUrlState(QueryKeys.take));
         assert.equal(queryAllDeep(el.renderRoot, 'relewise-product-tile').length, 3);
     });
@@ -1143,7 +1148,6 @@ suite('relewise-universal-search', () => {
         await universalSearchUpdated(el);
 
         assert.equal(searchCount, 2);
-        assert.equal(productsTab(el).page, 2);
         assert.isNull(readCurrentUrlState(QueryKeys.productTake));
         assert.isNull(queryDeep(el, '[part="load-more"]'));
 
@@ -1152,7 +1156,7 @@ suite('relewise-universal-search', () => {
         assert.equal(readCurrentUrlState(QueryKeys.productTake), '4');
     });
 
-    test('rolls back pagination when load more fails', async () => {
+    test('retries the same pagination when load more fails', async () => {
         let searchCount = 0;
         const requestedPages: number[] = [];
 
@@ -1181,44 +1185,69 @@ suite('relewise-universal-search', () => {
 
         await productsTab(el).loadMore();
 
-        assert.equal(productsTab(el).page, 1);
         assert.isNull(readCurrentUrlState(QueryKeys.productTake));
 
         await productsTab(el).loadMore();
 
         assert.deepEqual(requestedPages, [1, 2, 2]);
-        assert.equal(productsTab(el).page, 2);
         assert.equal(readCurrentUrlState(QueryKeys.productTake), '4');
         assert.deepEqual(products(el).map(result => result.productId), ['1', '2', '3', '4']);
     });
 
-    test('continues product load more from an existing scoped take URL state', async () => {
-        let searchCount = 0;
+    test('restores a large product take from the last page and exposes both paging directions', async () => {
+        const requestedPagination: Array<{ skip: number; take: number }> = [];
+        const totalProducts = 10_030;
 
-        Searcher.prototype.searchProducts = async function() {
-            searchCount++;
+        Searcher.prototype.searchProducts = async function(request) {
+            const skip = (request as any).skip as number;
+            const take = (request as any).take as number;
+            requestedPagination.push({ skip, take });
 
-            return productSearchResponse(searchCount === 1
-                ? [product('1'), product('2'), product('3'), product('4')]
-                : [product('5'), product('6')], 6);
+            return productSearchResponse(
+                Array.from({ length: take }, (_, index) => product((skip + index + 1).toString())),
+                totalProducts,
+            );
         };
 
-        updateUrlState(QueryKeys.term, 'shoe');
-        updateUrlState(QueryKeys.productTake, '4');
+        window.history.pushState({}, '', `?${QueryKeys.term}=shoe&${QueryKeys.productTake}=10000`);
 
         initializeRelewiseUI(mockRelewiseOptions());
-        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: { pageSize: 2 } } } });
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: { entities: { products: { pageSize: 15 } } },
+            localization: { loadMoreButton: { loadPrevious: 'Load earlier products' } },
+        });
 
         const el = await fixture(html`
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        await waitUntil(() => products(el).length === 4, 'initial URL take was not loaded');
+        await waitUntil(() => products(el).length === 15, 'last product page was not restored');
+        await universalSearchUpdated(el);
 
-        void productsTab(el).loadMore();
-        await waitUntil(() => products(el).length === 6, 'more products were not appended after URL take');
+        assert.deepEqual(requestedPagination, [{ skip: 9985, take: 15 }]);
+        assert.equal(productsTab(el).resultOffset, 9985);
+        assert.equal(products(el)[0].productId, '9986');
+        assert.equal(products(el)[14].productId, '10000');
+        assert.equal(readCurrentUrlState(QueryKeys.productTake), '10000');
 
-        assert.equal(readCurrentUrlState(QueryKeys.productTake), '6');
+        const loadPrevious = queryDeep<HTMLElement>(el, '[part="load-previous"]');
+        assert.exists(loadPrevious);
+        assert.include(loadPrevious?.textContent ?? '', 'Load earlier products');
+        assert.equal(getComputedStyle(loadPrevious!).marginTop, '0px');
+        assert.isAbove(parseFloat(getComputedStyle(loadPrevious!).marginBottom), 0);
+
+        const loadNext = queryDeep<HTMLElement>(el, '[part="load-more"]');
+        assert.exists(loadNext);
+
+        await productsTab(el).loadPrevious();
+
+        assert.deepEqual(requestedPagination[1], { skip: 9970, take: 15 });
+        assert.equal(productsTab(el).resultOffset, 9970);
+        assert.equal(products(el).length, 30);
+        assert.equal(products(el)[0].productId, '9971');
+        assert.equal(products(el)[29].productId, '10000');
+        assert.equal(readCurrentUrlState(QueryKeys.productTake), '10000');
     });
 
     test('loads more content using scoped take URL state', async () => {
