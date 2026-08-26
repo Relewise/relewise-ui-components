@@ -1546,6 +1546,45 @@ suite('relewise-universal-search', () => {
         assert.equal(internals(el).activeTab, 'content');
     });
 
+    test('keeps facets visible when selected filters produce zero results', async() => {
+        const facets = {
+            items: [{
+                $type: 'Relewise.Client.DataTypes.Search.Facets.Result.ProductDataStringValueFacetResult, Relewise.Client',
+                field: 'Data',
+                key: 'Color',
+                available: [{
+                    value: 'red',
+                    hits: 0,
+                    selected: true,
+                }],
+            }],
+        };
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([], 0, facets);
+        };
+        updateUrlState(QueryKeys.term, 'shoe');
+        updateUrlState(`${QueryKeys.productFacet}DataColor`, 'red');
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            facets: {
+                product(builder) {
+                    builder.addFacet(f => f.addProductDataStringValueFacet('Color', 'Product'), { heading: 'Color' });
+                },
+            },
+            universalSearch: {
+                entities: { products: {} },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        await waitUntil(() => queryDeep(el, '[part="facets"]') !== null, 'selected facets were not rendered');
+        assert.isNotNull(queryDeep(el, '[part="zero-results"]'));
+    });
+
     test('includes configured product category facets in product category requests', async () => {
         let facetItems: any[] | undefined;
 

@@ -7,6 +7,7 @@ import {
     getRelewiseContextSettings,
     getRelewiseUIOptions,
     getRelewiseUISearchOptions,
+    hasUrlStateWithPrefix,
     readCurrentUrlState,
     updateUrlState,
 } from '../../../helpers';
@@ -203,7 +204,8 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.products;
         const noResultsHint = localization?.noResultsHint ?? 'Try another search term or check the spelling.';
-        const facetResult = this.result !== null && this.result.hits > 0 && !this.hideFacets ? this.result.facets : null;
+        const hasSelectedFacets = hasUrlStateWithPrefix(QueryKeys.productFacet);
+        const facetResult = this.result !== null && !this.hideFacets && (this.result.hits > 0 || hasSelectedFacets) ? this.result.facets : null;
         const facets = facetResult ? html`
             <relewise-universal-search-facets
                 class="rw-facets"
