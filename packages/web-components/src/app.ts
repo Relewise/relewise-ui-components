@@ -53,6 +53,7 @@ export interface RelewiseUISearchOptions {
     localization?: SearchLocalization;
     rememberScrollPosition?: boolean;
     debounceTimeInMs?: number;
+    minimumQueryLength?: number;
     variantRequestSettings?: (builder: VariantSearchRequestSettingsBuilder) => void;
     /**
      * @deprecated Use `variantRequestSettings` and set `maxVariantsPerProduct` instead.
@@ -314,12 +315,17 @@ export function registerRecommendationTarget(target: string, configuration: Targ
 }
 
 export function useSearch(options?: RelewiseUISearchOptions) {
-    const defaultDebounceTimeInMs = 250;
+    const defaultDebounceTimeInMs = 300;
+    const defaultMinimumQueryLength = 1;
     if (options) {
         options.debounceTimeInMs = options.debounceTimeInMs ?? defaultDebounceTimeInMs;
+        options.minimumQueryLength = options.minimumQueryLength ?? defaultMinimumQueryLength;
         window.relewiseUISearchOptions = options;
     } else {
-        window.relewiseUISearchOptions = { debounceTimeInMs: defaultDebounceTimeInMs };
+        window.relewiseUISearchOptions = {
+            debounceTimeInMs: defaultDebounceTimeInMs,
+            minimumQueryLength: defaultMinimumQueryLength,
+        };
     }
 
     if (window.relewiseUISearchOptions.universalSearch) {

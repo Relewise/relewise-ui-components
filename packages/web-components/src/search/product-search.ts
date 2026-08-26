@@ -80,6 +80,7 @@ export class ProductSearch extends RelewiseLitElement {
             window.removeEventListener('scroll', this.handleScrollEventBound);
         }
 
+        this.abortController.abort();
         super.disconnectedCallback();
     }
 
@@ -110,6 +111,20 @@ export class ProductSearch extends RelewiseLitElement {
 
         const term = readCurrentUrlState(QueryKeys.term) ?? null;
 
+        const minimumQueryLength = getRelewiseUISearchOptions()?.minimumQueryLength ?? 1;
+        if (term && term.length < minimumQueryLength) {
+            this.products = [];
+            this.searchResult = null;
+            this.facetLabels = [];
+            if (this.renderRoot) {
+                this.setSearchResultOnSlotChilderen();
+            }
+            window.dispatchEvent(new CustomEvent(Events.searchingForProductsCompleted));
+            return;
+        }
+
+        const abortController = new AbortController();
+        this.abortController = abortController;
         const numberOfProductsToFetch = getNumberOfProductsToFetch();
 
         const relewiseUIOptions = getRelewiseUIOptions();
@@ -117,7 +132,15 @@ export class ProductSearch extends RelewiseLitElement {
 
         // Wait a tick so runtime filter extensions can run before the first automatic search executes.
         await new Promise(r => setTimeout(r, 0));
+        if (abortController.signal.aborted || abortController !== this.abortController) {
+            return;
+        }
+
         const settings = await getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search');
+        if (abortController.signal.aborted || abortController !== this.abortController) {
+            return;
+        }
+
         this.user = settings.user;
         const requestResult = buildProductSearchRequest({
             term,
@@ -130,8 +153,11 @@ export class ProductSearch extends RelewiseLitElement {
         });
         this.facetLabels = requestResult.facetLabels;
 
-        this.abortController = new AbortController();
-        const response = await searcher.searchProducts(requestResult.request, { abortSignal: this.abortController.signal });
+        const response = await searcher.searchProducts(requestResult.request, { abortSignal: abortController.signal });
+        if (abortController.signal.aborted || abortController !== this.abortController) {
+            return;
+        }
+
         if (!response) {
             return;
         }
