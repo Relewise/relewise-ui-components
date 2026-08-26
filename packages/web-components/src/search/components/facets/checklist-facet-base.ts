@@ -84,17 +84,12 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
 
         const localization = getRelewiseUISearchOptions()?.localization?.facets;
 
-        const facetResultsToShow = this.showAll
-            ? this.result.available
-            : [...this.result.available].sort((a, b) => {
-                if (a.selected && !b.selected) {
-                    return -1; // a comes before b
-                } else if (!a.selected && b.selected) {
-                    return 1; // b comes before a
-                } else {
-                    return 0; // leave their order unchanged
-                }
-            }).slice(0, 10);
+        const sortedAvailable = [...this.result.available].sort((a, b) =>
+            this.getOptionDisplayValue(a).localeCompare(this.getOptionDisplayValue(b), undefined, {
+                numeric: true,
+                sensitivity: 'base',
+            }));
+        const facetResultsToShow = this.showAll ? sortedAvailable : sortedAvailable.slice(0, 10);
 
         // if there are not facets options, then return nothing
         if (facetResultsToShow.length === 0) {

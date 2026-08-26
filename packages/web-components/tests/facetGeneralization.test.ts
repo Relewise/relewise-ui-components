@@ -104,7 +104,7 @@ suite('facet generalization', () => {
         assert.deepEqual(searchParams.getAll(QueryKeys.facet + 'DataColor'), []);
     });
 
-    test('keeps only the selected checkbox checked when selected values move first', async () => {
+    test('sorts facet values alphanumerically without moving selected values first', async () => {
         const el = await fixture(html`
             <relewise-facets
                 .facetResult=${productColorFacetResult()}
@@ -117,17 +117,20 @@ suite('facet generalization', () => {
 
         const facet = el.shadowRoot!.querySelector('relewise-checklist-string-value-facet')!;
         await waitUntil(() => facet.shadowRoot?.querySelectorAll('input').length === 3, 'facet inputs were not rendered');
-        const blueInput = facet.shadowRoot!.querySelectorAll('input')[1];
-        blueInput.click();
+        const colorTenInput = facet.shadowRoot!.querySelectorAll('input')[2];
+        colorTenInput.click();
 
-        el.facetResult = productColorFacetResult('Blue');
+        el.facetResult = productColorFacetResult('Color 10');
         await el.updateComplete;
         await facet.updateComplete;
 
         const inputs = [...facet.shadowRoot!.querySelectorAll('input')];
-        assert.equal(inputs[0], blueInput);
+        const values = inputs.map(input => input.closest('label')?.querySelector('[part="value"]')?.textContent);
+        assert.deepEqual(values, ['Blue', 'Color 2', 'Color 10']);
+        assert.equal(inputs[2], colorTenInput);
         assert.equal(inputs.filter(input => input.checked).length, 1);
-        assert.include(inputs[0].closest('label')?.textContent ?? '', 'Blue');
+        assert.isTrue(inputs[2].checked);
+        assert.notInclude(inputs[0].closest('label')?.textContent ?? '', 'Color 10');
     });
 
     test('derives range URL keys from the facet prefix', async () => {
@@ -309,7 +312,7 @@ function productColorFacetResult(selectedValue?: string): ProductFacetResult {
             $type: 'Relewise.Client.DataTypes.Search.Facets.Result.ProductDataStringValueFacetResult, Relewise.Client',
             field: 'Data',
             key: 'Color',
-            available: ['Red', 'Blue', 'Green'].map(value => ({
+            available: ['Color 10', 'Blue', 'Color 2'].map(value => ({
                 value,
                 hits: 12,
                 selected: value === selectedValue,
