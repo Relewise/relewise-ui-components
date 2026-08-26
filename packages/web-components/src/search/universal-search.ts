@@ -277,6 +277,7 @@ export class UniversalSearch extends RelewiseLitElement {
             }
 
             if (!response) {
+                searches.forEach(search => search.setError());
                 return;
             }
 

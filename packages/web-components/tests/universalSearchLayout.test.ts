@@ -1,4 +1,5 @@
-import { assert, fixture, fixtureCleanup, html } from '@open-wc/testing';
+import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
+import { Searcher } from '@relewise/client';
 import type { ProductFacetResult } from '@relewise/client';
 import { initializeRelewiseUI, UniversalSearch, useSearch } from '../src';
 import type { UniversalSearchFacets } from '../src/search/universal-search-facets';
@@ -20,7 +21,10 @@ function facetResult(): ProductFacetResult {
 }
 
 suite('universal search layout', () => {
+    const originalBatch = Searcher.prototype.batch;
+
     setup(() => {
+        Searcher.prototype.batch = originalBatch;
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch({ universalSearch: {} });
     });
@@ -29,6 +33,7 @@ suite('universal search layout', () => {
         fixtureCleanup();
         window.relewiseUISearchOptions = undefined!;
         window.relewiseUIOptions = undefined!;
+        Searcher.prototype.batch = originalBatch;
     });
 
     test('uses the configured compact widths when the dialog container is narrow', async () => {
@@ -256,5 +261,31 @@ suite('universal search layout', () => {
         assert.include(styles, '@container universal-search-dialog (width < 64rem)');
         assert.include(styles, 'relewise-universal-search .rw-body > *');
         assert.include(styles, '--relewise-universal-search-mobile-layout-width');
+    });
+
+    test('shows an error instead of leaving tabs loading when the batch returns no response', async() => {
+        Searcher.prototype.batch = async function() {
+            return undefined;
+        };
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: {} } } });
+
+        const element = await fixture<UniversalSearch>(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `);
+
+        (element as any).setSearchTerm('shoe');
+        await waitUntil(
+            () => Boolean(element.renderRoot
+                .querySelector<any>('relewise-universal-search-products-tab')
+                ?.renderRoot.querySelector('[part="error-state"]')),
+            'the product error state was not rendered',
+        );
+
+        const productsTab = element.renderRoot.querySelector<any>('relewise-universal-search-products-tab')!;
+        assert.equal(
+            productsTab.renderRoot.querySelector('[part="error-state"]')?.textContent,
+            'Could not load products.',
+        );
+        assert.isNull(productsTab.renderRoot.querySelector('[part="loading-state"]'));
     });
 });
