@@ -180,38 +180,40 @@ export class ProductSearch extends RelewiseLitElement {
         window.dispatchEvent(new CustomEvent(Events.searchingForProductsCompleted));
     }
 
-    getSelectedValuesForFacet(facet: Facet) {
+    getSelectedValuesForFacet(facet: Facet, parentKey?: string) {
+        const urlKey = this.getFacetUrlKey(facet, parentKey);
+
+        if (facet.$type.includes('DataObjectFacet') && 'items' in facet) {
+            facet.items.forEach(item => this.getSelectedValuesForFacet(item, urlKey));
+            return;
+        }
+
         if (facet.$type.includes('ProductDataDoubleRangeFacet') ||
+            facet.$type.includes('DataObjectDoubleRangeFacet') ||
             facet.$type.includes('PriceRangeFacet')) {
-            this.getSelectedRange(facet);
+            this.getSelectedRange(facet, urlKey);
             return;
         }
 
         if (facet.$type.includes('PriceRangesFacet') ||
-            facet.$type.includes('ProductDataDoubleRangesFacet')) {
-            this.getSelectedRanges(facet);
+            facet.$type.includes('ProductDataDoubleRangesFacet') ||
+            facet.$type.includes('DataObjectDoubleRangesFacet')) {
+            this.getSelectedRanges(facet, urlKey);
             return;
         }
 
-        this.getSelectedStrings(facet);
+        this.getSelectedStrings(facet, urlKey);
 
         if (!facet.settings) {
             facet.settings = { alwaysIncludeSelectedInAvailable: true, includeZeroHitsInAvailable: false };
         }
     }
 
-    getSelectedRange(facet: Facet) {
+    getSelectedRange(facet: Facet, urlKey?: string) {
         if ('selected' in facet) {
-            let upperBound = null;
-            let lowerBound = null;
-
-            if ('key' in facet) {
-                upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field + facet.key);
-                lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field + facet.key);
-            } else {
-                upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field);
-                lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field);
-            }
+            const key = urlKey ?? this.getFacetUrlKey(facet) ?? '';
+            const upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field + key);
+            const lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field + key);
 
             facet.selected = {
                 lowerBoundInclusive: lowerBound ? +lowerBound : null,
@@ -220,14 +222,10 @@ export class ProductSearch extends RelewiseLitElement {
         }
     }
 
-    getSelectedRanges(facet: Facet) {
+    getSelectedRanges(facet: Facet, urlKey?: string) {
         if ('selected' in facet) {
-            let queryValues = null;
-            if ('key' in facet) {
-                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key);
-            } else {
-                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field);
-            }
+            const key = urlKey ?? this.getFacetUrlKey(facet) ?? '';
+            const queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + key);
             facet.selected = queryValues.map(x => {
                 const split = x.split('-');
                 return {
@@ -238,16 +236,19 @@ export class ProductSearch extends RelewiseLitElement {
         }
     }
 
-    getSelectedStrings(facet: Facet) {
+    getSelectedStrings(facet: Facet, urlKey?: string) {
         if ('selected' in facet) {
-            let queryValues = null;
-            if ('key' in facet) {
-                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key);
-            } else {
-                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field);
-            }
-            facet.selected = queryValues;
+            const key = urlKey ?? this.getFacetUrlKey(facet) ?? '';
+            facet.selected = readCurrentUrlStateValues(QueryKeys.facet + facet.field + key);
         }
+    }
+
+    getFacetUrlKey(facet: Facet, parentKey?: string): string | undefined {
+        if (!('key' in facet) || !facet.key) {
+            return parentKey;
+        }
+
+        return parentKey ? `${parentKey}.${facet.key}` : facet.key;
     }
 
     setSearchResultOnSlotChilderen() {

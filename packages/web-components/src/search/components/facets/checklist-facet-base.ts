@@ -19,6 +19,9 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
     @property()
     label: string = '';
 
+    @property({ attribute: false })
+    urlKey?: string;
+
     @state()
     selectedValues: string[] = [];
 
@@ -32,11 +35,7 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
         window.addEventListener(Events.search, this.clearSelectedValuesBound);
 
         if (this.result) {
-            if ('key' in this.result) {
-                this.selectedValues = readCurrentUrlStateValues(QueryKeys.facet + this.result.field + this.result.key);
-            } else {
-                this.selectedValues = readCurrentUrlStateValues(QueryKeys.facet + this.result.field);
-            }
+            this.selectedValues = readCurrentUrlStateValues(QueryKeys.facet + this.result.field + this.getUrlKey());
         }
     }
 
@@ -55,15 +54,19 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
             return;
         }
 
-        if ('key' in this.result) {
-            updateUrlStateValues(QueryKeys.facet + this.result.field + this.result.key, this.selectedValues);
-        } else {
-            updateUrlStateValues(QueryKeys.facet + this.result.field, this.selectedValues);
-        }
+        updateUrlStateValues(QueryKeys.facet + this.result.field + this.getUrlKey(), this.selectedValues);
 
         if (searchForProducts) {
             window.dispatchEvent(new CustomEvent(Events.applyFacet));
         }
+    }
+
+    getUrlKey(): string {
+        if (this.urlKey) {
+            return this.urlKey;
+        }
+
+        return this.result && 'key' in this.result ? this.result.key ?? '' : '';
     }
 
     render() {

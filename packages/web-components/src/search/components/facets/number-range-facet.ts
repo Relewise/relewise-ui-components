@@ -1,5 +1,5 @@
 import { RelewiseLitElement } from '../../../relewise-lit-element';
-import { ProductDataDoubleRangeFacetResult } from '@relewise/client';
+import { DataObjectDoubleRangeFacetResult, ProductDataDoubleRangeFacetResult } from '@relewise/client';
 import { css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../../helpers';
@@ -8,10 +8,13 @@ import { theme } from '../../../theme';
 export class NumberRangeFacet extends RelewiseLitElement {
 
     @property({ type: Object })
-    result: (ProductDataDoubleRangeFacetResult) | null = null;
+    result: ProductDataDoubleRangeFacetResult | DataObjectDoubleRangeFacetResult | null = null;
 
     @property()
     label: string = '';
+
+    @property({ attribute: false })
+    urlKey?: string;
 
     @state()
     upperBound: number | null | undefined = null;
@@ -22,17 +25,8 @@ export class NumberRangeFacet extends RelewiseLitElement {
     connectedCallback(): void {
         super.connectedCallback();
         if (this.result) {
-
-            let upperBound = null;
-            let lowerBound = null;
-
-            if ('key' in this.result) {
-                upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + this.result.field + this.result.key);
-                lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + this.result.field + this.result.key);
-            } else {
-                upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + this.result.field);
-                lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + this.result.field);
-            }
+            const upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + this.result.field + this.getUrlKey());
+            const lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + this.result.field + this.getUrlKey());
             if (upperBound && !isNaN(+upperBound)) {
                 this.upperBound = +upperBound;
             }
@@ -86,15 +80,18 @@ export class NumberRangeFacet extends RelewiseLitElement {
             this.result.available?.value?.lowerBoundInclusive;
         }
 
-        if ('key' in this.result) {
-            updateUrlState(QueryKeys.facetUpperbound + this.result.field + this.result.key, upperBound?.toString() ?? '');
-            updateUrlState(QueryKeys.facetLowerbound + this.result.field + this.result.key, lowerBound?.toString() ?? '');
-        } else {
-            updateUrlState(QueryKeys.facetUpperbound + this.result.field, upperBound?.toString() ?? '');
-            updateUrlState(QueryKeys.facetLowerbound + this.result.field, lowerBound?.toString() ?? '');
-        }
+        updateUrlState(QueryKeys.facetUpperbound + this.result.field + this.getUrlKey(), upperBound?.toString() ?? '');
+        updateUrlState(QueryKeys.facetLowerbound + this.result.field + this.getUrlKey(), lowerBound?.toString() ?? '');
 
         window.dispatchEvent(new CustomEvent(Events.applyFacet));
+    }
+
+    getUrlKey(): string {
+        if (this.urlKey) {
+            return this.urlKey;
+        }
+
+        return this.result?.key ?? '';
     }
 
     handleKeyEvent(event: KeyboardEvent): void {
