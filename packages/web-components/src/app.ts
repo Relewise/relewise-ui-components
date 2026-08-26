@@ -214,7 +214,7 @@ export function registerRecommendationTarget(target: string, configuration: Targ
 }
 
 export function useSearch(options?: RelewiseUISearchOptions) {
-    const defaultDebounceTimeInMs = 250;
+    const defaultDebounceTimeInMs = 300;
     const defaultMinimumQueryLength = 1;
     if (options) {
         options.debounceTimeInMs = options.debounceTimeInMs ?? defaultDebounceTimeInMs;

@@ -15,7 +15,7 @@ suite('initialize', () => {
         initializeRelewiseUI(mockRelewiseOptions()).useSearch();
 
         assert.deepEqual(getRelewiseUISearchOptions(), {
-            debounceTimeInMs: 250,
+            debounceTimeInMs: 300,
             minimumQueryLength: 1,
         });
     });

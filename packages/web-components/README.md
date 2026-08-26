@@ -635,7 +635,7 @@ useSearch();
 
 #### Request timing
 
-Search requests are debounced by 250 milliseconds and begin from the first character by default. Configure either behavior through `useSearch`:
+Search requests are debounced by 300 milliseconds and begin from the first character by default. Configure either behavior through `useSearch`:
 
 ```ts
 useSearch({
