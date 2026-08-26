@@ -887,7 +887,7 @@ useSearch({
 <relewise-universal-search displayed-at-location="LOCATION"></relewise-universal-search>
 ```
 
-The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
+When the component is connected with an existing `rw-term` URL parameter, it restores that term and automatically opens Universal Search.
 
 Universal Search bases its internal responsive layout on the available dialog width. Dialogs below `64rem` (typically `1024px`) use a facet drawer, while dialogs at least `64rem` wide use the desktop columns and facet rail. Product results and product recommendations default to three columns below `64rem`, two columns at up to `48rem`, and one column at up to `28rem`; explicit column variables continue to override these defaults. At up to `48rem`, the search input and close button remain on one line, filter and sorting controls share a row, and search suggestions join the normal document flow. This also makes a consumer-configured narrow dialog behave compactly on a wide viewport.
 
