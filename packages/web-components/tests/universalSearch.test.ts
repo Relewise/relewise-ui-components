@@ -996,6 +996,39 @@ suite('relewise-universal-search', () => {
         assert.closeTo(results.getBoundingClientRect().top - resultsHeader.getBoundingClientRect().bottom, rowGap, 1);
     });
 
+    test('uses progressively denser default product columns as the dialog widens', async () => {
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([product('1'), product('2'), product('3')], 3, { items: [] });
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: { entities: { products: {} } },
+        });
+        const el = await fixture<UniversalSearch>(html`
+            <relewise-universal-search
+                open
+                style="--relewise-universal-search-width: 60rem;">
+            </relewise-universal-search>
+        `);
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el).length === 3);
+        await universalSearchUpdated(el);
+        const productGrid = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="product-grid"]')!;
+
+        assert.equal(getComputedStyle(productGrid).gridTemplateColumns.split(' ').length, 3);
+
+        el.style.setProperty('--relewise-universal-search-width', '40rem');
+        await new Promise(requestAnimationFrame);
+        assert.equal(getComputedStyle(productGrid).gridTemplateColumns.split(' ').length, 2);
+
+        el.style.setProperty('--relewise-universal-search-width', '20rem');
+        await new Promise(requestAnimationFrame);
+        assert.equal(getComputedStyle(productGrid).gridTemplateColumns.split(' ').length, 1);
+    });
+
     test('uses entity-specific compact columns without overflowing the result layout', async () => {
         Searcher.prototype.searchProducts = async function() {
             return productSearchResponse([product('1'), product('2'), product('3')], 3, { items: [] });

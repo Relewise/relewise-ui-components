@@ -332,6 +332,35 @@ suite('universal search recommendations', () => {
         assert.equal(styles.getPropertyValue('--relewise-recommendation-grid-mobile-columns').trim(), '2');
     });
 
+    test('uses progressively denser default product recommendation columns as the dialog widens', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            universalSearch: {
+                recommendations: { initial: [{ type: 'PopularProducts' }] },
+            },
+        });
+        const element = await fixture<UniversalSearch>(html`
+            <relewise-universal-search
+                open
+                style="--relewise-universal-search-width: 60rem;">
+            </relewise-universal-search>
+        `);
+        await waitUntil(() => queryDeep(element, 'relewise-product-tile') !== null);
+        const productGrid = queryDeep<HTMLElement>(element, 'relewise-popular-products')!;
+
+        assert.equal(getComputedStyle(productGrid).getPropertyValue('--relewise-recommendation-grid-columns').trim(), '3');
+
+        element.style.setProperty('--relewise-universal-search-width', '40rem');
+        await new Promise(requestAnimationFrame);
+        assert.equal(getComputedStyle(productGrid).getPropertyValue('--relewise-recommendation-grid-columns').trim(), '2');
+
+        element.style.setProperty('--relewise-universal-search-width', '20rem');
+        await new Promise(requestAnimationFrame);
+        const narrowStyles = getComputedStyle(productGrid);
+        assert.equal(narrowStyles.getPropertyValue('--relewise-recommendation-grid-columns').trim(), '1');
+        assert.equal(narrowStyles.getPropertyValue('--relewise-recommendation-grid-mobile-columns').trim(), '1');
+    });
+
     test('uses entity-specific compact columns for recommendation grids', async() => {
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch({

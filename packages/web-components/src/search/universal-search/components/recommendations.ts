@@ -513,7 +513,7 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
 
         @container universal-search-dialog (width < 64rem) {
             [part~="product-recommendation-grid"] {
-                --relewise-recommendation-grid-columns: var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 2));
+                --relewise-recommendation-grid-columns: var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 3));
             }
 
             [part~="category-recommendation-grid"] {
@@ -522,6 +522,19 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
 
             [part~="content-recommendation-grid"] {
                 --relewise-recommendation-grid-columns: var(--relewise-universal-search-mobile-content-columns, var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2)));
+            }
+        }
+
+        @container universal-search-dialog (width <= 48rem) {
+            [part~="product-recommendation-grid"] {
+                --relewise-recommendation-grid-columns: var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 2));
+            }
+        }
+
+        @container universal-search-dialog (width <= 28rem) {
+            [part~="product-recommendation-grid"] {
+                --relewise-recommendation-grid-columns: var(--relewise-universal-search-narrow-product-columns, var(--relewise-universal-search-narrow-result-columns, var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 1))));
+                --relewise-recommendation-grid-mobile-columns: var(--relewise-universal-search-narrow-product-columns, var(--relewise-universal-search-narrow-result-columns, var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 1))));
             }
         }
     `];

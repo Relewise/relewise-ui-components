@@ -144,7 +144,7 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
         }
 
         .rw-product-grid {
-            grid-template-columns: repeat(var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 2)), minmax(0, 1fr));
+            grid-template-columns: repeat(var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 3)), minmax(0, 1fr));
         }
 
         .rw-category-grid {
@@ -157,6 +157,10 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
     }
 
     @container universal-search-dialog (width <= 48rem) {
+        .rw-product-grid {
+            grid-template-columns: repeat(var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 2)), minmax(0, 1fr));
+        }
+
         .rw-results-header {
             align-items: stretch;
             flex-direction: column;
@@ -212,6 +216,12 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
             flex: 1;
             height: 100%;
             min-width: 0;
+        }
+    }
+
+    @container universal-search-dialog (width <= 28rem) {
+        .rw-product-grid {
+            grid-template-columns: repeat(var(--relewise-universal-search-narrow-product-columns, var(--relewise-universal-search-narrow-result-columns, var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 1)))), minmax(0, 1fr));
         }
     }
 

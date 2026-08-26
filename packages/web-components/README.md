@@ -889,7 +889,7 @@ useSearch({
 
 The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
 
-Universal Search bases its internal responsive layout on the available dialog width. Dialogs below `64rem` (typically `1024px`) use the compact result columns and a facet drawer; dialogs at least `64rem` wide use the desktop columns and facet rail. At up to `48rem` (typically `768px`), the search input and close button remain on one line, filter and sorting controls share a row, and search suggestions join the normal document flow. This also makes a consumer-configured narrow dialog behave compactly on a wide viewport.
+Universal Search bases its internal responsive layout on the available dialog width. Dialogs below `64rem` (typically `1024px`) use a facet drawer, while dialogs at least `64rem` wide use the desktop columns and facet rail. Product results and product recommendations default to three columns below `64rem`, two columns at up to `48rem`, and one column at up to `28rem`; explicit column variables continue to override these defaults. At up to `48rem`, the search input and close button remain on one line, filter and sorting controls share a row, and search suggestions join the normal document flow. This also makes a consumer-configured narrow dialog behave compactly on a wide viewport.
 
 The default appearance is intentionally neutral. Use the documented CSS custom properties for sizing and columns, and CSS parts for detailed presentation, without changing the component's search behavior.
 
@@ -1628,6 +1628,8 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-content-columns` | Generic result columns | Content result and recommendation columns in wide dialog containers. |
 | `--relewise-universal-search-mobile-result-columns` | `2` | Generic entity column fallback for dialog containers below `64rem` (typically `1024px`). |
 | `--relewise-universal-search-mobile-product-columns` | Generic compact columns | Product result and recommendation columns in compact dialog containers. |
+| `--relewise-universal-search-narrow-result-columns` | `1` | Generic fallback for product columns in dialog containers up to `28rem`. |
+| `--relewise-universal-search-narrow-product-columns` | Generic narrow columns | Product result and recommendation columns in dialog containers up to `28rem`. |
 | `--relewise-universal-search-mobile-category-columns` | Generic compact columns | Category result and recommendation columns in compact dialog containers. |
 | `--relewise-universal-search-mobile-content-columns` | Generic compact columns | Content result and recommendation columns in compact dialog containers. |
 | `--relewise-universal-search-result-grid-gap` | `1em` | Gap between entity result tiles. |
