@@ -38,12 +38,12 @@ import { LikeFilledIcon } from './components/icons/like-filled';
 import { DislikeIcon } from './components/icons/dislike';
 import { DislikeFilledIcon } from './components/icons/dislike-filled';
 import { SearchSortingOptionsBuilder } from './builders/searchSortingBuilder';
-import { UniversalSearchContentTab } from './search/universal-search-content-tab';
-import { UniversalSearchFacets } from './search/universal-search-facets';
-import { UniversalSearchLoadMore } from './search/universal-search-load-more';
-import { UniversalSearchProductCategoriesTab } from './search/universal-search-product-categories-tab';
-import { UniversalSearchProductsTab } from './search/universal-search-products-tab';
-import { UniversalSearchRecommendations } from './search/universal-search-recommendations';
+import { UniversalSearchContentTab } from './search/universal-search/components/content-tab';
+import { UniversalSearchFacets } from './search/universal-search/components/facets';
+import { UniversalSearchLoadMore } from './search/universal-search/components/load-more';
+import { UniversalSearchProductCategoriesTab } from './search/universal-search/components/product-categories-tab';
+import { UniversalSearchProductsTab } from './search/universal-search/components/products-tab';
+import { UniversalSearchRecommendations } from './search/universal-search/components/recommendations';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;

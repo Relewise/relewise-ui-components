@@ -1,4 +1,4 @@
-import { QueryKeys, getFacetRangeQueryKeyPrefixes } from '../helpers';
+import { QueryKeys, getFacetRangeQueryKeyPrefixes } from '../../helpers';
 
 const takeQueryKeys = [QueryKeys.take, QueryKeys.productTake, QueryKeys.productCategoryTake, QueryKeys.contentTake];
 const facetQueryKeyPrefixes = [QueryKeys.facet, QueryKeys.productFacet, QueryKeys.productCategoryFacet, QueryKeys.contentFacet]

@@ -1,10 +1,10 @@
 import { html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { QueryKeys, getRelewiseUISearchOptions } from '../helpers';
-import { RelewiseLitElement } from '../relewise-lit-element';
-import type { FacetResultContainer } from './types';
-import { trapFocusInDialog } from './universal-search-focus';
-import { universalSearchFacetsStyles } from './universal-search-facets.styles';
+import { QueryKeys, getRelewiseUISearchOptions } from '../../../helpers';
+import { RelewiseLitElement } from '../../../relewise-lit-element';
+import type { FacetResultContainer } from '../../types';
+import { trapFocusInDialog } from '../universal-search-focus';
+import { universalSearchFacetsStyles } from './facets.styles';
 
 export const universalSearchFacetsChangedEvent = 'universal-search-facets-changed';
 export const universalSearchFacetsDrawerStateChangedEvent = 'universal-search-facets-drawer-state-changed';

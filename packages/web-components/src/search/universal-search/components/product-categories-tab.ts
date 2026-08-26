@@ -9,12 +9,12 @@ import {
     getRelewiseUISearchOptions,
     readCurrentUrlState,
     updateUrlState,
-} from '../helpers';
-import { RelewiseLitElement } from '../relewise-lit-element';
-import { buildProductCategorySearchRequest } from '../builders/productCategorySearchRequestBuilder';
-import { getSearcher } from './searcher';
-import { universalSearchTabStyles } from './universal-search-tab.styles';
-import type { UniversalSearchBatchSearch } from './universal-search.types';
+} from '../../../helpers';
+import { RelewiseLitElement } from '../../../relewise-lit-element';
+import { buildProductCategorySearchRequest } from '../../../builders/productCategorySearchRequestBuilder';
+import { getSearcher } from '../../searcher';
+import { universalSearchTabStyles } from './tab.styles';
+import type { UniversalSearchBatchSearch } from '../universal-search.types';
 
 const defaultPageSize = 15;
 const tab = 'productCategories';

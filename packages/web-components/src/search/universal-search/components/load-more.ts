@@ -1,8 +1,8 @@
 import { html, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
-import { getRelewiseUISearchOptions } from '../helpers';
-import { RelewiseLitElement } from '../relewise-lit-element';
-import { universalSearchLoadMoreStyles } from './universal-search-load-more.styles';
+import { getRelewiseUISearchOptions } from '../../../helpers';
+import { RelewiseLitElement } from '../../../relewise-lit-element';
+import { universalSearchLoadMoreStyles } from './load-more.styles';
 
 export class UniversalSearchLoadMore extends RelewiseLitElement {
     @property({ type: Number }) loaded = 0;

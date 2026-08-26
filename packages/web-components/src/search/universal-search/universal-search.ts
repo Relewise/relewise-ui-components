@@ -4,21 +4,21 @@ import { html, nothing } from 'lit';
 import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
-import type { SearchSuggestionEntityType } from '../app';
+import type { SearchSuggestionEntityType } from '../../app';
 import {
     QueryKeys,
     getRelewiseContextSettings,
     getRelewiseUIOptions,
     getRelewiseUISearchOptions,
     readCurrentUrlState,
-} from '../helpers';
-import { RelewiseLitElement } from '../relewise-lit-element';
-import type { RecommendationStateChangedEventDetail } from '../recommendations/recommendation-state';
-import type { SearchCombobox } from './components/search-combobox';
-import type { SearchComboboxRedirectEventDetail, SearchComboboxTermEventDetail, SearchSuggestionsBatchSearch } from './components/search-combobox.types';
-import { canParseRedirectDestination } from '../helpers/searchRedirect';
-import { getSearcher } from './searcher';
-import type { UniversalSearchFacetsDrawerStateChangedEventDetail } from './universal-search-facets';
+} from '../../helpers';
+import { RelewiseLitElement } from '../../relewise-lit-element';
+import type { RecommendationStateChangedEventDetail } from '../../recommendations/recommendation-state';
+import type { SearchCombobox } from '../components/search-combobox';
+import type { SearchComboboxRedirectEventDetail, SearchComboboxTermEventDetail, SearchSuggestionsBatchSearch } from '../components/search-combobox.types';
+import { canParseRedirectDestination } from '../../helpers/searchRedirect';
+import { getSearcher } from '../searcher';
+import type { UniversalSearchFacetsDrawerStateChangedEventDetail } from './components/facets';
 import { trapFocusInDialog } from './universal-search-focus';
 import { universalSearchStyles } from './universal-search.styles';
 import { updateUrlStateForUniversalSearchTerm } from './universal-search-url-state';

@@ -2,7 +2,7 @@ import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testi
 import type { ProductFacetResult } from '@relewise/client';
 import { initializeRelewiseUI, useSearch } from '../src';
 import type { Facets } from '../src/search/components/facets';
-import type { UniversalSearchFacets } from '../src/search/universal-search-facets';
+import type { UniversalSearchFacets } from '../src/search/universal-search/components/facets';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 function facetResult(): ProductFacetResult {

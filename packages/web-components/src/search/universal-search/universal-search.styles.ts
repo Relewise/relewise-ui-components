@@ -1,6 +1,6 @@
 import { css } from 'lit';
-import { theme } from '../theme';
-import { universalSearchZeroResultsStyles } from './universal-search-zero-results.styles';
+import { theme } from '../../theme';
+import { universalSearchZeroResultsStyles } from './zero-results.styles';
 
 export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, css`
     :host {

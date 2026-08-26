@@ -1,5 +1,5 @@
 import { css } from 'lit';
-import { theme } from '../theme';
+import { theme } from '../../../theme';
 
 export const universalSearchFacetsStyles = [theme, css`
     :host {

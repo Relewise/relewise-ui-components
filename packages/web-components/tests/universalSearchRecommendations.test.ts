@@ -17,7 +17,7 @@ import {
 } from '../src';
 import type { RecommendationStateChangedEventDetail, UniversalSearchRecommendationBlock } from '../src';
 import { Events } from '../src/helpers/events';
-import { UniversalSearchRecommendations } from '../src/search/universal-search-recommendations';
+import { UniversalSearchRecommendations } from '../src/search/universal-search/components/recommendations';
 import { clearRegisteredLightDomStylesForTesting } from '../src/lightDomStyles';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 

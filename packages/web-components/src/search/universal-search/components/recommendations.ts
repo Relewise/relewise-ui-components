@@ -1,11 +1,11 @@
 import { css, html, nothing, PropertyValues, TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';
 import { keyed } from 'lit/directives/keyed.js';
-import type { UniversalSearchRecommendationBlock } from '../app';
-import { Events } from '../helpers/events';
-import { RecommendationStateChangedEventDetail } from '../recommendations/recommendation-state';
-import { RelewiseLitElement } from '../relewise-lit-element';
-import { theme } from '../theme';
+import type { UniversalSearchRecommendationBlock } from '../../../app';
+import { Events } from '../../../helpers/events';
+import { RecommendationStateChangedEventDetail } from '../../../recommendations/recommendation-state';
+import { RelewiseLitElement } from '../../../relewise-lit-element';
+import { theme } from '../../../theme';
 
 interface RecommendationBlockRenderContext {
     take: number;
