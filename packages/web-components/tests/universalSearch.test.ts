@@ -165,8 +165,15 @@ suite('relewise-universal-search', () => {
     const originalSearchProductCategories = Searcher.prototype.searchProductCategories;
     const originalSearchContents = Searcher.prototype.searchContents;
     const originalBatch = Searcher.prototype.batch;
+    const isWebKit = navigator.userAgent.includes('AppleWebKit')
+        && !navigator.userAgent.includes('Chrome');
 
-    setup(() => {
+    setup(async() => {
+        // WebKit limits History API calls per page. This suite intentionally exercises URL state heavily.
+        if (isWebKit) {
+            await new Promise(resolve => setTimeout(resolve, 125));
+        }
+
         clearUrlState();
         Searcher.prototype.searchProducts = originalSearchProducts;
         Searcher.prototype.searchProductCategories = originalSearchProductCategories;
