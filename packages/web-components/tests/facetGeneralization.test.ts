@@ -159,13 +159,16 @@ suite('facet generalization', () => {
             </relewise-facets>
         `) as Facets;
 
+        let applyCount = 0;
+        el.applyFacet = () => {
+            applyCount++;
+            return true;
+        };
         el.showFacets = true;
         await el.updateComplete;
         const facet = el.shadowRoot!.querySelector<any>('relewise-number-range-facet')!;
         await facet.updateComplete;
         const inputs = [...facet.shadowRoot!.querySelectorAll('input')] as HTMLInputElement[];
-        let applyCount = 0;
-        facet.applyFacet = () => applyCount++;
 
         assert.equal(inputs[0].min, '');
         assert.equal(inputs[0].max, '');
@@ -193,6 +196,32 @@ suite('facet generalization', () => {
         assert.equal(new URL(window.location.href).searchParams.get(`${QueryKeys.productFacetLowerbound}SalesPrice`), '20');
         assert.equal(new URL(window.location.href).searchParams.get(`${QueryKeys.productFacetUpperbound}SalesPrice`), '90');
         assert.equal(applyCount, 1);
+
+        el.facetResult = productRangeFacetResult(20, 90);
+        await el.updateComplete;
+        await facet.updateComplete;
+        inputs[0].value = '10';
+        inputs[0].dispatchEvent(new Event('input'));
+        inputs[1].value = '100';
+        inputs[1].dispatchEvent(new Event('input'));
+        facet.save();
+
+        assert.isNull(new URL(window.location.href).searchParams.get(`${QueryKeys.productFacetLowerbound}SalesPrice`));
+        assert.isNull(new URL(window.location.href).searchParams.get(`${QueryKeys.productFacetUpperbound}SalesPrice`));
+        assert.equal(applyCount, 2);
+
+        el.facetResult = productRangeFacetResult(30, 80);
+        await el.updateComplete;
+        await facet.updateComplete;
+        inputs[0].value = '20';
+        inputs[0].dispatchEvent(new Event('input'));
+        inputs[1].value = '90';
+        inputs[1].dispatchEvent(new Event('input'));
+        facet.save();
+
+        assert.equal(inputs[0].value, '30');
+        assert.equal(inputs[1].value, '80');
+        assert.equal(applyCount, 2);
     });
 
     test('renders shared URL range bounds even when they exceed the available result bounds', async () => {
@@ -387,15 +416,15 @@ function contentStringFacetResult(): ContentFacetResult {
     } as ContentFacetResult;
 }
 
-function productRangeFacetResult(): ProductFacetResult {
+function productRangeFacetResult(lowerBoundInclusive = 10, upperBoundInclusive = 100): ProductFacetResult {
     return {
         items: [{
             $type: 'Relewise.Client.DataTypes.Search.Facets.Result.PriceRangeFacetResult, Relewise.Client',
             field: 'SalesPrice',
             available: {
                 value: {
-                    lowerBoundInclusive: 10,
-                    upperBoundInclusive: 100,
+                    lowerBoundInclusive,
+                    upperBoundInclusive,
                 },
             },
         }],
