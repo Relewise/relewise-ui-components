@@ -275,14 +275,20 @@ export class ProductSearchOverlay extends RelewiseLitElement {
 
     async search(searchTerm: string) {
         this.abortController.abort();
+        const abortController = new AbortController();
+        this.abortController = abortController;
 
         const relewiseUIOptions = getRelewiseUIOptions();
         const settings = await getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
+        if (abortController.signal.aborted || abortController !== this.abortController) {
+            return;
+        }
+
         const searcher = getSearcher(relewiseUIOptions);
         this.user = settings.user;
 
         const requestBuilder = new SearchCollectionBuilder()
-            .addRequest(createProductSearchBuilder(this.term, settings)
+            .addRequest(createProductSearchBuilder(searchTerm, settings)
                 .pagination(p => p.setPageSize(this.numberOfProducts))
                 .build());
 
@@ -295,13 +301,16 @@ export class ProductSearchOverlay extends RelewiseLitElement {
         }
 
         if (this.numberOfProductCategories > 0) {
-            requestBuilder.addRequest(createProductCategorySearchBuilder(this.term, settings)
+            requestBuilder.addRequest(createProductCategorySearchBuilder(searchTerm, settings)
                 .pagination(p => p.setPageSize(this.numberOfProductCategories))
                 .build());
         }
 
-        this.abortController = new AbortController();
-        const response = await searcher.batch(requestBuilder.build(), { abortSignal: this.abortController.signal });
+        const response = await searcher.batch(requestBuilder.build(), { abortSignal: abortController.signal });
+        if (abortController.signal.aborted || abortController !== this.abortController) {
+            return;
+        }
+
         if (response && response.responses) {
             const productSearchResult = response.responses[0] as ProductSearchResponse;
             this.productSearchResultHits = productSearchResult.hits;

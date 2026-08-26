@@ -1,4 +1,4 @@
-import { assert, fixture, html } from '@open-wc/testing';
+import { assert, fixture, html, waitUntil } from '@open-wc/testing';
 import { Searcher } from '@relewise/client';
 import { initializeRelewiseUI, ProductSearchOverlay } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
@@ -75,6 +75,67 @@ suite('product search overlay', () => {
         await new Promise(resolve => setTimeout(resolve, 20));
 
         assert.equal(searchCalls, 0);
+    });
+
+    test('does not issue an obsolete request when the term becomes too short during context resolution', async() => {
+        let batchCalls = 0;
+        Searcher.prototype.batch = async function() {
+            batchCalls++;
+            return { responses: [] } as any;
+        };
+        const options = mockRelewiseOptions();
+        const getUser = options.contextSettings.getUser;
+        let releaseContext!: () => void;
+        const contextGate = new Promise<void>(resolve => releaseContext = resolve);
+        options.contextSettings.getUser = async() => {
+            await contextGate;
+            return getUser();
+        };
+        initializeRelewiseUI(options).useSearch({
+            debounceTimeInMs: 0,
+            minimumQueryLength: 3,
+        });
+        const el = await fixture<ProductSearchOverlay>(html`<relewise-product-search-overlay></relewise-product-search-overlay>`);
+
+        const searchPromise = el.search('abc');
+        el.setSearchTerm('ab');
+        releaseContext();
+        await searchPromise;
+
+        assert.equal(batchCalls, 0);
+    });
+
+    test('ignores a response from a search canceled while the request is in flight', async() => {
+        let capturedSignal: AbortSignal | undefined;
+        let releaseResponse!: () => void;
+        const responseGate = new Promise<void>(resolve => releaseResponse = resolve);
+        Searcher.prototype.batch = async function(_request, requestOptions) {
+            capturedSignal = requestOptions!.abortSignal;
+            await responseGate;
+            return {
+                responses: [
+                    { hits: 1, results: [{ productId: 'stale' }], redirects: [] },
+                    { $type: 'SearchTermPredictionResponse', predictions: [] },
+                    { $type: 'ProductCategorySearchResponse', results: [] },
+                ],
+            } as any;
+        };
+        initializeRelewiseUI(mockRelewiseOptions()).useSearch({
+            debounceTimeInMs: 0,
+            minimumQueryLength: 3,
+        });
+        const el = await fixture<ProductSearchOverlay>(html`<relewise-product-search-overlay></relewise-product-search-overlay>`);
+        el.term = 'abc';
+
+        const searchPromise = el.search('abc');
+        await waitUntil(() => capturedSignal !== undefined);
+        el.setSearchTerm('ab');
+        assert.isTrue(capturedSignal!.aborted);
+        releaseResponse();
+        await searchPromise;
+
+        assert.isNull(el.results);
+        assert.equal(el.productSearchResultHits, 0);
     });
 
     test('uses a relative redirect destination when submitting the matching term', async() => {
