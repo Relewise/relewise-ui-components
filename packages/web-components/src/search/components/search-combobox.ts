@@ -128,6 +128,11 @@ export class SearchCombobox extends RelewiseLitElement {
         this.renderRoot.querySelector<HTMLInputElement>('#search-input')?.focus();
     }
 
+    private clearSearch(): void {
+        this.handleSearchTermInput('');
+        void this.updateComplete.then(() => this.focusSearchInput());
+    }
+
     private handleSearchTermInput(term: string): void {
         if (!this.suggestionsEnabled) {
             this.updateTerm(term);
@@ -368,6 +373,7 @@ export class SearchCombobox extends RelewiseLitElement {
         const expanded = suggestions.length > 0;
         const suggestionType = this.term ? 'predictions' : 'popular-search-terms';
         const suggestionsLabel = getRelewiseUISearchOptions()?.localization?.searchSuggestions?.label ?? 'Search suggestions';
+        const clearSearchLabel = getRelewiseUISearchOptions()?.localization?.searchBar?.clear ?? 'Clear search';
 
         return html`
             <div class="rw-search-combobox">
@@ -390,9 +396,14 @@ export class SearchCombobox extends RelewiseLitElement {
                         @focus=${() => this.handleInputFocus(true)}
                         @blur=${() => this.handleInputFocus(false)}>
                     ${this.term ? html`
-                        <div class="rw-icon" @click=${() => this.handleSearchTermInput('')}>
+                        <button
+                            class="rw-icon"
+                            part="clear-search"
+                            type="button"
+                            aria-label=${clearSearchLabel}
+                            @click=${this.clearSearch}>
                             <relewise-x-icon exportparts="icon: search-icon"></relewise-x-icon>
-                        </div>
+                        </button>
                     ` : html`
                         <div class="rw-icon" @click=${() => this.focusSearchInput()}>
                             <relewise-search-icon exportparts="icon: search-icon"></relewise-search-icon>

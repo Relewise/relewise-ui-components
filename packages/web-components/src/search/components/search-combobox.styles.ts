@@ -26,9 +26,9 @@ export const searchComboboxStyles = [
 
         .rw-search-bar-input {
             all: unset;
-            max-width: calc(100% - 2em);
-            min-width: calc(100% - 2em);
+            flex: 1;
             height: 100%;
+            min-width: 0;
         }
 
         .rw-search-bar-input::placeholder {
@@ -36,12 +36,19 @@ export const searchComboboxStyles = [
         }
 
         .rw-icon {
-            width: 100%;
-            height: 100%;
+            align-items: center;
+            appearance: none;
+            background: transparent;
+            border: 0;
+            color: inherit;
             cursor: pointer;
             display: flex;
-            align-items: center;
+            flex: 0 0 44px;
+            height: 44px;
             justify-content: center;
+            margin-inline-end: -0.75em;
+            padding: 0;
+            width: 44px;
         }
 
         .rw-search-suggestions {

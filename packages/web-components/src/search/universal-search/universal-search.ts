@@ -580,7 +580,7 @@ export class UniversalSearch extends RelewiseLitElement {
                     <header class="rw-header" part="header">
                         <relewise-search-combobox
                             part="search-bar"
-                            exportparts="search-input, search-icon, search-suggestions, predictions, popular-search-terms, suggestions-list, suggestion, suggestion-icon"
+                            exportparts="search-input, search-icon, clear-search, search-suggestions, predictions, popular-search-terms, suggestions-list, suggestion, suggestion-icon"
                             .term=${this.term}
                             .redirects=${this.redirects}
                             .suggestions=${searchOptions?.universalSearch?.suggestions}
