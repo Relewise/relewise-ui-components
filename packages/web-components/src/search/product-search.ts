@@ -6,7 +6,7 @@ import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCu
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { getSearcher } from './searcher';
-import { buildProductSearchRequest } from './productSearchRequestBuilder';
+import { buildProductSearchRequest } from '../builders/productSearchRequestBuilder';
 
 export class ProductSearch extends RelewiseLitElement {
 

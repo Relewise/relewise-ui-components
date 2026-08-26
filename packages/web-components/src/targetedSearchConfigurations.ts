@@ -1,7 +1,7 @@
 import { FilterBuilder, ProductSearchBuilder, RelevanceModifierBuilder } from '@relewise/client';
 import { QueryKeys, readCurrentUrlState } from './helpers/urlState';
 import { RelewiseFacetBuilder } from './facetBuilder';
-import { SearchSortingOption, SearchSortingOptionsBuilder, getSearchSortingOptions, getSearchSortingSelection } from './search/searchSortingBuilder';
+import { SearchSortingOption, SearchSortingOptionsBuilder, getSearchSortingOptions, getSearchSortingSelection } from './builders/searchSortingBuilder';
 
 
 export type TargetedSearchConfiguration = {

@@ -6,7 +6,7 @@ import { getRecommender } from '../../recommendations/recommender';
 import { RelewiseLitElement } from '../../relewise-lit-element';
 import type { SearchSuggestionEntityType, SearchSuggestionsOptions } from '../../app';
 import { canParseRedirectDestination } from '../../helpers/searchRedirect';
-import { buildPopularSearchTermsRequest, buildSearchTermPredictionRequest } from '../searchSuggestionsRequestBuilder';
+import { buildPopularSearchTermsRequest, buildSearchTermPredictionRequest } from '../../builders/searchSuggestionsRequestBuilder';
 import { searchComboboxStyles } from './search-combobox.styles';
 import type { SearchComboboxRedirectEventDetail, SearchComboboxTermEventDetail, SearchSuggestionsBatchSearch } from './search-combobox.types';
 

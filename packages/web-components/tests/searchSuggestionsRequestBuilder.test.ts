@@ -1,6 +1,6 @@
 import { assert } from '@esm-bundle/chai';
 import { Settings, UserFactory } from '@relewise/client';
-import { buildPopularSearchTermsRequest, buildSearchTermPredictionRequest } from '../src/search/searchSuggestionsRequestBuilder';
+import { buildPopularSearchTermsRequest, buildSearchTermPredictionRequest } from '../src/builders/searchSuggestionsRequestBuilder';
 
 const settings: Settings = {
     currency: 'currency',

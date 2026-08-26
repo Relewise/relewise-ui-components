@@ -3,7 +3,7 @@ import { getSelectedContentProperties } from '../defaultSettings';
 import { RelewiseFacetBuilder } from '../facetBuilder';
 import { getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { QueryKeys, readCurrentUrlState, readCurrentUrlStateValues } from '../helpers/urlState';
-import { Facet } from './types';
+import { Facet } from '../search/types';
 
 export type ContentSearchRequestOptions = {
     term: string | null;

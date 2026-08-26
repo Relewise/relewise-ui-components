@@ -3,7 +3,7 @@ import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../helpers';
 import { theme } from '../../theme';
-import { getSearchSortingOptions, SearchSortingOption } from '../searchSortingBuilder';
+import { getSearchSortingOptions, SearchSortingOption } from '../../builders/searchSortingBuilder';
 
 export class ProductSearchSorting extends RelewiseLitElement {
     @property({ type: String, attribute: 'target' })

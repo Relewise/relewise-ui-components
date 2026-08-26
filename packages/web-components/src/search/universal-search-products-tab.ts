@@ -11,7 +11,7 @@ import {
     updateUrlState,
 } from '../helpers';
 import { RelewiseLitElement } from '../relewise-lit-element';
-import { buildProductSearchRequest } from './productSearchRequestBuilder';
+import { buildProductSearchRequest } from '../builders/productSearchRequestBuilder';
 import { getSearcher } from './searcher';
 import { universalSearchTabStyles } from './universal-search-tab.styles';
 import type { UniversalSearchBatchSearch } from './universal-search.types';

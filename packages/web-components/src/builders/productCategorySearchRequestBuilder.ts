@@ -1,9 +1,9 @@
 import { DoubleNullableRange, ProductCategorySearchRequest, Settings } from '@relewise/client';
-import { createProductCategorySearchBuilder } from '../builders';
+import { createProductCategorySearchBuilder } from './productCategorySearchBuilder';
 import { RelewiseFacetBuilder } from '../facetBuilder';
 import { getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { QueryKeys, readCurrentUrlState, readCurrentUrlStateValues } from '../helpers/urlState';
-import { Facet } from './types';
+import { Facet } from '../search/types';
 
 export type ProductCategorySearchRequestOptions = {
     term: string | null;
