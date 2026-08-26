@@ -10,6 +10,7 @@ import {
     getRelewiseContextSettings,
     getRelewiseUIOptions,
     getRelewiseUISearchOptions,
+    hasUrlStateWithPrefix,
     readCurrentUrlState,
 } from '../../helpers';
 import { RelewiseLitElement } from '../../relewise-lit-element';
@@ -72,6 +73,12 @@ const suggestionEntityTypeByTab = {
     productCategories: 'ProductCategory',
     content: 'Content',
 } as const satisfies Record<UniversalSearchTab, SearchSuggestionEntityType>;
+
+const facetQueryKeyPrefixByTab = {
+    products: QueryKeys.productFacet,
+    productCategories: QueryKeys.productCategoryFacet,
+    content: QueryKeys.contentFacet,
+} as const satisfies Record<UniversalSearchTab, QueryKeys>;
 
 const emptyRecommendationState: RecommendationStateChangedEventDetail = {
     hasResults: false,
@@ -320,12 +327,13 @@ export class UniversalSearch extends RelewiseLitElement {
             return enabledTabs;
         }
 
-        return enabledTabs.filter(tab => this.tabHits[tab] !== 0);
+        return enabledTabs.filter(tab => this.tabHits[tab] !== 0 || this.tabHasSelectedFacets(tab));
     }
 
     private get allEnabledTabsHaveZeroResults(): boolean {
         const enabledTabs = this.enabledTabs;
-        return enabledTabs.length > 0 && enabledTabs.every(tab => this.tabHits[tab] === 0);
+        return enabledTabs.length > 0
+            && enabledTabs.every(tab => this.tabHits[tab] === 0 && !this.tabHasSelectedFacets(tab));
     }
 
     private get initialRecommendations() {
@@ -340,10 +348,30 @@ export class UniversalSearch extends RelewiseLitElement {
         return getRelewiseUISearchOptions()?.universalSearch?.recommendations?.noResults?.[tab] ?? [];
     }
 
+    private renderNoResultRecommendations(tab: UniversalSearchTab, active: boolean) {
+        const configuration = this.getNoResultRecommendations(tab);
+        if (this.tabHits[tab] !== 0 || configuration.length === 0) {
+            return nothing;
+        }
+
+        return html`
+            <relewise-universal-search-recommendations
+                exportparts=${recommendationsExportParts}
+                .active=${active}
+                .configuration=${configuration}
+                .term=${this.searchTerm}
+                .displayedAtLocation=${this.displayedAtLocation ?? defaultDisplayedAtLocation}
+                @relewise-ui-components:recommendation-state-changed=${(event: CustomEvent<RecommendationStateChangedEventDetail>) => this.handleTabRecommendationStateChanged(tab, event)}
+                @relewise-ui-components:popular-search-term-selected=${this.handleRecommendationTermSelected}>
+            </relewise-universal-search-recommendations>
+        `;
+    }
+
     private activateFirstTabWithResults(): void {
         if (getRelewiseUISearchOptions()?.universalSearch?.behavior?.activateFirstTabWithResults === false
             || this.activeTab === null
-            || this.tabHits[this.activeTab] !== 0) {
+            || this.tabHits[this.activeTab] !== 0
+            || this.tabHasSelectedFacets(this.activeTab)) {
             return;
         }
 
@@ -353,11 +381,17 @@ export class UniversalSearch extends RelewiseLitElement {
     private ensureActiveTabIsVisible(): void {
         if (getRelewiseUISearchOptions()?.universalSearch?.behavior?.zeroResultTabs !== 'hide'
             || this.activeTab === null
-            || this.tabHits[this.activeTab] !== 0) {
+            || this.tabHits[this.activeTab] !== 0
+            || this.tabHasSelectedFacets(this.activeTab)) {
             return;
         }
 
-        this.activeTab = this.enabledTabs.find(tab => (this.tabHits[tab] ?? 0) > 0) ?? this.activeTab;
+        this.activeTab = this.visibleTabs[0] ?? this.activeTab;
+    }
+
+    private tabHasSelectedFacets(tab: UniversalSearchTab): boolean {
+        return Boolean(readCurrentUrlState(QueryKeys.term))
+            && hasUrlStateWithPrefix(facetQueryKeyPrefixByTab[tab]);
     }
 
     private handleWindowKeyDown(event: KeyboardEvent): void {
@@ -654,36 +688,27 @@ export class UniversalSearch extends RelewiseLitElement {
                                                 exportparts="results-layout, facets, facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, sorting, sorting-container, sorting-select, sorting-label, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, product-grid, product-tile, load-previous, load-more"
                                                 .term=${this.searchTerm}
                                                 .target=${this.target}
-                                                .hideFacets=${showActiveTabRecommendations && this.activeTab === tab && this.tabRecommendationStates[tab].hasResults}
+                                                .hideFacets=${showActiveTabRecommendations && this.activeTab === tab && this.tabRecommendationStates[tab].hasResults && !this.tabHasSelectedFacets(tab)}
+                                                .noResultRecommendations=${this.renderNoResultRecommendations(tab, showActiveTabRecommendations && this.activeTab === tab)}
                                                 .displayedAtLocation=${this.displayedAtLocation}>
                                             </relewise-universal-search-products-tab>
                                         ` : tab === 'productCategories' ? html`
                                             <relewise-universal-search-product-categories-tab
                                                 exportparts="results-layout, facets, facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, category-grid, category-tile, load-more"
                                                 .term=${this.searchTerm}
-                                                .hideFacets=${showActiveTabRecommendations && this.activeTab === tab && this.tabRecommendationStates[tab].hasResults}
+                                                .hideFacets=${showActiveTabRecommendations && this.activeTab === tab && this.tabRecommendationStates[tab].hasResults && !this.tabHasSelectedFacets(tab)}
+                                                .noResultRecommendations=${this.renderNoResultRecommendations(tab, showActiveTabRecommendations && this.activeTab === tab)}
                                                 .displayedAtLocation=${this.displayedAtLocation}>
                                             </relewise-universal-search-product-categories-tab>
                                         ` : html`
                                             <relewise-universal-search-content-tab
                                                 exportparts="results-layout, facets, facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, content-grid, content-tile, load-more"
                                                 .term=${this.searchTerm}
-                                                .hideFacets=${showActiveTabRecommendations && this.activeTab === tab && this.tabRecommendationStates[tab].hasResults}
+                                                .hideFacets=${showActiveTabRecommendations && this.activeTab === tab && this.tabRecommendationStates[tab].hasResults && !this.tabHasSelectedFacets(tab)}
+                                                .noResultRecommendations=${this.renderNoResultRecommendations(tab, showActiveTabRecommendations && this.activeTab === tab)}
                                                 .displayedAtLocation=${this.displayedAtLocation}>
                                             </relewise-universal-search-content-tab>
                                         `}
-                                        ${this.tabHits[tab] === 0 && this.getNoResultRecommendations(tab).length > 0 ? html`
-                                            <relewise-universal-search-recommendations
-                                                exportparts=${recommendationsExportParts}
-                                                .active=${showActiveTabRecommendations && this.activeTab === tab}
-                                                .configuration=${this.getNoResultRecommendations(tab)}
-                                                .term=${this.searchTerm}
-                                                .displayedAtLocation=${this.displayedAtLocation ?? defaultDisplayedAtLocation}
-                                                @relewise-ui-components:recommendation-state-changed=${(event: CustomEvent<RecommendationStateChangedEventDetail>) => this.handleTabRecommendationStateChanged(tab, event)}
-                                                @relewise-ui-components:popular-search-term-selected=${this.handleRecommendationTermSelected}>
-                                            </relewise-universal-search-recommendations>
-                                        `
-                                            : nothing}
                                     </div>
                                 `)}
                             `}

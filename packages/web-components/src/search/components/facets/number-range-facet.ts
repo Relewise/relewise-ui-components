@@ -28,6 +28,9 @@ export class NumberRangeFacet extends RelewiseLitElement {
     @state()
     lowerBound: number | null | undefined = null;
 
+    private appliedUpperBound: number | null | undefined = null;
+    private appliedLowerBound: number | null | undefined = null;
+
     connectedCallback(): void {
         super.connectedCallback();
         if (this.result) {
@@ -44,17 +47,15 @@ export class NumberRangeFacet extends RelewiseLitElement {
             if (lowerBound && !isNaN(+lowerBound)) {
                 this.lowerBound = +lowerBound;
             }
+            this.appliedUpperBound = this.upperBound;
+            this.appliedLowerBound = this.lowerBound;
         }
     }
 
     handleLowerBoundChange(event: Event) {
-        const inputElement = event.target as HTMLInputElement;
-        const lowerBoundValue = inputElement.value;
+        const lowerBoundValue = (event.target as HTMLInputElement).value;
 
-        if (!this.result || isNaN(+lowerBoundValue)) {
-            return;
-        }
-        if (this.upperBound && +lowerBoundValue > this.upperBound) {
+        if (!this.result || lowerBoundValue === '' || isNaN(+lowerBoundValue)) {
             return;
         }
 
@@ -62,13 +63,9 @@ export class NumberRangeFacet extends RelewiseLitElement {
     }
 
     handleUpperBoundChange(event: Event) {
-        const inputElement = event.target as HTMLInputElement;
-        const upperBoundValue = inputElement.value;
+        const upperBoundValue = (event.target as HTMLInputElement).value;
 
-        if (!this.result || isNaN(+upperBoundValue)) {
-            return;
-        }
-        if (this.lowerBound && +upperBoundValue < this.lowerBound) {
+        if (!this.result || upperBoundValue === '' || isNaN(+upperBoundValue)) {
             return;
         }
 
@@ -76,22 +73,40 @@ export class NumberRangeFacet extends RelewiseLitElement {
     }
 
     save() {
-        if (!this.result) {
+        const available = this.result?.available?.value;
+        const [lowerInput, upperInput] = this.renderRoot.querySelectorAll<HTMLInputElement>('input');
+        if (!available || available.lowerBoundInclusive === null || available.lowerBoundInclusive === undefined
+            || available.upperBoundInclusive === null || available.upperBoundInclusive === undefined
+            || !lowerInput || !upperInput) {
             return;
         }
 
-        const upperBound = this.upperBound;
-        if (!upperBound) {
-            this.result.available?.value?.upperBoundInclusive;
+        const lowerBound = +lowerInput.value;
+        const upperBound = +upperInput.value;
+        const appliedLowerBound = this.appliedLowerBound ?? available.lowerBoundInclusive;
+        const appliedUpperBound = this.appliedUpperBound ?? available.upperBoundInclusive;
+        const lowerBoundChanged = lowerBound !== appliedLowerBound;
+        const upperBoundChanged = upperBound !== appliedUpperBound;
+        const invalidBounds = lowerInput.value === '' || upperInput.value === ''
+            || isNaN(lowerBound) || isNaN(upperBound) || lowerBound > upperBound
+            || (lowerBoundChanged && (lowerBound < available.lowerBoundInclusive || lowerBound > available.upperBoundInclusive))
+            || (upperBoundChanged && (upperBound < available.lowerBoundInclusive || upperBound > available.upperBoundInclusive));
+
+        if (invalidBounds) {
+            this.lowerBound = this.appliedLowerBound;
+            this.upperBound = this.appliedUpperBound;
+            lowerInput.value = appliedLowerBound.toString();
+            upperInput.value = appliedUpperBound.toString();
+            return;
         }
 
-        const lowerBound = this.lowerBound;
-        if (!lowerBound) {
-            this.result.available?.value?.lowerBoundInclusive;
-        }
+        this.lowerBound = lowerBound === available.lowerBoundInclusive ? null : lowerBound;
+        this.upperBound = upperBound === available.upperBoundInclusive ? null : upperBound;
+        this.appliedLowerBound = this.lowerBound;
+        this.appliedUpperBound = this.upperBound;
 
-        updateUrlState(this.getFacetUpperBoundQueryKey(), upperBound?.toString() ?? '');
-        updateUrlState(this.getFacetLowerBoundQueryKey(), lowerBound?.toString() ?? '');
+        updateUrlState(this.getFacetUpperBoundQueryKey(), this.upperBound?.toString() ?? '');
+        updateUrlState(this.getFacetLowerBoundQueryKey(), this.lowerBound?.toString() ?? '');
 
         this.applyFacet();
     }
@@ -130,10 +145,10 @@ export class NumberRangeFacet extends RelewiseLitElement {
     }
 
     render() {
-        if (!this.result?.available ||
-            !this.result.available.value ||
-            !this.result.available.value.lowerBoundInclusive ||
-            !this.result.available.value.upperBoundInclusive) {
+        const lowerBoundInclusive = this.result?.available?.value?.lowerBoundInclusive;
+        const upperBoundInclusive = this.result?.available?.value?.upperBoundInclusive;
+        if (lowerBoundInclusive === null || lowerBoundInclusive === undefined
+            || upperBoundInclusive === null || upperBoundInclusive === undefined) {
             return;
         }
 
@@ -145,7 +160,7 @@ export class NumberRangeFacet extends RelewiseLitElement {
                  <input
                     type="number"
                         part="input"
-                        .value=${this.lowerBound?.toString() ?? this.result.available.value.lowerBoundInclusive.toString()}
+                        .value=${this.lowerBound?.toString() ?? lowerBoundInclusive.toString()}
                         @input=${this.handleLowerBoundChange}
                         class="rw-input-container rw-border"
                         @keydown=${this.handleKeyEvent}>
@@ -155,7 +170,7 @@ export class NumberRangeFacet extends RelewiseLitElement {
                     <input
                         type="number"
                         part="input"
-                        .value=${this.upperBound?.toString() ?? this.result.available.value.upperBoundInclusive.toString()}
+                        .value=${this.upperBound?.toString() ?? upperBoundInclusive.toString()}
                         @input=${this.handleUpperBoundChange}
                         class="rw-input-container rw-border"
                         @keydown=${this.handleKeyEvent}>

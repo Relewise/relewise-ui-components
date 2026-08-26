@@ -1,6 +1,6 @@
 import { ContentResult, ContentSearchResponse, SearchResponseCollection, Settings, User } from '@relewise/client';
 import { html, nothing } from 'lit';
-import type { PropertyValues } from 'lit';
+import type { PropertyValues, TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import {
     QueryKeys,
@@ -23,6 +23,7 @@ const tab = 'content';
 export class UniversalSearchContentTab extends RelewiseLitElement {
     @property() term = '';
     @property({ attribute: false }) hideFacets = false;
+    @property({ attribute: false }) noResultRecommendations: TemplateResult | typeof nothing = nothing;
     @property({ attribute: 'displayed-at-location' }) displayedAtLocation?: string;
 
     @state() private result: ContentSearchResponse | null = null;
@@ -198,8 +199,9 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.content;
         const noResultsHint = localization?.noResultsHint ?? 'Try another search term or check the spelling.';
-        const hasSelectedFacets = hasUrlStateWithPrefix(QueryKeys.contentFacet);
-        const facetResult = this.result !== null && !this.hideFacets && (this.result.hits > 0 || hasSelectedFacets) ? this.result.facets : null;
+        const hasSearchTermAndSelectedFacets = Boolean(readCurrentUrlState(QueryKeys.term))
+            && hasUrlStateWithPrefix(QueryKeys.contentFacet);
+        const facetResult = this.result !== null && !this.hideFacets && (this.result.hits > 0 || hasSearchTermAndSelectedFacets) ? this.result.facets : null;
 
         return html`
             <div class="rw-results-layout" part="results-layout">
@@ -247,6 +249,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
                                 ` : nothing}
                             </div>
                         </div>
+                        ${this.noResultRecommendations}
                     ` : html`
                         <div class="rw-result-grid rw-content-grid" part="content-grid">
                             ${this.content.map(content => html`

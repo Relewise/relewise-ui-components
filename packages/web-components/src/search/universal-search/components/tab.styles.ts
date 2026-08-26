@@ -53,7 +53,7 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
             "results results";
     }
 
-    .rw-product-results-layout:not(:has(.rw-results-header)):not(:has(.rw-sorting)) {
+    .rw-product-results-layout:not(:has(.rw-results-header)):not(:has(.rw-sorting)):not(:has(.rw-facets)) {
         grid-template-areas: "results results";
     }
 
@@ -239,7 +239,13 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
             grid-template-columns: minmax(0, 1fr) auto;
         }
 
-        .rw-product-results-layout:not(:has(.rw-results-header)):not(:has(.rw-sorting)) {
+        .rw-product-results-layout:has(.rw-facets):not(:has(.rw-results-header)):not(:has(.rw-sorting)) {
+            grid-template-areas: "facets results";
+            grid-template-columns: minmax(10em, var(--relewise-universal-search-facets-width, 18em)) minmax(0, 1fr);
+            grid-template-rows: auto;
+        }
+
+        .rw-product-results-layout:not(:has(.rw-results-header)):not(:has(.rw-sorting)):not(:has(.rw-facets)) {
             grid-template-areas: "results results";
         }
     }

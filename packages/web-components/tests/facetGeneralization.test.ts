@@ -1,6 +1,6 @@
 import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
 import { ContentFacetResult, ProductFacetResult } from '@relewise/client';
-import { clearUrlState, Events, Facets, initializeRelewiseUI, QueryKeys, useSearch } from '../src';
+import { clearUrlState, Events, Facets, initializeRelewiseUI, QueryKeys, updateUrlState, useSearch } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('facet generalization', () => {
@@ -145,6 +145,76 @@ suite('facet generalization', () => {
         const facet = el.shadowRoot!.querySelector<any>('relewise-number-range-facet')!;
         assert.equal(facet.upperboundQueryKeyPrefix, QueryKeys.productFacetUpperbound);
         assert.equal(facet.lowerboundQueryKeyPrefix, QueryKeys.productFacetLowerbound);
+    });
+
+    test('validates range bounds when they are applied without constraining typing', async () => {
+        const el = await fixture(html`
+            <relewise-facets
+                .facetQueryKeyPrefix=${QueryKeys.productFacet}
+                .facetResult=${productRangeFacetResult()}
+                .labels=${['Price']}>
+            </relewise-facets>
+        `) as Facets;
+
+        el.showFacets = true;
+        await el.updateComplete;
+        const facet = el.shadowRoot!.querySelector<any>('relewise-number-range-facet')!;
+        await facet.updateComplete;
+        const inputs = [...facet.shadowRoot!.querySelectorAll('input')] as HTMLInputElement[];
+        let applyCount = 0;
+        facet.applyFacet = () => applyCount++;
+
+        assert.equal(inputs[0].min, '');
+        assert.equal(inputs[0].max, '');
+        assert.equal(inputs[1].min, '');
+        assert.equal(inputs[1].max, '');
+
+        inputs[0].value = '';
+        inputs[0].dispatchEvent(new Event('input'));
+        assert.equal(inputs[0].value, '');
+
+        inputs[0].value = '5';
+        inputs[0].dispatchEvent(new Event('input'));
+        inputs[1].value = '150';
+        inputs[1].dispatchEvent(new Event('input'));
+        facet.save();
+        assert.equal(inputs[0].value, '10');
+        assert.equal(inputs[1].value, '100');
+        assert.equal(applyCount, 0);
+
+        inputs[0].value = '20';
+        inputs[0].dispatchEvent(new Event('input'));
+        inputs[1].value = '90';
+        inputs[1].dispatchEvent(new Event('input'));
+        facet.save();
+        assert.equal(new URL(window.location.href).searchParams.get(`${QueryKeys.productFacetLowerbound}SalesPrice`), '20');
+        assert.equal(new URL(window.location.href).searchParams.get(`${QueryKeys.productFacetUpperbound}SalesPrice`), '90');
+        assert.equal(applyCount, 1);
+    });
+
+    test('renders shared URL range bounds even when they exceed the available result bounds', async () => {
+        updateUrlState(`${QueryKeys.productFacetLowerbound}SalesPrice`, '250');
+        updateUrlState(`${QueryKeys.productFacetUpperbound}SalesPrice`, '500');
+        const el = await fixture(html`
+            <relewise-facets
+                .facetQueryKeyPrefix=${QueryKeys.productFacet}
+                .facetResult=${productRangeFacetResult()}
+                .labels=${['Price']}>
+            </relewise-facets>
+        `) as Facets;
+
+        el.showFacets = true;
+        await el.updateComplete;
+        const facet = el.shadowRoot!.querySelector<any>('relewise-number-range-facet')!;
+        await facet.updateComplete;
+        const inputs = [...facet.shadowRoot!.querySelectorAll('input')] as HTMLInputElement[];
+
+        assert.equal(inputs[0].value, '250');
+        assert.equal(inputs[1].value, '500');
+        assert.equal(inputs[0].min, '');
+        assert.equal(inputs[0].max, '');
+        assert.equal(inputs[1].min, '');
+        assert.equal(inputs[1].max, '');
     });
 
     test('applies object-valued facets with scoped URL keys', async () => {

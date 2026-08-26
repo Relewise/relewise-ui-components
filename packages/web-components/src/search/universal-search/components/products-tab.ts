@@ -1,6 +1,6 @@
 import { ProductResult, ProductSearchResponse, SearchResponseCollection, Settings, User } from '@relewise/client';
 import { html, nothing } from 'lit';
-import type { PropertyValues } from 'lit';
+import type { PropertyValues, TemplateResult } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import {
     QueryKeys,
@@ -24,6 +24,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
     @property() term = '';
     @property({ attribute: false }) target: string | null = null;
     @property({ attribute: false }) hideFacets = false;
+    @property({ attribute: false }) noResultRecommendations: TemplateResult | typeof nothing = nothing;
     @property({ attribute: 'displayed-at-location' }) displayedAtLocation?: string;
 
     @state() private result: ProductSearchResponse | null = null;
@@ -242,8 +243,9 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.products;
         const noResultsHint = localization?.noResultsHint ?? 'Try another search term or check the spelling.';
-        const hasSelectedFacets = hasUrlStateWithPrefix(QueryKeys.productFacet);
-        const facetResult = this.result !== null && !this.hideFacets && (this.result.hits > 0 || hasSelectedFacets) ? this.result.facets : null;
+        const hasSearchTermAndSelectedFacets = Boolean(readCurrentUrlState(QueryKeys.term))
+            && hasUrlStateWithPrefix(QueryKeys.productFacet);
+        const facetResult = this.result !== null && !this.hideFacets && (this.result.hits > 0 || hasSearchTermAndSelectedFacets) ? this.result.facets : null;
         const facets = facetResult ? html`
             <relewise-universal-search-facets
                 class="rw-facets"
@@ -303,6 +305,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
                                 ` : nothing}
                             </div>
                         </div>
+                        ${this.noResultRecommendations}
                     ` : html`
                         <relewise-universal-search-load-more
                             direction="previous"

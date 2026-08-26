@@ -11,7 +11,9 @@ import {
 import {
     clearUrlState,
     initializeRelewiseUI,
+    QueryKeys,
     UniversalSearch,
+    updateUrlState,
     useRecommendations,
     useSearch,
 } from '../src';
@@ -533,6 +535,64 @@ suite('universal search recommendations', () => {
             queryAllDeep(productsTab.shadowRoot!, '[part="zero-results-hint"]')[0]?.textContent?.trim(),
             'Try another search term or check the spelling.',
         );
+    });
+
+    (['shadow', 'light'] as const).forEach(domMode => {
+        test(`keeps a shared price facet beside zero-result recommendations in ${domMode} DOM`, async() => {
+            productFacets = {
+                items: [{
+                    $type: 'Relewise.Client.DataTypes.Search.Facets.Result.PriceRangeFacetResult, Relewise.Client',
+                    field: 'SalesPrice',
+                    priceSelectionStrategy: 'Product',
+                    available: {
+                        value: {
+                            lowerBoundInclusive: 10,
+                            upperBoundInclusive: 100,
+                        },
+                    },
+                }],
+            };
+            updateUrlState(QueryKeys.term, 'No matches');
+            updateUrlState(`${QueryKeys.productFacetLowerbound}SalesPrice`, '250');
+            updateUrlState(`${QueryKeys.productFacetUpperbound}SalesPrice`, '500');
+            const options = mockRelewiseOptions();
+            options.components = { domMode };
+            initializeRelewiseUI(options);
+            useSearch({
+                debounceTimeInMs: 0,
+                facets: {
+                    product(builder) {
+                        builder.addFacet(
+                            facet => facet.addSalesPriceRangeFacet('Product'),
+                            { heading: 'Price' },
+                        );
+                    },
+                },
+                universalSearch: {
+                    entities: { products: {} },
+                    behavior: { zeroResultTabs: 'show' },
+                    recommendations: { noResults: { products: [{ type: 'PopularProducts' }] } },
+                },
+            });
+            const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+
+            await waitUntil(() => queryDeep(element, 'relewise-product-tile') !== null
+                && queryDeep(element, 'relewise-number-range-facet') !== null);
+            const productsTab = element.renderRoot.querySelector<HTMLElement & { hideFacets: boolean }>('relewise-universal-search-products-tab')!;
+            const tabRoot = productsTab.shadowRoot ?? productsTab;
+            const recommendations = tabRoot.querySelector('relewise-universal-search-recommendations');
+            const zeroResults = tabRoot.querySelector('[part="zero-results"]');
+
+            assert.isFalse(productsTab.hideFacets);
+            assert.isNotNull(zeroResults);
+            assert.strictEqual(zeroResults!.nextElementSibling, recommendations);
+
+            const rangeFacet = queryDeep(element, 'relewise-number-range-facet')!;
+            const rangeFacetRoot = rangeFacet.shadowRoot ?? rangeFacet;
+            const inputs = [...rangeFacetRoot.querySelectorAll<HTMLInputElement>('input')];
+            assert.equal(inputs[0].value, '250');
+            assert.equal(inputs[1].value, '500');
+        });
     });
 
     test('keeps the active-tab zero state without facets when its fallback is empty', async() => {
