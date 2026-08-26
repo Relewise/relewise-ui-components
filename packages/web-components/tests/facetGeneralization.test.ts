@@ -269,6 +269,42 @@ suite('facet generalization', () => {
         assert.notInclude(renderedFacets[0].shadowRoot!.textContent!, 'Empty');
     });
 
+    test('does not render controls for an unselected single-option facet', async () => {
+        const el = await fixture(html`
+            <relewise-facets
+                .facetResult=${productSingleOptionFacetResult(false)}
+                .labels=${['Category']}>
+            </relewise-facets>
+        `) as Facets;
+
+        el.showFacets = true;
+        await el.updateComplete;
+
+        assert.isNull(el.renderRoot.querySelector('.rw-facet-button'));
+        assert.isNull(el.renderRoot.querySelector('.rw-facets-container'));
+        assert.isNull(el.renderRoot.querySelector('relewise-checklist-string-value-facet'));
+    });
+
+    test('keeps a selected single-option facet visible so it can be removed', async () => {
+        updateUrlState(`${QueryKeys.productFacet}DataCategory`, 'Shoes');
+        const el = await fixture(html`
+            <relewise-facets
+                .facetQueryKeyPrefix=${QueryKeys.productFacet}
+                .facetResult=${productSingleOptionFacetResult(true)}
+                .labels=${['Category']}>
+            </relewise-facets>
+        `) as Facets;
+
+        el.showFacets = true;
+        await el.updateComplete;
+
+        const facet = el.renderRoot.querySelector('relewise-checklist-string-value-facet')!;
+        await waitUntil(() => facet.renderRoot.querySelector('input'), 'selected facet input was not rendered');
+
+        assert.isNotNull(el.renderRoot.querySelector('.rw-facets-container'));
+        assert.isTrue(facet.renderRoot.querySelector('input')!.checked);
+    });
+
     test('keeps the existing toggle by default and supports an always-expanded presentation', async () => {
         const defaultFacets = await fixture<Facets>(html`
             <relewise-facets
@@ -297,10 +333,25 @@ function productStringFacetResult(): ProductFacetResult {
             $type: 'Relewise.Client.DataTypes.Search.Facets.Result.ProductDataStringValueFacetResult, Relewise.Client',
             field: 'Data',
             key: 'Color',
-            available: [{
-                value: 'Red',
+            available: ['Red', 'Yellow'].map(value => ({
+                value,
                 hits: 12,
                 selected: false,
+            })),
+        }],
+    } as ProductFacetResult;
+}
+
+function productSingleOptionFacetResult(selected: boolean): ProductFacetResult {
+    return {
+        items: [{
+            $type: 'Relewise.Client.DataTypes.Search.Facets.Result.ProductDataStringValueFacetResult, Relewise.Client',
+            field: 'Data',
+            key: 'Category',
+            available: [{
+                value: 'Shoes',
+                hits: 12,
+                selected,
             }],
         }],
     } as ProductFacetResult;
@@ -327,11 +378,11 @@ function contentStringFacetResult(): ContentFacetResult {
             $type: 'Relewise.Client.DataTypes.Search.Facets.Result.ContentDataStringValueFacetResult, Relewise.Client',
             field: 'Data',
             key: 'Topic',
-            available: [{
-                value: 'Guide',
+            available: ['Guide', 'Manual'].map(value => ({
+                value,
                 hits: 4,
                 selected: false,
-            }],
+            })),
         }],
     } as ContentFacetResult;
 }
@@ -356,14 +407,14 @@ function productBrandFacetResult(): ProductFacetResult {
         items: [{
             $type: 'Relewise.Client.DataTypes.Search.Facets.Result.BrandFacetResult, Relewise.Client',
             field: 'Brand',
-            available: [{
+            available: ['brand-1', 'brand-2'].map((id, index) => ({
                 value: {
-                    id: 'brand-1',
-                    displayName: 'Brand 1',
+                    id,
+                    displayName: `Brand ${index + 1}`,
                 },
                 hits: 3,
                 selected: false,
-            }],
+            })),
         }],
     } as ProductFacetResult;
 }
@@ -381,11 +432,11 @@ function contentFacetResultWithEmptyGroup(): ContentFacetResult {
                 $type: 'Relewise.Client.DataTypes.Search.Facets.Result.ContentDataStringValueFacetResult, Relewise.Client',
                 field: 'Data',
                 key: 'Topic',
-                available: [{
-                    value: 'Guide',
+                available: ['Guide', 'Manual'].map(value => ({
+                    value,
                     hits: 4,
                     selected: false,
-                }],
+                })),
             },
         ],
     } as ContentFacetResult;

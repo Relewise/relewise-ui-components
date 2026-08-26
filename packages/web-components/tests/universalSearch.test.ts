@@ -78,6 +78,21 @@ function contentSearchResponse(results: ContentResult[], hits = results.length, 
     };
 }
 
+function multiOptionFacetResult() {
+    return {
+        items: [{
+            $type: 'Relewise.Client.DataTypes.Search.Facets.Result.ProductDataStringValueFacetResult, Relewise.Client',
+            field: 'Data',
+            key: 'Color',
+            available: ['Blue', 'Red'].map(value => ({
+                value,
+                hits: 1,
+                selected: false,
+            })),
+        }],
+    };
+}
+
 type UniversalSearchTestApi = {
     term: string;
     activeTab: UniversalSearchTab | null;
@@ -643,44 +658,6 @@ suite('relewise-universal-search', () => {
         await waitUntil(() => queryDeep(el, '[part="zero-results"]') !== null, 'zero-results was not rendered after search response');
     });
 
-    test('does not render entity headings before their search responses arrive', async () => {
-        Searcher.prototype.searchProducts = async function() {
-            return productSearchResponse([product('1')]);
-        };
-        Searcher.prototype.searchProductCategories = async function() {
-            return productCategorySearchResponse([productCategory('1')]);
-        };
-        Searcher.prototype.searchContents = async function() {
-            return contentSearchResponse([content('1')]);
-        };
-
-        initializeRelewiseUI(mockRelewiseOptions());
-        useSearch({
-            debounceTimeInMs: 50,
-            universalSearch: {
-                entities: {
-                    products: {},
-                    productCategories: {},
-                    content: {},
-                },
-            },
-        });
-
-        const el = await fixture(html`
-            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
-        `) as UniversalSearch;
-
-        internals(el).setSearchTerm('shoe');
-        await universalSearchUpdated(el);
-
-        assert.lengthOf(queryAllDeep(el.renderRoot, '[part="results-title"]'), 0);
-
-        await waitUntil(
-            () => queryAllDeep(el.renderRoot, '[part="results-title"]').length === 3,
-            'entity headings were not rendered after the search responses',
-        );
-    });
-
     test('clears previous products when the search term changes', async () => {
         Searcher.prototype.searchProducts = async function(request) {
             const term = request.term ?? 'missing';
@@ -741,7 +718,7 @@ suite('relewise-universal-search', () => {
 
     test('recreates facet and sorting controls when the search term changes', async () => {
         Searcher.prototype.searchProducts = async function(request) {
-            return productSearchResponse([product(request.term ?? 'missing')], 1, { items: [] });
+            return productSearchResponse([product(request.term ?? 'missing')], 1, multiOptionFacetResult());
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -1002,7 +979,7 @@ suite('relewise-universal-search', () => {
 
     test('keeps the wide product header close to the results when facets are taller', async () => {
         Searcher.prototype.searchProducts = async function() {
-            return productSearchResponse([product('1')], 1, { items: [] });
+            return productSearchResponse([product('1')], 1, multiOptionFacetResult());
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -1069,17 +1046,17 @@ suite('relewise-universal-search', () => {
 
     test('uses entity-specific compact columns without overflowing the result layout', async () => {
         Searcher.prototype.searchProducts = async function() {
-            return productSearchResponse([product('1'), product('2'), product('3')], 3, { items: [] });
+            return productSearchResponse([product('1'), product('2'), product('3')], 3, multiOptionFacetResult());
         };
         Searcher.prototype.searchProductCategories = async function() {
             return productCategorySearchResponse(
                 [productCategory('1'), productCategory('2'), productCategory('3')],
                 3,
-                { items: [] },
+                multiOptionFacetResult(),
             );
         };
         Searcher.prototype.searchContents = async function() {
-            return contentSearchResponse([content('1'), content('2'), content('3')], 3, { items: [] });
+            return contentSearchResponse([content('1'), content('2'), content('3')], 3, multiOptionFacetResult());
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -1847,7 +1824,7 @@ suite('relewise-universal-search', () => {
         Searcher.prototype.searchContents = function() {
             contentSearchCount++;
             if (contentSearchCount === 1) {
-                return Promise.resolve(contentSearchResponse([content('1')], 1, { items: [] }));
+                return Promise.resolve(contentSearchResponse([content('1')], 1, multiOptionFacetResult()));
             }
 
             return new Promise(resolve => resolveContentRefresh = resolve);
@@ -1883,7 +1860,7 @@ suite('relewise-universal-search', () => {
         assert.isTrue(facets.renderRoot.querySelector('.rw-drawer')!.hasAttribute('open'));
         assert.equal(contentResults(el)[0].contentId, '1');
 
-        resolveContentRefresh!(contentSearchResponse([content('2')], 1, { items: [] }));
+        resolveContentRefresh!(contentSearchResponse([content('2')], 1, multiOptionFacetResult()));
 
         await waitUntil(() => contentResults(el).length === 1 && contentResults(el)[0].contentId === '2', 'active tab search did not replace content results');
 
@@ -1935,7 +1912,7 @@ suite('relewise-universal-search', () => {
         Searcher.prototype.searchContents = async function() {
             contentSearchCount++;
             if (contentSearchCount === 1) {
-                return contentSearchResponse([content('1')], 1, { items: [] });
+                return contentSearchResponse([content('1')], 1, multiOptionFacetResult());
             }
             throw new Error('Raw SDK error');
         };

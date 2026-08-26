@@ -15,6 +15,7 @@ import { RelewiseLitElement } from '../../../relewise-lit-element';
 import { buildContentSearchRequest } from '../../../builders/contentSearchRequestBuilder';
 import { getSearcher } from '../../searcher';
 import { universalSearchTabStyles } from './tab.styles';
+import { hasRenderableFacets } from '../../components/facets/facet-result-visibility';
 import type { UniversalSearchBatchSearch } from '../universal-search.types';
 
 const defaultPageSize = 15;
@@ -205,7 +206,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
 
         return html`
             <div class="rw-results-layout" part="results-layout">
-                ${facetResult ? html`
+                ${facetResult && hasRenderableFacets(facetResult) ? html`
                     <relewise-universal-search-facets
                         class="rw-facets"
                         part="facets"

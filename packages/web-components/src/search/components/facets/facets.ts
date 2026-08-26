@@ -4,6 +4,7 @@ import { property, state } from 'lit/decorators.js';
 import { FacetResult, FacetResultContainer } from '../../types';
 import { Events, QueryKeys, getFacetRangeQueryKeyPrefixes, getRelewiseUISearchOptions } from '../../../helpers';
 import { theme } from '../../../theme';
+import { shouldRenderFacetResult } from './facet-result-visibility';
 
 export class Facets extends RelewiseLitElement {
 
@@ -64,7 +65,7 @@ export class Facets extends RelewiseLitElement {
     }
 
     renderFacet(label: string, facetResult: FacetResult, styling: string, isLast: boolean): TemplateResult<1> | typeof nothing {
-        if (!this.shouldRenderFacet(facetResult)) {
+        if (!shouldRenderFacetResult(facetResult)) {
             return nothing;
         }
 
@@ -180,24 +181,12 @@ export class Facets extends RelewiseLitElement {
         return html``;
     }
 
-    shouldRenderFacet(facetResult: FacetResult): boolean {
-        if (!('available' in facetResult)) {
-            return false;
-        }
-
-        if (Array.isArray(facetResult.available)) {
-            return facetResult.available.length > 0;
-        }
-
-        return Boolean(facetResult.available?.value);
-    }
-
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.facets;
-        const visibleItems = this.facetResult?.items?.filter(item => this.shouldRenderFacet(item)) ?? [];
+        const visibleItems = this.facetResult?.items?.filter(shouldRenderFacetResult) ?? [];
 
         return html`
-            ${!this.expanded ? html`<relewise-button
+            ${!this.expanded && visibleItems.length > 0 ? html`<relewise-button
                 button-text=${localization?.filter ?? 'Filters'} 
                 class="rw-facet-button"
                 @click=${() => this.showFacets = !this.showFacets}>

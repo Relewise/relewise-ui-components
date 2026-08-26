@@ -15,6 +15,7 @@ import { RelewiseLitElement } from '../../../relewise-lit-element';
 import { buildProductSearchRequest } from '../../../builders/productSearchRequestBuilder';
 import { getSearcher } from '../../searcher';
 import { universalSearchTabStyles } from './tab.styles';
+import { hasRenderableFacets } from '../../components/facets/facet-result-visibility';
 import type { UniversalSearchBatchSearch } from '../universal-search.types';
 
 const defaultPageSize = 15;
@@ -246,7 +247,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         const hasSearchTermAndSelectedFacets = Boolean(readCurrentUrlState(QueryKeys.term))
             && hasUrlStateWithPrefix(QueryKeys.productFacet);
         const facetResult = this.result !== null && !this.hideFacets && (this.result.hits > 0 || hasSearchTermAndSelectedFacets) ? this.result.facets : null;
-        const facets = facetResult ? html`
+        const facets = facetResult && hasRenderableFacets(facetResult) ? html`
             <relewise-universal-search-facets
                 class="rw-facets"
                 part="facets"
