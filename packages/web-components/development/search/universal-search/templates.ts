@@ -24,7 +24,7 @@ export const customTemplates: Templates = {
                 <img
                     style="display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#f7f7f7;"
                     src=${image}
-                    alt=${product.displayName ?? ''}>
+                    alt="">
             ` : helpers.nothing}
             <div style="padding:.75rem;">
                 <strong style="display:block;margin-bottom:.5rem;">${product.displayName}</strong>
@@ -67,7 +67,7 @@ export const customTemplates: Templates = {
                 <img
                     style="display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#f7f7f7;"
                     src=${image}
-                    alt=${productCategory.displayName ?? ''}>
+                    alt="">
             ` : helpers.nothing}
             <div style="padding:.75rem;">
                 <strong style="display:block;margin-bottom:.5rem;">${productCategory.displayName}</strong>
@@ -101,7 +101,7 @@ export const customTemplates: Templates = {
                 <img
                     style="display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#f7f7f7;"
                     src=${image}
-                    alt=${contentCategory.displayName ?? ''}>
+                    alt="">
             ` : helpers.nothing}
             <div style="padding:.75rem;">
                 <strong>${contentCategory.displayName}</strong>
@@ -134,7 +134,7 @@ export const customTemplates: Templates = {
                 <img
                     style="display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#f7f7f7;"
                     src=${image}
-                    alt=${content.displayName ?? ''}>
+                    alt="">
             ` : helpers.nothing}
             <div style="padding:.75rem;">
                 <strong style="display:block;margin-bottom:.5rem;">${content.displayName}</strong>

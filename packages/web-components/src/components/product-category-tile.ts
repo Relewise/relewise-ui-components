@@ -81,11 +81,11 @@ export class ProductCategoryTile extends RelewiseLitElement {
         return html`
             ${image ? html`
                 <div class="rw-image-container" part="image-container">
-                    <img class="rw-object-cover" part="image" src=${image} alt=${category.displayName ?? ''}>
+                    <img class="rw-object-cover" part="image" src=${image} alt="">
                 </div>
             ` : nothing}
             <div class="rw-information-container" part="information">
-                <h5 class="rw-display-name" part="display-name">${category.displayName}</h5>
+                <div class="rw-display-name" part="display-name">${category.displayName}</div>
             </div>
         `;
     }
