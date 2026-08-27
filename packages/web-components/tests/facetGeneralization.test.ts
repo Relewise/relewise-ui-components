@@ -351,6 +351,57 @@ suite('facet generalization', () => {
         assert.isTrue(facet.renderRoot.querySelector('input')!.checked);
     });
 
+    test('preserves selections when another object facet disappears and reappears', async () => {
+        const el = await fixture<Facets>(html`
+            <relewise-facets
+                expanded
+                .facetQueryKeyPrefix=${QueryKeys.productFacet}
+                .facetResult=${productObjectFacetResults(true)}
+                .totalHits=${3}
+                .labels=${['Brands', 'Categories']}>
+            </relewise-facets>
+        `);
+
+        let objectFacets = el.renderRoot.querySelectorAll('relewise-checklist-object-value-facet');
+        const categoryFacet = objectFacets[1];
+        await waitUntil(() => categoryFacet.renderRoot.querySelectorAll('input').length === 2, 'category facet inputs were not rendered');
+
+        const findInput = (displayName: string) => [...categoryFacet.renderRoot.querySelectorAll('input')]
+            .find(input => input.closest('label')?.querySelector('[part="value"]')?.textContent === displayName)!;
+
+        findInput('Adult Tops').click();
+
+        el.facetResult = productObjectFacetResults(false, ['adult-tops']);
+        await el.updateComplete;
+        await categoryFacet.updateComplete;
+
+        objectFacets = el.renderRoot.querySelectorAll('relewise-checklist-object-value-facet');
+        assert.equal(objectFacets.length, 1);
+        assert.strictEqual(objectFacets[0], categoryFacet);
+
+        findInput('Jackets').click();
+        assert.deepEqual(
+            new URL(window.location.href).searchParams.getAll(QueryKeys.productFacet + 'Category'),
+            ['adult-tops', 'jackets'],
+        );
+
+        el.facetResult = productObjectFacetResults(true, ['adult-tops', 'jackets']);
+        await el.updateComplete;
+        await categoryFacet.updateComplete;
+
+        objectFacets = el.renderRoot.querySelectorAll('relewise-checklist-object-value-facet');
+        assert.equal(objectFacets.length, 2);
+        assert.strictEqual(objectFacets[1], categoryFacet);
+
+        findInput('Adult Tops').click();
+        findInput('Jackets').click();
+
+        assert.deepEqual(
+            new URL(window.location.href).searchParams.getAll(QueryKeys.productFacet + 'Category'),
+            [],
+        );
+    });
+
     test('keeps the existing toggle by default and supports an always-expanded presentation', async () => {
         const defaultFacets = await fixture<Facets>(html`
             <relewise-facets
@@ -462,6 +513,37 @@ function productBrandFacetResult(): ProductFacetResult {
                 selected: false,
             })),
         }],
+    } as ProductFacetResult;
+}
+
+function productObjectFacetResults(brandVisible: boolean, selectedCategories: string[] = []): ProductFacetResult {
+    return {
+        items: [
+            {
+                $type: 'Relewise.Client.DataTypes.Search.Facets.Result.BrandFacetResult, Relewise.Client',
+                field: 'Brand',
+                available: (brandVisible ? ['brand-1', 'brand-2'] : ['brand-1']).map((id, index) => ({
+                    value: {
+                        id,
+                        displayName: `Brand ${index + 1}`,
+                    },
+                    hits: 3,
+                    selected: false,
+                })),
+            },
+            {
+                $type: 'Relewise.Client.DataTypes.Search.Facets.Result.CategoryFacetResult, Relewise.Client',
+                field: 'Category',
+                available: [
+                    { id: 'adult-tops', displayName: 'Adult Tops' },
+                    { id: 'jackets', displayName: 'Jackets' },
+                ].map(value => ({
+                    value,
+                    hits: 3,
+                    selected: selectedCategories.includes(value.id),
+                })),
+            },
+        ],
     } as ProductFacetResult;
 }
 

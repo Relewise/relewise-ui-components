@@ -1,6 +1,7 @@
 import { RelewiseLitElement } from '../../../relewise-lit-element';
 import { TemplateResult, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import { repeat } from 'lit/directives/repeat.js';
 import { FacetResult, FacetResultContainer } from '../../types';
 import { Events, QueryKeys, getFacetRangeQueryKeyPrefixes, getRelewiseUISearchOptions } from '../../../helpers';
 import { theme } from '../../../theme';
@@ -65,6 +66,11 @@ export class Facets extends RelewiseLitElement {
 
     handleSearchingForProductsCompletedEvent() {
         this.showDimmingOverlay = false;
+    }
+
+    private getFacetResultKey(facetResult: FacetResult): string {
+        const key = 'key' in facetResult ? facetResult.key : '';
+        return `${facetResult.$type}:${facetResult.field}:${key}`;
     }
 
     renderFacet(label: string, facetResult: FacetResult, styling: string, isLast: boolean): TemplateResult<1> | typeof nothing {
@@ -201,10 +207,10 @@ export class Facets extends RelewiseLitElement {
                 html`
                 ${visibleItems.length > 0 ? html`
                 <div class="rw-facets-container">
-                    ${visibleItems.map((item, index) => {
-                    const originalIndex = this.facetResult?.items?.indexOf(item) ?? index;
-                    return this.renderFacet(this.labels[originalIndex], item, this.showDimmingOverlay ? 'rw-dimmed' : '', index === visibleItems.length - 1);
-                })}
+                    ${repeat(visibleItems, item => this.getFacetResultKey(item), (item, index) => {
+                        const originalIndex = this.facetResult?.items?.indexOf(item) ?? index;
+                        return this.renderFacet(this.labels[originalIndex], item, this.showDimmingOverlay ? 'rw-dimmed' : '', index === visibleItems.length - 1);
+                    })}
                 </div>
                 ` : nothing}
             ` : nothing}
