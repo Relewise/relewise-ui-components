@@ -22,6 +22,7 @@ import { universalSearchRecommendationsExportParts } from './recommendations';
 
 const defaultPageSize = 15;
 const tab = 'products';
+type ProductSearchIntent = 'replace' | 'refresh' | 'next' | 'previous';
 
 export class UniversalSearchProductsTab extends RelewiseLitElement {
     @property() term = '';
@@ -59,7 +60,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
 
     private readonly searchOptionsChanged = (): void => {
         updateUrlState(QueryKeys.productTake, null);
-        void this.search(true, true);
+        void this.search('refresh');
     };
 
     private async loadMore(): Promise<void> {
@@ -67,7 +68,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             return;
         }
 
-        if (!await this.search(false)) {
+        if (!await this.search('next')) {
             return;
         }
 
@@ -79,13 +80,13 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             return;
         }
 
-        await this.search(false, false, 'previous');
+        await this.search('previous');
     }
 
     prepareBatchSearch(settings: Settings): UniversalSearchBatchSearch {
         this.abortController.abort();
         this.resetForSearch();
-        const requestResult = this.buildRequest(settings, true);
+        const requestResult = this.buildRequest(settings, 'replace');
         this.loading = true;
         this.user = settings.user;
 
@@ -96,7 +97,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         };
     }
 
-    private async search(reset: boolean, preserveCurrentResults = false, direction: 'next' | 'previous' = 'next'): Promise<boolean> {
+    private async search(intent: ProductSearchIntent): Promise<boolean> {
         this.abortController.abort();
 
         if (!this.term) {
@@ -104,14 +105,15 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             return false;
         }
 
+        const reset = intent === 'replace' || intent === 'refresh';
         if (reset) {
-            this.resetForSearch(preserveCurrentResults);
+            this.resetForSearch(intent === 'refresh');
         } else {
             this.error = null;
         }
 
         this.loading = true;
-        this.loadingDirection = reset ? null : direction;
+        this.loadingDirection = intent === 'next' || intent === 'previous' ? intent : null;
         const abortController = new AbortController();
         this.abortController = abortController;
 
@@ -119,7 +121,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             // Let targeted runtime configuration register before the automatic search starts.
             await new Promise(resolve => setTimeout(resolve, 0));
             const settings = await getRelewiseContextSettings(this.displayedAtLocation ?? 'Relewise Universal Search');
-            const requestResult = this.buildRequest(settings, reset, direction);
+            const requestResult = this.buildRequest(settings, intent);
             const response = await getSearcher(getRelewiseUIOptions()).searchProducts(requestResult.request, { abortSignal: abortController.signal });
 
             if (abortController.signal.aborted) {
@@ -127,7 +129,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             }
 
             this.user = settings.user;
-            this.applyResponse(response ?? null, requestResult.facetLabels, reset, direction === 'previous', requestResult.request.skip);
+            this.applyResponse(response ?? null, requestResult.facetLabels, reset, intent === 'previous', requestResult.request.skip);
             return true;
         } catch {
             if (!abortController.signal.aborted) {
@@ -142,8 +144,8 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         }
     }
 
-    private buildRequest(settings: Settings, reset: boolean, direction: 'next' | 'previous' = 'next') {
-        const pagination = this.getPagination(reset, direction);
+    private buildRequest(settings: Settings, intent: ProductSearchIntent) {
+        const pagination = this.getPagination(intent);
         const requestResult = buildProductSearchRequest({
             term: this.term,
             settings,
@@ -161,14 +163,15 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         return requestResult;
     }
 
-    private getPagination(reset: boolean, direction: 'next' | 'previous'): { take: number; skip: number } {
+    private getPagination(intent: ProductSearchIntent): { take: number; skip: number } {
         const resultsToFetch = this.getResultsToFetch();
+        const reset = intent === 'replace' || intent === 'refresh';
         if (reset && resultsToFetch) {
             const take = Math.min(resultsToFetch, this.pageSize);
             return { take, skip: resultsToFetch - take };
         }
 
-        if (direction === 'previous') {
+        if (intent === 'previous') {
             const take = Math.min(this.resultOffset, this.pageSize);
             return { take, skip: this.resultOffset - take };
         }
@@ -198,7 +201,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             && !productResponse.results?.length
             && resultOffset >= productResponse.hits) {
             updateUrlState(QueryKeys.productTake, productResponse.hits.toString());
-            void this.search(true);
+            void this.search('replace');
             return;
         }
 
