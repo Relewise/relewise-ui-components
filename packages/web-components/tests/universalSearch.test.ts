@@ -620,6 +620,56 @@ suite('relewise-universal-search', () => {
         );
     });
 
+    (['shadow', 'light'] as const).forEach(domMode => {
+        test(`renders tab totals as count badges in ${domMode} DOM`, async () => {
+            Searcher.prototype.searchProducts = async function() {
+                return productSearchResponse([product('1')], 15);
+            };
+            Searcher.prototype.searchProductCategories = async function() {
+                return productCategorySearchResponse([productCategory('1')]);
+            };
+            Searcher.prototype.searchContents = async function() {
+                return contentSearchResponse([], 0);
+            };
+            const options = mockRelewiseOptions();
+            options.components = { domMode };
+            initializeRelewiseUI(options);
+            useSearch({
+                debounceTimeInMs: 0,
+                universalSearch: {
+                    entities: {
+                        products: {},
+                        productCategories: {},
+                        content: {},
+                    },
+                },
+            });
+
+            const el = await fixture(html`
+                <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+            `) as UniversalSearch;
+
+            internals(el).setSearchTerm('shoe');
+            await waitUntil(() => queryAllDeep(el.renderRoot, '[part="tab-count"]').length === 3);
+
+            const counts = queryAllDeep<HTMLElement>(el.renderRoot, '[part="tab-count"]');
+            assert.deepEqual(counts.map(count => count.textContent?.trim()), ['15', '1', '0']);
+            counts.forEach(count => {
+                const styles = getComputedStyle(count);
+                assert.equal(styles.display, 'inline-flex');
+                assert.equal(styles.alignItems, 'center');
+                assert.equal(styles.justifyContent, 'center');
+                assert.include(styles.fontVariantNumeric, 'tabular-nums');
+                assert.equal(styles.paddingBottom, '0px');
+                assert.equal(styles.backgroundColor, 'rgb(17, 17, 17)');
+                assert.equal(styles.color, 'rgb(255, 255, 255)');
+            });
+            assert.isAbove(counts[0].getBoundingClientRect().width, counts[0].getBoundingClientRect().height);
+            assert.closeTo(counts[1].getBoundingClientRect().width, counts[1].getBoundingClientRect().height, 1);
+            assert.closeTo(counts[2].getBoundingClientRect().width, counts[2].getBoundingClientRect().height, 1);
+        });
+    });
+
     test('searches and renders products when products tab is configured', async () => {
         let capturedTerm: string | null = null;
 

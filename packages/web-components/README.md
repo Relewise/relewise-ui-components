@@ -1600,6 +1600,8 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-tabs-margin-bottom` | `1em` | Space below the result tabs. |
 | `--relewise-universal-search-tab-padding` | `0.5em 0` | Padding inside each result tab. |
 | `--relewise-universal-search-tab-active-border-color` | `currentColor` | Underline color of the active result tab. |
+| `--relewise-universal-search-tab-count-background-color` | `var(--relewise-checklist-facet-selected-count-background-color, #111)` | Background colour for result-count badges in tabs. |
+| `--relewise-universal-search-tab-count-color` | `var(--relewise-checklist-facet-selected-count-color, #fff)` | Text colour for result-count badges in tabs. |
 | `--relewise-universal-search-results-summary-spacing` | `var(--relewise-universal-search-results-summary-margin-bottom, 1em)` | Equal compact-layout space above and below the search-term summary. |
 | `--relewise-universal-search-results-summary-margin-bottom` | `1em` | Desktop space below the search-term summary and compatibility fallback for compact spacing. |
 | `--relewise-universal-search-zero-results-gap` | `1em` | Gap between the no-result icon and its text. |
