@@ -67,6 +67,9 @@ const defaultTabLabels: Record<UniversalSearchTab, string> = {
 
 const defaultDisplayedAtLocation = 'Relewise Universal Search';
 const productSearchResponseType = 'Relewise.Client.Responses.Search.ProductSearchResponse, Relewise.Client';
+const productTabExportParts = `results-layout, facets, facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, sorting, sorting-container, sorting-select, sorting-label, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, product-grid, product-tile, load-previous, load-more, ${universalSearchRecommendationsExportParts}`;
+const productCategoryTabExportParts = `results-layout, facets, facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, category-grid, category-tile, load-more, ${universalSearchRecommendationsExportParts}`;
+const contentTabExportParts = `results-layout, facets, facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, content-grid, content-tile, load-more, ${universalSearchRecommendationsExportParts}`;
 const suggestionEntityTypeByTab = {
     products: 'Product',
     productCategories: 'ProductCategory',
@@ -670,7 +673,7 @@ export class UniversalSearch extends RelewiseLitElement {
                                         ?hidden=${this.activeTab !== tab}>
                                         ${tab === 'products' ? html`
                                             <relewise-universal-search-products-tab
-                                                exportparts="results-layout, facets, facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, sorting, sorting-container, sorting-select, sorting-label, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, product-grid, product-tile, load-previous, load-more"
+                                                exportparts=${productTabExportParts}
                                                 .term=${this.searchTerm}
                                                 .target=${this.target}
                                                 .hideFacets=${showActiveTabRecommendations && this.activeTab === tab && this.tabRecommendationStates[tab].hasResults && !this.tabHasSelectedFacets(tab)}
@@ -682,7 +685,7 @@ export class UniversalSearch extends RelewiseLitElement {
                                             </relewise-universal-search-products-tab>
                                         ` : tab === 'productCategories' ? html`
                                             <relewise-universal-search-product-categories-tab
-                                                exportparts="results-layout, facets, facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, category-grid, category-tile, load-more"
+                                                exportparts=${productCategoryTabExportParts}
                                                 .term=${this.searchTerm}
                                                 .hideFacets=${showActiveTabRecommendations && this.activeTab === tab && this.tabRecommendationStates[tab].hasResults && !this.tabHasSelectedFacets(tab)}
                                                 .noResultRecommendationConfiguration=${this.getNoResultRecommendationConfiguration(tab)}
@@ -693,7 +696,7 @@ export class UniversalSearch extends RelewiseLitElement {
                                             </relewise-universal-search-product-categories-tab>
                                         ` : html`
                                             <relewise-universal-search-content-tab
-                                                exportparts="results-layout, facets, facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits, results, results-header, results-title, results-count, error-state, loading-state, zero-results, zero-results-icon, zero-results-title, zero-results-hint, content-grid, content-tile, load-more"
+                                                exportparts=${contentTabExportParts}
                                                 .term=${this.searchTerm}
                                                 .hideFacets=${showActiveTabRecommendations && this.activeTab === tab && this.tabRecommendationStates[tab].hasResults && !this.tabHasSelectedFacets(tab)}
                                                 .noResultRecommendationConfiguration=${this.getNoResultRecommendationConfiguration(tab)}

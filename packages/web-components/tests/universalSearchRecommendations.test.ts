@@ -512,6 +512,12 @@ suite('universal search recommendations', () => {
         (element as unknown as UniversalSearchTestApi).setSearchTerm('No matches');
 
         await waitUntil(() => popularProductRequests === 1);
+        const entityTabs = element.renderRoot.querySelectorAll('relewise-universal-search-products-tab, relewise-universal-search-product-categories-tab, relewise-universal-search-content-tab');
+        assert.equal(entityTabs.length, 3);
+        entityTabs.forEach(tab => {
+            assert.include(tab.getAttribute('exportparts') ?? '', 'recommendation-grid');
+            assert.include(tab.getAttribute('exportparts') ?? '', 'recommendation-product-tile');
+        });
         assert.equal(popularProductCategoryRequests, 0);
         assert.equal(popularContentRequests, 0);
 
@@ -656,6 +662,7 @@ suite('universal search recommendations', () => {
             assert.isFalse(productsTab.hideFacets);
             assert.isNotNull(zeroResults);
             assert.strictEqual(zeroResults!.nextElementSibling, recommendations);
+            assert.include(productsTab.getAttribute('exportparts') ?? '', 'recommendation-grid');
 
             const rangeFacet = queryDeep(element, 'relewise-number-range-facet')!;
             const rangeFacetRoot = rangeFacet.shadowRoot ?? rangeFacet;
