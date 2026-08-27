@@ -591,6 +591,10 @@ suite('universal search recommendations', () => {
         await waitUntil(() => element.renderRoot.querySelector('relewise-universal-search-products-tab') !== null);
         const productsTab = element.renderRoot.querySelector<HTMLElement & { hideFacets: boolean }>('relewise-universal-search-products-tab')!;
         await waitUntil(() => productsTab.hideFacets && queryDeep(element, 'relewise-product-tile') !== null);
+        const recommendations = productsTab.shadowRoot!.querySelector<UniversalSearchRecommendations>('relewise-universal-search-recommendations')!;
+        assert.exists(recommendations);
+        assert.deepEqual(recommendations.configuration, [{ type: 'PopularProducts' }]);
+        assert.isTrue(recommendations.active);
         assert.isNull(queryAllDeep(productsTab.shadowRoot!, '[part="facets"]')[0] ?? null);
         assert.exists(queryAllDeep(productsTab.shadowRoot!, '[part="zero-results"]')[0]);
         assert.equal(

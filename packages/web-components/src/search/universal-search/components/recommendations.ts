@@ -33,6 +33,8 @@ import { getRecommender } from '../../../recommendations/recommender';
 import { RelewiseLitElement } from '../../../relewise-lit-element';
 import { theme } from '../../../theme';
 
+export const universalSearchRecommendationsExportParts = 'recommendation-loading, recommendation-blocks, recommendation-block, recommendation-title, recommendation-grid, product-recommendation-grid, content-recommendation-grid, category-recommendation-grid, recommendation-product-tile, recommendation-content-tile, recommendation-category-tile, recommendation-terms, recommendation-term, popular-products, personal-products, recently-viewed-products, popular-product-categories, popular-contents, personal-content, popular-content-categories, popular-search-term-recommendations, search-term-based-products';
+
 interface RecommendationBlockRenderContext {
     take: number;
     displayedAtLocation: string;

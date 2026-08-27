@@ -1,7 +1,8 @@
 import { ProductResult, ProductSearchResponse, SearchResponseCollection, Settings, User } from '@relewise/client';
 import { html, nothing } from 'lit';
-import type { PropertyValues, TemplateResult } from 'lit';
+import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import type { UniversalSearchRecommendationBlock } from '../../../app';
 import {
     QueryKeys,
     getRelewiseContextSettings,
@@ -17,6 +18,7 @@ import { getSearcher } from '../../searcher';
 import { universalSearchTabStyles } from './tab.styles';
 import { hasRenderableFacets } from '../../components/facets/facet-result-visibility';
 import type { UniversalSearchBatchSearch } from '../universal-search.types';
+import { universalSearchRecommendationsExportParts } from './recommendations';
 
 const defaultPageSize = 15;
 const tab = 'products';
@@ -25,7 +27,8 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
     @property() term = '';
     @property({ attribute: false }) target: string | null = null;
     @property({ attribute: false }) hideFacets = false;
-    @property({ attribute: false }) noResultRecommendations: TemplateResult | typeof nothing = nothing;
+    @property({ attribute: false }) noResultRecommendationConfiguration: UniversalSearchRecommendationBlock[] = [];
+    @property({ type: Boolean, attribute: false }) noResultRecommendationsActive = false;
     @property({ attribute: 'displayed-at-location' }) displayedAtLocation?: string;
 
     @state() private result: ProductSearchResponse | null = null;
@@ -316,7 +319,13 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
                                 ` : nothing}
                             </div>
                         </div>
-                        ${this.noResultRecommendations}
+                        <relewise-universal-search-recommendations
+                            exportparts=${universalSearchRecommendationsExportParts}
+                            .active=${this.noResultRecommendationsActive}
+                            .configuration=${this.noResultRecommendationConfiguration}
+                            .term=${this.term}
+                            .displayedAtLocation=${this.displayedAtLocation}>
+                        </relewise-universal-search-recommendations>
                     ` : html`
                         <relewise-universal-search-load-more
                             direction="previous"
