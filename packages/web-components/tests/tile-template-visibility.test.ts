@@ -55,7 +55,7 @@ suite('tile template visibility', () => {
     });
 
     (['shadow', 'light'] as const).forEach(domMode => {
-        test(`uses non-heading names and non-repetitive image alternatives in ${domMode} DOM`, async() => {
+        test(`keeps heading markup and non-repetitive image alternatives in ${domMode} DOM`, async() => {
             const options = mockRelewiseOptions();
             options.components = { domMode };
             initializeRelewiseUI(options).useRecommendations();
@@ -73,10 +73,8 @@ suite('tile template visibility', () => {
 
             assert.equal(productRoot.querySelector('img')?.getAttribute('alt'), '');
             assert.equal(contentRoot.querySelector('img')?.getAttribute('alt'), '');
-            assert.equal(productRoot.querySelector('.rw-display-name')?.tagName, 'DIV');
-            assert.equal(contentRoot.querySelector('.rw-display-name')?.tagName, 'DIV');
-            assert.isNull(productRoot.querySelector('h1, h2, h3, h4, h5, h6'));
-            assert.isNull(contentRoot.querySelector('h1, h2, h3, h4, h5, h6'));
+            assert.equal(productRoot.querySelector('.rw-display-name')?.tagName, 'H5');
+            assert.equal(contentRoot.querySelector('.rw-display-name')?.tagName, 'H5');
 
             const descriptiveVariant = product('variant-product');
             descriptiveVariant.variant = { displayName: 'Blue variant' } as ProductResult['variant'];

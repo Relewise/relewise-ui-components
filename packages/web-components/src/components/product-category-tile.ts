@@ -85,7 +85,7 @@ export class ProductCategoryTile extends RelewiseLitElement {
                 </div>
             ` : nothing}
             <div class="rw-information-container" part="information">
-                <div class="rw-display-name" part="display-name">${category.displayName}</div>
+                <h5 class="rw-display-name" part="display-name">${category.displayName}</h5>
             </div>
         `;
     }

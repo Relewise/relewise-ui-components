@@ -104,7 +104,7 @@ export class ProductTile extends RelewiseLitElement {
                 : nothing
             }
             <div class='rw-information-container'>
-                <div class='rw-display-name'>${product.displayName}</div>
+                <h5 class='rw-display-name'>${product.displayName}</h5>
                 <div class='rw-price'>
                     <span>${formatPrice(product.salesPrice)}</span>
 

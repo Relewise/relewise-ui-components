@@ -1775,7 +1775,7 @@ For more examples and information about relevance modifiers visit the official [
 It is possible to overwrite the templates used for rendering products, product categories, and content. This is done using [lit templating](https://lit.dev/docs/templates/overview/).
 When the template is overwritten, the corresponding tile skips attaching default CSS styles on the tile, so your template has full control over layout and presentation.
 If no custom template is provided, it will render using the default template.
-Default tiles render their display names as regular text so they do not impose a heading level on the surrounding page. Images use an empty alternative when the adjacent text already names the entity; the default product tile retains a distinct variant display name when it adds information not present in the product name.
+Default tile images use an empty alternative when the adjacent text already names the entity; the default product tile retains a distinct variant display name when it adds information not present in the product name.
 
 The below examples show how the default templates are written. Style the templates however you like—or swap it out for your design system equivalents.
 
@@ -1796,7 +1796,7 @@ initializeRelewiseUI(
                                 </div>`
                             : helpers.nothing}
                         <div class="rw-information-container">
-                            <div class="rw-display-name">${product.displayName}</div>
+                            <h5 class="rw-display-name">${product.displayName}</h5>
                             <div class="rw-price">
                                 <span>${helpers.formatPrice(product.salesPrice ?? product.listPrice)}</span>
                                 ${(product.salesPrice && product.listPrice && product.listPrice !== product.salesPrice)
@@ -1829,7 +1829,7 @@ initializeRelewiseUI({
                             </div>`
                         : helpers.nothing}
                     <div class="rw-information-container">
-                        <div class="rw-display-name">${content.displayName}</div>
+                        <h5 class="rw-display-name">${content.displayName}</h5>
                         ${content.data?.Summary?.value
                             ? html`<p class="rw-summary">${helpers.stripHtmlClientSide(content.data?.Summary?.value)}</p>`
                             : helpers.nothing}

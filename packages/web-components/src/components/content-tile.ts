@@ -106,7 +106,7 @@ export class ContentTile extends RelewiseLitElement {
                 : nothing}
             </div>
             <div class='rw-information-container'>
-                <div class='rw-display-name'>${content.displayName}</div>
+                <h5 class='rw-display-name'>${content.displayName}</h5>
                 ${summary ? html`<p class="rw-summary">${summary}</p>` : nothing}
             </div>`;
     }
