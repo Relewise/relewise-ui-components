@@ -224,75 +224,81 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
 
     private lastReportedState?: RecommendationStateChangedEventDetail;
 
-    private readonly productBatchGroup: RecommendationBatchGroup<ProductRecommendationRequest, ProductRecommendationResponse> = {
-        getData: () => this.productBatchData,
-        setData: data => {
+    private createBatchGroup<TRequest, TResponse>(
+        getData: () => RecommendationBatchingContextValue<TRequest, TResponse>,
+        setData: (data: RecommendationBatchingContextValue<TRequest, TResponse>) => void,
+        request: RecommendationBatchGroup<TRequest, TResponse>['request'],
+    ): RecommendationBatchGroup<TRequest, TResponse> {
+        return {
+            getData,
+            setData,
+            request,
+            abortController: new AbortController(),
+            generation: 0,
+        };
+    }
+
+    private readonly productBatchGroup = this.createBatchGroup<ProductRecommendationRequest, ProductRecommendationResponse>(
+        () => this.productBatchData,
+        data => {
             this.productBatchData = data;
         },
-        request: (requests, abortSignal) => {
+        (requests, abortSignal) => {
             const builder = new ProductsRecommendationCollectionBuilder()
                 .requireDistinctProductsAcrossResults();
             requests.forEach(request => builder.addRequest(request));
             return getRecommender(getRelewiseUIOptions())
                 .batchProductRecommendations(builder.build(), { abortSignal });
         },
-        abortController: new AbortController(),
-        generation: 0,
-    };
+    );
 
-    private readonly contentBatchGroup: RecommendationBatchGroup<ContentRecommendationRequest, ContentRecommendationResponse> = {
-        getData: () => this.contentBatchData,
-        setData: data => {
+    private readonly contentBatchGroup = this.createBatchGroup<ContentRecommendationRequest, ContentRecommendationResponse>(
+        () => this.contentBatchData,
+        data => {
             this.contentBatchData = data;
         },
-        request: (requests, abortSignal) => {
+        (requests, abortSignal) => {
             const builder = new ContentsRecommendationCollectionBuilder()
                 .requireDistinctContentsAcrossResults();
             requests.forEach(request => builder.addRequest(request));
             return getRecommender(getRelewiseUIOptions())
                 .batchContentRecommendations(builder.build(), { abortSignal });
         },
-        abortController: new AbortController(),
-        generation: 0,
-    };
+    );
 
-    private readonly productCategoryBatchGroup: RecommendationBatchGroup<
+    private readonly productCategoryBatchGroup = this.createBatchGroup<
         PopularProductCategoriesRecommendationRequest,
         ProductCategoryRecommendationResponse
-    > = {
-        getData: () => this.productCategoryBatchData,
-        setData: data => {
+    >(
+        () => this.productCategoryBatchData,
+        data => {
             this.productCategoryBatchData = data;
         },
-        request: (requests, abortSignal) => {
+        (requests, abortSignal) => {
             const builder = new ProductCategoriesRecommendationCollectionBuilder()
                 .requireDistinctCategoriesAcrossResults();
             requests.forEach(request => builder.addRequest(request));
             return getRecommender(getRelewiseUIOptions())
                 .batchProductCategoryRecommendations(builder.build(), { abortSignal });
         },
-        abortController: new AbortController(),
-        generation: 0,
-    };
+    );
 
-    private readonly contentCategoryBatchGroup: RecommendationBatchGroup<
+    private readonly contentCategoryBatchGroup = this.createBatchGroup<
         PopularContentCategoriesRecommendationRequest,
         ContentCategoryRecommendationResponse
-    > = {
-        getData: () => this.contentCategoryBatchData,
-        setData: data => {
+    >(
+        () => this.contentCategoryBatchData,
+        data => {
             this.contentCategoryBatchData = data;
         },
-        request: (requests, abortSignal) => {
+        (requests, abortSignal) => {
             const builder = new ContentCategoriesRecommendationCollectionBuilder()
                 .requireDistinctCategoriesAcrossResults();
             requests.forEach(request => builder.addRequest(request));
             return getRecommender(getRelewiseUIOptions())
                 .batchContentCategoryRecommendations(builder.build(), { abortSignal });
         },
-        abortController: new AbortController(),
-        generation: 0,
-    };
+    );
 
     private readonly registerProductRecommendationBound = (event: Event) =>
         this.registerRecommendation(event, this.productBatchGroup);
