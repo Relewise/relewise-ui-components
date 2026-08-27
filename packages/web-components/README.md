@@ -1775,7 +1775,7 @@ For more examples and information about relevance modifiers visit the official [
 It is possible to overwrite the templates used for rendering products, product categories, and content. This is done using [lit templating](https://lit.dev/docs/templates/overview/).
 When the template is overwritten, the corresponding tile skips attaching default CSS styles on the tile, so your template has full control over layout and presentation.
 If no custom template is provided, it will render using the default template.
-Default tile images use an empty alternative when the adjacent text already names the entity; the default product tile retains a distinct variant display name when it adds information not present in the product name.
+Default tile images use empty alternative text when the adjacent text already names the entity; the default product tile retains a distinct variant display name when it adds information not present in the product name.
 
 The below examples show how the default templates are written. Style the templates however you like—or swap it out for your design system equivalents.
 
