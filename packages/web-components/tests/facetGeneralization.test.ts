@@ -1,6 +1,6 @@
 import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
 import { ContentFacetResult, ProductFacetResult } from '@relewise/client';
-import { clearUrlState, Events, Facets, initializeRelewiseUI, QueryKeys, updateUrlState, useSearch } from '../src';
+import { clearUrlState, Events, Facets, initializeRelewiseUI, QueryKeys, updateUrlState, updateUrlStateValues, useSearch } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('facet generalization', () => {
@@ -268,16 +268,44 @@ suite('facet generalization', () => {
 
         const input = facet.shadowRoot!.querySelector('input')!;
         input.click();
+        await facet.updateComplete;
 
         assert.deepEqual(new URL(window.location.href).searchParams.getAll(QueryKeys.productFacet + 'Brand'), ['brand-1']);
         assert.equal(applyCount, 1);
         assert.isTrue(input.checked);
+        assert.equal(facet.renderRoot.querySelector('[part="selected-count"]')?.textContent, '1');
 
         input.click();
+        await facet.updateComplete;
 
         assert.deepEqual(new URL(window.location.href).searchParams.getAll(QueryKeys.productFacet + 'Brand'), []);
         assert.equal(applyCount, 2);
         assert.isFalse(input.checked);
+        assert.isNull(facet.renderRoot.querySelector('[part="selected-count"]'));
+    });
+
+    (['shadow', 'light'] as const).forEach(domMode => {
+        test(`shows restored selection counts when selected options are collapsed in ${domMode} DOM`, async () => {
+            const options = mockRelewiseOptions();
+            options.components = { domMode };
+            initializeRelewiseUI(options);
+            useSearch();
+            updateUrlStateValues(`${QueryKeys.productFacet}DataColor`, ['Color 11', 'Color 12']);
+
+            const el = await fixture<Facets>(html`
+                <relewise-facets
+                    expanded
+                    .facetQueryKeyPrefix=${QueryKeys.productFacet}
+                    .facetResult=${productManyOptionsFacetResult(['Color 11', 'Color 12'])}
+                    .labels=${['Colors']}>
+                </relewise-facets>
+            `);
+            const facet = el.renderRoot.querySelector('relewise-checklist-string-value-facet')!;
+            await waitUntil(() => facet.renderRoot.querySelectorAll('input').length === 10, 'collapsed facet inputs were not rendered');
+
+            assert.equal(facet.renderRoot.querySelector('[part="selected-count"]')?.textContent, '2');
+            assert.equal([...facet.renderRoot.querySelectorAll('input')].filter(input => input.checked).length, 0);
+        });
     });
 
     test('does not render empty facet groups', async () => {
@@ -464,6 +492,21 @@ function productColorFacetResult(selectedValue?: string): ProductFacetResult {
                 value,
                 hits: 12,
                 selected: value === selectedValue,
+            })),
+        }],
+    } as ProductFacetResult;
+}
+
+function productManyOptionsFacetResult(selectedValues: string[]): ProductFacetResult {
+    return {
+        items: [{
+            $type: 'Relewise.Client.DataTypes.Search.Facets.Result.ProductDataStringValueFacetResult, Relewise.Client',
+            field: 'Data',
+            key: 'Color',
+            available: Array.from({ length: 12 }, (_, index) => `Color ${index + 1}`).map(value => ({
+                value,
+                hits: 12,
+                selected: selectedValues.includes(value),
             })),
         }],
     } as ProductFacetResult;

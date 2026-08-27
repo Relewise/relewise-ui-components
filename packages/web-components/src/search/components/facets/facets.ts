@@ -85,7 +85,7 @@ export class Facets extends RelewiseLitElement {
             return html`
                 <relewise-checklist-ranges-object-value-facet
                     part="container"
-                    exportparts="title, input, label, value, hits"
+                    exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .label=${label}
                     .result=${facetResult}
@@ -107,7 +107,7 @@ export class Facets extends RelewiseLitElement {
                 <relewise-checklist-number-value-facet
                     .label=${label}    
                     part="container"
-                    exportparts="title, input, label, value, hits"
+                    exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     .applyFacet=${this.applyFacet}
@@ -123,7 +123,7 @@ export class Facets extends RelewiseLitElement {
                 <relewise-checklist-object-value-facet 
                     .label=${label}
                     part="container"
-                    exportparts="title, input, label, value, hits"
+                    exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     .applyFacet=${this.applyFacet}
@@ -140,7 +140,7 @@ export class Facets extends RelewiseLitElement {
                 <relewise-checklist-boolean-value-facet
                     .label=${label}
                     part="container"
-                    exportparts="title, input, label, value, hits"
+                    exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     .applyFacet=${this.applyFacet}
@@ -157,7 +157,7 @@ export class Facets extends RelewiseLitElement {
                 <relewise-checklist-string-value-facet
                     .label=${label}
                     part="container"
-                    exportparts="title, input, label, value, hits"
+                    exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     .applyFacet=${this.applyFacet}

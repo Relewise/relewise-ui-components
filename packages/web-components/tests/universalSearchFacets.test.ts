@@ -87,6 +87,7 @@ suite('universal search facets', () => {
         assert.isTrue(element.renderRoot.querySelector('.rw-drawer')!.hasAttribute('open'));
         assert.isTrue(facets.expanded);
         assert.include(facets.getAttribute('exportparts') ?? '', 'container: facet-container');
+        assert.include(facets.getAttribute('exportparts') ?? '', 'selected-count: facet-selected-count');
     });
 
     test('uses unique accessible drawer ids', async () => {

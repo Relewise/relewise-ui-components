@@ -983,7 +983,7 @@ recommendations: {
 }
 ```
 
-`SearchTermBasedProduct` may return no recommendations on a new dataset without enough search behavior. Popular entity recommendations are therefore safer defaults for no-result recovery. `PopularSearchTerms` uses the centralized `useRecommendations({ popularSearchTerms: { targetEntityTypes } })` setting. Universal Search normally hides facets, their reserved column, and the redundant entity heading and `0 Results` count for a tab with zero results. When the URL contains both a search term and selected facet state for that entity, it keeps that tab active and visible with the facets from the current response so the filters can be reverted. The tab-specific zero-result message remains visible above any recovery recommendations so the recommendations are not mistaken for search hits. An unselected checklist facet with one option is hidden only when that option covers every current hit; selected options remain visible so they can be removed.
+`SearchTermBasedProduct` may return no recommendations on a new dataset without enough search behavior. Popular entity recommendations are therefore safer defaults for no-result recovery. `PopularSearchTerms` uses the centralized `useRecommendations({ popularSearchTerms: { targetEntityTypes } })` setting. Universal Search normally hides facets, their reserved column, and the redundant entity heading and `0 Results` count for a tab with zero results. When the URL contains both a search term and selected facet state for that entity, it keeps that tab active and visible with the facets from the current response so the filters can be reverted. The tab-specific zero-result message remains visible above any recovery recommendations so the recommendations are not mistaken for search hits. An unselected checklist facet with one option is hidden only when that option covers every current hit; selected options remain visible so they can be removed. Checklist facet titles show the number of selected values, including selections hidden below Show More.
 
 Number-range facets show the current available bounds as their default values without native `min` or `max` input constraints. Apply or Enter commits an edited range only when it remains within the available bounds and the lower value does not exceed the upper value; otherwise the inputs return to their last applied values. Bounds restored from a shared URL remain visible as already-applied values even when they exceed the current available range.
 
@@ -1003,7 +1003,7 @@ Both the tabbed and tabless no-result states expose the CSS parts `zero-results`
 | --- | --- |
 | Shell | `backdrop`, `dialog`, `header`, `search-bar`, `close-button`, `body` |
 | Navigation | `results-summary`, `tabs`, `tab`, `tab-count` |
-| Facets | `facets`, `facet-trigger`, `facet-panel`, `facet-drawer`, `facet-drawer-backdrop`, `facet-drawer-header`, `facet-drawer-close`, `facet-container`, `facet-title`, `facet-input`, `facet-label`, `facet-value`, `facet-hits` |
+| Facets | `facets`, `facet-trigger`, `facet-panel`, `facet-drawer`, `facet-drawer-backdrop`, `facet-drawer-header`, `facet-drawer-close`, `facet-container`, `facet-title`, `facet-selected-count`, `facet-input`, `facet-label`, `facet-value`, `facet-hits` |
 | Results | `results-layout`, `results`, `results-header`, `results-title`, `results-count`, `product-grid`, `category-grid`, `content-grid`, `product-tile`, `category-tile`, `content-tile` |
 | Sorting | `sorting`, `sorting-container`, `sorting-select`, `sorting-label` |
 | States and pagination | `empty-state`, `error-state`, `loading-state`, `zero-results`, `zero-results-icon`, `zero-results-title`, `zero-results-hint`, `load-previous`, `load-more` |
@@ -1230,6 +1230,10 @@ relewise-product-search::part(facet-container) {
 }
 
 relewise-product-search::part(facet-title) {
+    ...
+}
+
+relewise-product-search::part(facet-selected-count) {
     ...
 }
 
@@ -1676,6 +1680,8 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | Variable | Default | Description |
 | --- | --- | --- |
 | `--relewise-checklist-facet-border-color` | `#eee` | Border colour for facet cards. |
+| `--relewise-checklist-facet-selected-count-background-color` | `#111` | Background colour for selected facet count badges. |
+| `--relewise-checklist-facet-selected-count-color` | `#fff` | Text colour for selected facet count badges. |
 | `--relewise-checklist-facet-hits-color` | `gray` | Text colour for facet hit counts. |
 | `--relewise-checklist-facet-hits-font-size` | `.85em` | Font size for facet hit counts. |
 | `--relewise-number-range-input-height` | `2em` | Height of inputs in the number range facet. |

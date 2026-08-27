@@ -19,7 +19,7 @@ export class ChecklistRangesObjectValueFacet extends ChecklistFacetBase {
         }
 
         if (checkbox.checked) {
-            this.selectedValues.push(`${item.value.lowerBoundInclusive}-${item.value.upperBoundExclusive}`);
+            this.selectedValues = [...this.selectedValues, `${item.value.lowerBoundInclusive}-${item.value.upperBoundExclusive}`];
         } else {
             const newValue = this.selectedValues.filter(x => x !== `${item.value!.lowerBoundInclusive}-${item.value!.upperBoundExclusive}`);
             this.selectedValues = newValue;

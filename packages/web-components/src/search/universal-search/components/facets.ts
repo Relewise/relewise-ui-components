@@ -166,7 +166,7 @@ export class UniversalSearchFacets extends RelewiseLitElement {
                 </header>
                 <relewise-facets
                     expanded
-                    exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
+                    exportparts="container: facet-container, title: facet-title, selected-count: facet-selected-count, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
                     .labels=${this.labels}
                     .facetQueryKeyPrefix=${this.facetQueryKeyPrefix}
                     .applyFacet=${this.applyFacet}

@@ -241,7 +241,7 @@ export class ProductSearch extends RelewiseLitElement {
             <div class="result-container">
                 ${this.products.length > 0 && hasRenderableFacets(this.searchResult?.facets, this.searchResult?.hits) ? html`
                     <relewise-facets
-                        exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
+                        exportparts="container: facet-container, title: facet-title, selected-count: facet-selected-count, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
                         .labels=${this.facetLabels}
                         .facetResult=${this.searchResult?.facets}
                         .totalHits=${this.searchResult?.hits}

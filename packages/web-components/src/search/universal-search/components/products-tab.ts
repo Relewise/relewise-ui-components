@@ -266,7 +266,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             <relewise-universal-search-facets
                 class="rw-facets"
                 part="facets"
-                exportparts="facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits"
+                exportparts="facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-selected-count, facet-input, facet-label, facet-value, facet-hits"
                 .labels=${this.facetLabels}
                 .facetQueryKeyPrefix=${QueryKeys.productFacet}
                 .facetResult=${facetResult}
