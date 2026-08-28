@@ -23,14 +23,11 @@ export class PopularProductCategories extends CategoryRecommendationBase<
 > {
     @consume({ context: productCategoryRecommendationBatchingContext, subscribe: true })
     @state()
-    protected providedData?: {
-        enabled?: boolean;
-        requests: Array<{
-            request: PopularProductCategoriesRecommendationRequest;
-            id: EventTarget | null;
-            result?: ProductCategoryRecommendationResponse | null;
-        }>;
-    };
+    protected providedData?: CategoryRecommendationBase<
+        ProductCategoryResult,
+        PopularProductCategoriesRecommendationRequest,
+        ProductCategoryRecommendationResponse
+    >['providedData'];
 
     protected readonly registerRecommendationEvent = Events.registerProductCategoryRecommendation;
 
