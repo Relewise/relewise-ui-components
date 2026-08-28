@@ -6,19 +6,44 @@ import {
     ProductRecommendationResponse,
     Recommender,
 } from '@relewise/client';
-import { initializeRelewiseUI, PopularContent, PopularProducts } from '../src';
+import { initializeRelewiseUI, PopularContent, PopularProducts, RecommendationBatcher } from '../src';
 import { Events } from '../src/helpers/events';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('recommendation lifecycle', () => {
     const originalRecommendPopularProducts = Recommender.prototype.recommendPopularProducts;
     const originalRecommendPopularContent = Recommender.prototype.recommendPopularContents;
+    const originalBatchProductRecommendations = Recommender.prototype.batchProductRecommendations;
 
     teardown(() => {
         Recommender.prototype.recommendPopularProducts = originalRecommendPopularProducts;
         Recommender.prototype.recommendPopularContents = originalRecommendPopularContent;
+        Recommender.prototype.batchProductRecommendations = originalBatchProductRecommendations;
         fixtureCleanup();
         window.relewiseUIOptions = undefined!;
+    });
+    test('requires distinct products across batched recommendation results', async() => {
+        let requireDistinctProductsAcrossResults: boolean | undefined;
+        Recommender.prototype.batchProductRecommendations = async requestCollection => {
+            requireDistinctProductsAcrossResults = requestCollection.requireDistinctProductsAcrossResults;
+            return { responses: [] } as never;
+        };
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+        const batcher = await fixture<RecommendationBatcher>(html`
+            <relewise-product-recommendation-batcher></relewise-product-recommendation-batcher>
+        `);
+        batcher.data = {
+            requests: [{
+                request: {
+                    $type: 'Relewise.Client.Requests.Recommendations.PopularProductsRecommendationRequest, Relewise.Client',
+                } as never,
+                id: null,
+            }],
+        };
+
+        await batcher.batch();
+
+        assert.isTrue(requireDistinctProductsAcrossResults);
     });
 
     test('product recommendation base removes its listener when disconnected during the initial request', async() => {

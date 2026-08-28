@@ -1,14 +1,14 @@
-import { DataObjectDoubleRangesFacetResult, DecimalNullableChainableRangeAvailableFacetValue, PriceRangesFacetResult, ProductDataDoubleRangesFacetResult } from '@relewise/client';
+import { ContentDataDoubleRangesFacetResult, DataObjectDoubleRangesFacetResult, DecimalNullableChainableRangeAvailableFacetValue, PriceRangesFacetResult, ProductCategoryDataDoubleRangesFacetResult, ProductDataDoubleRangesFacetResult } from '@relewise/client';
 import { property } from 'lit/decorators.js';
 import { ChecklistFacetBase } from './checklist-facet-base';
 
 export class ChecklistRangesObjectValueFacet extends ChecklistFacetBase {
 
     @property({ type: Object })
-    result: PriceRangesFacetResult | ProductDataDoubleRangesFacetResult | DataObjectDoubleRangesFacetResult | null = null;
+    result: PriceRangesFacetResult | ProductDataDoubleRangesFacetResult | ContentDataDoubleRangesFacetResult | ProductCategoryDataDoubleRangesFacetResult | DataObjectDoubleRangesFacetResult | null = null;
 
     handleChange(e: Event, item: DecimalNullableChainableRangeAvailableFacetValue) {
-        const checkbox = e.target as HTMLInputElement;
+        const checkbox = e.currentTarget as HTMLInputElement;
         if (!item.value ||
             item.value.lowerBoundInclusive === undefined ||
             item.value.lowerBoundInclusive === undefined ||
@@ -19,7 +19,7 @@ export class ChecklistRangesObjectValueFacet extends ChecklistFacetBase {
         }
 
         if (checkbox.checked) {
-            this.selectedValues.push(`${item.value.lowerBoundInclusive}-${item.value.upperBoundExclusive}`);
+            this.selectedValues = [...this.selectedValues, `${item.value.lowerBoundInclusive}-${item.value.upperBoundExclusive}`];
         } else {
             const newValue = this.selectedValues.filter(x => x !== `${item.value!.lowerBoundInclusive}-${item.value!.upperBoundExclusive}`);
             this.selectedValues = newValue;

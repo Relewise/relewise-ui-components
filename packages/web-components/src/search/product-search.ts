@@ -1,15 +1,13 @@
 import { RelewiseLitElement } from '../relewise-lit-element';
-import { DoubleNullableRange, ProductResult, ProductSearchResponse, User } from '@relewise/client';
+import { ProductResult, ProductSearchResponse, User } from '@relewise/client';
 import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
-import { getRelewiseContextSettings, getRelewiseSearchTargetedConfigurations, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
+import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, updateUrlState } from '../helpers';
+import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { getSearcher } from './searcher';
-import { Facet } from './types';
-import { RelewiseFacetBuilder } from '../facetBuilder';
-import { createProductSearchBuilder } from '../builders';
-import { getSearchSortingOptions, getSearchSortingSelection } from './searchSortingBuilder';
+import { buildProductSearchRequest } from '../builders/productSearchRequestBuilder';
+import { hasRenderableFacets } from './components/facets/facet-result-visibility';
 
 export class ProductSearch extends RelewiseLitElement {
 
@@ -83,6 +81,7 @@ export class ProductSearch extends RelewiseLitElement {
             window.removeEventListener('scroll', this.handleScrollEventBound);
         }
 
+        this.abortController.abort();
         super.disconnectedCallback();
     }
 
@@ -113,57 +112,53 @@ export class ProductSearch extends RelewiseLitElement {
 
         const term = readCurrentUrlState(QueryKeys.term) ?? null;
 
+        const minimumQueryLength = getRelewiseUISearchOptions()?.minimumQueryLength ?? 1;
+        if (term && term.length < minimumQueryLength) {
+            this.products = [];
+            this.searchResult = null;
+            this.facetLabels = [];
+            if (this.renderRoot) {
+                this.setSearchResultOnSlotChilderen();
+            }
+            window.dispatchEvent(new CustomEvent(Events.searchingForProductsCompleted));
+            return;
+        }
+
+        const abortController = new AbortController();
+        this.abortController = abortController;
         const numberOfProductsToFetch = getNumberOfProductsToFetch();
 
         const relewiseUIOptions = getRelewiseUIOptions();
-        const targetedConfiguration = getRelewiseSearchTargetedConfigurations();
-        const searchOptions = getRelewiseUISearchOptions();
         const searcher = getSearcher(relewiseUIOptions);
-        const sortingOptions = getSearchSortingOptions(searchOptions?.sorting);
 
         // Wait a tick so runtime filter extensions can run before the first automatic search executes.
         await new Promise(r => setTimeout(r, 0));
+        if (abortController.signal.aborted || abortController !== this.abortController) {
+            return;
+        }
+
         const settings = await getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search');
+        if (abortController.signal.aborted || abortController !== this.abortController) {
+            return;
+        }
+
         this.user = settings.user;
-        const requestBuilder = createProductSearchBuilder(term, settings)
-            .pagination(p => p
-                .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)
-                .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))
-            .facets(builder => {
-                if (searchOptions?.facets?.product) {
-                    const facetBuilder = new RelewiseFacetBuilder(builder);
-                    searchOptions.facets.product(facetBuilder);
-                    this.facetLabels = facetBuilder.getLabels();
-                }
-            })
-            .sorting(builder => {
-                const sorting = getSearchSortingSelection(sortingOptions, readCurrentUrlState(QueryKeys.sortBy));
+        const requestResult = buildProductSearchRequest({
+            term,
+            settings,
+            page: this.page,
+            pageSize: this.numberOfProducts,
+            productsLoaded: this.products.length,
+            productsToFetch: numberOfProductsToFetch,
+            target: this.target,
+        });
+        this.facetLabels = requestResult.facetLabels;
 
-                if (sorting) {
-                    sorting.apply(builder);
-                    return;
-                }
-
-                builder.sortByProductRelevance();
-            });
-
-        if (this.target) {
-            const overwrittenConfigSettings = targetedConfiguration.handle(this.target, requestBuilder);
-            if (overwrittenConfigSettings.facetLabels) {
-                this.facetLabels = overwrittenConfigSettings.facetLabels;
-            }
+        const response = await searcher.searchProducts(requestResult.request, { abortSignal: abortController.signal });
+        if (abortController.signal.aborted || abortController !== this.abortController) {
+            return;
         }
 
-        const request = requestBuilder.build();
-
-        if (request.facets) {
-            request.facets.items.forEach(facet => {
-                this.getSelectedValuesForFacet(facet);
-            });
-        }
-
-        this.abortController = new AbortController();
-        const response = await searcher.searchProducts(request, { abortSignal: this.abortController.signal });
         if (!response) {
             return;
         }
@@ -178,77 +173,6 @@ export class ProductSearch extends RelewiseLitElement {
 
         this.setSearchResultOnSlotChilderen();
         window.dispatchEvent(new CustomEvent(Events.searchingForProductsCompleted));
-    }
-
-    getSelectedValuesForFacet(facet: Facet, parentKey?: string) {
-        const urlKey = this.getFacetUrlKey(facet, parentKey);
-
-        if (facet.$type.includes('DataObjectFacet') && 'items' in facet) {
-            facet.items.forEach(item => this.getSelectedValuesForFacet(item, urlKey));
-            return;
-        }
-
-        if (facet.$type.includes('ProductDataDoubleRangeFacet') ||
-            facet.$type.includes('DataObjectDoubleRangeFacet') ||
-            facet.$type.includes('PriceRangeFacet')) {
-            this.getSelectedRange(facet, urlKey);
-            return;
-        }
-
-        if (facet.$type.includes('PriceRangesFacet') ||
-            facet.$type.includes('ProductDataDoubleRangesFacet') ||
-            facet.$type.includes('DataObjectDoubleRangesFacet')) {
-            this.getSelectedRanges(facet, urlKey);
-            return;
-        }
-
-        this.getSelectedStrings(facet, urlKey);
-
-        if (!facet.settings) {
-            facet.settings = { alwaysIncludeSelectedInAvailable: true, includeZeroHitsInAvailable: false };
-        }
-    }
-
-    getSelectedRange(facet: Facet, urlKey?: string) {
-        if ('selected' in facet) {
-            const key = urlKey ?? this.getFacetUrlKey(facet) ?? '';
-            const upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field + key);
-            const lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field + key);
-
-            facet.selected = {
-                lowerBoundInclusive: lowerBound ? +lowerBound : null,
-                upperBoundInclusive: upperBound ? +upperBound : null,
-            };
-        }
-    }
-
-    getSelectedRanges(facet: Facet, urlKey?: string) {
-        if ('selected' in facet) {
-            const key = urlKey ?? this.getFacetUrlKey(facet) ?? '';
-            const queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + key);
-            facet.selected = queryValues.map(x => {
-                const split = x.split('-');
-                return {
-                    lowerBoundInclusive: +split[0],
-                    upperBoundExclusive: +split[1],
-                } as DoubleNullableRange;
-            });
-        }
-    }
-
-    getSelectedStrings(facet: Facet, urlKey?: string) {
-        if ('selected' in facet) {
-            const key = urlKey ?? this.getFacetUrlKey(facet) ?? '';
-            facet.selected = readCurrentUrlStateValues(QueryKeys.facet + facet.field + key);
-        }
-    }
-
-    getFacetUrlKey(facet: Facet, parentKey?: string): string | undefined {
-        if (!('key' in facet) || !facet.key) {
-            return parentKey;
-        }
-
-        return parentKey ? `${parentKey}.${facet.key}` : facet.key;
     }
 
     setSearchResultOnSlotChilderen() {
@@ -315,11 +239,12 @@ export class ProductSearch extends RelewiseLitElement {
             </relewise-product-search-bar>
           
             <div class="result-container">
-                ${this.products.length > 0 && this.searchResult?.facets ? html`
+                ${this.products.length > 0 && hasRenderableFacets(this.searchResult?.facets, this.searchResult?.hits) ? html`
                     <relewise-facets
-                        exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
+                        exportparts="container: facet-container, title: facet-title, selected-count: facet-selected-count, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
                         .labels=${this.facetLabels}
                         .facetResult=${this.searchResult?.facets}
+                        .totalHits=${this.searchResult?.hits}
                         class="rw-facets">
                     </relewise-facets>
                 `: nothing}

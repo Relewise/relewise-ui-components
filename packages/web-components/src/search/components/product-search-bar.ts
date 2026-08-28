@@ -18,6 +18,13 @@ export class ProductSearchBar extends RelewiseLitElement {
         this.term = readCurrentUrlState(QueryKeys.term) ?? null;
     }
 
+    disconnectedCallback(): void {
+        if (this.debounceTimeoutHandlerId) {
+            clearTimeout(this.debounceTimeoutHandlerId);
+        }
+        super.disconnectedCallback();
+    }
+
     handleKeyDown(event: KeyboardEvent): void {
         switch (event.key) {
             case 'Enter':
@@ -36,6 +43,7 @@ export class ProductSearchBar extends RelewiseLitElement {
         }
 
         this.debounceTimeoutHandlerId = setTimeout(() => {
+            this.debounceTimeoutHandlerId = null;
             this.setSearchTerm(term);
         }, getRelewiseUISearchOptions()?.debounceTimeInMs);
     }

@@ -1,4 +1,5 @@
 import { FilterBuilder, ProductCategoryResult, ProductResult, RecommendPopularSearchTermSettings, VariantSearchRequestSettingsBuilder } from '@relewise/client';
+import type { SearchTermPredictionRequest } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
 import { ContentCategoryTile, FilterIcon, ProductCategoryTile, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
 import { Button } from './components/button';
@@ -7,7 +8,7 @@ import { FavoriteButtonContent } from './components/content-favorite-button';
 import { FavoriteButtonProducts } from './components/product-favorite-button';
 import { ContextSettings, ProductTemplateExtensions } from './initialize';
 import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PopularContent, PersonalContent, ContentViewedAfterViewingContent, ContentViewedAfterViewingMultipleContent, ProductsViewedAfterViewingContent, ContentViewedAfterViewingProduct, ContentViewedAfterViewingMultipleProducts, PopularProductCategories, PopularContentCategories, PopularSearchTerms, SearchTermBasedProducts } from './recommendations';
-import { ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar } from './search';
+import { UniversalSearch, ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar, SearchCombobox } from './search';
 import { ChecklistBooleanValueFacet } from './search/components/facets/checklist-boolean-value-facet';
 import { ChecklistNumberValueFacet } from './search/components/facets/checklist-number-value-facet';
 import { ChecklistObjectValueFacet } from './search/components/facets/checklist-object-value-facet';
@@ -36,7 +37,13 @@ import { LikeIcon } from './components/icons/like';
 import { LikeFilledIcon } from './components/icons/like-filled';
 import { DislikeIcon } from './components/icons/dislike';
 import { DislikeFilledIcon } from './components/icons/dislike-filled';
-import { SearchSortingOptionsBuilder } from './search/searchSortingBuilder';
+import { SearchSortingOptionsBuilder } from './builders/searchSortingBuilder';
+import { UniversalSearchContentTab } from './search/universal-search/components/content-tab';
+import { UniversalSearchFacets } from './search/universal-search/components/facets';
+import { UniversalSearchLoadMore } from './search/universal-search/components/load-more';
+import { UniversalSearchProductCategoriesTab } from './search/universal-search/components/product-categories-tab';
+import { UniversalSearchProductsTab } from './search/universal-search/components/products-tab';
+import { UniversalSearchRecommendations } from './search/universal-search/components/recommendations';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -46,11 +53,74 @@ export interface RelewiseUISearchOptions {
     localization?: SearchLocalization;
     rememberScrollPosition?: boolean;
     debounceTimeInMs?: number;
+    minimumQueryLength?: number;
     variantRequestSettings?: (builder: VariantSearchRequestSettingsBuilder) => void;
     /**
      * @deprecated Use `variantRequestSettings` and set `maxVariantsPerProduct` instead.
      */
     explodedVariants?: number;
+    universalSearch?: UniversalSearchOptions;
+}
+
+export interface UniversalSearchOptions {
+    entities?: UniversalSearchEntitiesOptions;
+    suggestions?: SearchSuggestionsOptions;
+    behavior?: UniversalSearchBehaviorOptions;
+    recommendations?: UniversalSearchRecommendationOptions;
+}
+
+export interface UniversalSearchBehaviorOptions {
+    zeroResultTabs?: 'show' | 'hide';
+    activateFirstTabWithResults?: boolean;
+}
+
+export interface UniversalSearchRecommendationOptions {
+    initial?: UniversalSearchRecommendationBlock[];
+    noResults?: {
+        whenAllTabsAreHidden?: UniversalSearchRecommendationBlock[];
+        products?: UniversalSearchRecommendationBlock[];
+        productCategories?: UniversalSearchRecommendationBlock[];
+        content?: UniversalSearchRecommendationBlock[];
+    };
+}
+
+export interface UniversalSearchRecommendationBlock {
+    title?: string;
+    type:
+        | 'PopularProducts'
+        | 'PersonalProducts'
+        | 'RecentlyViewedProducts'
+        | 'PopularProductCategories'
+        | 'PopularContents'
+        | 'PersonalContent'
+        | 'PopularContentCategories'
+        | 'PopularSearchTerms'
+        | 'SearchTermBasedProduct';
+    take?: number;
+}
+
+export type SearchSuggestionEntityType = NonNullable<
+    NonNullable<SearchTermPredictionRequest['settings']>['targetEntityTypes']
+>[number];
+
+export interface SearchSuggestionOptions {
+    take?: number;
+    targetEntityTypes?: SearchSuggestionEntityType[];
+}
+
+export interface SearchSuggestionsOptions {
+    popularSearchTerms?: SearchSuggestionOptions;
+    searchTermPredictions?: SearchSuggestionOptions;
+}
+
+export interface UniversalSearchEntitiesOptions {
+    products?: UniversalSearchEntityOptions;
+    productCategories?: UniversalSearchEntityOptions;
+    content?: UniversalSearchEntityOptions;
+}
+
+export interface UniversalSearchEntityOptions {
+    pageSize?: number;
 }
 
 export type PopularSearchTermEntityType = NonNullable<RecommendPopularSearchTermSettings['targetEntityTypes']>[number];
@@ -63,14 +133,44 @@ export interface RelewiseUIRecommendationOptions {
 
 export interface SearchLocalization {
     searchBar?: SearchBarLocalization;
+    searchSuggestions?: SearchSuggestionsLocalization;
+    universalSearch?: UniversalSearchLocalization;
     sortingButton?: SortingLocalization;
     loadMoreButton?: LoadMoreLocalization;
     facets?: FacetLocalization;
     searchResults?: SearchResultLocalization;
 }
 
+export interface SearchSuggestionsLocalization {
+    label?: string;
+}
+
+export interface UniversalSearchLocalization {
+    close?: string;
+    emptyState?: string;
+    noEntitiesConfigured?: string;
+    noResults?: string;
+    noResultsHint?: string;
+    tabsLabel?: string;
+    products?: UniversalSearchTabLocalization;
+    productCategories?: UniversalSearchTabLocalization;
+    content?: UniversalSearchTabLocalization;
+}
+
+export interface UniversalSearchTabLocalization {
+    tab?: string;
+    resultsFor?: string;
+    resultsTitle?: string;
+    result?: string;
+    results?: string;
+    noResults?: string;
+    noResultsHint?: string;
+    error?: string;
+}
+
 export interface SearchBarLocalization {
     search?: string;
+    clear?: string;
     placeholder?: string;
     overlay?: {
         title?: {
@@ -96,6 +196,7 @@ export interface SortingLocalization {
 
 export interface LoadMoreLocalization {
     loadMore?: string;
+    loadPrevious?: string;
     showing?: string;
     outOf?: string;
     products?: string;
@@ -120,10 +221,13 @@ export interface SearchResultLocalization {
 export interface SearchFilters {
     product?: (builder: FilterBuilder) => void
     productCategory?: (builder: FilterBuilder) => void
+    content?: (builder: FilterBuilder) => void
 }
 
 export interface SearchFacets {
     product?: (builder: RelewiseFacetBuilder) => void;
+    productCategory?: (builder: RelewiseFacetBuilder) => void;
+    content?: (builder: RelewiseFacetBuilder) => void;
 }
 
 export interface SearchTemplates {
@@ -213,17 +317,42 @@ export function registerRecommendationTarget(target: string, configuration: Targ
 }
 
 export function useSearch(options?: RelewiseUISearchOptions) {
-    const defaultDebounceTimeInMs = 250;
+    const defaultDebounceTimeInMs = 300;
+    const defaultMinimumQueryLength = 1;
     if (options) {
         options.debounceTimeInMs = options.debounceTimeInMs ?? defaultDebounceTimeInMs;
+        options.minimumQueryLength = options.minimumQueryLength ?? defaultMinimumQueryLength;
         window.relewiseUISearchOptions = options;
     } else {
-        window.relewiseUISearchOptions = { debounceTimeInMs: defaultDebounceTimeInMs };
+        window.relewiseUISearchOptions = {
+            debounceTimeInMs: defaultDebounceTimeInMs,
+            minimumQueryLength: defaultMinimumQueryLength,
+        };
+    }
+
+    if (window.relewiseUISearchOptions.universalSearch) {
+        tryRegisterElement('relewise-universal-search', UniversalSearch);
+        tryRegisterElement('relewise-universal-search-recommendations', UniversalSearchRecommendations);
+        tryRegisterElement('relewise-universal-search-products-tab', UniversalSearchProductsTab);
+        tryRegisterElement('relewise-universal-search-product-categories-tab', UniversalSearchProductCategoriesTab);
+        tryRegisterElement('relewise-universal-search-content-tab', UniversalSearchContentTab);
+        tryRegisterElement('relewise-universal-search-facets', UniversalSearchFacets);
+        tryRegisterElement('relewise-universal-search-load-more', UniversalSearchLoadMore);
+        tryRegisterElement('relewise-popular-products', PopularProducts);
+        tryRegisterElement('relewise-personal-products', PersonalProducts);
+        tryRegisterElement('relewise-recently-viewed-products', RecentlyViewedProducts);
+        tryRegisterElement('relewise-search-term-based-products', SearchTermBasedProducts);
+        tryRegisterElement('relewise-popular-content', PopularContent);
+        tryRegisterElement('relewise-personal-content', PersonalContent);
+        tryRegisterElement('relewise-popular-product-categories', PopularProductCategories);
+        tryRegisterElement('relewise-popular-content-categories', PopularContentCategories);
+        tryRegisterElement('relewise-popular-search-terms', PopularSearchTerms);
     }
 
     tryRegisterElement('relewise-product-search-overlay', ProductSearchOverlay);
     tryRegisterElement('relewise-product-search', ProductSearch);
     tryRegisterElement('relewise-search-bar', SearchBar);
+    tryRegisterElement('relewise-search-combobox', SearchCombobox);
     tryRegisterElement('relewise-product-search-bar', ProductSearchBar);
     tryRegisterElement('relewise-product-search-overlay-product', ProductSearchOverlayProduct);
     tryRegisterElement('relewise-product-search-overlay-product-category', ProductSearchOverlayProductCategory);

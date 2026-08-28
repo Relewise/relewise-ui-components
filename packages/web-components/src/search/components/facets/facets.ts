@@ -1,18 +1,31 @@
 import { RelewiseLitElement } from '../../../relewise-lit-element';
-import { ProductFacetResult } from '@relewise/client';
 import { TemplateResult, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { FacetResult } from '../../types';
-import { Events, getRelewiseUISearchOptions } from '../../../helpers';
+import { repeat } from 'lit/directives/repeat.js';
+import { FacetResult, FacetResultContainer } from '../../types';
+import { Events, QueryKeys, getFacetRangeQueryKeyPrefixes, getRelewiseUISearchOptions } from '../../../helpers';
 import { theme } from '../../../theme';
+import { shouldRenderFacetResult } from './facet-result-visibility';
 
 export class Facets extends RelewiseLitElement {
 
     @property({ type: Object, attribute: 'facets-result' })
-    facetResult: ProductFacetResult | null | undefined = null;
+    facetResult: FacetResultContainer | null | undefined = null;
 
     @property({ type: Array, attribute: 'labels' })
     labels: string[] = [];
+
+    @property({ type: Number, attribute: 'total-hits' })
+    totalHits?: number;
+
+    @property({ attribute: false })
+    applyFacet = () => window.dispatchEvent(new CustomEvent(Events.applyFacet));
+
+    @property({ attribute: 'facet-query-key-prefix' })
+    facetQueryKeyPrefix: string = QueryKeys.facet;
+
+    @property({ type: Boolean, reflect: true })
+    expanded = false;
 
     @state()
     showFacets: boolean = window.innerWidth >= 1024;
@@ -55,6 +68,11 @@ export class Facets extends RelewiseLitElement {
         this.showDimmingOverlay = false;
     }
 
+    private getFacetResultKey(facetResult: FacetResult): string {
+        const key = 'key' in facetResult ? facetResult.key : '';
+        return `${facetResult.$type}:${facetResult.field}:${key}`;
+    }
+
     renderFacet(label: string, facetResult: FacetResult, styling: string, isLast: boolean, parentKey?: string): TemplateResult<1> | typeof nothing {
         const urlKey = this.getFacetUrlKey(facetResult, parentKey);
 
@@ -63,39 +81,48 @@ export class Facets extends RelewiseLitElement {
                 this.renderFacet(label, item, styling, isLast && index === (facetResult.items?.length ?? 0) - 1, urlKey)) ?? nothing}`;
         }
 
-        if ('available' in facetResult && 
-           (!Array.isArray(facetResult.available) || facetResult.available.length === 0) && 
-           (facetResult.available && !('value' in facetResult.available))) {
+        if (!shouldRenderFacetResult(facetResult, this.totalHits)) {
             return nothing;
         }
 
         if (facetResult.$type.includes('PriceRangesFacetResult') ||
             facetResult.$type.includes('ProductDataDoubleRangesFacetResult') ||
+            facetResult.$type.includes('ContentDataDoubleRangesFacetResult') ||
+            facetResult.$type.includes('ProductCategoryDataDoubleRangesFacetResult') ||
             facetResult.$type.includes('DataObjectDoubleRangesFacetResult')) {
             return html`
                 <relewise-checklist-ranges-object-value-facet
                     part="container"
-                    exportparts="title, input, label, value, hits"
+                    exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .label=${label}
                     .urlKey=${urlKey}
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
+                    .queryKeyPrefix=${this.facetQueryKeyPrefix}
                     class=${styling}>
                 </relewise-checklist-ranges-object-value-facet>
             `;
         }
 
         if (facetResult.$type.includes('ProductAssortmentFacetResult') ||
+            facetResult.$type.includes('ContentAssortmentFacetResult') ||
+            facetResult.$type.includes('ProductCategoryAssortmentFacetResult') ||
             facetResult.$type.includes('ProductDataDoubleValueFacetResult') ||
+            facetResult.$type.includes('ContentDataDoubleValueFacetResult') ||
+            facetResult.$type.includes('ContentDataIntegerValueFacetResult') ||
+            facetResult.$type.includes('ProductCategoryDataDoubleValueFacetResult') ||
             facetResult.$type.includes('DataObjectDoubleValueFacetResult')) {
             return html`
                 <relewise-checklist-number-value-facet
                     .label=${label}    
                     .urlKey=${urlKey}
                     part="container"
-                    exportparts="title, input, label, value, hits"
+                    exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
+                    .queryKeyPrefix=${this.facetQueryKeyPrefix}
                     class=${styling}>
                 </relewise-checklist-number-value-facet>
             `;
@@ -108,47 +135,60 @@ export class Facets extends RelewiseLitElement {
                     .label=${label}
                     .urlKey=${urlKey}
                     part="container"
-                    exportparts="title, input, label, value, hits"
+                    exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
+                    .queryKeyPrefix=${this.facetQueryKeyPrefix}
                     class=${styling}>
                 </relewise-checklist-object-value-facet>
             `;
         }
 
         if (facetResult.$type.includes('ProductDataBooleanValueFacetResult') ||
+            facetResult.$type.includes('ContentDataBooleanValueFacetResult') ||
+            facetResult.$type.includes('ProductCategoryDataBooleanValueFacetResult') ||
             facetResult.$type.includes('DataObjectBooleanValueFacetResult')) {
             return html`
                 <relewise-checklist-boolean-value-facet
                     .label=${label}
                     .urlKey=${urlKey}
                     part="container"
-                    exportparts="title, input, label, value, hits"
+                    exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
+                    .queryKeyPrefix=${this.facetQueryKeyPrefix}
                     class=${styling}>
                 </relewise-checklist-boolean-value-facet>
             `;
         }
 
         if (facetResult.$type.includes('ProductDataStringValueFacetResult') ||
+            facetResult.$type.includes('ContentDataStringValueFacetResult') ||
+            facetResult.$type.includes('ProductCategoryDataStringValueFacetResult') ||
             facetResult.$type.includes('DataObjectStringValueFacetResult')) {
             return html`
                 <relewise-checklist-string-value-facet
                     .label=${label}
                     .urlKey=${urlKey}
                     part="container"
-                    exportparts="title, input, label, value, hits"
+                    exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
+                    .queryKeyPrefix=${this.facetQueryKeyPrefix}
                     class=${styling}>
                 </relewise-checklist-string-value-facet>
             `;
         }
 
         if (facetResult.$type.includes('ProductDataDoubleRangeFacetResult') ||
+            facetResult.$type.includes('ContentDataDoubleRangeFacetResult') ||
+            facetResult.$type.includes('ProductCategoryDataDoubleRangeFacetResult') ||
             facetResult.$type.includes('DataObjectDoubleRangeFacetResult') ||
             facetResult.$type.includes('PriceRangeFacetResult')) {
+            const rangeQueryKeyPrefixes = getFacetRangeQueryKeyPrefixes(this.facetQueryKeyPrefix);
             return html`
                 <relewise-number-range-facet
                     .label=${label}
@@ -156,6 +196,9 @@ export class Facets extends RelewiseLitElement {
                     part="container"
                     exportparts="title, input"
                     .result=${facetResult}
+                    .applyFacet=${this.applyFacet}
+                    .upperboundQueryKeyPrefix=${rangeQueryKeyPrefixes.upperBound}
+                    .lowerboundQueryKeyPrefix=${rangeQueryKeyPrefixes.lowerBound}
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     class=${styling}>
                 </relewise-number-range-facet>
@@ -175,22 +218,27 @@ export class Facets extends RelewiseLitElement {
 
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.facets;
+        const visibleItems = this.facetResult?.items?.filter(item => shouldRenderFacetResult(item, this.totalHits)) ?? [];
+
         return html`
-            <relewise-button
+            ${!this.expanded && visibleItems.length > 0 ? html`<relewise-button
                 button-text=${localization?.filter ?? 'Filters'} 
                 class="rw-facet-button"
                 @click=${() => this.showFacets = !this.showFacets}>
                     ${this.showFacets ?
                 html`<relewise-x-icon class="rw-icon"></relewise-x-icon>` :
                 html`<relewise-filter-icon class="rw-icon"></relewise-filter-icon>`}
-            </relewise-button>
-            ${this.showFacets ?
+            </relewise-button>` : nothing}
+            ${this.expanded || this.showFacets ?
                 html`
+                ${visibleItems.length > 0 ? html`
                 <div class="rw-facets-container">
-                    ${this.facetResult?.items?.map((item, index) => {
-                    return this.renderFacet(this.labels[index], item, this.showDimmingOverlay ? 'rw-dimmed' : '', index === (this.facetResult?.items?.length ?? 0) - 1);
-                })}
+                    ${repeat(visibleItems, item => this.getFacetResultKey(item), (item, index) => {
+                        const originalIndex = this.facetResult?.items?.indexOf(item) ?? index;
+                        return this.renderFacet(this.labels[originalIndex], item, this.showDimmingOverlay ? 'rw-dimmed' : '', index === visibleItems.length - 1);
+                    })}
                 </div>
+                ` : nothing}
             ` : nothing}
         `;
     }

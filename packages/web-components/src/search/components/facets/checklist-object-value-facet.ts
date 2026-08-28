@@ -8,14 +8,14 @@ export class ChecklistObjectValueFacet extends ChecklistFacetBase {
     result: BrandFacetResult | CategoryFacetResult | null = null;
 
     handleChange(e: Event, item: BrandNameAndIdResultAvailableFacetValue | CategoryNameAndIdResultAvailableFacetValue) {
-        const checkbox = e.target as HTMLInputElement;
+        const checkbox = e.currentTarget as HTMLInputElement;
 
         if (!item.value || !item.value.id || !this.result) {
             return;
         }
 
         if (checkbox.checked) {
-            this.selectedValues.push(item.value.id);
+            this.selectedValues = [...this.selectedValues, item.value.id];
         } else {
             const newValue = this.selectedValues.filter(x => x !== item.value?.id);
             this.selectedValues = newValue;

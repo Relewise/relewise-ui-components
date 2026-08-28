@@ -1,26 +1,45 @@
 import { assert, fixture, html } from '@open-wc/testing';
-import { FacetBuilder, ProductDataObjectFacet, ProductFacetResult } from '@relewise/client';
-import { ChecklistStringValueFacet, Facets, ProductSearch, initializeRelewiseUI } from '../src';
+import { ProductDataObjectFacet, ProductFacetResult, Settings, UserFactory } from '@relewise/client';
+import { buildProductSearchRequest, ChecklistStringValueFacet, Facets, initializeRelewiseUI, useSearch } from '../src';
 import { QueryKeys, clearUrlState, updateUrlStateValues } from '../src/helpers';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
+
+const settings: Settings = {
+    currency: 'currency',
+    displayedAtLocation: 'Search',
+    language: 'language',
+    user: UserFactory.anonymous(),
+};
 
 suite('DataObject facets', () => {
     setup(() => {
         clearUrlState();
-        initializeRelewiseUI(mockRelewiseOptions()).useSearch();
+        initializeRelewiseUI(mockRelewiseOptions());
     });
 
     test('hydrates nested selections from the complete object path', () => {
-        const facetBuilder = new FacetBuilder();
-        facetBuilder.addProductDataObjectFacet('brand_values', 'Product', builder =>
-            builder.addStringFacet('brand_name'));
+        useSearch({
+            facets: {
+                product(builder) {
+                    builder.addFacet(facetBuilder => facetBuilder.addProductDataObjectFacet('brand_values', 'Product', nestedBuilder =>
+                        nestedBuilder.addStringFacet('brand_name')), { heading: 'Brand' });
+                },
+            },
+        });
 
-        const facet = facetBuilder.build()!.items[0] as ProductDataObjectFacet;
-        const nestedFacet = facet.items[0];
-        const search = document.createElement('relewise-product-search') as ProductSearch;
         updateUrlStateValues(`${QueryKeys.facet}Databrand_values.brand_name`, ['Relewise']);
 
-        search.getSelectedValuesForFacet(facet);
+        const result = buildProductSearchRequest({
+            term: 'shoe',
+            settings,
+            page: 1,
+            pageSize: 16,
+            productsLoaded: 0,
+            productsToFetch: null,
+            target: null,
+        });
+        const facet = result.request.facets?.items[0] as ProductDataObjectFacet;
+        const nestedFacet = facet.items[0];
 
         assert.deepEqual('selected' in nestedFacet ? nestedFacet.selected : null, ['Relewise']);
         assert.deepEqual(nestedFacet.settings, {
@@ -51,6 +70,7 @@ suite('DataObject facets', () => {
         const facets = await fixture<Facets>(html`
             <relewise-facets
                 .facetResult=${facetResult}
+                .totalHits=${2}
                 .labels=${['Brand']}>
             </relewise-facets>
         `);
