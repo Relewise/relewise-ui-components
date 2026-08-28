@@ -102,19 +102,13 @@ export class ContentTile extends RelewiseLitElement {
         return html`
             <div class="rw-image-container">
                 ${image
-                ? html`<img class="rw-object-cover" src=${image} alt=${this.getContentImageAlt(content)} />`
+                ? html`<img class="rw-object-cover" src=${image} alt="" />`
                 : nothing}
             </div>
             <div class='rw-information-container'>
                 <h5 class='rw-display-name'>${content.displayName}</h5>
                 ${summary ? html`<p class="rw-summary">${summary}</p>` : nothing}
             </div>`;
-    }
-
-    private getContentImageAlt(content: ContentResult): string {
-        const altText = content.displayName ?? '';
-
-        return altText ?? '';
     }
 
     static defaultStyles = [

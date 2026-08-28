@@ -81,7 +81,7 @@ export class ContentCategoryTile extends RelewiseLitElement {
         return html`
             ${image ? html`
                 <div class="rw-image-container" part="image-container">
-                    <img class="rw-object-cover" part="image" src=${image} alt=${category.displayName ?? ''}>
+                    <img class="rw-object-cover" part="image" src=${image} alt="">
                 </div>
             ` : nothing}
             <div class="rw-information-container" part="information">

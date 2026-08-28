@@ -63,6 +63,22 @@ Preserve current file/module patterns:
 - Keep event listener lifecycle symmetric (`connectedCallback` add, `disconnectedCallback` remove).
 - All Lit-based Relewise web components must extend `RelewiseLitElement` unless there is a documented reason not to. This preserves shared behavior such as `components.domMode`, Light DOM stylesheet registration, and future cross-component runtime settings.
 - Prefer extending existing base classes for recommendations/search components when applicable.
+- For component localization, keep default labels at their usage/rendering sites and resolve each property independently (for example, `localization?.showMore ?? 'Show More'`). Do not shallow-spread default and override localization objects into a merged object; future nested localization sections could be replaced wholesale and lose default properties. If localization must be normalized elsewhere, merge nested fields explicitly and test partial overrides.
+
+### Component Ownership And Communication
+- Any abstraction that owns renderable UI state, returns Lit templates, or manages an asynchronous UI lifecycle must be a Lit component extending `RelewiseLitElement`.
+- Do not use a Lit `ReactiveController` for feature-specific fetching, caching, result state, loading state, or rendering. A controller is only appropriate for non-rendering cross-cutting behavior that is concretely shared by multiple host components, and the reason for using it must be documented.
+- A controller must not expose `render()`, own feature result state, call `host.requestUpdate()` for domain-state changes, or receive a callback-property bag that substitutes for component communication.
+- Pass state from parent to child through properties. Communicate from child to parent through bubbling, composed custom events. Use imperative child methods only for an established coordination contract such as preparing and applying a parent-owned batch request.
+- Parent components own orchestration and placement. Focused child components own their cohesive request/result lifecycle and rendering. Do not move half of one responsibility into a helper while leaving the other half parent-managed.
+- Preserve configurable Shadow and Light DOM behavior for every component. When a public parent exposes styling for an internal child, forward the child's CSS parts with `exportparts` and test both DOM modes.
+
+### Public, Internal, And Shared APIs
+- Decide whether a new component or abstraction is public or internal before implementing it.
+- Internal feature components must be scoped and named after their owning feature, registered only with that feature, and omitted from public barrels and standalone API documentation.
+- Public/shared naming requires a current second consumer or an explicit standalone public-component requirement. A hypothetical future consumer alone is not sufficient.
+- A public component must own its standalone lifecycle and behavior, use Web Component properties/events instead of consumer callbacks, and have direct registration, documentation, development example, and component tests.
+- Place code according to its current owner and consumers, not according to possible future reuse. Extract shared infrastructure when the reuse is real and the shared contract can be described independently of its first consumer.
 
 Prefer the simplest type/control-flow that correctly expresses the runtime behavior:
 - Do not add defensive null/undefined checks when the type system or earlier guards already guarantee a value exists.
@@ -73,12 +89,14 @@ Prefer the simplest type/control-flow that correctly expresses the runtime behav
 
 ## Safe Change Patterns
 When adding/changing components:
-1. Extend `RelewiseLitElement` for Lit components so global component options apply consistently.
-2. Implement component logic in feature folder (`recommendations`, `search`, `tracking`, or `components`).
-3. Register tag via existing app registration flow if needed.
-4. Export through relevant barrel files.
-5. Add/update tests under `tests/`.
-6. Update `packages/web-components/README.md` for new attributes, behavior, or examples.
+1. Identify the nearest existing reference components and compare ownership, properties, events, lifecycle, rendering, styling, registration, exports, and tests before choosing an architecture.
+2. Decide and record whether the component is public/shared or internal to a feature.
+3. Extend `RelewiseLitElement` so global component options apply consistently.
+4. Implement component logic in the folder belonging to its current owner.
+5. Register the tag through the existing app registration flow.
+6. Export through relevant barrel files only when the component is public.
+7. Add focused component tests under `tests/`, plus parent integration tests when orchestration crosses a component boundary.
+8. Update `packages/web-components/README.md` and development examples for public attributes, properties, events, behavior, or styling APIs.
 
 When changing initialization/configuration behavior:
 - Preserve backward compatibility of `RelewiseUIOptions` and `RelewiseUISearchOptions`.
@@ -103,6 +121,8 @@ Add tests for:
 - Event lifecycle behavior
 - Registration/initialization behavior
 - Regressions in existing defaults
+- Shadow and Light DOM behavior for new components
+- CSS part forwarding across public component boundaries
 
 ## Files and Artifacts
 - Do not commit `dist/` or `build/` unless explicitly requested by maintainers.
@@ -116,6 +136,8 @@ For non-trivial code changes:
 3. Tests added/updated in `packages/web-components/tests`
 4. README updated for user-facing API/attribute changes
 5. `build`, `build:types`, and `test` pass locally
+6. New stateful abstractions compared against the nearest established components
+7. Public/internal ownership, event direction, DOM mode, and CSS part behavior verified
 
 ## Notes for Agents
 - Prefer minimal, targeted edits over broad refactors.

@@ -11,15 +11,15 @@ import {
     getRelewiseRecommendationTargetedConfigurations,
     getRelewiseUIOptions,
 } from '../../helpers/relewiseUIOptions';
-import { RelewiseLitElement } from '../../relewise-lit-element';
 import { PopularSearchTermEntityType } from '../../app';
 import { getRecommender } from '../recommender';
+import { RecommendationStateElement } from '../recommendation-state';
 
 export type PopularSearchTermSelectedEventDetail = { term: string };
 
 type RenderableSearchTermResult = SearchTermResult & { term: string };
 
-export class PopularSearchTerms extends RelewiseLitElement {
+export class PopularSearchTerms extends RecommendationStateElement {
 
     @property({ type: String, attribute: 'target' })
     target: string | null = null;
@@ -37,6 +37,7 @@ export class PopularSearchTerms extends RelewiseLitElement {
     private recommendations: RenderableSearchTermResult[] = [];
 
     private requestGeneration = 0;
+    private loading = false;
     private readonly fetchAndUpdateRecommendationsBound = this.fetchAndUpdateRecommendations.bind(this);
 
     connectedCallback() {
@@ -57,22 +58,43 @@ export class PopularSearchTerms extends RelewiseLitElement {
 
     private async fetchAndUpdateRecommendations() {
         const generation = ++this.requestGeneration;
-        const recommender = getRecommender(getRelewiseUIOptions());
-        const request = await this.buildRequest();
+        this.loading = true;
+        this.reportCurrentRecommendationState();
 
-        if (generation !== this.requestGeneration || !this.isConnected) {
-            return;
+        try {
+            const recommender = getRecommender(getRelewiseUIOptions());
+            const request = await this.buildRequest();
+
+            if (generation !== this.requestGeneration || !this.isConnected) {
+                return;
+            }
+
+            const response = await recommender.recommendPopularSearchTerms(request);
+
+            if (generation !== this.requestGeneration || !this.isConnected) {
+                return;
+            }
+
+            this.recommendations = response?.recommendations?.filter(
+                (recommendation): recommendation is RenderableSearchTermResult => Boolean(recommendation.term),
+            ) ?? [];
+        } catch {
+            if (generation === this.requestGeneration && this.isConnected) {
+                this.recommendations = [];
+            }
+        } finally {
+            if (generation === this.requestGeneration && this.isConnected) {
+                this.loading = false;
+                this.reportCurrentRecommendationState();
+            }
         }
+    }
 
-        const response = await recommender.recommendPopularSearchTerms(request);
-
-        if (generation !== this.requestGeneration || !this.isConnected) {
-            return;
-        }
-
-        this.recommendations = response?.recommendations?.filter(
-            (recommendation): recommendation is RenderableSearchTermResult => Boolean(recommendation.term),
-        ) ?? [];
+    private reportCurrentRecommendationState(): void {
+        this.reportRecommendationState({
+            loading: this.loading,
+            hasResults: this.recommendations.length > 0,
+        });
     }
 
     async buildRequest() {

@@ -6,6 +6,7 @@ import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOp
 import { getSearcher } from './searcher';
 import { theme } from '../theme';
 import { createProductSearchBuilder, createProductCategorySearchBuilder } from '../builders';
+import { canParseRedirectDestination } from '../helpers/searchRedirect';
 
 export type SearchResult = {
     title?: string;
@@ -411,12 +412,6 @@ function isResponseWithType(response: any, typeName: string): boolean {
 function findResponseOfType<T>(responses: any[] | undefined, typeName: string): T | undefined {
     if (!responses) return undefined;
     return responses.find(r => isResponseWithType(r, typeName)) as T | undefined;
-}
-
-function canParseRedirectDestination(destination?: string | null): boolean {
-    if (!destination) return false;
-
-    return URL.canParse(destination) || URL.canParse(destination, window.location.href);
 }
 
 declare global {

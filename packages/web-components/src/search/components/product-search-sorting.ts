@@ -3,11 +3,17 @@ import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlState, updateUrlState } from '../../helpers';
 import { theme } from '../../theme';
-import { getSearchSortingOptions, SearchSortingOption } from '../searchSortingBuilder';
+import { getSearchSortingOptions, SearchSortingOption } from '../../builders/searchSortingBuilder';
 
 export class ProductSearchSorting extends RelewiseLitElement {
     @property({ type: String, attribute: 'target' })
     target: string | null = null;
+
+    @property({ attribute: false })
+    applySorting = () => window.dispatchEvent(new CustomEvent(Events.applySorting));
+
+    @property({ attribute: false })
+    sortingQueryKey: string = QueryKeys.sortBy;
 
     @state()
     selectedOption: string | null = null;
@@ -16,7 +22,7 @@ export class ProductSearchSorting extends RelewiseLitElement {
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.selectedOption = readCurrentUrlState(QueryKeys.sortBy);
+        this.selectedOption = readCurrentUrlState(this.sortingQueryKey);
         window.addEventListener(Events.search, this.readSortingFromUrlBound);
     }
 
@@ -26,14 +32,14 @@ export class ProductSearchSorting extends RelewiseLitElement {
     }
 
     readSortingFromUrl() {
-        this.selectedOption = readCurrentUrlState(QueryKeys.sortBy);
+        this.selectedOption = readCurrentUrlState(this.sortingQueryKey);
     }
 
     setSelectedValue(event: Event) {
         const selectElement = event.target as HTMLSelectElement;
         this.selectedOption = selectElement.value;
-        updateUrlState(QueryKeys.sortBy, this.selectedOption);
-        window.dispatchEvent(new CustomEvent(Events.applySorting));
+        updateUrlState(this.sortingQueryKey, this.selectedOption);
+        this.applySorting();
     }
 
     getOptionText(option: SearchSortingOption): string {
@@ -61,7 +67,7 @@ export class ProductSearchSorting extends RelewiseLitElement {
         const selectedOptionId = this.selectedOption ?? options[0].id ?? null;
         const localization = getRelewiseUISearchOptions()?.localization?.sortingButton;
         return html`
-            <label class="rw-label-wrapper">
+            <label class="rw-label-wrapper" part="container">
                 <span class="rw-label" part="label">${localization?.sortBy ?? 'Sort by:'}</span>
                 <select @change=${this.setSelectedValue} class="rw-select rw-border" part="select">
                 ${options.map((item) => {
@@ -77,13 +83,20 @@ export class ProductSearchSorting extends RelewiseLitElement {
     }
 
     static styles = [theme, css`
+        :host {
+            min-width: 0;
+        }
+
         .rw-label-wrapper {
             display: inline-flex;
             align-items: center;
+            min-width: 0;
         }
 
         .rw-select {
             font-family: var(--font);
+            max-width: 100%;
+            min-width: 0;
 
             padding: var(--relewise-product-search-sorting-padding, .5em);
 
@@ -94,6 +107,11 @@ export class ProductSearchSorting extends RelewiseLitElement {
             border-radius: 0.5em;
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
             font-size: 0.8em;   
+        }
+
+        .rw-select option {
+            text-align: start;
+            text-align-last: start;
         }
 
         .rw-label {

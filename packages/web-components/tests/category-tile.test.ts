@@ -53,7 +53,10 @@ suite('category tiles', () => {
         assert.exists(element.shadowRoot);
         assert.equal(element.shadowRoot!.querySelector<HTMLAnchorElement>('[part="link"]')?.getAttribute('href'), '/product-category');
         assert.equal(element.shadowRoot!.querySelector<HTMLImageElement>('[part="image"]')?.getAttribute('src'), imageUrl);
-        assert.equal(element.shadowRoot!.querySelector('[part="display-name"]')?.textContent, 'Product category');
+        assert.equal(element.shadowRoot!.querySelector<HTMLImageElement>('[part="image"]')?.getAttribute('alt'), '');
+        const displayName = element.shadowRoot!.querySelector('[part="display-name"]')!;
+        assert.equal(displayName.textContent, 'Product category');
+        assert.equal(displayName.tagName, 'H5');
         assert.exists(element.shadowRoot!.querySelector('[part="image-container"]'));
         assert.exists(element.shadowRoot!.querySelector('[part="information"]'));
     });
@@ -70,7 +73,34 @@ suite('category tiles', () => {
         assert.strictEqual(element.contentCategory, category);
         assert.exists(element.shadowRoot!.querySelector('[part="container"]'));
         assert.equal(element.shadowRoot!.querySelector<HTMLImageElement>('[part="image"]')?.getAttribute('src'), imageUrl);
-        assert.equal(element.shadowRoot!.querySelector('[part="display-name"]')?.textContent, 'Content category');
+        assert.equal(element.shadowRoot!.querySelector<HTMLImageElement>('[part="image"]')?.getAttribute('alt'), '');
+        const displayName = element.shadowRoot!.querySelector('[part="display-name"]')!;
+        assert.equal(displayName.textContent, 'Content category');
+        assert.equal(displayName.tagName, 'H5');
+    });
+
+    test('keeps default category tile markup compatible in Light DOM', async() => {
+        const options = mockRelewiseOptions();
+        options.components = { domMode: 'light' };
+        const app = initializeRelewiseUI(options);
+        app.useRecommendations();
+        app.useSearch();
+        const wrapper = await fixture<HTMLElement>(html`
+            <div>
+                <relewise-product-category-tile .productCategory=${productCategory()}></relewise-product-category-tile>
+                <relewise-content-category-tile .contentCategory=${contentCategory()}></relewise-content-category-tile>
+            </div>
+        `);
+        const elements = [
+            wrapper.querySelector<ProductCategoryTile>('relewise-product-category-tile')!,
+            wrapper.querySelector<ContentCategoryTile>('relewise-content-category-tile')!,
+        ];
+
+        for (const element of elements) {
+            await element.updateComplete;
+            assert.equal(element.querySelector('img')?.getAttribute('alt'), '');
+            assert.equal(element.querySelector('[part="display-name"]')?.tagName, 'H5');
+        }
     });
 
     test('applies display name alignment to both category tile types', async() => {

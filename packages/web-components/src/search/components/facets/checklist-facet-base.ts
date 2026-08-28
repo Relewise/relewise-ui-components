@@ -1,6 +1,7 @@
 import { RelewiseLitElement } from '../../../relewise-lit-element';
 import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import { repeat } from 'lit/directives/repeat.js';
 import { Events, QueryKeys, getRelewiseUISearchOptions, readCurrentUrlStateValues, updateUrlStateValues } from '../../../helpers';
 import { theme } from '../../../theme';
 import { CheckListFacet, CheckListFacetValue } from '../../types';
@@ -19,6 +20,12 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
     @property()
     label: string = '';
 
+    @property({ attribute: false })
+    applyFacet = () => window.dispatchEvent(new CustomEvent(Events.applyFacet));
+
+    @property({ attribute: 'query-key-prefix' })
+    queryKeyPrefix: string = QueryKeys.facet;
+
     @state()
     selectedValues: string[] = [];
 
@@ -32,11 +39,7 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
         window.addEventListener(Events.search, this.clearSelectedValuesBound);
 
         if (this.result) {
-            if ('key' in this.result) {
-                this.selectedValues = readCurrentUrlStateValues(QueryKeys.facet + this.result.field + this.result.key);
-            } else {
-                this.selectedValues = readCurrentUrlStateValues(QueryKeys.facet + this.result.field);
-            }
+            this.selectedValues = readCurrentUrlStateValues(this.getFacetQueryKey());
         }
     }
 
@@ -55,15 +58,23 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
             return;
         }
 
-        if ('key' in this.result) {
-            updateUrlStateValues(QueryKeys.facet + this.result.field + this.result.key, this.selectedValues);
-        } else {
-            updateUrlStateValues(QueryKeys.facet + this.result.field, this.selectedValues);
-        }
+        updateUrlStateValues(this.getFacetQueryKey(), this.selectedValues);
 
         if (searchForProducts) {
-            window.dispatchEvent(new CustomEvent(Events.applyFacet));
+            this.applyFacet();
         }
+    }
+
+    getFacetQueryKey(): string {
+        if (!this.result) {
+            return this.queryKeyPrefix;
+        }
+
+        if ('key' in this.result) {
+            return this.queryKeyPrefix + this.result.field + this.result.key;
+        }
+
+        return this.queryKeyPrefix + this.result.field;
     }
 
     render() {
@@ -73,17 +84,13 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
 
         const localization = getRelewiseUISearchOptions()?.localization?.facets;
 
-        const facetResultsToShow = this.showAll
-            ? this.result.available
-            : this.result.available.sort((a, b) => {
-                if (a.selected && !b.selected) {
-                    return -1; // a comes before b
-                } else if (!a.selected && b.selected) {
-                    return 1; // b comes before a
-                } else {
-                    return 0; // leave their order unchanged
-                }
-            }).slice(0, 10);
+        const sortedAvailable = [...this.result.available].sort((a, b) =>
+            this.getOptionDisplayValue(a).localeCompare(this.getOptionDisplayValue(b), undefined, {
+                numeric: true,
+                sensitivity: 'base',
+            }));
+        const facetResultsToShow = this.showAll ? sortedAvailable : sortedAvailable.slice(0, 10);
+        const selectedCount = new Set(this.selectedValues).size;
 
         // if there are not facets options, then return nothing
         if (facetResultsToShow.length === 0) {
@@ -92,9 +99,13 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
         }
         return html`
         <div class="rw-facet-content">
-            <h3 part="title">${this.label}</h3>
-            ${facetResultsToShow.map((item, index) => {
-            return html`
+            <h3 part="title">
+                ${this.label}
+                ${selectedCount > 0 ? html`
+                    <span class="rw-selected-count" part="selected-count" aria-hidden="true">${selectedCount}</span>
+                ` : nothing}
+            </h3>
+            ${repeat(facetResultsToShow, item => JSON.stringify(item.value), (item, index) => html`
                     ${item.value !== undefined ? html`
                         <div>
                             <label class="rw-label" part="label" for=${`${this.result?.field}-${this.result?.$type}-${index}`}>
@@ -104,17 +115,13 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
                                     id=${`${this.result?.field}-${this.result?.$type}-${index}`}
                                     name=${`${this.result?.field}-${this.result?.$type}-${index}`}
                                     .checked=${this.shouldOptionBeChecked(item)}
-                                    @click=${(e: Event) => {
-                        e.preventDefault();
-                        this.handleChange(e, item);
-                    }} />
+                                    @click=${(e: Event) => this.handleChange(e, item)} />
                                 <span part="value">${this.getOptionDisplayValue(item)}</span>
                                 <span class="rw-hits" part="hits">(${item.hits})</span>
                             </label>
                         </div>
                     ` : nothing}
-                        `;
-        })}
+            `)}
             ${this.result.available.length > 10 ? html`
                 ${this.showAll ? html`
                     <relewise-button
@@ -148,9 +155,18 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
             gap: 0.3em;
             line-height: 1.1;
             align-items: center;
-            word-break: break-all;
+            min-width: 0;
+            overflow-wrap: anywhere;
             margin-top: .25em;
             margin-bottom: .25em;
+        }
+
+        .rw-label [part="value"] {
+            min-width: 0;
+        }
+
+        .rw-hits {
+            flex: none;
         }
 
         .rw-label input {
@@ -184,10 +200,29 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
         }
 
         h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.4em;
             margin-top: 0;
             margin-bottom: 0.5em;
             font-weight: 500;
             font-size: 1em;
+        }
+
+        .rw-selected-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            min-width: 1.25em;
+            height: 1.25em;
+            padding: 0 0.3em 0.1em;
+            border-radius: 9999px;
+            background-color: var(--relewise-checklist-facet-selected-count-background-color, #111);
+            color: var(--relewise-checklist-facet-selected-count-color, #fff);
+            font-size: 0.75em;
+            font-weight: 600;
+            line-height: 1;
         }
     `];
 }

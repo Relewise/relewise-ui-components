@@ -9,8 +9,13 @@ import { Events } from '../helpers';
 const contextKey = Symbol('product-batcher');
 
 export type BatchingContextValue = {
-    requests: { request: ProductRecommendationRequest, id: EventTarget | null, result?: ProductRecommendationResponse | null }[]
-}
+    enabled?: boolean;
+    requests: Array<{
+        request: ProductRecommendationRequest;
+        id: EventTarget | null;
+        result?: ProductRecommendationResponse | null;
+    }>;
+};
 export const context = createContext<BatchingContextValue>(contextKey);
 
 export class RecommendationBatcher extends RelewiseLitElement {
@@ -49,7 +54,8 @@ export class RecommendationBatcher extends RelewiseLitElement {
             return;
         }
 
-        const builder = new ProductsRecommendationCollectionBuilder();
+        const builder = new ProductsRecommendationCollectionBuilder()
+            .requireDistinctProductsAcrossResults();
 
         this.data.requests.forEach(x => builder.addRequest(x.request));
 
@@ -71,10 +77,11 @@ export class RecommendationBatcher extends RelewiseLitElement {
     registerEvent(e: Event) {
         e.preventDefault();
 
-        const newState: BatchingContextValue = { requests: this.data.requests };
-        const event: CustomEvent = (e as CustomEvent);
-        newState.requests.push({ request: event.detail, id: event.target });
-        this.data = newState;
+        const event = e as CustomEvent<ProductRecommendationRequest>;
+        const requests = this.data.requests.filter(request => request.id !== event.target);
+        requests.push({ request: event.detail, id: event.target });
+
+        this.data = { ...this.data, requests };
 
         if (this.timeoutHandler) {
             clearTimeout(this.timeoutHandler);

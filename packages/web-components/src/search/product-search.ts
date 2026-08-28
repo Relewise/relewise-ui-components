@@ -1,15 +1,13 @@
 import { RelewiseLitElement } from '../relewise-lit-element';
-import { DoubleNullableRange, ProductResult, ProductSearchResponse, User } from '@relewise/client';
+import { ProductResult, ProductSearchResponse, User } from '@relewise/client';
 import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, readCurrentUrlStateValues, updateUrlState } from '../helpers';
-import { getRelewiseContextSettings, getRelewiseSearchTargetedConfigurations, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
+import { Events, QueryKeys, SessionVariables, getNumberOfProductsToFetch, readCurrentUrlState, updateUrlState } from '../helpers';
+import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { theme } from '../theme';
 import { getSearcher } from './searcher';
-import { Facet } from './types';
-import { RelewiseFacetBuilder } from '../facetBuilder';
-import { createProductSearchBuilder } from '../builders';
-import { getSearchSortingOptions, getSearchSortingSelection } from './searchSortingBuilder';
+import { buildProductSearchRequest } from '../builders/productSearchRequestBuilder';
+import { hasRenderableFacets } from './components/facets/facet-result-visibility';
 
 export class ProductSearch extends RelewiseLitElement {
 
@@ -131,10 +129,7 @@ export class ProductSearch extends RelewiseLitElement {
         const numberOfProductsToFetch = getNumberOfProductsToFetch();
 
         const relewiseUIOptions = getRelewiseUIOptions();
-        const targetedConfiguration = getRelewiseSearchTargetedConfigurations();
-        const searchOptions = getRelewiseUISearchOptions();
         const searcher = getSearcher(relewiseUIOptions);
-        const sortingOptions = getSearchSortingOptions(searchOptions?.sorting);
 
         // Wait a tick so runtime filter extensions can run before the first automatic search executes.
         await new Promise(r => setTimeout(r, 0));
@@ -148,44 +143,18 @@ export class ProductSearch extends RelewiseLitElement {
         }
 
         this.user = settings.user;
-        const requestBuilder = createProductSearchBuilder(term, settings)
-            .pagination(p => p
-                .setPageSize(numberOfProductsToFetch && this.products.length < 1 ? numberOfProductsToFetch : this.numberOfProducts)
-                .setPage(numberOfProductsToFetch && this.products.length < 1 ? 1 : this.page))
-            .facets(builder => {
-                if (searchOptions?.facets?.product) {
-                    const facetBuilder = new RelewiseFacetBuilder(builder);
-                    searchOptions.facets.product(facetBuilder);
-                    this.facetLabels = facetBuilder.getLabels();
-                }
-            })
-            .sorting(builder => {
-                const sorting = getSearchSortingSelection(sortingOptions, readCurrentUrlState(QueryKeys.sortBy));
+        const requestResult = buildProductSearchRequest({
+            term,
+            settings,
+            page: this.page,
+            pageSize: this.numberOfProducts,
+            productsLoaded: this.products.length,
+            productsToFetch: numberOfProductsToFetch,
+            target: this.target,
+        });
+        this.facetLabels = requestResult.facetLabels;
 
-                if (sorting) {
-                    sorting.apply(builder);
-                    return;
-                }
-
-                builder.sortByProductRelevance();
-            });
-
-        if (this.target) {
-            const overwrittenConfigSettings = targetedConfiguration.handle(this.target, requestBuilder);
-            if (overwrittenConfigSettings.facetLabels) {
-                this.facetLabels = overwrittenConfigSettings.facetLabels;
-            }
-        }
-
-        const request = requestBuilder.build();
-
-        if (request.facets) {
-            request.facets.items.forEach(facet => {
-                this.getSelectedValuesForFacet(facet);
-            });
-        }
-
-        const response = await searcher.searchProducts(request, { abortSignal: abortController.signal });
+        const response = await searcher.searchProducts(requestResult.request, { abortSignal: abortController.signal });
         if (abortController.signal.aborted || abortController !== this.abortController) {
             return;
         }
@@ -204,76 +173,6 @@ export class ProductSearch extends RelewiseLitElement {
 
         this.setSearchResultOnSlotChilderen();
         window.dispatchEvent(new CustomEvent(Events.searchingForProductsCompleted));
-    }
-
-    getSelectedValuesForFacet(facet: Facet) {
-        if (facet.$type.includes('ProductDataDoubleRangeFacet') ||
-            facet.$type.includes('PriceRangeFacet')) {
-            this.getSelectedRange(facet);
-            return;
-        }
-
-        if (facet.$type.includes('PriceRangesFacet') ||
-            facet.$type.includes('ProductDataDoubleRangesFacet')) {
-            this.getSelectedRanges(facet);
-            return;
-        }
-
-        this.getSelectedStrings(facet);
-
-        if (!facet.settings) {
-            facet.settings = { alwaysIncludeSelectedInAvailable: true, includeZeroHitsInAvailable: false };
-        }
-    }
-
-    getSelectedRange(facet: Facet) {
-        if ('selected' in facet) {
-            let upperBound = null;
-            let lowerBound = null;
-
-            if ('key' in facet) {
-                upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field + facet.key);
-                lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field + facet.key);
-            } else {
-                upperBound = readCurrentUrlState(QueryKeys.facetUpperbound + facet.field);
-                lowerBound = readCurrentUrlState(QueryKeys.facetLowerbound + facet.field);
-            }
-
-            facet.selected = {
-                lowerBoundInclusive: lowerBound ? +lowerBound : null,
-                upperBoundInclusive: upperBound ? +upperBound : null,
-            };
-        }
-    }
-
-    getSelectedRanges(facet: Facet) {
-        if ('selected' in facet) {
-            let queryValues = null;
-            if ('key' in facet) {
-                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key);
-            } else {
-                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field);
-            }
-            facet.selected = queryValues.map(x => {
-                const split = x.split('-');
-                return {
-                    lowerBoundInclusive: +split[0],
-                    upperBoundExclusive: +split[1],
-                } as DoubleNullableRange;
-            });
-        }
-    }
-
-    getSelectedStrings(facet: Facet) {
-        if ('selected' in facet) {
-            let queryValues = null;
-            if ('key' in facet) {
-                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field + facet.key);
-            } else {
-                queryValues = readCurrentUrlStateValues(QueryKeys.facet + facet.field);
-            }
-            facet.selected = queryValues;
-        }
     }
 
     setSearchResultOnSlotChilderen() {
@@ -340,11 +239,12 @@ export class ProductSearch extends RelewiseLitElement {
             </relewise-product-search-bar>
           
             <div class="result-container">
-                ${this.products.length > 0 && this.searchResult?.facets ? html`
+                ${this.products.length > 0 && hasRenderableFacets(this.searchResult?.facets, this.searchResult?.hits) ? html`
                     <relewise-facets
-                        exportparts="container: facet-container, title: facet-title, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
+                        exportparts="container: facet-container, title: facet-title, selected-count: facet-selected-count, input: facet-input, label: facet-label, value: facet-value, hits: facet-hits"
                         .labels=${this.facetLabels}
                         .facetResult=${this.searchResult?.facets}
+                        .totalHits=${this.searchResult?.hits}
                         class="rw-facets">
                     </relewise-facets>
                 `: nothing}

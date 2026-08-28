@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <title>Universal Search</title>
+</head>
+
+<body>
+    <script type="module" src="index.ts"></script>
+    <h1>Universal Search</h1>
+    <p>This page exercises the universal-search modal with the Universal Search clothing demo dataset.</p>
+    <p id="template-mode"></p>
+    <nav aria-label="Template variants">
+        <a href="index.html">Default templates</a>
+        <a href="index.html?templates=custom">Custom templates</a>
+    </nav>
+
+    <ul>
+        <li>Products, product categories, and content tabs are configured with page size 15.</li>
+        <li>Product facets: brand, category, price, color, material, fit, season, and on-sale state.</li>
+        <li>Product category facets: gender, age group, department, season, and category type.</li>
+        <li>Content facets: content category, article type, topic, audience, season, and featured state.</li>
+        <li>Product sorting: relevance, price, name, brand, popularity, and demo product data score.</li>
+        <li>The default variant exposes the component's raw entity rendering for visual review.</li>
+        <li>The custom variant demonstrates template overrides using seeded images, URLs, descriptions, and metadata.</li>
+        <li>Load more URL state uses entity-scoped take parameters.</li>
+        <li>Enabled tabs are searched together in a batched search request.</li>
+        <li>Facet and sorting changes search only the active tab.</li>
+        <li>A focused, empty input shows popular search terms, and a focused input with text shows search-term predictions.</li>
+        <li>The termless state requests ten product, content, and search-term recommendations, five category recommendations, and renders tile blocks in five columns.</li>
+        <li>Zero-result tabs render popular recovery recommendations and hide the unused facet column.</li>
+        <li>Each zero-result tab mounts its recovery recommendation components only while that tab is active.</li>
+        <li>Dialog-width controls exercise the container-responsive header, facet drawer/rail, and entity grids.</li>
+    </ul>
+
+    <fieldset>
+        <legend>Open at a configured dialog width</legend>
+        <button type="button" data-dialog-width="100%">Full width</button>
+        <button type="button" data-dialog-width="64rem">64rem boundary</button>
+        <button type="button" data-dialog-width="48rem">48rem boundary</button>
+        <button type="button" data-dialog-width="20rem">20rem narrow</button>
+    </fieldset>
+
+    <relewise-universal-search displayed-at-location="web component dev"></relewise-universal-search>
+</body>
+
+</html>

@@ -117,9 +117,9 @@ export class ProductTile extends RelewiseLitElement {
     }
 
     private getProductImageAlt(product: ProductResult): string {
-        const altText = product.variant?.displayName ?? product.displayName ?? '';
+        const altText = product.variant?.displayName;
 
-        return altText ?? '';
+        return altText && altText !== product.displayName ? altText : '';
     }
 
     static defaultStyles = [
