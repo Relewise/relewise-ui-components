@@ -87,6 +87,39 @@ suite('relewise-search-combobox', () => {
         assert.isTrue(escapeRequested);
     });
 
+    (['shadow', 'light'] as const).forEach(domMode => {
+        test(`clears the term with an accessible button and restores input focus in ${domMode} DOM`, async() => {
+            const options = mockRelewiseOptions();
+            options.components = { domMode };
+            initializeRelewiseUI(options);
+            useSearch({ localization: { searchBar: { clear: 'Clear the search' } } });
+
+            const element = await fixture(html`
+                <relewise-search-combobox .term=${'shoes'}></relewise-search-combobox>
+            `) as SearchCombobox;
+            let changedTerm: string | null = null;
+            element.addEventListener(SearchComboboxEvents.termChanged, (event: CustomEvent<SearchComboboxTermEventDetail>) => {
+                changedTerm = event.detail.term;
+            });
+            const input = element.renderRoot.querySelector<HTMLInputElement>('input')!;
+            const clearButton = element.renderRoot.querySelector<HTMLButtonElement>('[part~="clear-search"]')!;
+
+            assert.equal(clearButton.tagName, 'BUTTON');
+            assert.equal(clearButton.type, 'button');
+            assert.equal(clearButton.getAttribute('aria-label'), 'Clear the search');
+            assert.isAtLeast(clearButton.getBoundingClientRect().width, 44);
+            assert.isAtLeast(clearButton.getBoundingClientRect().height, 44);
+
+            clearButton.click();
+            await element.updateComplete;
+
+            assert.equal(element.term, '');
+            assert.equal(changedTerm, '');
+            assert.equal(element.shadowRoot?.activeElement ?? document.activeElement, input);
+            assert.isNull(element.renderRoot.querySelector('[part~="clear-search"]'));
+        });
+    });
+
     test('renders titled valid redirects and emits their destination when selected', async() => {
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch();

@@ -118,8 +118,22 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
     }
 
     .rw-tab-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        min-width: 1.25em;
+        height: 1.25em;
+        padding: 0 0.3em;
+        border-radius: 9999px;
+        background-color: var(--relewise-universal-search-tab-count-background-color, var(--relewise-checklist-facet-selected-count-background-color, #111));
+        color: var(--relewise-universal-search-tab-count-color, var(--relewise-checklist-facet-selected-count-color, #fff));
         margin-left: 0.25em;
-        font-size: 0.8em;
+        font-size: 0.75em;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+        vertical-align: middle;
     }
 
     .rw-results-summary {

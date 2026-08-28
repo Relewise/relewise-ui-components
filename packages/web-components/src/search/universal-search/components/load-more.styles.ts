@@ -20,4 +20,9 @@ export const universalSearchLoadMoreStyles = [theme, css`
         gap: 0.5em;
         margin-top: var(--relewise-universal-search-load-more-margin-top, 1em);
     }
+
+    :host([direction='previous']) .rw-load-more {
+        margin-top: 0;
+        margin-bottom: var(--relewise-universal-search-load-previous-margin-bottom, 1em);
+    }
 `];

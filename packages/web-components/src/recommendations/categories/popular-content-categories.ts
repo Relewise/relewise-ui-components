@@ -4,14 +4,32 @@ import {
     PopularContentCategoriesRecommendationBuilder,
     PopularContentCategoriesRecommendationRequest,
 } from '@relewise/client';
+import { consume } from '@lit/context';
 import { html } from 'lit';
-import { property } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 import { getContentCategoryRecommendationBuilderWithDefaults } from '../../builders/categoryRecommendationBuilder';
+import { Events } from '../../helpers/events';
 import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
+import {
+    contentCategoryRecommendationBatchingContext,
+} from './category-recommendation-batching';
 import { CategoryRecommendationBase } from './category-recommendation-base';
 import { getRecommender } from '../recommender';
 
-export class PopularContentCategories extends CategoryRecommendationBase<ContentCategoryResult, PopularContentCategoriesRecommendationRequest> {
+export class PopularContentCategories extends CategoryRecommendationBase<
+    ContentCategoryResult,
+    PopularContentCategoriesRecommendationRequest,
+    ContentCategoryRecommendationResponse
+> {
+    @consume({ context: contentCategoryRecommendationBatchingContext, subscribe: true })
+    @state()
+    protected providedData?: CategoryRecommendationBase<
+        ContentCategoryResult,
+        PopularContentCategoriesRecommendationRequest,
+        ContentCategoryRecommendationResponse
+    >['providedData'];
+
+    protected readonly registerRecommendationEvent = Events.registerContentCategoryRecommendation;
 
     @property({ type: Number, attribute: 'since-minutes-ago' })
     sinceMinutesAgo = 20160;

@@ -79,6 +79,12 @@ export function readCurrentUrlStateValues(queryParamName: string): string[] {
     return currentUrl.searchParams.getAll(queryParamName);
 }
 
+export function hasUrlStateWithPrefix(queryParamPrefix: string): boolean {
+    const currentUrl = new URL(window.location.href);
+
+    return Array.from(currentUrl.searchParams.keys()).some(queryParamName => queryParamName.startsWith(queryParamPrefix));
+}
+
 export function getNumberOfProductsToFetch(): number | null {
     const productSearchResultsToLoad = readCurrentUrlState(QueryKeys.take);
 

@@ -53,7 +53,7 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
             "results results";
     }
 
-    .rw-product-results-layout:not(:has(.rw-results-header)):not(:has(.rw-sorting)) {
+    .rw-product-results-layout:not(:has(.rw-results-header)):not(:has(.rw-sorting)):not(:has(.rw-facets)) {
         grid-template-areas: "results results";
     }
 
@@ -144,7 +144,7 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
         }
 
         .rw-product-grid {
-            grid-template-columns: repeat(var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 2)), minmax(0, 1fr));
+            grid-template-columns: repeat(var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 3)), minmax(0, 1fr));
         }
 
         .rw-category-grid {
@@ -157,6 +157,10 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
     }
 
     @container universal-search-dialog (width <= 48rem) {
+        .rw-product-grid {
+            grid-template-columns: repeat(var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 2)), minmax(0, 1fr));
+        }
+
         .rw-results-header {
             align-items: stretch;
             flex-direction: column;
@@ -215,6 +219,12 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
         }
     }
 
+    @container universal-search-dialog (width <= 28rem) {
+        .rw-product-grid {
+            grid-template-columns: repeat(var(--relewise-universal-search-narrow-product-columns, var(--relewise-universal-search-narrow-result-columns, var(--relewise-universal-search-mobile-product-columns, var(--relewise-universal-search-mobile-result-columns, 1)))), minmax(0, 1fr));
+        }
+    }
+
     @container universal-search-dialog (width >= 64rem) {
         .rw-results-layout {
             max-width: min(100%, var(--relewise-universal-search-results-width, 100%));
@@ -239,7 +249,13 @@ export const universalSearchTabStyles = [theme, universalSearchZeroResultsStyles
             grid-template-columns: minmax(0, 1fr) auto;
         }
 
-        .rw-product-results-layout:not(:has(.rw-results-header)):not(:has(.rw-sorting)) {
+        .rw-product-results-layout:has(.rw-facets):not(:has(.rw-results-header)):not(:has(.rw-sorting)) {
+            grid-template-areas: "facets results";
+            grid-template-columns: minmax(10em, var(--relewise-universal-search-facets-width, 18em)) minmax(0, 1fr);
+            grid-template-rows: auto;
+        }
+
+        .rw-product-results-layout:not(:has(.rw-results-header)):not(:has(.rw-sorting)):not(:has(.rw-facets)) {
             grid-template-areas: "results results";
         }
     }

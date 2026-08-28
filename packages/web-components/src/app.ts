@@ -170,6 +170,7 @@ export interface UniversalSearchTabLocalization {
 
 export interface SearchBarLocalization {
     search?: string;
+    clear?: string;
     placeholder?: string;
     overlay?: {
         title?: {
@@ -195,6 +196,7 @@ export interface SortingLocalization {
 
 export interface LoadMoreLocalization {
     loadMore?: string;
+    loadPrevious?: string;
     showing?: string;
     outOf?: string;
     products?: string;

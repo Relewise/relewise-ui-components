@@ -2,11 +2,13 @@ import { ProductCategoryResult, ProductCategorySearchResponse, SearchResponseCol
 import { html, nothing } from 'lit';
 import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import type { UniversalSearchRecommendationBlock } from '../../../app';
 import {
     QueryKeys,
     getRelewiseContextSettings,
     getRelewiseUIOptions,
     getRelewiseUISearchOptions,
+    hasUrlStateWithPrefix,
     readCurrentUrlState,
     updateUrlState,
 } from '../../../helpers';
@@ -14,7 +16,9 @@ import { RelewiseLitElement } from '../../../relewise-lit-element';
 import { buildProductCategorySearchRequest } from '../../../builders/productCategorySearchRequestBuilder';
 import { getSearcher } from '../../searcher';
 import { universalSearchTabStyles } from './tab.styles';
+import { hasRenderableFacets } from '../../components/facets/facet-result-visibility';
 import type { UniversalSearchBatchSearch } from '../universal-search.types';
+import { universalSearchRecommendationsExportParts } from './recommendations';
 
 const defaultPageSize = 15;
 const tab = 'productCategories';
@@ -22,6 +26,8 @@ const tab = 'productCategories';
 export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
     @property() term = '';
     @property({ attribute: false }) hideFacets = false;
+    @property({ attribute: false }) noResultRecommendationConfiguration: UniversalSearchRecommendationBlock[] = [];
+    @property({ type: Boolean, attribute: false }) noResultRecommendationsActive = false;
     @property({ attribute: 'displayed-at-location' }) displayedAtLocation?: string;
 
     @state() private result: ProductCategorySearchResponse | null = null;
@@ -194,23 +200,27 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.productCategories;
         const noResultsHint = localization?.noResultsHint ?? 'Try another search term or check the spelling.';
-        const facetResult = this.result !== null && this.result.hits > 0 && !this.hideFacets ? this.result.facets : null;
+        const hasSearchTermAndSelectedFacets = Boolean(readCurrentUrlState(QueryKeys.term))
+            && hasUrlStateWithPrefix(QueryKeys.productCategoryFacet);
+        const facetResult = this.result !== null && !this.hideFacets && (this.result.hits > 0 || hasSearchTermAndSelectedFacets) ? this.result.facets : null;
+        const totalHits = this.result?.hits;
 
         return html`
             <div class="rw-results-layout" part="results-layout">
-                ${facetResult ? html`
+                ${facetResult && hasRenderableFacets(facetResult, totalHits) ? html`
                     <relewise-universal-search-facets
                         class="rw-facets"
                         part="facets"
-                        exportparts="facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-input, facet-label, facet-value, facet-hits"
+                        exportparts="facet-trigger, facet-panel, facet-drawer, facet-drawer-backdrop, facet-drawer-header, facet-drawer-close, facet-container, facet-title, facet-selected-count, facet-input, facet-label, facet-value, facet-hits"
                         .labels=${this.facetLabels}
                         .facetQueryKeyPrefix=${QueryKeys.productCategoryFacet}
                         .facetResult=${facetResult}
+                        .totalHits=${totalHits}
                         @universal-search-facets-changed=${this.searchOptionsChanged}>
                     </relewise-universal-search-facets>
                 ` : nothing}
                 <section class="rw-results" part="results">
-                    ${this.result?.hits !== 0 ? html`
+                    ${this.result && this.result.hits !== 0 ? html`
                         <header class="rw-results-header" part="results-header">
                             <div>
                                 <h2 class="rw-results-title" part="results-title">${localization?.resultsTitle ?? 'Categories'}</h2>
@@ -242,6 +252,13 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
                                 ` : nothing}
                             </div>
                         </div>
+                        <relewise-universal-search-recommendations
+                            exportparts=${universalSearchRecommendationsExportParts}
+                            .active=${this.noResultRecommendationsActive}
+                            .configuration=${this.noResultRecommendationConfiguration}
+                            .term=${this.term}
+                            .displayedAtLocation=${this.displayedAtLocation}>
+                        </relewise-universal-search-recommendations>
                     ` : html`
                         <div class="rw-result-grid rw-category-grid" part="category-grid">
                             ${this.productCategories.map(category => html`

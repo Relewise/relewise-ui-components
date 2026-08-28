@@ -11,7 +11,9 @@ import {
 import {
     clearUrlState,
     initializeRelewiseUI,
+    QueryKeys,
     UniversalSearch,
+    updateUrlState,
     useRecommendations,
     useSearch,
 } from '../src';
@@ -58,6 +60,9 @@ function queryDeep<T extends Element>(element: UniversalSearch, selector: string
 suite('universal search recommendations', () => {
     const originalBatchSearch = Searcher.prototype.batch;
     const originalBatchProducts = Recommender.prototype.batchProductRecommendations;
+    const originalBatchContents = Recommender.prototype.batchContentRecommendations;
+    const originalBatchProductCategories = Recommender.prototype.batchProductCategoryRecommendations;
+    const originalBatchContentCategories = Recommender.prototype.batchContentCategoryRecommendations;
     const originalPopularProducts = Recommender.prototype.recommendPopularProducts;
     const originalPersonalProducts = Recommender.prototype.recommendPersonalProducts;
     const originalRecentlyViewedProducts = Recommender.prototype.recentlyViewedProducts;
@@ -74,10 +79,19 @@ suite('universal search recommendations', () => {
     let popularProductRecommendations: ProductResult[] = [];
     let popularSearchTermEntityTypes: unknown;
     let productBatchRequests = 0;
+    let contentBatchRequests = 0;
+    let productCategoryBatchRequests = 0;
+    let contentCategoryBatchRequests = 0;
+    let requireDistinctProductsAcrossResults: boolean | undefined;
+    let requireDistinctContentsAcrossResults: boolean | undefined;
+    let requireDistinctProductCategoriesAcrossResults: boolean | undefined;
+    let requireDistinctContentCategoriesAcrossResults: boolean | undefined;
+    let batchedSearchTermRecommendationTerms: string[] = [];
     let popularProductRequests = 0;
     let searchTermRecommendationTerms: string[] = [];
     let popularProductCategoryRequests = 0;
     let popularContentRequests = 0;
+    let popularContentCategoryRequests = 0;
 
     setup(() => {
         clearUrlState();
@@ -88,9 +102,18 @@ suite('universal search recommendations', () => {
         popularSearchTermEntityTypes = undefined;
         productBatchRequests = 0;
         popularProductRequests = 0;
+        contentBatchRequests = 0;
+        productCategoryBatchRequests = 0;
+        contentCategoryBatchRequests = 0;
+        requireDistinctProductsAcrossResults = undefined;
+        requireDistinctContentsAcrossResults = undefined;
+        requireDistinctProductCategoriesAcrossResults = undefined;
+        requireDistinctContentCategoriesAcrossResults = undefined;
+        batchedSearchTermRecommendationTerms = [];
         searchTermRecommendationTerms = [];
         popularProductCategoryRequests = 0;
         popularContentRequests = 0;
+        popularContentCategoryRequests = 0;
 
         Searcher.prototype.batch = async function(requestCollection) {
             return {
@@ -123,9 +146,47 @@ suite('universal search recommendations', () => {
         };
         Recommender.prototype.batchProductRecommendations = async function(requestCollection) {
             productBatchRequests++;
+            requireDistinctProductsAcrossResults = requestCollection.requireDistinctProductsAcrossResults;
+            return {
+                responses: requestCollection.requests?.map(request => {
+                    if (request.$type.includes('SearchTermBased')) {
+                        batchedSearchTermRecommendationTerms.push((request as { term: string }).term);
+                    }
+                    const productId = request.$type.includes('Personal')
+                        ? 'personal'
+                        : request.$type.includes('RecentlyViewed')
+                            ? 'recent'
+                            : request.$type.includes('SearchTermBased')
+                                ? 'term-based'
+                                : 'popular';
+                    return { recommendations: [product(productId)] };
+                }),
+            } as never;
+        };
+        Recommender.prototype.batchContentRecommendations = async function(requestCollection) {
+            contentBatchRequests++;
+            requireDistinctContentsAcrossResults = requestCollection.requireDistinctContentsAcrossResults;
             return {
                 responses: requestCollection.requests?.map(request => ({
-                    recommendations: [product(request.$type.includes('SearchTermBased') ? 'term-based' : 'popular')],
+                    recommendations: [content(request.$type.includes('Personal') ? 'personal-content' : 'popular-content')],
+                })),
+            } as never;
+        };
+        Recommender.prototype.batchProductCategoryRecommendations = async function(requestCollection) {
+            productCategoryBatchRequests++;
+            requireDistinctProductCategoriesAcrossResults = requestCollection.requireDistinctCategoriesAcrossResults;
+            return {
+                responses: requestCollection.requests?.map((_, index) => ({
+                    recommendations: [productCategory(`product-category-${index + 1}`)],
+                })),
+            } as never;
+        };
+        Recommender.prototype.batchContentCategoryRecommendations = async function(requestCollection) {
+            contentCategoryBatchRequests++;
+            requireDistinctContentCategoriesAcrossResults = requestCollection.requireDistinctCategoriesAcrossResults;
+            return {
+                responses: requestCollection.requests?.map((_, index) => ({
+                    recommendations: [contentCategory(`content-category-${index + 1}`)],
                 })),
             } as never;
         };
@@ -155,6 +216,7 @@ suite('universal search recommendations', () => {
             return { recommendations: [content('personal-content')] } as never;
         };
         Recommender.prototype.recommendPopularContentCategories = async function() {
+            popularContentCategoryRequests++;
             return { recommendations: [contentCategory('popular-content-category')] } as never;
         };
         Recommender.prototype.recommendPopularSearchTerms = async function(request) {
@@ -172,6 +234,9 @@ suite('universal search recommendations', () => {
         window.relewiseUIOptions = undefined!;
         Searcher.prototype.batch = originalBatchSearch;
         Recommender.prototype.batchProductRecommendations = originalBatchProducts;
+        Recommender.prototype.batchContentRecommendations = originalBatchContents;
+        Recommender.prototype.batchProductCategoryRecommendations = originalBatchProductCategories;
+        Recommender.prototype.batchContentCategoryRecommendations = originalBatchContentCategories;
         Recommender.prototype.recommendPopularProducts = originalPopularProducts;
         Recommender.prototype.recommendPersonalProducts = originalPersonalProducts;
         Recommender.prototype.recentlyViewedProducts = originalRecentlyViewedProducts;
@@ -243,6 +308,16 @@ suite('universal search recommendations', () => {
         );
         assert.deepEqual(popularSearchTermEntityTypes, ['Content']);
         assert.lengthOf(element.renderRoot.querySelectorAll('[role="tab"]'), 0);
+        assert.equal(productBatchRequests, 1);
+        assert.equal(contentBatchRequests, 1);
+        assert.equal(productCategoryBatchRequests, 0);
+        assert.equal(contentCategoryBatchRequests, 0);
+        assert.isTrue(requireDistinctProductsAcrossResults);
+        assert.isTrue(requireDistinctContentsAcrossResults);
+        assert.equal(popularProductRequests, 0);
+        assert.equal(popularContentRequests, 0);
+        assert.equal(popularProductCategoryRequests, 1);
+        assert.equal(popularContentCategoryRequests, 1);
     });
 
     test('forwards recommendation tile parts through Universal Search', async() => {
@@ -292,6 +367,35 @@ suite('universal search recommendations', () => {
 
         assert.equal(styles.getPropertyValue('--relewise-recommendation-grid-columns').trim(), '5');
         assert.equal(styles.getPropertyValue('--relewise-recommendation-grid-mobile-columns').trim(), '2');
+    });
+
+    test('uses progressively denser default product recommendation columns as the dialog widens', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            universalSearch: {
+                recommendations: { initial: [{ type: 'PopularProducts' }] },
+            },
+        });
+        const element = await fixture<UniversalSearch>(html`
+            <relewise-universal-search
+                open
+                style="--relewise-universal-search-width: 60rem;">
+            </relewise-universal-search>
+        `);
+        await waitUntil(() => queryDeep(element, 'relewise-product-tile') !== null);
+        const productGrid = queryDeep<HTMLElement>(element, 'relewise-popular-products')!;
+
+        assert.equal(getComputedStyle(productGrid).getPropertyValue('--relewise-recommendation-grid-columns').trim(), '3');
+
+        element.style.setProperty('--relewise-universal-search-width', '40rem');
+        await new Promise(requestAnimationFrame);
+        assert.equal(getComputedStyle(productGrid).getPropertyValue('--relewise-recommendation-grid-columns').trim(), '2');
+
+        element.style.setProperty('--relewise-universal-search-width', '20rem');
+        await new Promise(requestAnimationFrame);
+        const narrowStyles = getComputedStyle(productGrid);
+        assert.equal(narrowStyles.getPropertyValue('--relewise-recommendation-grid-columns').trim(), '1');
+        assert.equal(narrowStyles.getPropertyValue('--relewise-recommendation-grid-mobile-columns').trim(), '1');
     });
 
     test('uses entity-specific compact columns for recommendation grids', async() => {
@@ -408,6 +512,12 @@ suite('universal search recommendations', () => {
         (element as unknown as UniversalSearchTestApi).setSearchTerm('No matches');
 
         await waitUntil(() => popularProductRequests === 1);
+        const entityTabs = element.renderRoot.querySelectorAll('relewise-universal-search-products-tab, relewise-universal-search-product-categories-tab, relewise-universal-search-content-tab');
+        assert.equal(entityTabs.length, 3);
+        entityTabs.forEach(tab => {
+            assert.include(tab.getAttribute('exportparts') ?? '', 'recommendation-grid');
+            assert.include(tab.getAttribute('exportparts') ?? '', 'recommendation-product-tile');
+        });
         assert.equal(popularProductCategoryRequests, 0);
         assert.equal(popularContentRequests, 0);
 
@@ -421,6 +531,33 @@ suite('universal search recommendations', () => {
 
         tabs[0].click();
         await waitUntil(() => popularProductRequests === 2);
+    });
+
+    test('batches repeated recommendations for an active zero-result tab', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: { products: {} },
+                recommendations: {
+                    noResults: {
+                        products: [
+                            { type: 'PopularProducts' },
+                            { type: 'PersonalProducts' },
+                        ],
+                    },
+                },
+            },
+        });
+        const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+
+        (element as unknown as UniversalSearchTestApi).setSearchTerm('No matches');
+
+        await waitUntil(() => productBatchRequests === 1
+            && queryAllDeep(element.renderRoot, 'relewise-product-tile').length === 2);
+        assert.isTrue(requireDistinctProductsAcrossResults);
+        assert.equal(popularProductRequests, 0);
+        assert.equal(contentBatchRequests, 0);
     });
 
     test('submits a selected popular search term', async() => {
@@ -460,6 +597,10 @@ suite('universal search recommendations', () => {
         await waitUntil(() => element.renderRoot.querySelector('relewise-universal-search-products-tab') !== null);
         const productsTab = element.renderRoot.querySelector<HTMLElement & { hideFacets: boolean }>('relewise-universal-search-products-tab')!;
         await waitUntil(() => productsTab.hideFacets && queryDeep(element, 'relewise-product-tile') !== null);
+        const recommendations = productsTab.shadowRoot!.querySelector<UniversalSearchRecommendations>('relewise-universal-search-recommendations')!;
+        assert.exists(recommendations);
+        assert.deepEqual(recommendations.configuration, [{ type: 'PopularProducts' }]);
+        assert.isTrue(recommendations.active);
         assert.isNull(queryAllDeep(productsTab.shadowRoot!, '[part="facets"]')[0] ?? null);
         assert.exists(queryAllDeep(productsTab.shadowRoot!, '[part="zero-results"]')[0]);
         assert.equal(
@@ -470,6 +611,65 @@ suite('universal search recommendations', () => {
             queryAllDeep(productsTab.shadowRoot!, '[part="zero-results-hint"]')[0]?.textContent?.trim(),
             'Try another search term or check the spelling.',
         );
+    });
+
+    (['shadow', 'light'] as const).forEach(domMode => {
+        test(`keeps a shared price facet beside zero-result recommendations in ${domMode} DOM`, async() => {
+            productFacets = {
+                items: [{
+                    $type: 'Relewise.Client.DataTypes.Search.Facets.Result.PriceRangeFacetResult, Relewise.Client',
+                    field: 'SalesPrice',
+                    priceSelectionStrategy: 'Product',
+                    available: {
+                        value: {
+                            lowerBoundInclusive: 10,
+                            upperBoundInclusive: 100,
+                        },
+                    },
+                }],
+            };
+            updateUrlState(QueryKeys.term, 'No matches');
+            updateUrlState(`${QueryKeys.productFacetLowerbound}SalesPrice`, '250');
+            updateUrlState(`${QueryKeys.productFacetUpperbound}SalesPrice`, '500');
+            const options = mockRelewiseOptions();
+            options.components = { domMode };
+            initializeRelewiseUI(options);
+            useSearch({
+                debounceTimeInMs: 0,
+                facets: {
+                    product(builder) {
+                        builder.addFacet(
+                            facet => facet.addSalesPriceRangeFacet('Product'),
+                            { heading: 'Price' },
+                        );
+                    },
+                },
+                universalSearch: {
+                    entities: { products: {} },
+                    behavior: { zeroResultTabs: 'show' },
+                    recommendations: { noResults: { products: [{ type: 'PopularProducts' }] } },
+                },
+            });
+            const element = await fixture<UniversalSearch>(html`<relewise-universal-search open></relewise-universal-search>`);
+
+            await waitUntil(() => queryDeep(element, 'relewise-product-tile') !== null
+                && queryDeep(element, 'relewise-number-range-facet') !== null);
+            const productsTab = element.renderRoot.querySelector<HTMLElement & { hideFacets: boolean }>('relewise-universal-search-products-tab')!;
+            const tabRoot = productsTab.shadowRoot ?? productsTab;
+            const recommendations = tabRoot.querySelector('relewise-universal-search-recommendations');
+            const zeroResults = tabRoot.querySelector('[part="zero-results"]');
+
+            assert.isFalse(productsTab.hideFacets);
+            assert.isNotNull(zeroResults);
+            assert.strictEqual(zeroResults!.nextElementSibling, recommendations);
+            assert.include(productsTab.getAttribute('exportparts') ?? '', 'recommendation-grid');
+
+            const rangeFacet = queryDeep(element, 'relewise-number-range-facet')!;
+            const rangeFacetRoot = rangeFacet.shadowRoot ?? rangeFacet;
+            const inputs = [...rangeFacetRoot.querySelectorAll<HTMLInputElement>('input')];
+            assert.equal(inputs[0].value, '250');
+            assert.equal(inputs[1].value, '500');
+        });
     });
 
     test('keeps the active-tab zero state without facets when its fallback is empty', async() => {
@@ -586,7 +786,34 @@ suite('universal search recommendations', () => {
         assert.equal(getComputedStyle(queryDeep(element, '[part="zero-results-hint"]')!).color, 'rgb(4, 5, 6)');
     });
 
-    test('requests multiple product recommendation children independently', async() => {
+    test('batches repeated category recommendation children by entity type', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ universalSearch: {} });
+
+        const element = await fixture<UniversalSearchRecommendations>(html`
+            <relewise-universal-search-recommendations
+                .configuration=${[
+                    { type: 'PopularProductCategories' as const },
+                    { type: 'PopularProductCategories' as const },
+                    { type: 'PopularContentCategories' as const },
+                    { type: 'PopularContentCategories' as const },
+                ]}>
+            </relewise-universal-search-recommendations>
+        `);
+
+        await waitUntil(() =>
+            queryAllDeep(element.renderRoot, 'relewise-product-category-tile').length === 2
+            && queryAllDeep(element.renderRoot, 'relewise-content-category-tile').length === 2);
+
+        assert.equal(productCategoryBatchRequests, 1);
+        assert.equal(contentCategoryBatchRequests, 1);
+        assert.isTrue(requireDistinctProductCategoriesAcrossResults);
+        assert.isTrue(requireDistinctContentCategoriesAcrossResults);
+        assert.equal(popularProductCategoryRequests, 0);
+        assert.equal(popularContentCategoryRequests, 0);
+    });
+
+    test('batches multiple product recommendation children with deduplication', async() => {
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch({ universalSearch: {} });
         const states: RecommendationStateChangedEventDetail[] = [];
@@ -605,15 +832,17 @@ suite('universal search recommendations', () => {
 
         await waitUntil(() => queryAllDeep(element.renderRoot, 'relewise-product-tile').length === 2);
         assert.isNull(element.renderRoot.querySelector('relewise-product-recommendation-batcher'));
-        assert.equal(productBatchRequests, 0);
-        assert.equal(popularProductRequests, 1);
-        assert.deepEqual(searchTermRecommendationTerms, ['Boots']);
+        assert.equal(productBatchRequests, 1);
+        assert.equal(popularProductRequests, 0);
+        assert.deepEqual(searchTermRecommendationTerms, []);
+        assert.deepEqual(batchedSearchTermRecommendationTerms, ['Boots']);
+        assert.isTrue(requireDistinctProductsAcrossResults);
         assert.deepInclude(states, { loading: true, hasResults: false });
         assert.deepInclude(states, { loading: false, hasResults: true });
         assert.equal(Events.recommendationStateChanged, 'relewise-ui-components:recommendation-state-changed');
     });
 
-    test('refreshes standalone recommendation children when their term changes', async() => {
+    test('refreshes batched recommendation children when their term changes', async() => {
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch({ universalSearch: {} });
 
@@ -626,15 +855,15 @@ suite('universal search recommendations', () => {
                 term="Boots">
             </relewise-universal-search-recommendations>
         `);
-        await waitUntil(() => searchTermRecommendationTerms.includes('Boots'));
+        await waitUntil(() => batchedSearchTermRecommendationTerms.includes('Boots'));
 
         element.term = 'Shoes';
         await element.updateComplete;
-        await waitUntil(() => searchTermRecommendationTerms.includes('Shoes'));
+        await waitUntil(() => batchedSearchTermRecommendationTerms.includes('Shoes'));
 
-        assert.deepEqual(searchTermRecommendationTerms, ['Boots', 'Shoes']);
-        assert.equal(productBatchRequests, 0);
-        assert.equal(popularProductRequests, 2);
+        assert.deepEqual(batchedSearchTermRecommendationTerms, ['Boots', 'Shoes']);
+        assert.equal(productBatchRequests, 2);
+        assert.equal(popularProductRequests, 0);
     });
 
     test('aggregates loading and results across independent recommendation children', async() => {
@@ -673,6 +902,8 @@ suite('universal search recommendations', () => {
         });
         assert.lengthOf(queryAllDeep(element.renderRoot, 'relewise-product-tile'), 1);
         assert.lengthOf(queryAllDeep(element.renderRoot, 'relewise-content-tile'), 0);
+        assert.equal(productBatchRequests, 0);
+        assert.equal(contentBatchRequests, 0);
     });
 
     test('reports no results when all independent recommendation children are empty', async() => {
@@ -717,11 +948,9 @@ suite('universal search recommendations', () => {
         assert.lengthOf(queryAllDeep(element.renderRoot, 'relewise-content-tile'), 0);
     });
 
-    test('finishes without results when standalone product recommendation requests fail', async() => {
-        Recommender.prototype.recommendPopularProducts = async function() {
-            throw new Error('Recommendations are unavailable');
-        };
-        Recommender.prototype.recommendSearchTermBasedProducts = async function() {
+    test('finishes without results when batched product recommendation requests fail', async() => {
+        Recommender.prototype.batchProductRecommendations = async function() {
+            productBatchRequests++;
             throw new Error('Recommendations are unavailable');
         };
         initializeRelewiseUI(mockRelewiseOptions());
@@ -740,7 +969,7 @@ suite('universal search recommendations', () => {
         `);
 
         await waitUntil(() => states.some(state => !state.loading && !state.hasResults));
-        assert.equal(productBatchRequests, 0);
+        assert.equal(productBatchRequests, 1);
         assert.isNull(element.renderRoot.querySelector('[part="recommendation-loading"]'));
         assert.lengthOf(queryAllDeep(element.renderRoot, 'relewise-product-tile'), 0);
     });
@@ -767,6 +996,8 @@ suite('universal search recommendations', () => {
         assert.exists(element.querySelector('[part~="recommendation-block"]'));
         assert.equal(element.querySelector('relewise-product-tile')?.getAttribute('part'), 'product-tile');
         const registeredStyles = document.querySelector('#relewise-light-dom-styles');
+        assert.equal(productBatchRequests, 1);
+        assert.isTrue(requireDistinctProductsAcrossResults);
         assert.include(registeredStyles?.textContent, 'relewise-universal-search-recommendations .rw-recommendation-blocks');
         assert.include(registeredStyles?.textContent, 'relewise-popular-products');
     });

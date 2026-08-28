@@ -735,6 +735,7 @@ useSearch({
         },
         loadMoreButton: {
             loadMore: 'Hent flere!',
+            loadPrevious: 'Hent tidligere!',
             showing: 'Viser',
             outOf: 'ud af',
             products: 'produkter',
@@ -886,9 +887,9 @@ useSearch({
 <relewise-universal-search displayed-at-location="LOCATION"></relewise-universal-search>
 ```
 
-The component reads the existing `rw-term` URL parameter when it is connected, but it does not automatically open from URL state.
+When the component is connected with an existing `rw-term` URL parameter, it restores that term and automatically opens Universal Search.
 
-Universal Search bases its internal responsive layout on the available dialog width. Dialogs below `64rem` (typically `1024px`) use the compact result columns and a facet drawer; dialogs at least `64rem` wide use the desktop columns and facet rail. At up to `48rem` (typically `768px`), the search input and close button remain on one line, filter and sorting controls share a row, and search suggestions join the normal document flow. This also makes a consumer-configured narrow dialog behave compactly on a wide viewport.
+Universal Search bases its internal responsive layout on the available dialog width. Dialogs below `64rem` (typically `1024px`) use a facet drawer, while dialogs at least `64rem` wide use the desktop columns and facet rail. Product results and product recommendations default to three columns below `64rem`, two columns at up to `48rem`, and one column at up to `28rem`; explicit column variables continue to override these defaults. At up to `48rem`, the search input and close button remain on one line, filter and sorting controls share a row, and search suggestions join the normal document flow. This also makes a consumer-configured narrow dialog behave compactly on a wide viewport.
 
 The default appearance is intentionally neutral. Use the documented CSS custom properties for sizing and columns, and CSS parts for detailed presentation, without changing the component's search behavior.
 
@@ -900,7 +901,7 @@ Search redirects returned by the enabled products search follow the product-sear
 
 The suggestions panel supports pointer selection and Arrow Up, Arrow Down, Enter, and Escape. It closes on selection, Enter, Escape, outside interaction, or input blur. Popular terms may be empty when the dataset does not have enough engaged search history; an empty suggestions panel is not rendered.
 
-Universal Search renders its input and suggestions with the shared `relewise-search-combobox`. The existing `relewise-search-bar` and product-search overlay remain unchanged, while other search experiences can adopt the combobox later. Both `relewise-search-combobox` and `relewise-universal-search` expose the CSS parts `search-input`, `search-icon`, `search-suggestions`, `popular-search-terms`, `predictions`, `suggestions-list`, `suggestion`, and `suggestion-icon`.
+Universal Search renders its input and suggestions with the shared `relewise-search-combobox`. The existing `relewise-search-bar` and product-search overlay remain unchanged, while other search experiences can adopt the combobox later. A populated combobox renders a keyboard-accessible Clear Search button, restores focus to the input after clearing, and resolves its accessible label from `localization.searchBar.clear` with `Clear search` as the fallback. Both `relewise-search-combobox` and `relewise-universal-search` expose the CSS parts `search-input`, `search-icon`, `clear-search`, `search-suggestions`, `popular-search-terms`, `predictions`, `suggestions-list`, `suggestion`, and `suggestion-icon`.
 
 The combobox owns its input, suggestions popup, focus, outside-interaction dismissal, keyboard, localization, and accessibility behavior. Its `redirects` property accepts `RedirectResult[]` for titled redirect suggestions and emits `relewise-search-combobox-redirect-selected` when one is selected. It loads popular search terms itself and caches a completed response, including an empty response, while it remains connected. Search-term predictions participate in the parent search experience's batch instead of starting a competing request: the parent calls `prepareBatchSearch(settings)`, includes the returned request in its batch, and then calls `applyResponse(response)` or `setError()`. Universal Search handles this integration automatically. A future Product Search integration can use the same contract without changing the existing `relewise-search-bar` or product-search overlay.
 
@@ -982,11 +983,13 @@ recommendations: {
 }
 ```
 
-`SearchTermBasedProduct` may return no recommendations on a new dataset without enough search behavior. Popular entity recommendations are therefore safer defaults for no-result recovery. `PopularSearchTerms` uses the centralized `useRecommendations({ popularSearchTerms: { targetEntityTypes } })` setting. Universal Search never renders facets, reserves their column, or renders the redundant entity heading and `0 Results` count for a tab with zero results. The tab-specific zero-result message remains visible above any recovery recommendations so the recommendations are not mistaken for search hits.
+`SearchTermBasedProduct` may return no recommendations on a new dataset without enough search behavior. Popular entity recommendations are therefore safer defaults for no-result recovery. `PopularSearchTerms` uses the centralized `useRecommendations({ popularSearchTerms: { targetEntityTypes } })` setting. Universal Search normally hides facets, their reserved column, and the redundant entity heading and `0 Results` count for a tab with zero results. When the URL contains both a search term and selected facet state for that entity, it keeps that tab active and visible with the facets from the current response so the filters can be reverted. The tab-specific zero-result message remains visible above any recovery recommendations so the recommendations are not mistaken for search hits. An unselected checklist facet with one option is hidden only when that option covers every current hit; selected options remain visible so they can be removed. Checklist facet titles show the number of selected values, including selections hidden below Show More.
 
-Set `behavior.zeroResultTabs` to `show` (the default) to keep zero-result tabs and render their configured recovery blocks. Set it to `hide` to use the `whenAllTabsAreHidden` recovery blocks when every enabled tab has zero results. `behavior.activateFirstTabWithResults` defaults to `true`; after each term search, it selects the first tab with results when the active tab has zero results. Set it to `false` to retain the active zero-result tab when zero-result tabs are shown. Hidden zero-result tabs can never remain active.
+Number-range facets show the current available bounds as their default values without native `min` or `max` input constraints. Apply or Enter commits an edited range only when it remains within the available bounds and the lower value does not exceed the upper value; otherwise the inputs return to their last applied values. Bounds restored from a shared URL remain visible as already-applied values even when they exceed the current available range.
 
-All configured initial blocks are mounted together. Each standalone component owns its request, context lifecycle, results, and rendering. Universal Search does not batch recommendation requests.
+Set `behavior.zeroResultTabs` to `show` (the default) to keep zero-result tabs and render their configured recovery blocks. Set it to `hide` to use the `whenAllTabsAreHidden` recovery blocks when every enabled tab has zero results. A tab with selected facet state remains visible as an exception so those filters can be reverted. `behavior.activateFirstTabWithResults` defaults to `true`; after each term search, it selects the first tab with results when the active tab has zero results and no selected facets. Set it to `false` to retain any active zero-result tab when zero-result tabs are shown.
+
+All configured initial blocks are mounted together. When an active recommendation state contains more than one recommendation block for the same entity type, Universal Search uses that entity type's batch endpoint and requires distinct entities across its responses. Products, content, product categories, and content categories are batched independently and are never combined into one mixed batch. A single recommendation block of an entity type keeps its standalone request lifecycle. The same rule applies to an active entity tab's zero-result recommendations.
 
 No-result recommendations are lazy. Universal Search mounts only the active zero-result tab's configured recommendations and mounts another tab's recommendations when that tab is selected. Leaving a tab disconnects its recommendation children, so returning to it starts their normal standalone lifecycle again. Recommendation results retain the configured block order.
 
@@ -1000,14 +1003,14 @@ Both the tabbed and tabless no-result states expose the CSS parts `zero-results`
 | --- | --- |
 | Shell | `backdrop`, `dialog`, `header`, `search-bar`, `close-button`, `body` |
 | Navigation | `results-summary`, `tabs`, `tab`, `tab-count` |
-| Facets | `facets`, `facet-trigger`, `facet-panel`, `facet-drawer`, `facet-drawer-backdrop`, `facet-drawer-header`, `facet-drawer-close`, `facet-container`, `facet-title`, `facet-input`, `facet-label`, `facet-value`, `facet-hits` |
+| Facets | `facets`, `facet-trigger`, `facet-panel`, `facet-drawer`, `facet-drawer-backdrop`, `facet-drawer-header`, `facet-drawer-close`, `facet-container`, `facet-title`, `facet-selected-count`, `facet-input`, `facet-label`, `facet-value`, `facet-hits` |
 | Results | `results-layout`, `results`, `results-header`, `results-title`, `results-count`, `product-grid`, `category-grid`, `content-grid`, `product-tile`, `category-tile`, `content-tile` |
 | Sorting | `sorting`, `sorting-container`, `sorting-select`, `sorting-label` |
-| States and pagination | `empty-state`, `error-state`, `loading-state`, `zero-results`, `zero-results-icon`, `zero-results-title`, `zero-results-hint`, `load-more` |
+| States and pagination | `empty-state`, `error-state`, `loading-state`, `zero-results`, `zero-results-icon`, `zero-results-title`, `zero-results-hint`, `load-previous`, `load-more` |
 
 Recommendation parts are listed above. Parts originating inside the combobox, facet, sorting, tile, load-more, and recommendation components are forwarded through `relewise-universal-search`.
 
-The current tabs use load-more behavior. Additional pagination modes are not part of the initial universal-search implementation.
+The current tabs use load-more behavior. When a product result count is restored from `rw-product-take`, Universal Search requests only the last configured page and exposes `load-previous` when earlier products can be loaded. Additional pagination modes are not part of the initial universal-search implementation.
 
 ##### Attributes
 
@@ -1227,6 +1230,10 @@ relewise-product-search::part(facet-container) {
 }
 
 relewise-product-search::part(facet-title) {
+    ...
+}
+
+relewise-product-search::part(facet-selected-count) {
     ...
 }
 
@@ -1593,6 +1600,8 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-tabs-margin-bottom` | `1em` | Space below the result tabs. |
 | `--relewise-universal-search-tab-padding` | `0.5em 0` | Padding inside each result tab. |
 | `--relewise-universal-search-tab-active-border-color` | `currentColor` | Underline color of the active result tab. |
+| `--relewise-universal-search-tab-count-background-color` | `var(--relewise-checklist-facet-selected-count-background-color, #111)` | Background colour for result-count badges in tabs. |
+| `--relewise-universal-search-tab-count-color` | `var(--relewise-checklist-facet-selected-count-color, #fff)` | Text colour for result-count badges in tabs. |
 | `--relewise-universal-search-results-summary-spacing` | `var(--relewise-universal-search-results-summary-margin-bottom, 1em)` | Equal compact-layout space above and below the search-term summary. |
 | `--relewise-universal-search-results-summary-margin-bottom` | `1em` | Desktop space below the search-term summary and compatibility fallback for compact spacing. |
 | `--relewise-universal-search-zero-results-gap` | `1em` | Gap between the no-result icon and its text. |
@@ -1625,12 +1634,15 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-content-columns` | Generic result columns | Content result and recommendation columns in wide dialog containers. |
 | `--relewise-universal-search-mobile-result-columns` | `2` | Generic entity column fallback for dialog containers below `64rem` (typically `1024px`). |
 | `--relewise-universal-search-mobile-product-columns` | Generic compact columns | Product result and recommendation columns in compact dialog containers. |
+| `--relewise-universal-search-narrow-result-columns` | `1` | Generic fallback for product columns in dialog containers up to `28rem`. |
+| `--relewise-universal-search-narrow-product-columns` | Generic narrow columns | Product result and recommendation columns in dialog containers up to `28rem`. |
 | `--relewise-universal-search-mobile-category-columns` | Generic compact columns | Category result and recommendation columns in compact dialog containers. |
 | `--relewise-universal-search-mobile-content-columns` | Generic compact columns | Content result and recommendation columns in compact dialog containers. |
 | `--relewise-universal-search-result-grid-gap` | `1em` | Gap between entity result tiles. |
 | `--relewise-universal-search-product-grid-gap` | `1em` | Compatibility fallback for the result grid gap when `--relewise-universal-search-result-grid-gap` is unset. |
 | `--relewise-universal-search-loading-padding` | `2em 0` | Vertical padding around Universal Search loading indicators. |
 | `--relewise-universal-search-load-more-margin-top` | `1em` | Space above an entity's load-more control. |
+| `--relewise-universal-search-load-previous-margin-bottom` | `1em` | Space below the product load-previous control. |
 
 #### Search overlay container and messaging
 | Variable | Default | Description |
@@ -1670,6 +1682,8 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | Variable | Default | Description |
 | --- | --- | --- |
 | `--relewise-checklist-facet-border-color` | `#eee` | Border colour for facet cards. |
+| `--relewise-checklist-facet-selected-count-background-color` | `#111` | Background colour for selected facet count badges. |
+| `--relewise-checklist-facet-selected-count-color` | `#fff` | Text colour for selected facet count badges. |
 | `--relewise-checklist-facet-hits-color` | `gray` | Text colour for facet hit counts. |
 | `--relewise-checklist-facet-hits-font-size` | `.85em` | Font size for facet hit counts. |
 | `--relewise-number-range-input-height` | `2em` | Height of inputs in the number range facet. |
@@ -1769,6 +1783,7 @@ For more examples and information about relevance modifiers visit the official [
 It is possible to overwrite the templates used for rendering products, product categories, and content. This is done using [lit templating](https://lit.dev/docs/templates/overview/).
 When the template is overwritten, the corresponding tile skips attaching default CSS styles on the tile, so your template has full control over layout and presentation.
 If no custom template is provided, it will render using the default template.
+Default tile images use empty alternative text when the adjacent text already names the entity; the default product tile retains a distinct variant display name when it adds information not present in the product name.
 
 The below examples show how the default templates are written. Style the templates however you like—or swap it out for your design system equivalents.
 
@@ -1785,7 +1800,7 @@ initializeRelewiseUI(
                         ${(product.data && 'ImageUrl' in product.data)
                             ? html`
                                 <div class="rw-image-container">
-                                    <img class="rw-object-cover" src=${product.data['ImageUrl'].value} alt=${product.variant?.displayName ?? product.displayName ?? ''} />
+                                    <img class="rw-object-cover" src=${product.data['ImageUrl'].value} alt="" />
                                 </div>`
                             : helpers.nothing}
                         <div class="rw-information-container">
@@ -1818,7 +1833,7 @@ initializeRelewiseUI({
                     ${content.data?.ImageUrl?.value
                         ? html`
                             <div class="rw-image-container">
-                                <img class="rw-object-cover" src=${content.data?.ImageUrl?.value} alt=${content.displayName ?? ''} />
+                                <img class="rw-object-cover" src=${content.data?.ImageUrl?.value} alt="" />
                             </div>`
                         : helpers.nothing}
                     <div class="rw-information-container">

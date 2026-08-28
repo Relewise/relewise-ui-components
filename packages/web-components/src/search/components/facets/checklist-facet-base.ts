@@ -84,17 +84,13 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
 
         const localization = getRelewiseUISearchOptions()?.localization?.facets;
 
-        const facetResultsToShow = this.showAll
-            ? this.result.available
-            : [...this.result.available].sort((a, b) => {
-                if (a.selected && !b.selected) {
-                    return -1; // a comes before b
-                } else if (!a.selected && b.selected) {
-                    return 1; // b comes before a
-                } else {
-                    return 0; // leave their order unchanged
-                }
-            }).slice(0, 10);
+        const sortedAvailable = [...this.result.available].sort((a, b) =>
+            this.getOptionDisplayValue(a).localeCompare(this.getOptionDisplayValue(b), undefined, {
+                numeric: true,
+                sensitivity: 'base',
+            }));
+        const facetResultsToShow = this.showAll ? sortedAvailable : sortedAvailable.slice(0, 10);
+        const selectedCount = new Set(this.selectedValues).size;
 
         // if there are not facets options, then return nothing
         if (facetResultsToShow.length === 0) {
@@ -103,7 +99,12 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
         }
         return html`
         <div class="rw-facet-content">
-            <h3 part="title">${this.label}</h3>
+            <h3 part="title">
+                ${this.label}
+                ${selectedCount > 0 ? html`
+                    <span class="rw-selected-count" part="selected-count" aria-hidden="true">${selectedCount}</span>
+                ` : nothing}
+            </h3>
             ${repeat(facetResultsToShow, item => JSON.stringify(item.value), (item, index) => html`
                     ${item.value !== undefined ? html`
                         <div>
@@ -199,10 +200,29 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
         }
 
         h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.4em;
             margin-top: 0;
             margin-bottom: 0.5em;
             font-weight: 500;
             font-size: 1em;
+        }
+
+        .rw-selected-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            min-width: 1.25em;
+            height: 1.25em;
+            padding: 0 0.3em 0.1em;
+            border-radius: 9999px;
+            background-color: var(--relewise-checklist-facet-selected-count-background-color, #111);
+            color: var(--relewise-checklist-facet-selected-count-color, #fff);
+            font-size: 0.75em;
+            font-weight: 600;
+            line-height: 1;
         }
     `];
 }

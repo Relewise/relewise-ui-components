@@ -1,5 +1,6 @@
 import { ProductRecommendationRequest, ProductRecommendationResponse, ProductResult, User } from '@relewise/client';
 import { css, html } from 'lit';
+import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
 import { consume } from '@lit/context';
@@ -36,16 +37,21 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
 
     fetchAndUpdateProductsBound = this.fetchAndUpdateProducts.bind(this);
 
-    constructor() {
-        super();
-        setTimeout(async() => {
-            if (this.providedData !== undefined) {
-                const request = await this.buildRequest();
-                if (request) {
-                    this.dispatchEvent(new CustomEvent(Events.registerProductRecommendation, { bubbles: true, composed: true, detail: request }));
-                }
-            }
-        }, 0);
+    private get batchEnabled(): boolean {
+        return this.providedData !== undefined && this.providedData.enabled !== false;
+    }
+
+    private get batchRequest() {
+        return this.providedData?.requests.find(request => request.id === this);
+    }
+
+    private get renderedProducts(): ProductResult[] | null {
+        const batchRequest = this.batchRequest;
+        if (this.batchEnabled && batchRequest && 'result' in batchRequest) {
+            return batchRequest.result?.recommendations ?? null;
+        }
+
+        return this.products;
     }
 
     async connectedCallback() {
@@ -65,10 +71,28 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
         super.disconnectedCallback();
     }
 
+    protected updated(changedProperties: PropertyValues<this>): void {
+        super.updated(changedProperties);
+        const previousData = changedProperties.get('providedData');
+        if (previousData !== undefined && previousData.enabled !== false && !this.batchEnabled) {
+            void this.fetchAndUpdateProducts();
+            return;
+        }
+
+        if (changedProperties.has('providedData')
+            && this.batchEnabled
+            && this.batchRequest
+            && 'result' in this.batchRequest) {
+            this.loading = false;
+            this.reportCurrentRecommendationState();
+        }
+    }
+
     async fetchAndUpdateProducts() {
         const generation = ++this.requestGeneration;
         this.loading = true;
         this.reportCurrentRecommendationState();
+        let waitingForBatch = false;
 
         try {
             const user = await getRelewiseUIOptions().contextSettings.getUser();
@@ -78,7 +102,22 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
             }
 
             this.user = user;
-            if (this.providedData !== undefined) {
+            if (this.batchEnabled) {
+                const request = await this.buildRequest();
+                if (generation !== this.requestGeneration || !this.isConnected) {
+                    return;
+                }
+                if (!request) {
+                    this.products = null;
+                    return;
+                }
+
+                waitingForBatch = true;
+                this.dispatchEvent(new CustomEvent(Events.registerProductRecommendation, {
+                    bubbles: true,
+                    composed: true,
+                    detail: request,
+                }));
                 return;
             }
 
@@ -94,7 +133,7 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
                 this.products = null;
             }
         } finally {
-            if (generation === this.requestGeneration && this.isConnected) {
+            if (generation === this.requestGeneration && this.isConnected && !waitingForBatch) {
                 this.loading = false;
                 this.reportCurrentRecommendationState();
             }
@@ -104,18 +143,13 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
     private reportCurrentRecommendationState(): void {
         this.reportRecommendationState({
             loading: this.loading,
-            hasResults: Boolean(this.products?.length),
+            hasResults: Boolean(this.renderedProducts?.length),
         });
     }
 
     render() {
-        const products = this.providedData?.requests.filter(x => x.id === this)[0];
-
-        if (this.products || products?.result?.recommendations) {
-            return html`${(products?.result?.recommendations ?? this.products ?? []).map(product =>
-                html`<relewise-product-tile part="product-tile" .product=${product} .user=${this.user}></relewise-product-tile>`)
-                }`;
-        }
+        return html`${this.renderedProducts?.map(product =>
+            html`<relewise-product-tile part="product-tile" .product=${product} .user=${this.user}></relewise-product-tile>`)}`;
     }
 
     static styles = css`

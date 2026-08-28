@@ -11,11 +11,14 @@ function facetResult(): ProductFacetResult {
             $type: 'Relewise.Client.DataTypes.Search.Facets.Result.ProductDataStringValueFacetResult, Relewise.Client',
             field: 'Data',
             key: 'Color',
-            available: [{
-                value: 'A deliberately long facet value that must wrap without overlapping its hit count',
+            available: [
+                'A deliberately long facet value that must wrap without overlapping its hit count',
+                'Short value',
+            ].map(value => ({
+                value,
                 hits: 12,
                 selected: false,
-            }],
+            })),
         }],
     } as ProductFacetResult;
 }
@@ -84,6 +87,7 @@ suite('universal search facets', () => {
         assert.isTrue(element.renderRoot.querySelector('.rw-drawer')!.hasAttribute('open'));
         assert.isTrue(facets.expanded);
         assert.include(facets.getAttribute('exportparts') ?? '', 'container: facet-container');
+        assert.include(facets.getAttribute('exportparts') ?? '', 'selected-count: facet-selected-count');
     });
 
     test('uses unique accessible drawer ids', async () => {

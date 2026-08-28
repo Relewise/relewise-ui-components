@@ -78,6 +78,21 @@ function contentSearchResponse(results: ContentResult[], hits = results.length, 
     };
 }
 
+function multiOptionFacetResult() {
+    return {
+        items: [{
+            $type: 'Relewise.Client.DataTypes.Search.Facets.Result.ProductDataStringValueFacetResult, Relewise.Client',
+            field: 'Data',
+            key: 'Color',
+            available: ['Blue', 'Red'].map(value => ({
+                value,
+                hits: 1,
+                selected: false,
+            })),
+        }],
+    };
+}
+
 type UniversalSearchTestApi = {
     term: string;
     activeTab: UniversalSearchTab | null;
@@ -87,9 +102,10 @@ type UniversalSearchTestApi = {
 
 type TabTestApi<TResult> = {
     result: unknown;
-    page: number;
+    resultOffset: number;
     facetLabels: string[];
     loadMore: () => Promise<void>;
+    loadPrevious: () => Promise<void>;
     renderRoot: HTMLElement | DocumentFragment;
 } & TResult;
 
@@ -149,8 +165,15 @@ suite('relewise-universal-search', () => {
     const originalSearchProductCategories = Searcher.prototype.searchProductCategories;
     const originalSearchContents = Searcher.prototype.searchContents;
     const originalBatch = Searcher.prototype.batch;
+    const isWebKit = navigator.userAgent.includes('AppleWebKit')
+        && !navigator.userAgent.includes('Chrome');
 
-    setup(() => {
+    setup(async() => {
+        // WebKit limits History API calls per page. This suite intentionally exercises URL state heavily.
+        if (isWebKit) {
+            await new Promise(resolve => setTimeout(resolve, 125));
+        }
+
         clearUrlState();
         Searcher.prototype.searchProducts = originalSearchProducts;
         Searcher.prototype.searchProductCategories = originalSearchProductCategories;
@@ -252,7 +275,13 @@ suite('relewise-universal-search', () => {
         assert.equal(el.querySelector('[part="zero-results-hint"]')?.textContent?.trim(), 'Try another search term or check the spelling.');
     });
 
-    test('prefills term from URL without opening', async () => {
+    test('restores the open Universal Search state from a URL term', async () => {
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([], 0);
+        };
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: {} } } });
+
         updateUrlState(QueryKeys.term, 'shoe');
 
         const el = await fixture(html`
@@ -260,8 +289,8 @@ suite('relewise-universal-search', () => {
         `) as UniversalSearch;
 
         assert.equal(internals(el).term, 'shoe');
-        assert.isFalse(el.isOpen);
-        assert.isFalse(el.hasAttribute('open'));
+        assert.isTrue(el.isOpen);
+        assert.isTrue(el.hasAttribute('open'));
     });
 
     test('opens and closes through methods', async () => {
@@ -591,6 +620,56 @@ suite('relewise-universal-search', () => {
         );
     });
 
+    (['shadow', 'light'] as const).forEach(domMode => {
+        test(`renders tab totals as count badges in ${domMode} DOM`, async () => {
+            Searcher.prototype.searchProducts = async function() {
+                return productSearchResponse([product('1')], 15);
+            };
+            Searcher.prototype.searchProductCategories = async function() {
+                return productCategorySearchResponse([productCategory('1')]);
+            };
+            Searcher.prototype.searchContents = async function() {
+                return contentSearchResponse([], 0);
+            };
+            const options = mockRelewiseOptions();
+            options.components = { domMode };
+            initializeRelewiseUI(options);
+            useSearch({
+                debounceTimeInMs: 0,
+                universalSearch: {
+                    entities: {
+                        products: {},
+                        productCategories: {},
+                        content: {},
+                    },
+                },
+            });
+
+            const el = await fixture(html`
+                <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+            `) as UniversalSearch;
+
+            internals(el).setSearchTerm('shoe');
+            await waitUntil(() => queryAllDeep(el.renderRoot, '[part="tab-count"]').length === 3);
+
+            const counts = queryAllDeep<HTMLElement>(el.renderRoot, '[part="tab-count"]');
+            assert.deepEqual(counts.map(count => count.textContent?.trim()), ['15', '1', '0']);
+            counts.forEach(count => {
+                const styles = getComputedStyle(count);
+                assert.equal(styles.display, 'inline-flex');
+                assert.equal(styles.alignItems, 'center');
+                assert.equal(styles.justifyContent, 'center');
+                assert.include(styles.fontVariantNumeric, 'tabular-nums');
+                assert.equal(styles.paddingBottom, '0px');
+                assert.equal(styles.backgroundColor, 'rgb(17, 17, 17)');
+                assert.equal(styles.color, 'rgb(255, 255, 255)');
+            });
+            assert.isAbove(counts[0].getBoundingClientRect().width, counts[0].getBoundingClientRect().height);
+            assert.closeTo(counts[1].getBoundingClientRect().width, counts[1].getBoundingClientRect().height, 1);
+            assert.closeTo(counts[2].getBoundingClientRect().width, counts[2].getBoundingClientRect().height, 1);
+        });
+    });
+
     test('searches and renders products when products tab is configured', async () => {
         let capturedTerm: string | null = null;
 
@@ -696,7 +775,7 @@ suite('relewise-universal-search', () => {
 
     test('recreates facet and sorting controls when the search term changes', async () => {
         Searcher.prototype.searchProducts = async function(request) {
-            return productSearchResponse([product(request.term ?? 'missing')], 1, { items: [] });
+            return productSearchResponse([product(request.term ?? 'missing')], 1, multiOptionFacetResult());
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -726,15 +805,19 @@ suite('relewise-universal-search', () => {
             return productSearchResponse([], 0);
         };
 
-        updateUrlStateValues(QueryKeys.facet + 'Brand', ['Adidas', 'Nike']);
-        updateUrlStateValues(QueryKeys.productFacet + 'Brand', ['Adidas', 'Nike']);
-        updateUrlStateValues(QueryKeys.productCategoryFacet + 'DataDepartment', ['Electronics']);
-        updateUrlStateValues(QueryKeys.contentFacet + 'DataTopic', ['Guide']);
-        updateUrlState(QueryKeys.productTake, '4');
-        updateUrlState(QueryKeys.productCategoryTake, '4');
-        updateUrlState(QueryKeys.contentTake, '4');
-        updateUrlState(QueryKeys.sortBy, 'price');
-        updateUrlState(QueryKeys.productSorting, 'SalesPriceAsc');
+        const url = new URL(window.location.href);
+        url.searchParams.append(QueryKeys.facet + 'Brand', 'Adidas');
+        url.searchParams.append(QueryKeys.facet + 'Brand', 'Nike');
+        url.searchParams.append(QueryKeys.productFacet + 'Brand', 'Adidas');
+        url.searchParams.append(QueryKeys.productFacet + 'Brand', 'Nike');
+        url.searchParams.set(QueryKeys.productCategoryFacet + 'DataDepartment', 'Electronics');
+        url.searchParams.set(QueryKeys.contentFacet + 'DataTopic', 'Guide');
+        url.searchParams.set(QueryKeys.productTake, '4');
+        url.searchParams.set(QueryKeys.productCategoryTake, '4');
+        url.searchParams.set(QueryKeys.contentTake, '4');
+        url.searchParams.set(QueryKeys.sortBy, 'price');
+        url.searchParams.set(QueryKeys.productSorting, 'SalesPriceAsc');
+        window.history.replaceState({}, document.title, url);
 
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: {} } } });
@@ -953,7 +1036,7 @@ suite('relewise-universal-search', () => {
 
     test('keeps the wide product header close to the results when facets are taller', async () => {
         Searcher.prototype.searchProducts = async function() {
-            return productSearchResponse([product('1')], 1, { items: [] });
+            return productSearchResponse([product('1')], 1, multiOptionFacetResult());
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -985,19 +1068,52 @@ suite('relewise-universal-search', () => {
         assert.closeTo(results.getBoundingClientRect().top - resultsHeader.getBoundingClientRect().bottom, rowGap, 1);
     });
 
-    test('uses entity-specific compact columns without overflowing the result layout', async () => {
+    test('uses progressively denser default product columns as the dialog widens', async () => {
         Searcher.prototype.searchProducts = async function() {
             return productSearchResponse([product('1'), product('2'), product('3')], 3, { items: [] });
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: { entities: { products: {} } },
+        });
+        const el = await fixture<UniversalSearch>(html`
+            <relewise-universal-search
+                open
+                style="--relewise-universal-search-width: 60rem;">
+            </relewise-universal-search>
+        `);
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el).length === 3);
+        await universalSearchUpdated(el);
+        const productGrid = productsTab(el).renderRoot.querySelector<HTMLElement>('[part="product-grid"]')!;
+
+        assert.equal(getComputedStyle(productGrid).gridTemplateColumns.split(' ').length, 3);
+
+        el.style.setProperty('--relewise-universal-search-width', '40rem');
+        await new Promise(requestAnimationFrame);
+        assert.equal(getComputedStyle(productGrid).gridTemplateColumns.split(' ').length, 2);
+
+        el.style.setProperty('--relewise-universal-search-width', '20rem');
+        await new Promise(requestAnimationFrame);
+        assert.equal(getComputedStyle(productGrid).gridTemplateColumns.split(' ').length, 1);
+    });
+
+    test('uses entity-specific compact columns without overflowing the result layout', async () => {
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([product('1'), product('2'), product('3')], 3, multiOptionFacetResult());
         };
         Searcher.prototype.searchProductCategories = async function() {
             return productCategorySearchResponse(
                 [productCategory('1'), productCategory('2'), productCategory('3')],
                 3,
-                { items: [] },
+                multiOptionFacetResult(),
             );
         };
         Searcher.prototype.searchContents = async function() {
-            return contentSearchResponse([content('1'), content('2'), content('3')], 3, { items: [] });
+            return contentSearchResponse([content('1'), content('2'), content('3')], 3, multiOptionFacetResult());
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
@@ -1102,7 +1218,7 @@ suite('relewise-universal-search', () => {
         void productsTab(el).loadMore();
         await waitUntil(() => products(el).length === 3, 'more products were not appended');
 
-        assert.equal(readCurrentUrlState(QueryKeys.productTake), '4');
+        assert.equal(readCurrentUrlState(QueryKeys.productTake), '3');
         assert.isNull(readCurrentUrlState(QueryKeys.take));
         assert.equal(queryAllDeep(el.renderRoot, 'relewise-product-tile').length, 3);
     });
@@ -1137,7 +1253,6 @@ suite('relewise-universal-search', () => {
         await universalSearchUpdated(el);
 
         assert.equal(searchCount, 2);
-        assert.equal(productsTab(el).page, 2);
         assert.isNull(readCurrentUrlState(QueryKeys.productTake));
         assert.isNull(queryDeep(el, '[part="load-more"]'));
 
@@ -1146,7 +1261,7 @@ suite('relewise-universal-search', () => {
         assert.equal(readCurrentUrlState(QueryKeys.productTake), '4');
     });
 
-    test('rolls back pagination when load more fails', async () => {
+    test('retries the same pagination when load more fails', async () => {
         let searchCount = 0;
         const requestedPages: number[] = [];
 
@@ -1175,44 +1290,113 @@ suite('relewise-universal-search', () => {
 
         await productsTab(el).loadMore();
 
-        assert.equal(productsTab(el).page, 1);
         assert.isNull(readCurrentUrlState(QueryKeys.productTake));
 
         await productsTab(el).loadMore();
 
         assert.deepEqual(requestedPages, [1, 2, 2]);
-        assert.equal(productsTab(el).page, 2);
         assert.equal(readCurrentUrlState(QueryKeys.productTake), '4');
         assert.deepEqual(products(el).map(result => result.productId), ['1', '2', '3', '4']);
     });
 
-    test('continues product load more from an existing scoped take URL state', async () => {
-        let searchCount = 0;
+    test('restores a large product take from the last page and exposes both paging directions', async () => {
+        const requestedPagination: Array<{ skip: number; take: number }> = [];
+        const totalProducts = 10_030;
 
-        Searcher.prototype.searchProducts = async function() {
-            searchCount++;
+        Searcher.prototype.searchProducts = async function(request) {
+            const skip = (request as any).skip as number;
+            const take = (request as any).take as number;
+            requestedPagination.push({ skip, take });
 
-            return productSearchResponse(searchCount === 1
-                ? [product('1'), product('2'), product('3'), product('4')]
-                : [product('5'), product('6')], 6);
+            return productSearchResponse(
+                Array.from({ length: take }, (_, index) => product((skip + index + 1).toString())),
+                totalProducts,
+            );
         };
 
-        updateUrlState(QueryKeys.term, 'shoe');
-        updateUrlState(QueryKeys.productTake, '4');
+        window.history.pushState({}, '', `?${QueryKeys.term}=shoe&${QueryKeys.productTake}=10000`);
 
         initializeRelewiseUI(mockRelewiseOptions());
-        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: { pageSize: 2 } } } });
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: { entities: { products: { pageSize: 15 } } },
+            localization: { loadMoreButton: { loadPrevious: 'Load earlier products' } },
+        });
 
         const el = await fixture(html`
             <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
         `) as UniversalSearch;
 
-        await waitUntil(() => products(el).length === 4, 'initial URL take was not loaded');
+        await waitUntil(() => products(el).length === 15, 'last product page was not restored');
+        await universalSearchUpdated(el);
 
-        void productsTab(el).loadMore();
-        await waitUntil(() => products(el).length === 6, 'more products were not appended after URL take');
+        assert.deepEqual(requestedPagination, [{ skip: 9985, take: 15 }]);
+        assert.equal(productsTab(el).resultOffset, 9985);
+        assert.equal(products(el)[0].productId, '9986');
+        assert.equal(products(el)[14].productId, '10000');
+        assert.equal(readCurrentUrlState(QueryKeys.productTake), '10000');
 
-        assert.equal(readCurrentUrlState(QueryKeys.productTake), '6');
+        const loadPrevious = queryDeep<HTMLElement>(el, '[part="load-previous"]');
+        assert.exists(loadPrevious);
+        assert.include(loadPrevious?.textContent ?? '', 'Load earlier products');
+        assert.equal(getComputedStyle(loadPrevious!).marginTop, '0px');
+        assert.isAbove(parseFloat(getComputedStyle(loadPrevious!).marginBottom), 0);
+
+        const loadNext = queryDeep<HTMLElement>(el, '[part="load-more"]');
+        assert.exists(loadNext);
+
+        await productsTab(el).loadPrevious();
+
+        assert.deepEqual(requestedPagination[1], { skip: 9970, take: 15 });
+        assert.equal(productsTab(el).resultOffset, 9970);
+        assert.equal(products(el).length, 30);
+        assert.equal(products(el)[0].productId, '9971');
+        assert.equal(products(el)[29].productId, '10000');
+        assert.equal(readCurrentUrlState(QueryKeys.productTake), '10000');
+    });
+
+    test('restores the actual final product page when a saved window exceeds the current hits', async () => {
+        const requestedPagination: Array<{ skip: number; take: number }> = [];
+        const totalProducts = 23;
+
+        Searcher.prototype.searchProducts = async function(request) {
+            const skip = (request as any).skip as number;
+            const take = (request as any).take as number;
+            requestedPagination.push({ skip, take });
+            const available = Math.max(0, Math.min(take, totalProducts - skip));
+
+            return productSearchResponse(
+                Array.from({ length: available }, (_, index) => product((skip + index + 1).toString())),
+                totalProducts,
+            );
+        };
+
+        window.history.pushState({}, '', `?${QueryKeys.term}=shoe&${QueryKeys.productTake}=10000`);
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: { entities: { products: { pageSize: 15 } } },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        await waitUntil(() => products(el).length === 15, 'actual last product page was restored');
+        await universalSearchUpdated(el);
+
+        assert.deepEqual(requestedPagination, [
+            { skip: 9985, take: 15 },
+            { skip: 8, take: 15 },
+        ]);
+        assert.equal(productsTab(el).resultOffset, 8);
+        assert.equal(products(el)[0].productId, '9');
+        assert.equal(products(el)[14].productId, '23');
+        assert.equal(readCurrentUrlState(QueryKeys.productTake), '23');
+        assert.exists(queryDeep<HTMLElement>(el, '[part="load-previous"]'));
+        assert.isNull(queryDeep<HTMLElement>(el, '[part="load-more"]'));
+        assert.isNull(queryDeep<HTMLElement>(el, '[part="zero-results"]'));
     });
 
     test('loads more content using scoped take URL state', async () => {
@@ -1540,6 +1724,108 @@ suite('relewise-universal-search', () => {
         assert.equal(internals(el).activeTab, 'content');
     });
 
+    test('keeps shared out-of-range price bounds visible on a zero-result tab', async() => {
+        const facets = {
+            items: [{
+                $type: 'Relewise.Client.DataTypes.Search.Facets.Result.PriceRangeFacetResult, Relewise.Client',
+                field: 'SalesPrice',
+                priceSelectionStrategy: 'Product',
+                available: {
+                    value: {
+                        lowerBoundInclusive: 0,
+                        upperBoundInclusive: 246,
+                    },
+                },
+            }],
+        };
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([], 0, facets);
+        };
+        Searcher.prototype.searchContents = async function() {
+            return contentSearchResponse([content('1')]);
+        };
+        updateUrlState(QueryKeys.term, 'a');
+        updateUrlState(`${QueryKeys.productFacetLowerbound}SalesPrice`, '250');
+        updateUrlState(`${QueryKeys.productFacetUpperbound}SalesPrice`, '500');
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            facets: {
+                product(builder) {
+                    builder.addFacet(
+                        facet => facet.addSalesPriceRangeFacet('Product'),
+                        { heading: 'Price' },
+                    );
+                },
+            },
+            universalSearch: {
+                entities: { products: {}, content: {} },
+                behavior: { zeroResultTabs: 'hide' },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+        await waitUntil(() => queryDeep(el, 'relewise-number-range-facet') !== null, 'shared price facet was not rendered');
+
+        const priceFacet = queryDeep(el, 'relewise-number-range-facet')!;
+        const inputs = [...priceFacet.shadowRoot!.querySelectorAll<HTMLInputElement>('input')];
+        assert.equal(inputs[0].value, '250');
+        assert.equal(inputs[1].value, '500');
+        assert.equal(inputs[0].min, '');
+        assert.equal(inputs[0].max, '');
+        assert.equal(inputs[1].min, '');
+        assert.equal(inputs[1].max, '');
+        assert.equal(internals(el).activeTab, 'products');
+        assert.isNotNull(queryDeep(el, '[part="zero-results"]'));
+        assert.lengthOf(queryAllDeep<HTMLElement>(el.renderRoot, '[part="tab"]'), 2);
+    });
+
+    test('keeps the filtered tab visible when every enabled tab has zero results', async() => {
+        const facets = {
+            items: [{
+                $type: 'Relewise.Client.DataTypes.Search.Facets.Result.ProductDataStringValueFacetResult, Relewise.Client',
+                field: 'Data',
+                key: 'Color',
+                available: [{
+                    value: 'red',
+                    hits: 0,
+                    selected: true,
+                }],
+            }],
+        };
+        Searcher.prototype.searchProducts = async function() {
+            return productSearchResponse([], 0, facets);
+        };
+        Searcher.prototype.searchContents = async function() {
+            return contentSearchResponse([]);
+        };
+        updateUrlState(QueryKeys.term, 'shoe');
+        updateUrlState(`${QueryKeys.productFacet}DataColor`, 'red');
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            facets: {
+                product(builder) {
+                    builder.addFacet(facet => facet.addProductDataStringValueFacet('Color', 'Product'), { heading: 'Color' });
+                },
+            },
+            universalSearch: {
+                entities: { products: {}, content: {} },
+                behavior: { zeroResultTabs: 'hide' },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+        await waitUntil(() => queryAllDeep(el.renderRoot, '[part="tab"]').length === 1, 'filtered tab was not rendered');
+
+        assert.equal(internals(el).activeTab, 'products');
+        assert.isNotNull(queryDeep(el, '[part="facets"]'));
+    });
+
     test('includes configured product category facets in product category requests', async () => {
         let facetItems: any[] | undefined;
 
@@ -1639,7 +1925,7 @@ suite('relewise-universal-search', () => {
         Searcher.prototype.searchContents = function() {
             contentSearchCount++;
             if (contentSearchCount === 1) {
-                return Promise.resolve(contentSearchResponse([content('1')], 1, { items: [] }));
+                return Promise.resolve(contentSearchResponse([content('1')], 1, multiOptionFacetResult()));
             }
 
             return new Promise(resolve => resolveContentRefresh = resolve);
@@ -1675,7 +1961,7 @@ suite('relewise-universal-search', () => {
         assert.isTrue(facets.renderRoot.querySelector('.rw-drawer')!.hasAttribute('open'));
         assert.equal(contentResults(el)[0].contentId, '1');
 
-        resolveContentRefresh!(contentSearchResponse([content('2')], 1, { items: [] }));
+        resolveContentRefresh!(contentSearchResponse([content('2')], 1, multiOptionFacetResult()));
 
         await waitUntil(() => contentResults(el).length === 1 && contentResults(el)[0].contentId === '2', 'active tab search did not replace content results');
 
@@ -1727,7 +2013,7 @@ suite('relewise-universal-search', () => {
         Searcher.prototype.searchContents = async function() {
             contentSearchCount++;
             if (contentSearchCount === 1) {
-                return contentSearchResponse([content('1')], 1, { items: [] });
+                return contentSearchResponse([content('1')], 1, multiOptionFacetResult());
             }
             throw new Error('Raw SDK error');
         };

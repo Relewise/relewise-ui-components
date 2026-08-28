@@ -1,9 +1,12 @@
 import { ContentRecommendationRequest, ContentRecommendationResponse, ContentResult, User } from '@relewise/client';
 import { css, html } from 'lit';
+import type { PropertyValues } from 'lit';
+import { consume } from '@lit/context';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
 import { getRelewiseUIOptions } from '../../helpers';
 import { RecommendationStateElement } from '../recommendation-state';
+import { ContentRecommendationBatchingContextValue, contentRecommendationBatchingContext } from './content-recommendation-batching';
 
 export abstract class ContentRecommendationBase extends RecommendationStateElement {
 
@@ -15,6 +18,10 @@ export abstract class ContentRecommendationBase extends RecommendationStateEleme
 
     @property({ attribute: 'displayed-at-location' })
     displayedAtLocation?: string = undefined;
+
+    @consume({ context: contentRecommendationBatchingContext, subscribe: true })
+    @state()
+    private providedData?: ContentRecommendationBatchingContextValue;
 
     @state()
     content: ContentResult[] | null = null;
@@ -29,6 +36,23 @@ export abstract class ContentRecommendationBase extends RecommendationStateEleme
     abstract buildRequest(): Promise<ContentRecommendationRequest | undefined>;
 
     fetchAndUpdateContentBound = this.fetchAndUpdateContent.bind(this);
+
+    private get batchEnabled(): boolean {
+        return this.providedData !== undefined && this.providedData.enabled !== false;
+    }
+
+    private get batchRequest() {
+        return this.providedData?.requests.find(request => request.id === this);
+    }
+
+    private get renderedContent(): ContentResult[] | null {
+        const batchRequest = this.batchRequest;
+        if (this.batchEnabled && batchRequest && 'result' in batchRequest) {
+            return batchRequest.result?.recommendations ?? null;
+        }
+
+        return this.content;
+    }
 
     async connectedCallback() {
         super.connectedCallback();
@@ -47,15 +71,53 @@ export abstract class ContentRecommendationBase extends RecommendationStateEleme
         super.disconnectedCallback();
     }
 
+    protected updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties);
+        const previousData = changedProperties.get('providedData') as ContentRecommendationBatchingContextValue | undefined;
+        if (previousData !== undefined && previousData.enabled !== false && !this.batchEnabled) {
+            void this.fetchAndUpdateContent();
+            return;
+        }
+
+        if (changedProperties.has('providedData')
+            && this.batchEnabled
+            && this.batchRequest
+            && 'result' in this.batchRequest) {
+            this.loading = false;
+            this.reportCurrentRecommendationState();
+        }
+    }
+
     async fetchAndUpdateContent() {
         const generation = ++this.requestGeneration;
         this.loading = true;
         this.reportCurrentRecommendationState();
+        let waitingForBatch = false;
 
         try {
             const user = await getRelewiseUIOptions().contextSettings.getUser();
 
             if (generation !== this.requestGeneration || !this.isConnected) {
+                return;
+            }
+
+            this.user = user;
+            if (this.batchEnabled) {
+                const request = await this.buildRequest();
+                if (generation !== this.requestGeneration || !this.isConnected) {
+                    return;
+                }
+                if (!request) {
+                    this.content = null;
+                    return;
+                }
+
+                waitingForBatch = true;
+                this.dispatchEvent(new CustomEvent(Events.registerContentRecommendation, {
+                    bubbles: true,
+                    composed: true,
+                    detail: request,
+                }));
                 return;
             }
 
@@ -65,14 +127,13 @@ export abstract class ContentRecommendationBase extends RecommendationStateEleme
                 return;
             }
 
-            this.user = user;
             this.content = result?.recommendations ?? null;
         } catch {
             if (generation === this.requestGeneration && this.isConnected) {
                 this.content = null;
             }
         } finally {
-            if (generation === this.requestGeneration && this.isConnected) {
+            if (generation === this.requestGeneration && this.isConnected && !waitingForBatch) {
                 this.loading = false;
                 this.reportCurrentRecommendationState();
             }
@@ -82,14 +143,13 @@ export abstract class ContentRecommendationBase extends RecommendationStateEleme
     private reportCurrentRecommendationState(): void {
         this.reportRecommendationState({
             loading: this.loading,
-            hasResults: Boolean(this.content?.length),
+            hasResults: Boolean(this.renderedContent?.length),
         });
     }
 
     render() {
-        if (this.content && this.content.length > 0) {
-            return html`${this.content.map(content => html`<relewise-content-tile part="content-tile" .content=${content} .user=${this.user}></relewise-content-tile>`)}`;
-        }
+        return html`${this.renderedContent?.map(content =>
+            html`<relewise-content-tile part="content-tile" .content=${content} .user=${this.user}></relewise-content-tile>`)}`;
     }
 
     static styles = css`

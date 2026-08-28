@@ -11,11 +11,11 @@ function facetResult(): ProductFacetResult {
             '$type': 'Relewise.Client.DataTypes.Search.Facets.Result.ProductDataStringValueFacetResult, Relewise.Client',
             field: 'Data',
             key: 'Color',
-            available: [{
-                value: 'Blue',
+            available: ['Blue', 'Red'].map(value => ({
+                value,
                 hits: 1,
                 selected: false,
-            }],
+            })),
         }],
     } as ProductFacetResult;
 }
@@ -288,4 +288,59 @@ suite('universal search layout', () => {
         );
         assert.isNull(productsTab.renderRoot.querySelector('[part="loading-state"]'));
     });
+
+    test('does not render entity headings before search responses arrive', async () => {
+        const wrapper = await fixture<HTMLElement>(html`
+            <div>
+                <relewise-universal-search-products-tab term="shoe"></relewise-universal-search-products-tab>
+                <relewise-universal-search-product-categories-tab term="shoe"></relewise-universal-search-product-categories-tab>
+                <relewise-universal-search-content-tab term="shoe"></relewise-universal-search-content-tab>
+            </div>
+        `);
+        const tabs = [
+            wrapper.querySelector<any>('relewise-universal-search-products-tab')!,
+            wrapper.querySelector<any>('relewise-universal-search-product-categories-tab')!,
+            wrapper.querySelector<any>('relewise-universal-search-content-tab')!,
+        ];
+        await Promise.all(tabs.map(tab => tab.updateComplete));
+
+        assert.isTrue(tabs.every(tab => tab.renderRoot.querySelector('[part="results-title"]') === null));
+
+        tabs.forEach(tab => {
+            tab.result = { hits: 1, facets: null };
+        });
+        await Promise.all(tabs.map(tab => tab.updateComplete));
+
+        assert.deepEqual(
+            tabs.map(tab => tab.renderRoot.querySelector('[part="results-title"]')?.textContent?.trim()),
+            ['Products', 'Categories', 'Content'],
+        );
+    });
+
+    test('does not reserve the facet rail for an unselected single option', async () => {
+        const tab = await fixture<any>(html`
+            <relewise-universal-search-products-tab term="shoe"></relewise-universal-search-products-tab>
+        `);
+        const facetResult = (selected: boolean) => ({
+            items: [{
+                $type: 'Relewise.Client.DataTypes.Search.Facets.Result.ProductDataStringValueFacetResult, Relewise.Client',
+                field: 'Data',
+                key: 'Category',
+                available: [{
+                    value: 'Shoes',
+                    hits: 1,
+                    selected,
+                }],
+            }],
+        });
+
+        tab.result = { hits: 1, facets: facetResult(false) };
+        await tab.updateComplete;
+        assert.isNull(tab.renderRoot.querySelector('relewise-universal-search-facets'));
+
+        tab.result = { hits: 1, facets: facetResult(true) };
+        await tab.updateComplete;
+        assert.isNotNull(tab.renderRoot.querySelector('relewise-universal-search-facets'));
+    });
+
 });

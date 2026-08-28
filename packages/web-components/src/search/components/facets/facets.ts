@@ -1,9 +1,11 @@
 import { RelewiseLitElement } from '../../../relewise-lit-element';
 import { TemplateResult, css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import { repeat } from 'lit/directives/repeat.js';
 import { FacetResult, FacetResultContainer } from '../../types';
 import { Events, QueryKeys, getFacetRangeQueryKeyPrefixes, getRelewiseUISearchOptions } from '../../../helpers';
 import { theme } from '../../../theme';
+import { shouldRenderFacetResult } from './facet-result-visibility';
 
 export class Facets extends RelewiseLitElement {
 
@@ -12,6 +14,9 @@ export class Facets extends RelewiseLitElement {
 
     @property({ type: Array, attribute: 'labels' })
     labels: string[] = [];
+
+    @property({ type: Number, attribute: 'total-hits' })
+    totalHits?: number;
 
     @property({ attribute: false })
     applyFacet = () => window.dispatchEvent(new CustomEvent(Events.applyFacet));
@@ -63,8 +68,13 @@ export class Facets extends RelewiseLitElement {
         this.showDimmingOverlay = false;
     }
 
+    private getFacetResultKey(facetResult: FacetResult): string {
+        const key = 'key' in facetResult ? facetResult.key : '';
+        return `${facetResult.$type}:${facetResult.field}:${key}`;
+    }
+
     renderFacet(label: string, facetResult: FacetResult, styling: string, isLast: boolean): TemplateResult<1> | typeof nothing {
-        if (!this.shouldRenderFacet(facetResult)) {
+        if (!shouldRenderFacetResult(facetResult, this.totalHits)) {
             return nothing;
         }
 
@@ -75,7 +85,7 @@ export class Facets extends RelewiseLitElement {
             return html`
                 <relewise-checklist-ranges-object-value-facet
                     part="container"
-                    exportparts="title, input, label, value, hits"
+                    exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .label=${label}
                     .result=${facetResult}
@@ -97,7 +107,7 @@ export class Facets extends RelewiseLitElement {
                 <relewise-checklist-number-value-facet
                     .label=${label}    
                     part="container"
-                    exportparts="title, input, label, value, hits"
+                    exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     .applyFacet=${this.applyFacet}
@@ -113,7 +123,7 @@ export class Facets extends RelewiseLitElement {
                 <relewise-checklist-object-value-facet 
                     .label=${label}
                     part="container"
-                    exportparts="title, input, label, value, hits"
+                    exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     .applyFacet=${this.applyFacet}
@@ -130,7 +140,7 @@ export class Facets extends RelewiseLitElement {
                 <relewise-checklist-boolean-value-facet
                     .label=${label}
                     part="container"
-                    exportparts="title, input, label, value, hits"
+                    exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     .applyFacet=${this.applyFacet}
@@ -147,7 +157,7 @@ export class Facets extends RelewiseLitElement {
                 <relewise-checklist-string-value-facet
                     .label=${label}
                     part="container"
-                    exportparts="title, input, label, value, hits"
+                    exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .result=${facetResult}
                     .applyFacet=${this.applyFacet}
@@ -180,24 +190,12 @@ export class Facets extends RelewiseLitElement {
         return html``;
     }
 
-    shouldRenderFacet(facetResult: FacetResult): boolean {
-        if (!('available' in facetResult)) {
-            return false;
-        }
-
-        if (Array.isArray(facetResult.available)) {
-            return facetResult.available.length > 0;
-        }
-
-        return Boolean(facetResult.available?.value);
-    }
-
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.facets;
-        const visibleItems = this.facetResult?.items?.filter(item => this.shouldRenderFacet(item)) ?? [];
+        const visibleItems = this.facetResult?.items?.filter(item => shouldRenderFacetResult(item, this.totalHits)) ?? [];
 
         return html`
-            ${!this.expanded ? html`<relewise-button
+            ${!this.expanded && visibleItems.length > 0 ? html`<relewise-button
                 button-text=${localization?.filter ?? 'Filters'} 
                 class="rw-facet-button"
                 @click=${() => this.showFacets = !this.showFacets}>
@@ -209,10 +207,10 @@ export class Facets extends RelewiseLitElement {
                 html`
                 ${visibleItems.length > 0 ? html`
                 <div class="rw-facets-container">
-                    ${visibleItems.map((item, index) => {
-                    const originalIndex = this.facetResult?.items?.indexOf(item) ?? index;
-                    return this.renderFacet(this.labels[originalIndex], item, this.showDimmingOverlay ? 'rw-dimmed' : '', index === visibleItems.length - 1);
-                })}
+                    ${repeat(visibleItems, item => this.getFacetResultKey(item), (item, index) => {
+                        const originalIndex = this.facetResult?.items?.indexOf(item) ?? index;
+                        return this.renderFacet(this.labels[originalIndex], item, this.showDimmingOverlay ? 'rw-dimmed' : '', index === visibleItems.length - 1);
+                    })}
                 </div>
                 ` : nothing}
             ` : nothing}
