@@ -3,7 +3,6 @@ import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
 import { RecommendationStateElement } from '../recommendation-state';
-import { RecommendationBatchingContextValue } from '../recommendation-batching';
 
 export abstract class CategoryRecommendationBase<
     TCategory,
@@ -23,7 +22,14 @@ export abstract class CategoryRecommendationBase<
     @state()
     categories: TCategory[] | null = null;
 
-    protected abstract providedData?: RecommendationBatchingContextValue<TRequest, TResponse>;
+    protected abstract providedData?: {
+        enabled?: boolean;
+        requests: Array<{
+            request: TRequest;
+            id: EventTarget | null;
+            result?: TResponse | null;
+        }>;
+    };
     protected abstract readonly registerRecommendationEvent: string;
 
     private requestGeneration = 0;
@@ -70,8 +76,7 @@ export abstract class CategoryRecommendationBase<
 
     protected updated(changedProperties: PropertyValues): void {
         super.updated(changedProperties);
-        const previousData = changedProperties.get('providedData') as
-            RecommendationBatchingContextValue<TRequest, TResponse> | undefined;
+        const previousData = changedProperties.get('providedData') as typeof this.providedData;
         if (previousData !== undefined && previousData.enabled !== false && !this.batchEnabled) {
             void this.fetchAndUpdateCategories();
             return;

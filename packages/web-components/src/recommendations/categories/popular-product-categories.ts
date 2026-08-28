@@ -13,7 +13,6 @@ import { getRelewiseUIOptions } from '../../helpers/relewiseUIOptions';
 import {
     productCategoryRecommendationBatchingContext,
 } from './category-recommendation-batching';
-import { RecommendationBatchingContextValue } from '../recommendation-batching';
 import { CategoryRecommendationBase } from './category-recommendation-base';
 import { getRecommender } from '../recommender';
 
@@ -24,7 +23,14 @@ export class PopularProductCategories extends CategoryRecommendationBase<
 > {
     @consume({ context: productCategoryRecommendationBatchingContext, subscribe: true })
     @state()
-    protected providedData?: RecommendationBatchingContextValue<PopularProductCategoriesRecommendationRequest, ProductCategoryRecommendationResponse>;
+    protected providedData?: {
+        enabled?: boolean;
+        requests: Array<{
+            request: PopularProductCategoriesRecommendationRequest;
+            id: EventTarget | null;
+            result?: ProductCategoryRecommendationResponse | null;
+        }>;
+    };
 
     protected readonly registerRecommendationEvent = Events.registerProductCategoryRecommendation;
 
