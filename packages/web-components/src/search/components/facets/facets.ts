@@ -77,8 +77,14 @@ export class Facets extends RelewiseLitElement {
         const urlKey = this.getFacetUrlKey(facetResult, parentKey);
 
         if (facetResult.$type.includes('DataObjectFacetResult') && 'items' in facetResult) {
-            return html`${facetResult.items?.map((item, index) =>
-                this.renderFacet(label, item, styling, isLast && index === (facetResult.items?.length ?? 0) - 1, urlKey)) ?? nothing}`;
+            const visibleItems = facetResult.items?.filter(item => shouldRenderFacetResult(item, this.totalHits)) ?? [];
+            return html`${visibleItems.map((item, index) => this.renderFacet(
+                this.getNestedFacetLabel(label, item, visibleItems.length),
+                item,
+                styling,
+                isLast && index === visibleItems.length - 1,
+                urlKey,
+            ))}`;
         }
 
         if (!shouldRenderFacetResult(facetResult, this.totalHits)) {
@@ -214,6 +220,14 @@ export class Facets extends RelewiseLitElement {
         }
 
         return parentKey ? `${parentKey}.${facetResult.key}` : facetResult.key;
+    }
+
+    private getNestedFacetLabel(label: string, facetResult: FacetResult, siblingCount: number): string {
+        if (siblingCount < 2 || !('key' in facetResult) || !facetResult.key) {
+            return label;
+        }
+
+        return `${label}: ${facetResult.key}`;
     }
 
     render() {

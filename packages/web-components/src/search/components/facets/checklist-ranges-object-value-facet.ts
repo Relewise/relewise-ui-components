@@ -1,6 +1,7 @@
 import { ContentDataDoubleRangesFacetResult, DataObjectDoubleRangesFacetResult, DecimalNullableChainableRangeAvailableFacetValue, PriceRangesFacetResult, ProductCategoryDataDoubleRangesFacetResult, ProductDataDoubleRangesFacetResult } from '@relewise/client';
 import { property } from 'lit/decorators.js';
 import { ChecklistFacetBase } from './checklist-facet-base';
+import { deserializeFacetRange, FacetRange, serializeFacetRange } from '../../../helpers/facetRangeUrlCodec';
 
 export class ChecklistRangesObjectValueFacet extends ChecklistFacetBase {
 
@@ -9,47 +10,59 @@ export class ChecklistRangesObjectValueFacet extends ChecklistFacetBase {
 
     handleChange(e: Event, item: DecimalNullableChainableRangeAvailableFacetValue) {
         const checkbox = e.currentTarget as HTMLInputElement;
-        if (!item.value ||
-            item.value.lowerBoundInclusive === undefined ||
-            item.value.lowerBoundInclusive === undefined ||
-            item.value.upperBoundExclusive === null ||
-            item.value.upperBoundExclusive === null ||
-            !this.result) {
+        if (!item.value || !this.result) {
             return;
         }
 
+        const range = this.getRange(item);
+        const serializedRange = serializeFacetRange(range);
         if (checkbox.checked) {
-            this.selectedValues = [...this.selectedValues, `${item.value.lowerBoundInclusive}-${item.value.upperBoundExclusive}`];
+            this.selectedValues = [...this.selectedValues, serializedRange];
         } else {
-            const newValue = this.selectedValues.filter(x => x !== `${item.value!.lowerBoundInclusive}-${item.value!.upperBoundExclusive}`);
-            this.selectedValues = newValue;
+            this.selectedValues = this.selectedValues.filter(value => !this.rangesEqual(deserializeFacetRange(value), range));
         }
 
         this.updateUrlState(true);
     }
 
     getOptionDisplayValue(item: DecimalNullableChainableRangeAvailableFacetValue): string {
-        if (!item.value ||
-            item.value.lowerBoundInclusive === undefined ||
-            item.value.lowerBoundInclusive === undefined ||
-            item.value.upperBoundExclusive === null ||
-            item.value.upperBoundExclusive === null) {
+        if (!item.value) {
             return '';
         }
 
-        return `${item.value.lowerBoundInclusive} - ${item.value.upperBoundExclusive}`;
+        const range = this.getRange(item);
+        if (range.lowerBoundInclusive === null) {
+            return range.upperBoundExclusive === null ? '' : `< ${range.upperBoundExclusive}`;
+        }
+
+        return range.upperBoundExclusive === null
+            ? `≥ ${range.lowerBoundInclusive}`
+            : `${range.lowerBoundInclusive} - ${range.upperBoundExclusive}`;
     }
 
     shouldOptionBeChecked(item: DecimalNullableChainableRangeAvailableFacetValue): boolean {
-        if (!item.value ||
-            item.value.lowerBoundInclusive === undefined ||
-            item.value.lowerBoundInclusive === undefined ||
-            item.value.upperBoundExclusive === null ||
-            item.value.upperBoundExclusive === null) {
+        if (!item.value) {
             return false;
         }
 
-        return this.selectedValues.filter(selectedValue => selectedValue === `${item.value!.lowerBoundInclusive}-${item.value!.upperBoundExclusive}`).length > 0;
+        const range = this.getRange(item);
+        return this.selectedValues.some(value => this.rangesEqual(deserializeFacetRange(value), range));
+    }
+
+    private getRange(item: DecimalNullableChainableRangeAvailableFacetValue) {
+        return {
+            lowerBoundInclusive: item.value?.lowerBoundInclusive ?? null,
+            upperBoundExclusive: item.value?.upperBoundExclusive ?? null,
+        };
+    }
+
+    private rangesEqual(
+        first: ReturnType<typeof deserializeFacetRange>,
+        second: FacetRange,
+    ): boolean {
+        return first !== null
+            && first.lowerBoundInclusive === second.lowerBoundInclusive
+            && first.upperBoundExclusive === second.upperBoundExclusive;
     }
 }
 

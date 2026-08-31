@@ -10,7 +10,7 @@ export class ChecklistNumberValueFacet extends ChecklistFacetBase {
     handleChange(e: Event, item: Int32AvailableFacetValue | DoubleAvailableFacetValue) {
         const checkbox = e.currentTarget as HTMLInputElement;
 
-        if (!item.value || !this.result) {
+        if (item.value === null || item.value === undefined || !this.result) {
             return;
         }
 
@@ -25,7 +25,7 @@ export class ChecklistNumberValueFacet extends ChecklistFacetBase {
     }
 
     getOptionDisplayValue(item: Int32AvailableFacetValue | DoubleAvailableFacetValue): string {
-        if (!item.value) {
+        if (item.value === null || item.value === undefined) {
             return '';
         }
 
@@ -33,7 +33,7 @@ export class ChecklistNumberValueFacet extends ChecklistFacetBase {
     }
 
     shouldOptionBeChecked(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue | DoubleAvailableFacetValue): boolean {
-        if (!item.value) {
+        if (item.value === null || item.value === undefined) {
             return false;
         }
 
