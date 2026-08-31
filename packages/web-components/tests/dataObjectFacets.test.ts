@@ -145,14 +145,17 @@ suite('DataObject facets', () => {
         const rangesFacet = facets.renderRoot.querySelector('relewise-checklist-ranges-object-value-facet') as ChecklistRangesObjectValueFacet;
         await rangesFacet.updateComplete;
         const labels = [...rangesFacet.renderRoot.querySelectorAll<HTMLElement>('[part="value"]')];
-        assert.deepEqual(labels.map(label => label.textContent), ['-10 - 0', '< 10', '≥ 5']);
+        assert.deepEqual(labels.map(label => label.textContent), [' - 10', '-10 - 0', '5 - ']);
 
         const negativeRangeInput = [...rangesFacet.renderRoot.querySelectorAll<HTMLInputElement>('input')]
             .find(input => input.closest('label')?.textContent?.includes('-10 - 0'))!;
         negativeRangeInput.click();
+        const openRangeInput = [...rangesFacet.renderRoot.querySelectorAll<HTMLInputElement>('input')]
+            .find(input => input.closest('label')?.querySelector('[part="value"]')?.textContent === ' - 10')!;
+        openRangeInput.click();
 
         const queryKey = `${QueryKeys.facet}Datametrics.score`;
-        assert.deepEqual(new URL(window.location.href).searchParams.getAll(queryKey), ['[-10,0]']);
+        assert.deepEqual(new URL(window.location.href).searchParams.getAll(queryKey), ['-10-0', 'null-10']);
         const request = buildProductSearchRequest({
             term: 'shoe',
             settings,
@@ -166,6 +169,9 @@ suite('DataObject facets', () => {
         assert.deepEqual('selected' in objectFacet.items[0] ? objectFacet.items[0].selected : null, [{
             lowerBoundInclusive: -10,
             upperBoundExclusive: 0,
+        }, {
+            lowerBoundInclusive: null,
+            upperBoundExclusive: 10,
         }]);
     });
 

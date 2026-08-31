@@ -1,7 +1,6 @@
 import { ContentDataDoubleRangesFacetResult, DataObjectDoubleRangesFacetResult, DecimalNullableChainableRangeAvailableFacetValue, PriceRangesFacetResult, ProductCategoryDataDoubleRangesFacetResult, ProductDataDoubleRangesFacetResult } from '@relewise/client';
 import { property } from 'lit/decorators.js';
 import { ChecklistFacetBase } from './checklist-facet-base';
-import { deserializeFacetRange, FacetRange, serializeFacetRange } from '../../../helpers/facetRangeUrlCodec';
 
 export class ChecklistRangesObjectValueFacet extends ChecklistFacetBase {
 
@@ -14,12 +13,11 @@ export class ChecklistRangesObjectValueFacet extends ChecklistFacetBase {
             return;
         }
 
-        const range = this.getRange(item);
-        const serializedRange = serializeFacetRange(range);
+        const selectedValue = `${item.value.lowerBoundInclusive}-${item.value.upperBoundExclusive}`;
         if (checkbox.checked) {
-            this.selectedValues = [...this.selectedValues, serializedRange];
+            this.selectedValues = [...this.selectedValues, selectedValue];
         } else {
-            this.selectedValues = this.selectedValues.filter(value => !this.rangesEqual(deserializeFacetRange(value), range));
+            this.selectedValues = this.selectedValues.filter(value => value !== selectedValue);
         }
 
         this.updateUrlState(true);
@@ -30,14 +28,7 @@ export class ChecklistRangesObjectValueFacet extends ChecklistFacetBase {
             return '';
         }
 
-        const range = this.getRange(item);
-        if (range.lowerBoundInclusive === null) {
-            return range.upperBoundExclusive === null ? '' : `< ${range.upperBoundExclusive}`;
-        }
-
-        return range.upperBoundExclusive === null
-            ? `≥ ${range.lowerBoundInclusive}`
-            : `${range.lowerBoundInclusive} - ${range.upperBoundExclusive}`;
+        return `${item.value.lowerBoundInclusive ?? ''} - ${item.value.upperBoundExclusive ?? ''}`;
     }
 
     shouldOptionBeChecked(item: DecimalNullableChainableRangeAvailableFacetValue): boolean {
@@ -45,24 +36,7 @@ export class ChecklistRangesObjectValueFacet extends ChecklistFacetBase {
             return false;
         }
 
-        const range = this.getRange(item);
-        return this.selectedValues.some(value => this.rangesEqual(deserializeFacetRange(value), range));
-    }
-
-    private getRange(item: DecimalNullableChainableRangeAvailableFacetValue) {
-        return {
-            lowerBoundInclusive: item.value?.lowerBoundInclusive ?? null,
-            upperBoundExclusive: item.value?.upperBoundExclusive ?? null,
-        };
-    }
-
-    private rangesEqual(
-        first: ReturnType<typeof deserializeFacetRange>,
-        second: FacetRange,
-    ): boolean {
-        return first !== null
-            && first.lowerBoundInclusive === second.lowerBoundInclusive
-            && first.upperBoundExclusive === second.upperBoundExclusive;
+        return this.selectedValues.includes(`${item.value.lowerBoundInclusive}-${item.value.upperBoundExclusive}`);
     }
 }
 

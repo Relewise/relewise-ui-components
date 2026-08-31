@@ -1,4 +1,4 @@
-import { deserializeFacetRange, FacetRange } from '../helpers/facetRangeUrlCodec';
+import { DoubleNullableChainableRange } from '@relewise/client';
 import { getFacetRangeQueryKeyPrefixes, readCurrentUrlState, readCurrentUrlStateValues } from '../helpers/urlState';
 import { Facet } from '../search/types';
 
@@ -51,8 +51,8 @@ function applySelectedRangesToFacet(facet: Facet, facetQueryKeyPrefix: string, u
     }
 
     facet.selected = readCurrentUrlStateValues(getFacetQueryKey(facet, facetQueryKeyPrefix, urlKey))
-        .map(deserializeFacetRange)
-        .filter((range): range is FacetRange => range !== null);
+        .map(parseFacetRange)
+        .filter((range): range is DoubleNullableChainableRange => range !== null);
 }
 
 function getFacetQueryKey(facet: Facet, prefix: string, urlKey?: string): string {
@@ -74,4 +74,16 @@ function parseNullableNumber(value: string | null): number | null {
 
     const parsedValue = Number(value);
     return Number.isNaN(parsedValue) ? null : parsedValue;
+}
+
+function parseFacetRange(value: string): DoubleNullableChainableRange | null {
+    const match = value.match(/^(-?\d+(?:\.\d+)?|null)-(-?\d+(?:\.\d+)?|null)$/);
+    if (!match) {
+        return null;
+    }
+
+    return {
+        lowerBoundInclusive: match[1] === 'null' ? null : Number(match[1]),
+        upperBoundExclusive: match[2] === 'null' ? null : Number(match[2]),
+    };
 }
