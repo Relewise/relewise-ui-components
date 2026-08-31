@@ -47,6 +47,28 @@ suite('product search', () => {
         assert.isAtLeast(searchCalls, 1);
     });
 
+    test('passes total hits to slotted facets', async() => {
+        Searcher.prototype.searchProducts = async function() {
+            return {
+                hits: 26,
+                results: [],
+                facets: { items: [] },
+            } as any;
+        };
+        initializeRelewiseUI(mockRelewiseOptions()).useSearch();
+        window.history.replaceState({}, document.title, window.location.pathname);
+        const el = await fixture<ProductSearch>(html`
+            <relewise-product-search displayed-at-location="test">
+                <relewise-facets></relewise-facets>
+            </relewise-product-search>
+        `);
+        const facets = el.querySelector('relewise-facets')!;
+
+        await waitUntil(() => facets.getAttribute('total-hits') === '26');
+
+        assert.equal(facets.getAttribute('total-hits'), '26');
+    });
+
     test('does not issue a request after disconnecting during context resolution', async() => {
         let searchCalls = 0;
         Searcher.prototype.searchProducts = async function() {
