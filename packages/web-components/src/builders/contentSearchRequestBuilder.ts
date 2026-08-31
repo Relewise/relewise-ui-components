@@ -1,9 +1,9 @@
-import { ContentSearchBuilder, ContentSearchRequest, DoubleNullableRange, Settings } from '@relewise/client';
+import { ContentSearchBuilder, ContentSearchRequest, Settings } from '@relewise/client';
 import { getSelectedContentProperties } from '../defaultSettings';
 import { RelewiseFacetBuilder } from '../facetBuilder';
 import { getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
-import { QueryKeys, readCurrentUrlState, readCurrentUrlStateValues } from '../helpers/urlState';
-import { Facet } from '../search/types';
+import { QueryKeys } from '../helpers/urlState';
+import { applySelectedValuesToFacets } from './facetSelectionHelpers';
 
 export type ContentSearchRequestOptions = {
     term: string | null;
@@ -50,86 +50,10 @@ export function buildContentSearchRequest(options: ContentSearchRequestOptions):
         })
         .build();
 
-    applySelectedValuesToContentFacets(request);
+    applySelectedValuesToFacets(request.facets?.items, QueryKeys.contentFacet);
 
     return {
         request,
         facetLabels,
     };
-}
-
-function applySelectedValuesToContentFacets(request: ContentSearchRequest) {
-    if (request.facets) {
-        request.facets.items.forEach(facet => {
-            applySelectedValuesToContentFacet(facet);
-        });
-    }
-}
-
-function applySelectedValuesToContentFacet(facet: Facet) {
-    if (facet.$type.includes('ContentDataDoubleRangeFacet')) {
-        applySelectedRangeToContentFacet(facet);
-        return;
-    }
-
-    if (facet.$type.includes('ContentDataDoubleRangesFacet')) {
-        applySelectedRangesToContentFacet(facet);
-        return;
-    }
-
-    applySelectedStringsToContentFacet(facet);
-
-    if (!facet.settings) {
-        facet.settings = { alwaysIncludeSelectedInAvailable: true, includeZeroHitsInAvailable: false };
-    }
-}
-
-function applySelectedRangeToContentFacet(facet: Facet) {
-    if ('selected' in facet) {
-        let upperBound = null;
-        let lowerBound = null;
-
-        if ('key' in facet) {
-            upperBound = readCurrentUrlState(QueryKeys.contentFacetUpperbound + facet.field + facet.key);
-            lowerBound = readCurrentUrlState(QueryKeys.contentFacetLowerbound + facet.field + facet.key);
-        } else {
-            upperBound = readCurrentUrlState(QueryKeys.contentFacetUpperbound + facet.field);
-            lowerBound = readCurrentUrlState(QueryKeys.contentFacetLowerbound + facet.field);
-        }
-
-        facet.selected = {
-            lowerBoundInclusive: lowerBound ? +lowerBound : null,
-            upperBoundInclusive: upperBound ? +upperBound : null,
-        };
-    }
-}
-
-function applySelectedRangesToContentFacet(facet: Facet) {
-    if ('selected' in facet) {
-        let queryValues = null;
-        if ('key' in facet) {
-            queryValues = readCurrentUrlStateValues(QueryKeys.contentFacet + facet.field + facet.key);
-        } else {
-            queryValues = readCurrentUrlStateValues(QueryKeys.contentFacet + facet.field);
-        }
-        facet.selected = queryValues.map(x => {
-            const split = x.split('-');
-            return {
-                lowerBoundInclusive: +split[0],
-                upperBoundExclusive: +split[1],
-            } as DoubleNullableRange;
-        });
-    }
-}
-
-function applySelectedStringsToContentFacet(facet: Facet) {
-    if ('selected' in facet) {
-        let queryValues = null;
-        if ('key' in facet) {
-            queryValues = readCurrentUrlStateValues(QueryKeys.contentFacet + facet.field + facet.key);
-        } else {
-            queryValues = readCurrentUrlStateValues(QueryKeys.contentFacet + facet.field);
-        }
-        facet.selected = queryValues;
-    }
 }

@@ -73,7 +73,20 @@ export class Facets extends RelewiseLitElement {
         return `${facetResult.$type}:${facetResult.field}:${key}`;
     }
 
-    renderFacet(label: string, facetResult: FacetResult, styling: string, isLast: boolean): TemplateResult<1> | typeof nothing {
+    renderFacet(label: string, facetResult: FacetResult, styling: string, isLast: boolean, parentKey?: string): TemplateResult<1> | typeof nothing {
+        const urlKey = this.getFacetUrlKey(facetResult, parentKey);
+
+        if (facetResult.$type.includes('DataObjectFacetResult') && 'items' in facetResult) {
+            const visibleItems = facetResult.items?.filter(item => shouldRenderFacetResult(item, this.totalHits)) ?? [];
+            return html`${visibleItems.map((item, index) => this.renderFacet(
+                this.getNestedFacetLabel(label, item, visibleItems.length),
+                item,
+                styling,
+                isLast && index === visibleItems.length - 1,
+                urlKey,
+            ))}`;
+        }
+
         if (!shouldRenderFacetResult(facetResult, this.totalHits)) {
             return nothing;
         }
@@ -81,13 +94,15 @@ export class Facets extends RelewiseLitElement {
         if (facetResult.$type.includes('PriceRangesFacetResult') ||
             facetResult.$type.includes('ProductDataDoubleRangesFacetResult') ||
             facetResult.$type.includes('ContentDataDoubleRangesFacetResult') ||
-            facetResult.$type.includes('ProductCategoryDataDoubleRangesFacetResult')) {
+            facetResult.$type.includes('ProductCategoryDataDoubleRangesFacetResult') ||
+            facetResult.$type.includes('DataObjectDoubleRangesFacetResult')) {
             return html`
                 <relewise-checklist-ranges-object-value-facet
                     part="container"
                     exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
                     .label=${label}
+                    .urlKey=${urlKey}
                     .result=${facetResult}
                     .applyFacet=${this.applyFacet}
                     .queryKeyPrefix=${this.facetQueryKeyPrefix}
@@ -102,10 +117,12 @@ export class Facets extends RelewiseLitElement {
             facetResult.$type.includes('ProductDataDoubleValueFacetResult') ||
             facetResult.$type.includes('ContentDataDoubleValueFacetResult') ||
             facetResult.$type.includes('ContentDataIntegerValueFacetResult') ||
-            facetResult.$type.includes('ProductCategoryDataDoubleValueFacetResult')) {
+            facetResult.$type.includes('ProductCategoryDataDoubleValueFacetResult') ||
+            facetResult.$type.includes('DataObjectDoubleValueFacetResult')) {
             return html`
                 <relewise-checklist-number-value-facet
                     .label=${label}    
+                    .urlKey=${urlKey}
                     part="container"
                     exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
@@ -122,6 +139,7 @@ export class Facets extends RelewiseLitElement {
             return html`
                 <relewise-checklist-object-value-facet 
                     .label=${label}
+                    .urlKey=${urlKey}
                     part="container"
                     exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
@@ -135,10 +153,12 @@ export class Facets extends RelewiseLitElement {
 
         if (facetResult.$type.includes('ProductDataBooleanValueFacetResult') ||
             facetResult.$type.includes('ContentDataBooleanValueFacetResult') ||
-            facetResult.$type.includes('ProductCategoryDataBooleanValueFacetResult')) {
+            facetResult.$type.includes('ProductCategoryDataBooleanValueFacetResult') ||
+            facetResult.$type.includes('DataObjectBooleanValueFacetResult')) {
             return html`
                 <relewise-checklist-boolean-value-facet
                     .label=${label}
+                    .urlKey=${urlKey}
                     part="container"
                     exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
@@ -152,10 +172,12 @@ export class Facets extends RelewiseLitElement {
 
         if (facetResult.$type.includes('ProductDataStringValueFacetResult') ||
             facetResult.$type.includes('ContentDataStringValueFacetResult') ||
-            facetResult.$type.includes('ProductCategoryDataStringValueFacetResult')) {
+            facetResult.$type.includes('ProductCategoryDataStringValueFacetResult') ||
+            facetResult.$type.includes('DataObjectStringValueFacetResult')) {
             return html`
                 <relewise-checklist-string-value-facet
                     .label=${label}
+                    .urlKey=${urlKey}
                     part="container"
                     exportparts="title, selected-count, input, label, value, hits"
                     style="${isLast ? 'border-bottom: 0; padding-bottom: 0;' : ''}"
@@ -170,11 +192,13 @@ export class Facets extends RelewiseLitElement {
         if (facetResult.$type.includes('ProductDataDoubleRangeFacetResult') ||
             facetResult.$type.includes('ContentDataDoubleRangeFacetResult') ||
             facetResult.$type.includes('ProductCategoryDataDoubleRangeFacetResult') ||
+            facetResult.$type.includes('DataObjectDoubleRangeFacetResult') ||
             facetResult.$type.includes('PriceRangeFacetResult')) {
             const rangeQueryKeyPrefixes = getFacetRangeQueryKeyPrefixes(this.facetQueryKeyPrefix);
             return html`
                 <relewise-number-range-facet
                     .label=${label}
+                    .urlKey=${urlKey}
                     part="container"
                     exportparts="title, input"
                     .result=${facetResult}
@@ -188,6 +212,22 @@ export class Facets extends RelewiseLitElement {
         }
 
         return html``;
+    }
+
+    getFacetUrlKey(facetResult: FacetResult, parentKey?: string): string | undefined {
+        if (!('key' in facetResult) || !facetResult.key) {
+            return parentKey;
+        }
+
+        return parentKey ? `${parentKey}.${facetResult.key}` : facetResult.key;
+    }
+
+    private getNestedFacetLabel(label: string, facetResult: FacetResult, siblingCount: number): string {
+        if (siblingCount < 2 || !('key' in facetResult) || !facetResult.key) {
+            return label;
+        }
+
+        return `${label}: ${facetResult.key}`;
     }
 
     render() {

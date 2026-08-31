@@ -1,16 +1,16 @@
-import { BooleanAvailableFacetValue, BrandNameAndIdResultAvailableFacetValue, ContentAssortmentFacetResult, ContentDataDoubleValueFacetResult, ContentDataIntegerValueFacetResult, DoubleAvailableFacetValue, Int32AvailableFacetValue, ProductAssortmentFacetResult, ProductCategoryAssortmentFacetResult, ProductCategoryDataDoubleValueFacetResult, ProductDataDoubleValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
+import { BooleanAvailableFacetValue, BrandNameAndIdResultAvailableFacetValue, ContentAssortmentFacetResult, ContentDataDoubleValueFacetResult, ContentDataIntegerValueFacetResult, DataObjectDoubleValueFacetResult, DoubleAvailableFacetValue, Int32AvailableFacetValue, ProductAssortmentFacetResult, ProductCategoryAssortmentFacetResult, ProductCategoryDataDoubleValueFacetResult, ProductDataDoubleValueFacetResult, StringAvailableFacetValue } from '@relewise/client';
 import { property } from 'lit/decorators.js';
 import { ChecklistFacetBase } from './checklist-facet-base';
 
 export class ChecklistNumberValueFacet extends ChecklistFacetBase {
 
     @property({ type: Object })
-    result: ProductAssortmentFacetResult | ProductDataDoubleValueFacetResult | ContentAssortmentFacetResult | ContentDataDoubleValueFacetResult | ContentDataIntegerValueFacetResult | ProductCategoryAssortmentFacetResult | ProductCategoryDataDoubleValueFacetResult | null = null;
+    result: ProductAssortmentFacetResult | ProductDataDoubleValueFacetResult | ContentAssortmentFacetResult | ContentDataDoubleValueFacetResult | ContentDataIntegerValueFacetResult | ProductCategoryAssortmentFacetResult | ProductCategoryDataDoubleValueFacetResult | DataObjectDoubleValueFacetResult | null = null;
 
     handleChange(e: Event, item: Int32AvailableFacetValue | DoubleAvailableFacetValue) {
         const checkbox = e.currentTarget as HTMLInputElement;
 
-        if (!item.value || !this.result) {
+        if (item.value === null || item.value === undefined || !this.result) {
             return;
         }
 
@@ -25,7 +25,7 @@ export class ChecklistNumberValueFacet extends ChecklistFacetBase {
     }
 
     getOptionDisplayValue(item: Int32AvailableFacetValue | DoubleAvailableFacetValue): string {
-        if (!item.value) {
+        if (item.value === null || item.value === undefined) {
             return '';
         }
 
@@ -33,7 +33,7 @@ export class ChecklistNumberValueFacet extends ChecklistFacetBase {
     }
 
     shouldOptionBeChecked(item: BrandNameAndIdResultAvailableFacetValue | StringAvailableFacetValue | BooleanAvailableFacetValue | Int32AvailableFacetValue | DoubleAvailableFacetValue): boolean {
-        if (!item.value) {
+        if (item.value === null || item.value === undefined) {
             return false;
         }
 

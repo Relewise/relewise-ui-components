@@ -1,6 +1,10 @@
 import type { FacetResult, FacetResultContainer } from '../../types';
 
 export function shouldRenderFacetResult(facetResult: FacetResult, totalHits?: number): boolean {
+    if (facetResult.$type.includes('DataObjectFacetResult') && 'items' in facetResult) {
+        return facetResult.items?.some(item => shouldRenderFacetResult(item, totalHits)) ?? false;
+    }
+
     if (!('available' in facetResult)) {
         return false;
     }

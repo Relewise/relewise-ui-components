@@ -1,55 +1,42 @@
-import { ContentDataDoubleRangesFacetResult, DecimalNullableChainableRangeAvailableFacetValue, PriceRangesFacetResult, ProductCategoryDataDoubleRangesFacetResult, ProductDataDoubleRangesFacetResult } from '@relewise/client';
+import { ContentDataDoubleRangesFacetResult, DataObjectDoubleRangesFacetResult, DecimalNullableChainableRangeAvailableFacetValue, PriceRangesFacetResult, ProductCategoryDataDoubleRangesFacetResult, ProductDataDoubleRangesFacetResult } from '@relewise/client';
 import { property } from 'lit/decorators.js';
 import { ChecklistFacetBase } from './checklist-facet-base';
 
 export class ChecklistRangesObjectValueFacet extends ChecklistFacetBase {
 
     @property({ type: Object })
-    result: PriceRangesFacetResult | ProductDataDoubleRangesFacetResult | ContentDataDoubleRangesFacetResult | ProductCategoryDataDoubleRangesFacetResult | null = null;
+    result: PriceRangesFacetResult | ProductDataDoubleRangesFacetResult | ContentDataDoubleRangesFacetResult | ProductCategoryDataDoubleRangesFacetResult | DataObjectDoubleRangesFacetResult | null = null;
 
     handleChange(e: Event, item: DecimalNullableChainableRangeAvailableFacetValue) {
         const checkbox = e.currentTarget as HTMLInputElement;
-        if (!item.value ||
-            item.value.lowerBoundInclusive === undefined ||
-            item.value.lowerBoundInclusive === undefined ||
-            item.value.upperBoundExclusive === null ||
-            item.value.upperBoundExclusive === null ||
-            !this.result) {
+        if (!item.value || !this.result) {
             return;
         }
 
+        const selectedValue = `${item.value.lowerBoundInclusive}-${item.value.upperBoundExclusive}`;
         if (checkbox.checked) {
-            this.selectedValues = [...this.selectedValues, `${item.value.lowerBoundInclusive}-${item.value.upperBoundExclusive}`];
+            this.selectedValues = [...this.selectedValues, selectedValue];
         } else {
-            const newValue = this.selectedValues.filter(x => x !== `${item.value!.lowerBoundInclusive}-${item.value!.upperBoundExclusive}`);
-            this.selectedValues = newValue;
+            this.selectedValues = this.selectedValues.filter(value => value !== selectedValue);
         }
 
         this.updateUrlState(true);
     }
 
     getOptionDisplayValue(item: DecimalNullableChainableRangeAvailableFacetValue): string {
-        if (!item.value ||
-            item.value.lowerBoundInclusive === undefined ||
-            item.value.lowerBoundInclusive === undefined ||
-            item.value.upperBoundExclusive === null ||
-            item.value.upperBoundExclusive === null) {
+        if (!item.value) {
             return '';
         }
 
-        return `${item.value.lowerBoundInclusive} - ${item.value.upperBoundExclusive}`;
+        return `${item.value.lowerBoundInclusive ?? ''} - ${item.value.upperBoundExclusive ?? ''}`;
     }
 
     shouldOptionBeChecked(item: DecimalNullableChainableRangeAvailableFacetValue): boolean {
-        if (!item.value ||
-            item.value.lowerBoundInclusive === undefined ||
-            item.value.lowerBoundInclusive === undefined ||
-            item.value.upperBoundExclusive === null ||
-            item.value.upperBoundExclusive === null) {
+        if (!item.value) {
             return false;
         }
 
-        return this.selectedValues.filter(selectedValue => selectedValue === `${item.value!.lowerBoundInclusive}-${item.value!.upperBoundExclusive}`).length > 0;
+        return this.selectedValues.includes(`${item.value.lowerBoundInclusive}-${item.value.upperBoundExclusive}`);
     }
 }
 

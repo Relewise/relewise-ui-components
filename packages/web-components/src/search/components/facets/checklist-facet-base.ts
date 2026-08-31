@@ -21,6 +21,9 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
     label: string = '';
 
     @property({ attribute: false })
+    urlKey?: string;
+
+    @property({ attribute: false })
     applyFacet = () => window.dispatchEvent(new CustomEvent(Events.applyFacet));
 
     @property({ attribute: 'query-key-prefix' })
@@ -68,6 +71,10 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
     getFacetQueryKey(): string {
         if (!this.result) {
             return this.queryKeyPrefix;
+        }
+
+        if (this.urlKey) {
+            return this.queryKeyPrefix + this.result.field + this.urlKey;
         }
 
         if ('key' in this.result) {

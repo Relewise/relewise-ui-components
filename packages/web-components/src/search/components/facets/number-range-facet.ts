@@ -1,5 +1,5 @@
 import { RelewiseLitElement } from '../../../relewise-lit-element';
-import { ContentDataDoubleRangeFacetResult, PriceRangeFacetResult, ProductCategoryDataDoubleRangeFacetResult, ProductDataDoubleRangeFacetResult } from '@relewise/client';
+import { ContentDataDoubleRangeFacetResult, DataObjectDoubleRangeFacetResult, PriceRangeFacetResult, ProductCategoryDataDoubleRangeFacetResult, ProductDataDoubleRangeFacetResult } from '@relewise/client';
 import { css, html } from 'lit';
 import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
@@ -9,10 +9,13 @@ import { theme } from '../../../theme';
 export class NumberRangeFacet extends RelewiseLitElement {
 
     @property({ type: Object })
-    result: ProductDataDoubleRangeFacetResult | ContentDataDoubleRangeFacetResult | ProductCategoryDataDoubleRangeFacetResult | PriceRangeFacetResult | null = null;
+    result: ProductDataDoubleRangeFacetResult | ContentDataDoubleRangeFacetResult | ProductCategoryDataDoubleRangeFacetResult | PriceRangeFacetResult | DataObjectDoubleRangeFacetResult | null = null;
 
     @property()
     label: string = '';
+
+    @property({ attribute: false })
+    urlKey?: string;
 
     @property({ attribute: false })
     applyFacet = () => window.dispatchEvent(new CustomEvent(Events.applyFacet));
@@ -64,12 +67,8 @@ export class NumberRangeFacet extends RelewiseLitElement {
     connectedCallback(): void {
         super.connectedCallback();
         if (this.result) {
-
-            let upperBound = null;
-            let lowerBound = null;
-
-            upperBound = readCurrentUrlState(this.getFacetUpperBoundQueryKey());
-            lowerBound = readCurrentUrlState(this.getFacetLowerBoundQueryKey());
+            const upperBound = readCurrentUrlState(this.getFacetUpperBoundQueryKey());
+            const lowerBound = readCurrentUrlState(this.getFacetLowerBoundQueryKey());
             if (upperBound && !isNaN(+upperBound)) {
                 this.upperBound = +upperBound;
             }
@@ -148,6 +147,10 @@ export class NumberRangeFacet extends RelewiseLitElement {
             return this.upperboundQueryKeyPrefix;
         }
 
+        if (this.urlKey) {
+            return this.upperboundQueryKeyPrefix + this.result.field + this.urlKey;
+        }
+
         if ('key' in this.result) {
             return this.upperboundQueryKeyPrefix + this.result.field + this.result.key;
         }
@@ -158,6 +161,10 @@ export class NumberRangeFacet extends RelewiseLitElement {
     getFacetLowerBoundQueryKey(): string {
         if (!this.result) {
             return this.lowerboundQueryKeyPrefix;
+        }
+
+        if (this.urlKey) {
+            return this.lowerboundQueryKeyPrefix + this.result.field + this.urlKey;
         }
 
         if ('key' in this.result) {

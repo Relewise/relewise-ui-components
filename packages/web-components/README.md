@@ -1187,6 +1187,23 @@ useSearch({
     }
 });
 ```
+
+Product, content, and product-category DataObject facets render their nested scalar facets recursively. Selections use the complete object path in the URL, so equal nested keys in different objects remain independent. When an object has multiple visible child facets, each heading includes the configured heading and the child's key.
+
+```ts
+useSearch({
+    facets: {
+        product(builder) {
+            builder.addFacet(
+                facet => facet.addProductDataObjectFacet('brand_values', 'Product', nested =>
+                    nested.addStringFacet('brand_name')),
+                { heading: 'Brand' },
+            );
+        },
+    },
+});
+```
+
 #### Layout
 To overwrite the layout of the components, include the components inside the `relewise-product-search` html tag.
 
