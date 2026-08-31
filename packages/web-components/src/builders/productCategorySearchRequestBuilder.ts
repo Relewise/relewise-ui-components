@@ -3,7 +3,7 @@ import { createProductCategorySearchBuilder } from './productCategorySearchBuild
 import { RelewiseFacetBuilder } from '../facetBuilder';
 import { getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { QueryKeys } from '../helpers/urlState';
-import { applySelectedValuesToFacets } from './facetSelectionHydration';
+import { applySelectedValuesToFacets } from './facetSelectionHelpers';
 
 export type ProductCategorySearchRequestOptions = {
     term: string | null;

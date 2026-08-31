@@ -4,7 +4,7 @@ import { RelewiseFacetBuilder } from '../facetBuilder';
 import { getRelewiseSearchTargetedConfigurations, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { QueryKeys, readCurrentUrlState } from '../helpers/urlState';
 import { getSearchSortingOptions, getSearchSortingSelection } from './searchSortingBuilder';
-import { applySelectedValuesToFacets } from './facetSelectionHydration';
+import { applySelectedValuesToFacets } from './facetSelectionHelpers';
 
 export type ProductSearchRequestOptions = {
     term: string | null;
