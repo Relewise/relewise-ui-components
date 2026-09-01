@@ -117,7 +117,12 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
                 return false;
             }
 
-            this.applyResponse(response ?? null, requestResult.facetLabels, reset);
+            if (!response) {
+                this.setError();
+                return false;
+            }
+
+            this.applyResponse(response, requestResult.facetLabels, reset);
             return true;
         } catch {
             if (!abortController.signal.aborted) {
@@ -156,7 +161,12 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
     private applyBatchResponse(response: SearchResponseCollection, facetLabels: string[]): void {
         const productCategoryResponse = response.responses?.find(item => '$type' in item
             && item.$type === 'Relewise.Client.Responses.Search.ProductCategorySearchResponse, Relewise.Client') as ProductCategorySearchResponse | undefined;
-        this.applyResponse(productCategoryResponse ?? null, facetLabels, true);
+        if (!productCategoryResponse) {
+            this.setError();
+            return;
+        }
+
+        this.applyResponse(productCategoryResponse, facetLabels, true);
         this.loading = false;
     }
 
@@ -167,7 +177,7 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
         this.reportHits();
     }
 
-    private setError(): void {
+    setError(): void {
         this.error = getRelewiseUISearchOptions()?.localization?.universalSearch?.productCategories?.error ?? 'Could not load categories.';
         this.loading = false;
     }
