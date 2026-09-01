@@ -129,12 +129,12 @@ export class ProductTile extends RelewiseLitElement {
             font-family: var(--font);
             border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
             background-color: var(--button-color, white);
-            border-radius: 0.5em;
+            border-radius: var(--relewise-product-tile-border-radius, 0.5em);
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
         }
         
         .rw-tile {
-            border-radius: max(0px, calc(0.5em - 1px));
+            border-radius: max(0px, calc(var(--relewise-product-tile-border-radius, 0.5em) - 1px));
             display: flex;
             flex-direction: column;
             position: relative;
@@ -142,7 +142,7 @@ export class ProductTile extends RelewiseLitElement {
             text-size-adjust: none;
             height: 100%;
             gap: var(--relewise-sentiment-gap, 0.5em);
-            overflow: clip;
+            overflow: var(--relewise-tile-overflow, clip);
         }
 
         .rw-tile-link {

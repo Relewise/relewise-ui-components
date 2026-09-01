@@ -107,7 +107,7 @@ export class ProductCategoryTile extends RelewiseLitElement {
                 display: flex;
                 flex-direction: column;
                 height: 100%;
-                overflow: clip;
+                overflow: var(--relewise-tile-overflow, clip);
                 text-decoration: inherit;
             }
 

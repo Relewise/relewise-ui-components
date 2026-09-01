@@ -27,12 +27,22 @@ function assertRoundedContentClipping(element: Element) {
     assert.equal(innerStyles.overflow, 'clip');
 }
 
-function assertInnerRadius(element: Element, expectedRadius: string) {
+function assertTileRadius(element: Element, expectedRadius: string) {
+    assert.equal(getComputedStyle(element).borderTopLeftRadius, expectedRadius);
+
     const innerTile = (element.shadowRoot ?? element).querySelector<HTMLElement>(
         '.rw-tile, .rw-content-tile, .rw-category-tile',
     );
     assert.exists(innerTile);
     assert.equal(getComputedStyle(innerTile!).borderTopLeftRadius, expectedRadius);
+}
+
+function assertContentClipping(element: Element, expectedOverflow: string) {
+    const innerTile = (element.shadowRoot ?? element).querySelector<HTMLElement>(
+        '.rw-tile, .rw-content-tile, .rw-category-tile',
+    );
+    assert.exists(innerTile);
+    assert.equal(getComputedStyle(innerTile!).overflow, expectedOverflow);
 }
 
 function product(): ProductResult {
@@ -83,8 +93,14 @@ suite('tile border rendering', () => {
             initializeRelewiseUI(options).useSearch();
             const container = await fixture<HTMLElement>(html`
                 <div>
-                    <relewise-product-tile style="font-size: 0" .product=${product()}></relewise-product-tile>
-                    <relewise-content-tile style="font-size: 0" .content=${content()}></relewise-content-tile>
+                    <relewise-product-tile
+                        style="--relewise-product-tile-border-radius: 0px"
+                        .product=${product()}>
+                    </relewise-product-tile>
+                    <relewise-content-tile
+                        style="--relewise-content-tile-border-radius: 0px"
+                        .content=${content()}>
+                    </relewise-content-tile>
                     <relewise-product-category-tile
                         style="--relewise-category-tile-border-radius: 0px"
                         .productCategory=${productCategory()}>
@@ -98,7 +114,25 @@ suite('tile border rendering', () => {
             const tiles = Array.from(container.children);
 
             assert.lengthOf(tiles, 4);
-            tiles.forEach(tile => assertInnerRadius(tile, '0px'));
+            tiles.forEach(tile => assertTileRadius(tile, '0px'));
+        });
+
+        test(`allows inner tile clipping to be disabled in ${domMode} DOM`, async() => {
+            const options = mockRelewiseOptions();
+            options.components = { domMode };
+            initializeRelewiseUI(options).useSearch();
+            const container = await fixture<HTMLElement>(html`
+                <div style="--relewise-tile-overflow: visible">
+                    <relewise-product-tile .product=${product()}></relewise-product-tile>
+                    <relewise-content-tile .content=${content()}></relewise-content-tile>
+                    <relewise-product-category-tile .productCategory=${productCategory()}></relewise-product-category-tile>
+                    <relewise-content-category-tile .contentCategory=${contentCategory()}></relewise-content-category-tile>
+                </div>
+            `);
+            const tiles = Array.from(container.children);
+
+            assert.lengthOf(tiles, 4);
+            tiles.forEach(tile => assertContentClipping(tile, 'visible'));
         });
     }
 });
