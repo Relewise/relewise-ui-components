@@ -134,7 +134,7 @@ export class ProductTile extends RelewiseLitElement {
         }
         
         .rw-tile {
-            border-radius: calc(0.5em - 1px);
+            border-radius: max(0px, calc(0.5em - 1px));
             display: flex;
             flex-direction: column;
             position: relative;

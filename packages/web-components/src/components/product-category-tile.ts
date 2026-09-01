@@ -102,7 +102,7 @@ export class ProductCategoryTile extends RelewiseLitElement {
             }
 
             .rw-category-tile {
-                border-radius: calc(var(--relewise-category-tile-border-radius, 0.5em) - 1px);
+                border-radius: max(0px, calc(var(--relewise-category-tile-border-radius, 0.5em) - 1px));
                 color: inherit;
                 display: flex;
                 flex-direction: column;

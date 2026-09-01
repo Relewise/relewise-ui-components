@@ -27,6 +27,14 @@ function assertRoundedContentClipping(element: Element) {
     assert.equal(innerStyles.overflow, 'clip');
 }
 
+function assertInnerRadius(element: Element, expectedRadius: string) {
+    const innerTile = (element.shadowRoot ?? element).querySelector<HTMLElement>(
+        '.rw-tile, .rw-content-tile, .rw-category-tile',
+    );
+    assert.exists(innerTile);
+    assert.equal(getComputedStyle(innerTile!).borderTopLeftRadius, expectedRadius);
+}
+
 function product(): ProductResult {
     return { productId: 'product', displayName: 'Product', data: {} } as unknown as ProductResult;
 }
@@ -67,6 +75,30 @@ suite('tile border rendering', () => {
 
             assert.lengthOf(tiles, 4);
             tiles.forEach(assertRoundedContentClipping);
+        });
+
+        test(`clamps negative inner tile radii to zero in ${domMode} DOM`, async() => {
+            const options = mockRelewiseOptions();
+            options.components = { domMode };
+            initializeRelewiseUI(options).useSearch();
+            const container = await fixture<HTMLElement>(html`
+                <div>
+                    <relewise-product-tile style="font-size: 0" .product=${product()}></relewise-product-tile>
+                    <relewise-content-tile style="font-size: 0" .content=${content()}></relewise-content-tile>
+                    <relewise-product-category-tile
+                        style="--relewise-category-tile-border-radius: 0px"
+                        .productCategory=${productCategory()}>
+                    </relewise-product-category-tile>
+                    <relewise-content-category-tile
+                        style="--relewise-category-tile-border-radius: 0px"
+                        .contentCategory=${contentCategory()}>
+                    </relewise-content-category-tile>
+                </div>
+            `);
+            const tiles = Array.from(container.children);
+
+            assert.lengthOf(tiles, 4);
+            tiles.forEach(tile => assertInnerRadius(tile, '0px'));
         });
     }
 });
