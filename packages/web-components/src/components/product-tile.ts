@@ -134,7 +134,7 @@ export class ProductTile extends RelewiseLitElement {
         }
         
         .rw-tile {
-            clip-path: inset(0 round calc(0.5em - 1px));
+            border-radius: calc(0.5em - 1px);
             display: flex;
             flex-direction: column;
             position: relative;
@@ -142,6 +142,7 @@ export class ProductTile extends RelewiseLitElement {
             text-size-adjust: none;
             height: 100%;
             gap: var(--relewise-sentiment-gap, 0.5em);
+            overflow: clip;
         }
 
         .rw-tile-link {

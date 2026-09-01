@@ -123,7 +123,7 @@ export class ContentTile extends RelewiseLitElement {
         }
 
         .rw-content-tile {
-            clip-path: inset(0 round calc(0.5em - 1px));
+            border-radius: calc(0.5em - 1px);
             display: flex;
             flex-direction: column;
             position: relative;
@@ -131,6 +131,7 @@ export class ContentTile extends RelewiseLitElement {
             text-size-adjust: none;
             height: 100%;
             gap: var(--relewise-sentiment-gap, 0.5em);
+            overflow: clip;
         }
 
         .rw-content-link {

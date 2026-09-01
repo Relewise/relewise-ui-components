@@ -22,8 +22,9 @@ function assertRoundedContentClipping(element: Element) {
     assert.exists(innerTile);
 
     const innerStyles = getComputedStyle(innerTile!);
-    assert.notEqual(innerStyles.clipPath, 'none');
-    assert.equal(innerStyles.overflow, 'visible');
+    assert.notEqual(innerStyles.borderTopLeftRadius, '0px');
+    assert.equal(innerStyles.clipPath, 'none');
+    assert.equal(innerStyles.overflow, 'clip');
 }
 
 function product(): ProductResult {

@@ -102,11 +102,12 @@ export class ProductCategoryTile extends RelewiseLitElement {
             }
 
             .rw-category-tile {
-                clip-path: inset(0 round calc(var(--relewise-category-tile-border-radius, 0.5em) - 1px));
+                border-radius: calc(var(--relewise-category-tile-border-radius, 0.5em) - 1px);
                 color: inherit;
                 display: flex;
                 flex-direction: column;
                 height: 100%;
+                overflow: clip;
                 text-decoration: inherit;
             }
 
