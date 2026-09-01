@@ -10,11 +10,20 @@ import { clearRegisteredLightDomStylesForTesting } from '../src/lightDomStyles';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 function assertRoundedContentClipping(element: Element) {
-    const styles = getComputedStyle(element);
-    assert.equal(styles.borderTopStyle, 'solid');
-    assert.equal(styles.borderTopWidth, '1px');
-    assert.equal(styles.clipPath, 'none');
-    assert.equal(styles.overflow, 'hidden');
+    const hostStyles = getComputedStyle(element);
+    assert.equal(hostStyles.borderTopStyle, 'solid');
+    assert.equal(hostStyles.borderTopWidth, '1px');
+    assert.equal(hostStyles.clipPath, 'none');
+    assert.equal(hostStyles.overflow, 'visible');
+
+    const innerTile = (element.shadowRoot ?? element).querySelector<HTMLElement>(
+        '.rw-tile, .rw-content-tile, .rw-category-tile',
+    );
+    assert.exists(innerTile);
+
+    const innerStyles = getComputedStyle(innerTile!);
+    assert.notEqual(innerStyles.clipPath, 'none');
+    assert.equal(innerStyles.overflow, 'visible');
 }
 
 function product(): ProductResult {

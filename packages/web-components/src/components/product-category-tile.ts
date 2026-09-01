@@ -99,10 +99,10 @@ export class ProductCategoryTile extends RelewiseLitElement {
                 border-radius: var(--relewise-category-tile-border-radius, 0.5em);
                 box-shadow: var(--relewise-category-tile-box-shadow, 0 1px rgb(0 0 0 / 0.05));
                 font-family: var(--font);
-                overflow: hidden;
             }
 
             .rw-category-tile {
+                clip-path: inset(0 round calc(var(--relewise-category-tile-border-radius, 0.5em) - 1px));
                 color: inherit;
                 display: flex;
                 flex-direction: column;

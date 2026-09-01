@@ -120,10 +120,10 @@ export class ContentTile extends RelewiseLitElement {
             background-color: var(--button-color, white);
             border-radius: 0.5em;
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
-            overflow: hidden;
         }
 
         .rw-content-tile {
+            clip-path: inset(0 round calc(0.5em - 1px));
             display: flex;
             flex-direction: column;
             position: relative;
