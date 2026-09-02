@@ -126,6 +126,44 @@ The component exposes `product-tile` and `content-tile` CSS parts. Its grid uses
 | `--relewise-recommendation-grid-mobile-columns` | `2` | Number of columns at widths up to 768px. |
 | `--relewise-recommendation-grid-gap` | `1em` | Gap between feed tiles. |
 
+#### Named composition templates
+
+Give a composition a `name` and register a matching `compositionTemplates` entry to take over rendering for that composition. Compositions without a matching template continue to use the built-in product and content tiles.
+
+```ts
+initializeRelewiseUI({
+    ...
+}).useShoppertainment({
+    adaptiveDiscovery: {
+        minimumPageSize: 20,
+        configure(builder) {
+            builder.addComposition({
+                options: {
+                    type: 'Product',
+                    name: 'featured-products',
+                    count: { lowerBoundInclusive: 1, upperBoundInclusive: 4 },
+                },
+            });
+        },
+        compositionTemplates: {
+            'featured-products': (composition, { html, helpers }) => html`
+                <section class="featured-products">
+                    ${composition.products?.map(product => html`
+                        <a
+                            href=${product.data?.Url?.value ?? ''}
+                            @click=${() => helpers.trackProductClick(product)}>
+                            ${product.displayName}
+                        </a>
+                    `)}
+                </section>
+            `,
+        },
+    },
+});
+```
+
+The callback receives the complete `FeedCompositionResult`, Lit's `html` function, the standard template helpers, `formatPrice`, the current `user`, and `trackProductClick`/`trackContentClick`. Use the click helpers when custom markup represents a feed item so Adaptive Discovery analytics remain complete.
+
 ## Configuring Relewise Client
 You are required to configure the client that you use to call Relewise. Provide the following configuration during initialization.
 

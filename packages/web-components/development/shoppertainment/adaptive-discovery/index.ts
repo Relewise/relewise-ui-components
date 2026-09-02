@@ -28,9 +28,27 @@ initializeRelewiseUI({
                 .addComposition({
                     options: {
                         type: 'Content',
+                        name: 'featured-content',
                         count: { lowerBoundInclusive: 1, upperBoundInclusive: 1 },
                     },
                 });
+        },
+        compositionTemplates: {
+            'featured-content': (composition, { html, helpers }) => {
+                const content = composition.content?.[0];
+                if (!content) {
+                    return helpers.nothing;
+                }
+
+                return html`
+                    <a
+                        href=${content.data?.Url?.value ?? ''}
+                        style="grid-column: 1 / -1; padding: 2rem; color: inherit; background: #f3f0ff; border-radius: 0.5rem; text-decoration: none;"
+                        @click=${() => helpers.trackContentClick(content)}>
+                        <strong>Named composition:</strong> ${content.displayName}
+                    </a>
+                `;
+            },
         },
     },
 });
