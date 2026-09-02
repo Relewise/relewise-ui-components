@@ -150,14 +150,20 @@ suite('universal search layout', () => {
             await element.updateComplete;
 
             const dialog = element.renderRoot.querySelector<HTMLElement>('[part="dialog"]')!;
+            const header = element.renderRoot.querySelector<HTMLElement>('[part="header"]')!;
             const search = element.renderRoot.querySelector<any>('relewise-search-combobox')!;
             const close = element.renderRoot.querySelector<any>('[part="close-button"]')!;
             await search.updateComplete;
             await close.updateComplete;
-            const input = search.renderRoot.querySelector('[part="search-input"]') as HTMLInputElement;
+            const searchControl = search.renderRoot.querySelector('[part="search-input"]') as HTMLElement;
+            const input = searchControl.querySelector('input') as HTMLInputElement;
+            input.blur();
+            await new Promise(requestAnimationFrame);
             const closeControl = close.renderRoot.querySelector('button') as HTMLButtonElement;
 
             assert.equal(getComputedStyle(dialog).color, 'rgb(33, 36, 39)');
+            assert.equal(getComputedStyle(header).borderBottomColor, 'rgb(238, 238, 238)');
+            assert.equal(getComputedStyle(searchControl).borderColor, 'rgb(238, 238, 238)');
             assert.notEqual(getComputedStyle(input, '::placeholder').color, 'rgb(238, 238, 238)');
             assert.equal(getComputedStyle(closeControl).color, 'rgb(33, 36, 39)');
             assert.equal(getComputedStyle(search).getPropertyValue('--accent-color').trim(), 'rgb(18 18 18)');
@@ -187,7 +193,7 @@ suite('universal search layout', () => {
             const close = element.renderRoot.querySelector<any>('[part="close-button"]')!;
             await search.updateComplete;
             await close.updateComplete;
-            const input = search.renderRoot.querySelector('[part="search-input"]') as HTMLInputElement;
+            const input = search.renderRoot.querySelector('input') as HTMLInputElement;
             const closeControl = close.renderRoot.querySelector('button') as HTMLButtonElement;
 
             assert.equal(getComputedStyle(element).getPropertyValue('--relewise-universal-search-color').trim(), 'rgb(30 40 50)');

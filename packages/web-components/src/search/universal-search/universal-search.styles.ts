@@ -6,7 +6,7 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
     :host {
         display: block;
         font-family: var(--font);
-        --relewise-popular-search-term-border-color: var(--relewise-universal-search-border-color, #ddd);
+        --relewise-popular-search-term-border-color: var(--relewise-universal-search-border-color, var(--relewise-color, #ddd));
         --relewise-recommendation-grid-columns: var(--relewise-universal-search-result-columns, var(--relewise-universal-search-product-columns, 5));
         --relewise-recommendation-grid-mobile-columns: var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2));
     }
@@ -49,7 +49,7 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         padding: var(--relewise-universal-search-header-padding, 1em);
         padding-inline-end: 0;
         padding-inline-start: var(--relewise-universal-search-header-gap, 1em);
-        border-bottom: 1px solid var(--relewise-universal-search-border-color, var(--relewise-checklist-facet-border-color, #eee));
+        border-bottom: 1px solid var(--relewise-universal-search-border-color, var(--relewise-checklist-facet-border-color, var(--relewise-color, #eee)));
     }
 
     relewise-search-combobox {
@@ -92,7 +92,7 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
     .rw-tabs {
         display: flex;
         gap: var(--relewise-universal-search-tabs-gap, 1.5em);
-        border-bottom: 1px solid var(--relewise-universal-search-border-color, var(--relewise-checklist-facet-border-color, #eee));
+        border-bottom: 1px solid var(--relewise-universal-search-border-color, var(--relewise-checklist-facet-border-color, var(--relewise-color, #eee)));
         max-width: min(100%, var(--relewise-universal-search-tabs-width, 100%));
         overflow-x: auto;
         padding-top: var(--relewise-universal-search-tabs-padding-top, 0.5em);
