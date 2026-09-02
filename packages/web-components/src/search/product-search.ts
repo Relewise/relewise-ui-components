@@ -89,13 +89,17 @@ export class ProductSearch extends RelewiseLitElement {
         this.search(true);
     }
 
-    async handleLoadMoreEvent(): Promise<void> {
+    handleLoadMoreEvent(): void {
+        void this.loadMore();
+    }
+
+    private async loadMore(): Promise<void> {
         const previousPage = this.page;
         const previousTake = readCurrentUrlState(QueryKeys.take);
         const requestedPage = previousPage + 1;
         this.page = requestedPage;
         updateUrlState(QueryKeys.take, (this.numberOfProducts * this.page).toString());
-        const succeeded = await this.search(false);
+        const succeeded = await this.performSearch(false);
 
         if (!succeeded && this.page === requestedPage) {
             this.page = previousPage;
@@ -107,7 +111,11 @@ export class ProductSearch extends RelewiseLitElement {
         sessionStorage.setItem(SessionVariables.scrollPosition, window.scrollY.toString());
     }
 
-    async search(shouldClearOldResult: boolean): Promise<boolean> {
+    async search(shouldClearOldResult: boolean): Promise<void> {
+        await this.performSearch(shouldClearOldResult);
+    }
+
+    private async performSearch(shouldClearOldResult: boolean): Promise<boolean> {
         this.abortController.abort();
 
         if (shouldClearOldResult) {

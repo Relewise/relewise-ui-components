@@ -1,7 +1,7 @@
 import { assert, fixture, html, waitUntil } from '@open-wc/testing';
 import { Searcher } from '@relewise/client';
 import { initializeRelewiseUI, ProductSearch } from '../src';
-import { QueryKeys, readCurrentUrlState } from '../src/helpers';
+import { Events, QueryKeys, readCurrentUrlState } from '../src/helpers';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('product search', () => {
@@ -161,12 +161,16 @@ suite('product search', () => {
             console.error = (...args: unknown[]) => reportedErrors.push(args);
 
             try {
-                await el.handleLoadMoreEvent();
+                window.dispatchEvent(new CustomEvent(Events.loadMoreProducts));
+                await waitUntil(() => searchCalls === 2);
+                await waitUntil(() => el.page === 1);
 
                 assert.equal(el.page, 1);
                 assert.isNull(readCurrentUrlState(QueryKeys.take));
 
-                await el.handleLoadMoreEvent();
+                window.dispatchEvent(new CustomEvent(Events.loadMoreProducts));
+                await waitUntil(() => searchCalls === 3);
+                await waitUntil(() => el.products.length === 4);
             } finally {
                 console.error = originalConsoleError;
             }
