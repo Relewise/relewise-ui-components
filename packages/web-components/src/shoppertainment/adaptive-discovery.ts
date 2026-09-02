@@ -1,6 +1,7 @@
 import {
     FeedCompositionResult,
     FeedRecommendationInitializationBuilder,
+    FeedRecommendationNextItemsBuilder,
     ProductResult,
     ContentResult,
     User,
@@ -32,6 +33,10 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
     private user: User | null = null;
 
     private abortController = new AbortController();
+    private initializedFeedId: string | null = null;
+    private intersectionObserver?: IntersectionObserver;
+    private loadingMore = false;
+    private hasMore = true;
     private requestGeneration = 0;
     private fetchFeedBound = this.fetchFeed.bind(this);
 
@@ -44,13 +49,28 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
     disconnectedCallback(): void {
         this.requestGeneration++;
         this.abortController.abort();
+        this.intersectionObserver?.disconnect();
         window.removeEventListener(Events.contextSettingsUpdated, this.fetchFeedBound);
         super.disconnectedCallback();
+    }
+
+    protected firstUpdated(): void {
+        this.intersectionObserver = new IntersectionObserver(entries => {
+            if (entries.some(entry => entry.isIntersecting)) {
+                void this.loadMore();
+            }
+        }, {
+            rootMargin: '0px 0px 400px 0px',
+        });
     }
 
     private async fetchFeed(): Promise<void> {
         const generation = ++this.requestGeneration;
         this.abortController.abort();
+        this.intersectionObserver?.disconnect();
+        this.initializedFeedId = null;
+        this.loadingMore = false;
+        this.hasMore = true;
         const abortController = new AbortController();
         this.abortController = abortController;
 
@@ -107,12 +127,66 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
                 return;
             }
 
+            this.initializedFeedId = response?.initializedFeedId ?? null;
             this.compositions = response?.recommendations ?? [];
+            this.hasMore = this.initializedFeedId !== null && this.hasItems(this.compositions);
+
+            await this.updateComplete;
+            this.observeLoadMoreSentinel();
         } catch (error) {
             if (!abortController.signal.aborted) {
                 this.compositions = [];
                 console.error('Relewise Web Components: Adaptive Discovery request failed.', error);
             }
+        }
+    }
+
+    private async loadMore(): Promise<void> {
+        if (!this.initializedFeedId || this.loadingMore || !this.hasMore) {
+            return;
+        }
+
+        const generation = this.requestGeneration;
+        const initializedFeedId = this.initializedFeedId;
+        const abortController = this.abortController;
+        this.loadingMore = true;
+
+        try {
+            const response = await getRecommender(getRelewiseUIOptions()).recommendFeedNextItems(
+                new FeedRecommendationNextItemsBuilder({ initializedFeedId }).build(),
+                { abortSignal: abortController.signal },
+            );
+
+            if (generation !== this.requestGeneration || !this.isConnected) {
+                return;
+            }
+
+            const nextCompositions = response?.recommendations ?? [];
+            this.hasMore = this.hasItems(nextCompositions);
+            if (this.hasMore) {
+                this.initializedFeedId = response?.initializedFeedId ?? initializedFeedId;
+                this.compositions = [...this.compositions, ...nextCompositions];
+            }
+        } catch (error) {
+            if (!abortController.signal.aborted) {
+                console.error('Relewise Web Components: Loading more Adaptive Discovery items failed.', error);
+            }
+        } finally {
+            if (generation === this.requestGeneration) {
+                this.loadingMore = false;
+            }
+        }
+    }
+
+    private hasItems(compositions: FeedCompositionResult[]): boolean {
+        return compositions.some(composition =>
+            Boolean(composition.products?.length || composition.content?.length));
+    }
+
+    private observeLoadMoreSentinel(): void {
+        const sentinel = this.renderRoot.querySelector('.rw-load-more-sentinel');
+        if (sentinel && this.hasMore) {
+            this.intersectionObserver?.observe(sentinel);
         }
     }
 
@@ -137,19 +211,32 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
     }
 
     render() {
-        return html`${this.compositions.map(composition => [
-            composition.products?.map(product => this.renderProduct(product)),
-            composition.content?.map(content => this.renderContent(content)),
-        ])}`;
+        return html`
+            ${this.compositions.map(composition => [
+                composition.products?.map(product => this.renderProduct(product)),
+                composition.content?.map(content => this.renderContent(content)),
+            ])}
+            <div class="rw-load-more-sentinel" aria-hidden="true"></div>
+        `;
     }
 
     static styles = css`
         :host {
             display: grid;
+            position: relative;
             width: 100%;
             grid-template-columns: repeat(var(--relewise-recommendation-grid-columns, 4), minmax(0, 1fr));
             gap: var(--relewise-recommendation-grid-gap, 1em);
             grid-auto-rows: 1fr;
+        }
+
+        .rw-load-more-sentinel {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            height: 1px;
+            pointer-events: none;
         }
 
         @media (max-width: 768px) {

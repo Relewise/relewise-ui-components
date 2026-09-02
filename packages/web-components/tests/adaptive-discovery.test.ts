@@ -2,6 +2,7 @@ import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testi
 import {
     ContentResult,
     FeedRecommendationInitializationRequest,
+    FeedRecommendationNextItemsRequest,
     FeedRecommendationResponse,
     ProductResult,
     Recommender,
@@ -15,18 +16,63 @@ import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('relewise-adaptive-discovery', () => {
     const originalRecommendFeedInitialization = Recommender.prototype.recommendFeedInitialization;
+    const originalRecommendFeedNextItems = Recommender.prototype.recommendFeedNextItems;
+    const originalIntersectionObserver = window.IntersectionObserver;
     let requests: FeedRecommendationInitializationRequest[];
+    let nextRequests: FeedRecommendationNextItemsRequest[];
+
+    class MockIntersectionObserver {
+        static instances: MockIntersectionObserver[] = [];
+
+        readonly observedElements = new Set<Element>();
+
+        constructor(
+            private callback: IntersectionObserverCallback,
+            readonly options?: IntersectionObserverInit,
+        ) {
+            MockIntersectionObserver.instances.push(this);
+        }
+
+        observe(element: Element): void {
+            this.observedElements.add(element);
+        }
+
+        disconnect(): void {
+            this.observedElements.clear();
+        }
+
+        trigger(isIntersecting: boolean): void {
+            if (this.observedElements.size === 0) {
+                return;
+            }
+
+            const entries = [...this.observedElements].map(target => ({
+                isIntersecting,
+                target,
+            } as IntersectionObserverEntry));
+            this.callback(entries, this as unknown as IntersectionObserver);
+        }
+    }
 
     setup(() => {
         requests = [];
+        nextRequests = [];
+        MockIntersectionObserver.instances = [];
+        window.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
         Recommender.prototype.recommendFeedInitialization = async request => {
             requests.push(request);
+            return undefined;
+        };
+        Recommender.prototype.recommendFeedNextItems = async request => {
+            nextRequests.push(request);
             return undefined;
         };
     });
 
     teardown(() => {
         Recommender.prototype.recommendFeedInitialization = originalRecommendFeedInitialization;
+        Recommender.prototype.recommendFeedNextItems = originalRecommendFeedNextItems;
+        window.IntersectionObserver = originalIntersectionObserver;
         fixtureCleanup();
         window.relewiseUIOptions = undefined!;
         window.relewiseUIShoppertainmentOptions = undefined;
@@ -140,6 +186,121 @@ suite('relewise-adaptive-discovery', () => {
         await waitUntil(() => element.querySelector('relewise-product-tile') !== null);
 
         assert.strictEqual(element.renderRoot, element);
+    });
+
+    test('loads and appends the next items when the bottom sentinel is close to the viewport', async() => {
+        const initialProduct = { productId: 'initial' } as ProductResult;
+        const nextProduct = { productId: 'next' } as ProductResult;
+        const nextContent = { contentId: 'next-content' } as ContentResult;
+        let resolveNext!: (response: FeedRecommendationResponse) => void;
+        const nextResponse = new Promise<FeedRecommendationResponse>(resolve => resolveNext = resolve);
+        Recommender.prototype.recommendFeedInitialization = async request => {
+            requests.push(request);
+            return {
+                initializedFeedId: 'feed-id',
+                recommendations: [{ products: [initialProduct] }],
+            } as FeedRecommendationResponse;
+        };
+        Recommender.prototype.recommendFeedNextItems = async request => {
+            nextRequests.push(request);
+            return nextResponse;
+        };
+        initializeRelewiseUI(mockRelewiseOptions()).useShoppertainment({
+            adaptiveDiscovery: {
+                minimumPageSize: 4,
+                configure: () => undefined,
+            },
+        });
+        const element = await fixture<AdaptiveDiscovery>(html`
+            <relewise-adaptive-discovery></relewise-adaptive-discovery>
+        `);
+        await waitUntil(() => element.renderRoot.querySelectorAll('relewise-product-tile').length === 1
+            && MockIntersectionObserver.instances[0]?.observedElements.size === 1);
+
+        const observer = MockIntersectionObserver.instances[0];
+        assert.equal(observer.options?.rootMargin, '0px 0px 400px 0px');
+        observer.trigger(true);
+        observer.trigger(true);
+        await waitUntil(() => nextRequests.length === 1);
+
+        assert.equal(nextRequests[0].initializedFeedId, 'feed-id');
+        resolveNext({
+            initializedFeedId: 'feed-id',
+            recommendations: [
+                { products: [nextProduct] },
+                { content: [nextContent] },
+            ],
+        } as FeedRecommendationResponse);
+        await waitUntil(() => element.renderRoot.querySelectorAll('relewise-product-tile').length === 2
+            && element.renderRoot.querySelectorAll('relewise-content-tile').length === 1);
+
+        assert.deepEqual(
+            [...element.renderRoot.querySelectorAll<HTMLElement & { product: ProductResult }>('relewise-product-tile')]
+                .map(tile => tile.product.productId),
+            ['initial', 'next'],
+        );
+    });
+
+    test('stops requesting next items after the feed returns an empty page', async() => {
+        Recommender.prototype.recommendFeedInitialization = async request => {
+            requests.push(request);
+            return {
+                initializedFeedId: 'feed-id',
+                recommendations: [{ products: [{ productId: 'initial' } as ProductResult] }],
+            } as FeedRecommendationResponse;
+        };
+        Recommender.prototype.recommendFeedNextItems = async request => {
+            nextRequests.push(request);
+            return {
+                initializedFeedId: 'feed-id',
+                recommendations: [],
+            } as unknown as FeedRecommendationResponse;
+        };
+        initializeRelewiseUI(mockRelewiseOptions()).useShoppertainment({
+            adaptiveDiscovery: {
+                minimumPageSize: 4,
+                configure: () => undefined,
+            },
+        });
+        await fixture<AdaptiveDiscovery>(html`
+            <relewise-adaptive-discovery></relewise-adaptive-discovery>
+        `);
+        await waitUntil(() => MockIntersectionObserver.instances[0]?.observedElements.size === 1);
+
+        const observer = MockIntersectionObserver.instances[0];
+        observer.trigger(true);
+        await waitUntil(() => nextRequests.length === 1);
+        await new Promise(resolve => setTimeout(resolve, 0));
+        observer.trigger(false);
+        observer.trigger(true);
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        assert.equal(nextRequests.length, 1);
+    });
+
+    test('disconnects the bottom observer when removed', async() => {
+        Recommender.prototype.recommendFeedInitialization = async() => ({
+            initializedFeedId: 'feed-id',
+            recommendations: [{ products: [{ productId: 'initial' } as ProductResult] }],
+        } as FeedRecommendationResponse);
+        initializeRelewiseUI(mockRelewiseOptions()).useShoppertainment({
+            adaptiveDiscovery: {
+                minimumPageSize: 4,
+                configure: () => undefined,
+            },
+        });
+        const element = await fixture<AdaptiveDiscovery>(html`
+            <relewise-adaptive-discovery></relewise-adaptive-discovery>
+        `);
+        await waitUntil(() => MockIntersectionObserver.instances[0]?.observedElements.size === 1);
+
+        const observer = MockIntersectionObserver.instances[0];
+        element.remove();
+        observer.trigger(true);
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        assert.equal(observer.observedElements.size, 0);
+        assert.equal(nextRequests.length, 0);
     });
 
     test('ignores an older response after the context changes', async() => {
