@@ -1493,6 +1493,9 @@ These variables are shared by the standalone product, content, and category reco
 | `--relewise-image-padding` | `0` | Padding around product images. |
 | `--relewise-image-background-color` | `#fff` | Background colour for the image placeholder. |
 | `--relewise-image-align` | `center` | Alignment of the image container content. |
+| `--relewise-product-tile-border-radius` | `0.5em` | Product tile corner radius. |
+| `--relewise-content-tile-border-radius` | `0.5em` | Content tile corner radius. |
+| `--relewise-tile-overflow` | `clip` | Overflow behavior of the default inner tile wrapper. Set to `visible` to disable content clipping. |
 | `--relewise-information-container-margin` | `0.5em 0.5em` | Margin around the information section of the tile. |
 | `--relewise-image-width` | `100%` | Maximum width of product images. |
 | `--relewise-image-height` | `auto` | Height of product images. |

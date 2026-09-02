@@ -98,15 +98,16 @@ export class ProductCategoryTile extends RelewiseLitElement {
                 border: 1px solid var(--relewise-category-tile-border-color, #eee);
                 border-radius: var(--relewise-category-tile-border-radius, 0.5em);
                 box-shadow: var(--relewise-category-tile-box-shadow, 0 1px rgb(0 0 0 / 0.05));
-                clip-path: inset(0 round var(--relewise-category-tile-border-radius, 0.5em));
                 font-family: var(--font);
             }
 
             .rw-category-tile {
+                border-radius: max(0px, calc(var(--relewise-category-tile-border-radius, 0.5em) - 1px));
                 color: inherit;
                 display: flex;
                 flex-direction: column;
                 height: 100%;
+                overflow: var(--relewise-tile-overflow, clip);
                 text-decoration: inherit;
             }
 
