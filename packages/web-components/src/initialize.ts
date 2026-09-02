@@ -5,7 +5,8 @@ import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { TemplateHelpers } from './helpers/templateHelpers';
 import { TargetedSearchConfigurations } from './targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from './targetedRecommendationConfigurations';
-import { AdaptiveDiscoveryFeedConfiguration, TargetedAdaptiveDiscoveryConfigurations } from './adaptiveDiscovery';
+import { TargetedAdaptiveDiscoveryConfigurations } from './adaptiveDiscovery';
+import type { RelewiseUIShoppertainmentOptions } from './shoppertainment';
 
 export interface UserEngagementEntityOptions {
     sentiment?: boolean;
@@ -135,7 +136,7 @@ declare global {
         relewiseUIOptions: RelewiseUIOptions;
         relewiseUISearchOptions: RelewiseUISearchOptions;
         relewiseUIRecommendationOptions: RelewiseUIRecommendationOptions;
-        relewiseUIAdaptiveDiscoveryOptions?: AdaptiveDiscoveryFeedConfiguration;
+        relewiseUIShoppertainmentOptions?: RelewiseUIShoppertainmentOptions;
         relewiseUISearchTargetedConfigurations: TargetedSearchConfigurations;
         relewiseUIRecommendationTargetedConfigurations: TargetedRecommendationConfigurations;
         relewiseUIAdaptiveDiscoveryTargetedConfigurations: TargetedAdaptiveDiscoveryConfigurations;

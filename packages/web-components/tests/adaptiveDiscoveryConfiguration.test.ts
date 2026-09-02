@@ -3,19 +3,20 @@ import {
     AdaptiveDiscoveryFeedConfiguration,
     getRelewiseAdaptiveDiscoveryTargetedConfigurations,
     getRelewiseUIAdaptiveDiscoveryOptions,
+    getRelewiseUIShoppertainmentOptions,
     initializeRelewiseUI,
     registerAdaptiveDiscoveryTarget,
-    useAdaptiveDiscovery,
+    useShoppertainment,
 } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
-suite('adaptiveDiscoveryConfiguration', () => {
+suite('shoppertainmentConfiguration', () => {
     const createConfiguration = (minimumPageSize: number): AdaptiveDiscoveryFeedConfiguration => ({
         minimumPageSize,
         configure: () => undefined,
     });
 
-    test('useAdaptiveDiscovery stores the configuration without invoking it', () => {
+    test('useShoppertainment stores Adaptive Discovery configuration without invoking it', () => {
         let configured = false;
         const configuration: AdaptiveDiscoveryFeedConfiguration = {
             minimumPageSize: 20,
@@ -24,10 +25,18 @@ suite('adaptiveDiscoveryConfiguration', () => {
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
-        useAdaptiveDiscovery(configuration);
+        useShoppertainment({ adaptiveDiscovery: configuration });
 
+        assert.strictEqual(getRelewiseUIShoppertainmentOptions()?.adaptiveDiscovery, configuration);
         assert.strictEqual(getRelewiseUIAdaptiveDiscoveryOptions(), configuration);
         assert.isFalse(configured);
+    });
+
+    test('supports Shoppertainment without Adaptive Discovery configuration', () => {
+        initializeRelewiseUI(mockRelewiseOptions()).useShoppertainment({});
+
+        assert.deepEqual(getRelewiseUIShoppertainmentOptions(), {});
+        assert.isUndefined(getRelewiseUIAdaptiveDiscoveryOptions());
     });
 
     test('supports fluent configuration and target registration', () => {
@@ -36,7 +45,7 @@ suite('adaptiveDiscoveryConfiguration', () => {
         const app = initializeRelewiseUI(mockRelewiseOptions());
 
         const result = app
-            .useAdaptiveDiscovery(defaultConfiguration)
+            .useShoppertainment({ adaptiveDiscovery: defaultConfiguration })
             .registerAdaptiveDiscoveryTarget('campaign', targetConfiguration);
 
         assert.strictEqual(result, app);
@@ -58,7 +67,7 @@ suite('adaptiveDiscoveryConfiguration', () => {
             }),
         };
 
-        initializeRelewiseUI(options).useAdaptiveDiscovery(defaultConfiguration);
+        initializeRelewiseUI(options).useShoppertainment({ adaptiveDiscovery: defaultConfiguration });
 
         assert.strictEqual(
             getRelewiseAdaptiveDiscoveryTargetedConfigurations().resolve('campaign', defaultConfiguration),
@@ -71,7 +80,7 @@ suite('adaptiveDiscoveryConfiguration', () => {
         const firstConfiguration = createConfiguration(30);
         const replacementConfiguration = createConfiguration(40);
 
-        initializeRelewiseUI(mockRelewiseOptions()).useAdaptiveDiscovery(defaultConfiguration);
+        initializeRelewiseUI(mockRelewiseOptions()).useShoppertainment({ adaptiveDiscovery: defaultConfiguration });
         registerAdaptiveDiscoveryTarget('campaign', firstConfiguration);
         registerAdaptiveDiscoveryTarget('campaign', replacementConfiguration);
 
@@ -88,7 +97,7 @@ suite('adaptiveDiscoveryConfiguration', () => {
         console.error = message => error = String(message);
 
         try {
-            initializeRelewiseUI(mockRelewiseOptions()).useAdaptiveDiscovery(defaultConfiguration);
+            initializeRelewiseUI(mockRelewiseOptions()).useShoppertainment({ adaptiveDiscovery: defaultConfiguration });
 
             const result = getRelewiseAdaptiveDiscoveryTargetedConfigurations().resolve('unknown', defaultConfiguration);
 

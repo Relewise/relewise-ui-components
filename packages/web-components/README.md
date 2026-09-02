@@ -59,31 +59,37 @@ updateContextSettings({
 ```
 Components depending on Context Settings will re-render once settings have been updated.
 
-## Configuring Adaptive Discovery
+## Configuring Shoppertainment
 
-Register the initialization configuration for future Adaptive Discovery feed components with `useAdaptiveDiscovery`. The minimum page size and Product/Content composition are intentionally explicit. Omitting `configurationKey` uses the Dataset's active default feed configuration.
+Register Shoppertainment features with `useShoppertainment`.
+
+### Adaptive Discovery
+
+Configure future Adaptive Discovery feed components through the `adaptiveDiscovery` subsection. The minimum page size and Product/Content composition are intentionally explicit. Omitting `configurationKey` uses the Dataset's active default feed configuration.
 
 ```ts
 initializeRelewiseUI({
     ...
-}).useAdaptiveDiscovery({
-    minimumPageSize: 20,
-    configurationKey: 'homepage',
-    configure(builder) {
-        builder
-            .allowProductsCurrentlyInCart()
-            .addComposition({
-                options: {
-                    type: 'Product',
-                    count: { lowerBoundInclusive: 1, upperBoundInclusive: 1 },
-                },
-            })
-            .addComposition({
-                options: {
-                    type: 'Content',
-                    count: { lowerBoundInclusive: 1, upperBoundInclusive: 1 },
-                },
-            });
+}).useShoppertainment({
+    adaptiveDiscovery: {
+        minimumPageSize: 20,
+        configurationKey: 'homepage',
+        configure(builder) {
+            builder
+                .allowProductsCurrentlyInCart()
+                .addComposition({
+                    options: {
+                        type: 'Product',
+                        count: { lowerBoundInclusive: 1, upperBoundInclusive: 1 },
+                    },
+                })
+                .addComposition({
+                    options: {
+                        type: 'Content',
+                        count: { lowerBoundInclusive: 1, upperBoundInclusive: 1 },
+                    },
+                });
+        },
     },
 }).registerAdaptiveDiscoveryTarget('campaign', {
     minimumPageSize: 30,

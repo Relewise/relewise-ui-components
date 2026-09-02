@@ -3,7 +3,8 @@ import { RelewiseUIOptions } from '../initialize';
 import { RelewiseUIRecommendationOptions, RelewiseUISearchOptions } from '../app';
 import { TargetedSearchConfigurations } from '../targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from 'src/targetedRecommendationConfigurations';
-import { AdaptiveDiscoveryFeedConfiguration, TargetedAdaptiveDiscoveryConfigurations } from '../adaptiveDiscovery';
+import type { AdaptiveDiscoveryFeedConfiguration, TargetedAdaptiveDiscoveryConfigurations } from '../adaptiveDiscovery';
+import type { RelewiseUIShoppertainmentOptions } from '../shoppertainment';
 
 export function getRelewiseUIOptions(): RelewiseUIOptions {
     const options = window.relewiseUIOptions;
@@ -27,7 +28,11 @@ export function getRelewiseUIRecommendationOptions(): RelewiseUIRecommendationOp
 }
 
 export function getRelewiseUIAdaptiveDiscoveryOptions(): AdaptiveDiscoveryFeedConfiguration | undefined {
-    return window.relewiseUIAdaptiveDiscoveryOptions;
+    return getRelewiseUIShoppertainmentOptions()?.adaptiveDiscovery;
+}
+
+export function getRelewiseUIShoppertainmentOptions(): RelewiseUIShoppertainmentOptions | undefined {
+    return window.relewiseUIShoppertainmentOptions;
 }
 
 export function getRelewiseSearchTargetedConfigurations(): TargetedSearchConfigurations {
