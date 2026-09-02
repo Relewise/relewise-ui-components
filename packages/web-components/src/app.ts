@@ -45,6 +45,7 @@ import { UniversalSearchProductCategoriesTab } from './search/universal-search/c
 import { UniversalSearchProductsTab } from './search/universal-search/components/products-tab';
 import { UniversalSearchRecommendations } from './search/universal-search/components/recommendations';
 import type { AdaptiveDiscoveryFeedConfiguration } from './adaptiveDiscovery';
+import { AdaptiveDiscovery } from './shoppertainment';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -284,6 +285,9 @@ export class App {
 
 export function useShoppertainment(options?: RelewiseUIShoppertainmentOptions) {
     window.relewiseUIShoppertainmentOptions = options ?? {};
+
+    tryRegisterElement('relewise-adaptive-discovery', AdaptiveDiscovery);
+    registerGenericComponents();
 }
 
 export function useRecommendations(options?: RelewiseUIRecommendationOptions) {

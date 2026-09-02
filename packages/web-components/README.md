@@ -65,7 +65,7 @@ Register Shoppertainment features with `useShoppertainment`.
 
 ### Adaptive Discovery
 
-Configure future Adaptive Discovery feed components through the `adaptiveDiscovery` subsection. The minimum page size and Product/Content composition are intentionally explicit. Omitting `configurationKey` uses the Dataset's active default feed configuration.
+Configure the Adaptive Discovery feed through the `adaptiveDiscovery` subsection. The minimum page size and Product/Content composition are intentionally explicit. Omitting `configurationKey` uses the Dataset's active default feed configuration.
 
 ```ts
 initializeRelewiseUI({
@@ -99,7 +99,29 @@ initializeRelewiseUI({
 });
 ```
 
-A matching target replaces the default Adaptive Discovery configuration. An unknown target reports an error and falls back to the default. Registering this configuration does not currently render a feed or send Adaptive Discovery requests.
+A matching target replaces the default Adaptive Discovery configuration. An unknown target reports an error and falls back to the default when one is configured. Targets can also be used without a default configuration, which is useful when each rendered component registers a complete, instance-specific feed configuration.
+
+Render the feed with `relewise-adaptive-discovery`. It preserves the configured composition order and uses the built-in product and content tiles.
+
+```html
+<relewise-adaptive-discovery
+    displayed-at-location="Home page"
+    target="campaign">
+</relewise-adaptive-discovery>
+```
+
+| Attribute | Default | Description |
+| --- | --- | --- |
+| `displayed-at-location` | `Relewise Adaptive Discovery` | Location included in the initialization request. |
+| `target` | none | Optional target containing a complete Adaptive Discovery configuration. |
+
+The component exposes `product-tile` and `content-tile` CSS parts. Its grid uses the same responsive variables as product and content recommendations:
+
+| CSS custom property | Default | Description |
+| --- | --- | --- |
+| `--relewise-recommendation-grid-columns` | `4` | Number of columns above the mobile breakpoint. |
+| `--relewise-recommendation-grid-mobile-columns` | `2` | Number of columns at widths up to 768px. |
+| `--relewise-recommendation-grid-gap` | `1em` | Gap between feed tiles. |
 
 ## Configuring Relewise Client
 You are required to configure the client that you use to call Relewise. Provide the following configuration during initialization.
