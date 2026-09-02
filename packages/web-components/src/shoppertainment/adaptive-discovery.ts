@@ -1,5 +1,6 @@
 import {
     FeedCompositionResult,
+    FeedItem,
     FeedRecommendationInitializationBuilder,
     FeedRecommendationNextItemsBuilder,
     ProductResult,
@@ -18,6 +19,7 @@ import {
 } from '../helpers/relewiseUIOptions';
 import { RelewiseLitElement } from '../relewise-lit-element';
 import { getRecommender } from '../recommendations/recommender';
+import { getTracker } from '../tracking';
 
 export class AdaptiveDiscovery extends RelewiseLitElement {
     @property({ type: String })
@@ -274,7 +276,8 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
             <relewise-product-tile
                 part="product-tile"
                 .product=${product}
-                .user=${this.user}>
+                .user=${this.user}
+                @click=${() => this.trackProductClick(product)}>
             </relewise-product-tile>
         `;
     }
@@ -284,9 +287,45 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
             <relewise-content-tile
                 part="content-tile"
                 .content=${content}
-                .user=${this.user}>
+                .user=${this.user}
+                @click=${() => this.trackContentClick(content)}>
             </relewise-content-tile>
         `;
+    }
+
+    private trackProductClick(product: ProductResult): void {
+        if (!product.productId) {
+            return;
+        }
+
+        this.trackItemClick({
+            productAndVariantId: {
+                productId: product.productId,
+                variantId: product.variant?.variantId,
+            },
+        });
+    }
+
+    private trackContentClick(content: ContentResult): void {
+        if (!content.contentId) {
+            return;
+        }
+
+        this.trackItemClick({ contentId: content.contentId });
+    }
+
+    private trackItemClick(item: FeedItem): void {
+        if (!this.initializedFeedId || !this.user) {
+            return;
+        }
+
+        void getTracker(getRelewiseUIOptions()).trackFeedItemClick({
+            user: this.user,
+            feedId: this.initializedFeedId,
+            item,
+        }).catch(error => {
+            console.error('Relewise Web Components: Tracking Adaptive Discovery item click failed.', error);
+        });
     }
 
     static styles = css`
