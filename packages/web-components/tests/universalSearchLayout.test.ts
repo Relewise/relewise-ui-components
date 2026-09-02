@@ -289,6 +289,70 @@ suite('universal search layout', () => {
         assert.isNull(productsTab.renderRoot.querySelector('[part="loading-state"]'));
     });
 
+    test('shows entity errors when context resolution fails before preparing the batch', async() => {
+        const options = mockRelewiseOptions();
+        options.contextSettings.getUser = async() => {
+            throw new Error('Unable to resolve the user');
+        };
+        initializeRelewiseUI(options);
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: {
+                    products: {},
+                    productCategories: {},
+                    content: {},
+                },
+            },
+        });
+        const element = await fixture<UniversalSearch>(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `);
+
+        (element as any).setSearchTerm('shoe');
+        const tabs = [...element.renderRoot.querySelectorAll<any>(
+            'relewise-universal-search-products-tab, relewise-universal-search-product-categories-tab, relewise-universal-search-content-tab',
+        )];
+        await waitUntil(
+            () => tabs.every(tab => tab.renderRoot.querySelector('[part="error-state"]')),
+            'the entity error states were not rendered',
+        );
+
+        assert.lengthOf(tabs, 3);
+        tabs.forEach(tab => assert.isNull(tab.renderRoot.querySelector('[part="loading-state"]')));
+    });
+
+    test('shows entity errors when the batch is missing individual responses', async() => {
+        Searcher.prototype.batch = async function() {
+            return { responses: [] } as any;
+        };
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: {
+                    products: {},
+                    productCategories: {},
+                    content: {},
+                },
+            },
+        });
+        const element = await fixture<UniversalSearch>(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `);
+
+        (element as any).setSearchTerm('shoe');
+        const tabs = [...element.renderRoot.querySelectorAll<any>(
+            'relewise-universal-search-products-tab, relewise-universal-search-product-categories-tab, relewise-universal-search-content-tab',
+        )];
+        await waitUntil(
+            () => tabs.every(tab => tab.renderRoot.querySelector('[part="error-state"]')),
+            'the missing entity responses did not render errors',
+        );
+
+        assert.lengthOf(tabs, 3);
+        tabs.forEach(tab => assert.isNull(tab.renderRoot.querySelector('[part="loading-state"]')));
+    });
+
     test('does not render entity headings before search responses arrive', async () => {
         const wrapper = await fixture<HTMLElement>(html`
             <div>
