@@ -190,6 +190,16 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
         }
     }
 
+    render() {
+        return html`
+            ${this.compositions.map(composition => [
+            composition.products?.map(product => this.renderProduct(product)),
+            composition.content?.map(content => this.renderContent(content)),
+        ])}
+            <div class="rw-load-more-sentinel" aria-hidden="true"></div>
+        `;
+    }
+
     private renderProduct(product: ProductResult) {
         return html`
             <relewise-product-tile
@@ -207,16 +217,6 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
                 .content=${content}
                 .user=${this.user}>
             </relewise-content-tile>
-        `;
-    }
-
-    render() {
-        return html`
-            ${this.compositions.map(composition => [
-                composition.products?.map(product => this.renderProduct(product)),
-                composition.content?.map(content => this.renderContent(content)),
-            ])}
-            <div class="rw-load-more-sentinel" aria-hidden="true"></div>
         `;
     }
 
