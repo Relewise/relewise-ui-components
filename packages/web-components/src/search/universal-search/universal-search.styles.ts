@@ -6,7 +6,6 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
     :host {
         display: block;
         font-family: var(--font);
-        --relewise-universal-search-color: var(--relewise-color, #212427);
         --relewise-popular-search-term-border-color: var(--relewise-universal-search-border-color, #ddd);
         --relewise-recommendation-grid-columns: var(--relewise-universal-search-result-columns, var(--relewise-universal-search-product-columns, 5));
         --relewise-recommendation-grid-mobile-columns: var(--relewise-universal-search-mobile-result-columns, var(--relewise-universal-search-mobile-product-columns, 2));
@@ -31,8 +30,8 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
 
     .rw-dialog {
         background: var(--relewise-universal-search-background, white);
-        color: var(--relewise-universal-search-color);
-        --color: var(--relewise-universal-search-color);
+        color: var(--relewise-universal-search-color, #212427);
+        --color: var(--relewise-universal-search-color, #212427);
         container: universal-search-dialog / inline-size;
         width: min(100%, var(--relewise-universal-search-width, 100%));
         height: min(100dvh, var(--relewise-universal-search-height, 100%));
@@ -59,7 +58,7 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         max-width: min(100%, var(--relewise-universal-search-search-width, 100%));
         min-width: 0;
         width: min(100%, var(--relewise-universal-search-search-width, 100%));
-        --color: var(--relewise-universal-search-color);
+        --color: var(--relewise-universal-search-color, #212427);
     }
 
     .rw-close {
@@ -69,7 +68,7 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         padding: var(--relewise-universal-search-close-button-padding, 0 0.75em);
         padding-inline: var(--relewise-universal-search-header-gap, 1em);
         --relewise-button-icon-padding: 0;
-        --relewise-button-text-color: var(--relewise-universal-search-color);
+        --relewise-button-text-color: var(--relewise-universal-search-color, #212427);
     }
 
     .rw-body {

@@ -123,23 +123,79 @@ suite('universal search layout', () => {
         assert.closeTo(controlSpacing, rightSpacing, 1);
     });
 
-    test('uses the Universal Search foreground color for the input placeholder', async () => {
-        const element = await fixture<UniversalSearch>(html`
-            <relewise-universal-search
-                open
-                style="--relewise-universal-search-color: rgb(30 40 50);">
-            </relewise-universal-search>
-        `);
-        await element.updateComplete;
+    (['shadow', 'light'] as const).forEach(domMode => {
+        test(`keeps the default foreground independent of inherited neutral styling in ${domMode} DOM`, async () => {
+            const options = mockRelewiseOptions();
+            options.components = { domMode };
+            initializeRelewiseUI(options);
+            useSearch({ universalSearch: {} });
 
-        const dialog = element.renderRoot.querySelector<HTMLElement>('[part="dialog"]')!;
-        const search = element.renderRoot.querySelector<any>('relewise-search-combobox')!;
-        await search.updateComplete;
-        const input = search.renderRoot.querySelector('[part="search-input"]') as HTMLInputElement;
+            const container = await fixture<HTMLElement>(html`
+                <div style="
+                    --relewise-color: #eeeeee;
+                    --relewise-accent-color: rgb(18 18 18);
+                    --relewise-border: 1px solid;
+                    --relewise-border-radius: 0rem;
+                    --relewise-product-search-bar-height: 4rem;
+                    --relewise-button-height: 4rem;
+                    --relewise-base-font-size: 16px;
+                    --relewise-font: monospace;
+                    --relewise-icon-width: 16px;
+                    --relewise-icon-height: 16px;
+                ">
+                    <relewise-universal-search open></relewise-universal-search>
+                </div>
+            `);
+            const element = container.querySelector<UniversalSearch>('relewise-universal-search')!;
+            await element.updateComplete;
 
-        assert.equal(getComputedStyle(search).getPropertyValue('--color').trim(), 'rgb(30 40 50)');
-        assert.notEqual(getComputedStyle(input, '::placeholder').color, 'rgb(238, 238, 238)');
-        assert.equal(getComputedStyle(dialog).color, 'rgb(30, 40, 50)');
+            const dialog = element.renderRoot.querySelector<HTMLElement>('[part="dialog"]')!;
+            const search = element.renderRoot.querySelector<any>('relewise-search-combobox')!;
+            const close = element.renderRoot.querySelector<any>('[part="close-button"]')!;
+            await search.updateComplete;
+            await close.updateComplete;
+            const input = search.renderRoot.querySelector('[part="search-input"]') as HTMLInputElement;
+            const closeControl = close.renderRoot.querySelector('button') as HTMLButtonElement;
+
+            assert.equal(getComputedStyle(dialog).color, 'rgb(33, 36, 39)');
+            assert.notEqual(getComputedStyle(input, '::placeholder').color, 'rgb(238, 238, 238)');
+            assert.equal(getComputedStyle(closeControl).color, 'rgb(33, 36, 39)');
+            assert.equal(getComputedStyle(search).getPropertyValue('--accent-color').trim(), 'rgb(18 18 18)');
+            assert.equal(getComputedStyle(dialog).fontFamily, 'monospace');
+            assert.equal(getComputedStyle(search).getPropertyValue('--relewise-product-search-bar-height').trim(), '4rem');
+        });
+
+        test(`uses an inherited Universal Search foreground override in ${domMode} DOM`, async () => {
+            const options = mockRelewiseOptions();
+            options.components = { domMode };
+            initializeRelewiseUI(options);
+            useSearch({ universalSearch: {} });
+
+            const container = await fixture<HTMLElement>(html`
+                <div style="
+                    --relewise-color: #eeeeee;
+                    --relewise-universal-search-color: rgb(30 40 50);
+                ">
+                    <relewise-universal-search open></relewise-universal-search>
+                </div>
+            `);
+            const element = container.querySelector<UniversalSearch>('relewise-universal-search')!;
+            await element.updateComplete;
+
+            const dialog = element.renderRoot.querySelector<HTMLElement>('[part="dialog"]')!;
+            const search = element.renderRoot.querySelector<any>('relewise-search-combobox')!;
+            const close = element.renderRoot.querySelector<any>('[part="close-button"]')!;
+            await search.updateComplete;
+            await close.updateComplete;
+            const input = search.renderRoot.querySelector('[part="search-input"]') as HTMLInputElement;
+            const closeControl = close.renderRoot.querySelector('button') as HTMLButtonElement;
+
+            assert.equal(getComputedStyle(element).getPropertyValue('--relewise-universal-search-color').trim(), 'rgb(30 40 50)');
+            assert.equal(getComputedStyle(search).getPropertyValue('--color').trim(), 'rgb(30 40 50)');
+            assert.notEqual(getComputedStyle(input, '::placeholder').color, 'rgb(238, 238, 238)');
+            assert.equal(getComputedStyle(closeControl).color, 'rgb(30, 40, 50)');
+            assert.equal(getComputedStyle(dialog).color, 'rgb(30, 40, 50)');
+        });
     });
 
     test('balances visible desktop controls and keeps the result summary left-aligned', async () => {

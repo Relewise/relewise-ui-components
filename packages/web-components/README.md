@@ -1596,7 +1596,7 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-z-index` | `1000` | Stack order of the Universal Search backdrop. |
 | `--relewise-universal-search-backdrop-background` | `rgb(0 0 0 / 0.35)` | Background behind the Universal Search dialog. |
 | `--relewise-universal-search-background` | `white` | Background of the Universal Search dialog. |
-| `--relewise-universal-search-color` | `var(--relewise-color, #212427)` | Text color inherited by the Universal Search dialog. |
+| `--relewise-universal-search-color` | `#212427` | Primary text color inherited by the Universal Search dialog. This is independent of the neutral `--relewise-color` token. |
 | `--relewise-universal-search-width` | `100%` | Width of the Universal Search dialog. |
 | `--relewise-universal-search-height` | `100%` | Height of the Universal Search dialog. |
 | `--relewise-universal-search-dialog-margin` | `0` | Space between the dialog and viewport. Accepts CSS margin shorthand values. |
