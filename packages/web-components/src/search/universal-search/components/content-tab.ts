@@ -173,9 +173,9 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
         this.loading = false;
     }
 
-    private applyResponse(response: ContentSearchResponse | null, facetLabels: string[], reset: boolean): void {
+    private applyResponse(response: ContentSearchResponse, facetLabels: string[], reset: boolean): void {
         this.result = response;
-        this.content = reset ? response?.results ?? [] : this.content.concat(response?.results ?? []);
+        this.content = reset ? response.results ?? [] : this.content.concat(response.results ?? []);
         this.facetLabels = facetLabels;
         this.reportHits();
     }

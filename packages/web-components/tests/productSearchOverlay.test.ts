@@ -142,19 +142,30 @@ suite('product search overlay', () => {
     });
 
     test('settles and preserves existing results when the request fails', async() => {
+        const requestError = new Error('Search failed');
         Searcher.prototype.batch = async function() {
-            throw new Error('Search failed');
+            throw requestError;
         };
         const el = await fixture<ProductSearchOverlay>(html`<relewise-product-search-overlay></relewise-product-search-overlay>`);
         const previousResults = [{ searchTermPrediction: { term: 'shoes' } as any }];
         el.results = previousResults;
         el.productSearchResultHits = 2;
+        const originalConsoleError = console.error;
+        const reportedErrors: unknown[][] = [];
+        console.error = (...args: unknown[]) => reportedErrors.push(args);
 
-        await el.search('shoe');
+        try {
+            await el.search('shoe');
+        } finally {
+            console.error = originalConsoleError;
+        }
 
         assert.isTrue(el.hasCompletedSearchRequest);
         assert.strictEqual(el.results, previousResults);
         assert.equal(el.productSearchResultHits, 2);
+        assert.lengthOf(reportedErrors, 1);
+        assert.equal(reportedErrors[0][0], 'Relewise Web Components: Product search overlay failed.');
+        assert.strictEqual(reportedErrors[0][1], requestError);
     });
 
     test('ignores a response from a search canceled while the request is in flight', async() => {

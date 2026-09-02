@@ -89,17 +89,25 @@ export class ProductSearch extends RelewiseLitElement {
         this.search(true);
     }
 
-    handleLoadMoreEvent() {
-        this.page = this.page + 1;
+    async handleLoadMoreEvent(): Promise<void> {
+        const previousPage = this.page;
+        const previousTake = readCurrentUrlState(QueryKeys.take);
+        const requestedPage = previousPage + 1;
+        this.page = requestedPage;
         updateUrlState(QueryKeys.take, (this.numberOfProducts * this.page).toString());
-        this.search(false);
+        const succeeded = await this.search(false);
+
+        if (!succeeded && this.page === requestedPage) {
+            this.page = previousPage;
+            updateUrlState(QueryKeys.take, previousTake);
+        }
     }
 
     handleScrollEvent() {
         sessionStorage.setItem(SessionVariables.scrollPosition, window.scrollY.toString());
     }
 
-    async search(shouldClearOldResult: boolean) {
+    async search(shouldClearOldResult: boolean): Promise<boolean> {
         this.abortController.abort();
 
         if (shouldClearOldResult) {
@@ -121,7 +129,7 @@ export class ProductSearch extends RelewiseLitElement {
                 this.setSearchResultOnSlotChilderen();
             }
             window.dispatchEvent(new CustomEvent(Events.searchingForProductsCompleted));
-            return;
+            return false;
         }
 
         const abortController = new AbortController();
@@ -134,12 +142,12 @@ export class ProductSearch extends RelewiseLitElement {
             // Wait a tick so runtime filter extensions can run before the first automatic search executes.
             await new Promise(r => setTimeout(r, 0));
             if (abortController.signal.aborted || abortController !== this.abortController) {
-                return;
+                return false;
             }
 
             const settings = await getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search');
             if (abortController.signal.aborted || abortController !== this.abortController) {
-                return;
+                return false;
             }
 
             const requestResult = buildProductSearchRequest({
@@ -153,11 +161,11 @@ export class ProductSearch extends RelewiseLitElement {
             });
             const response = await searcher.searchProducts(requestResult.request, { abortSignal: abortController.signal });
             if (abortController.signal.aborted || abortController !== this.abortController) {
-                return;
+                return false;
             }
 
             if (!response) {
-                return;
+                return false;
             }
 
             if (shouldClearOldResult) {
@@ -171,8 +179,12 @@ export class ProductSearch extends RelewiseLitElement {
             this.products = this.products.concat(response.results ?? []);
 
             this.setSearchResultOnSlotChilderen();
-        } catch {
-            // Keep the previous result, or render the existing empty state on the first request.
+            return true;
+        } catch (error) {
+            if (!abortController.signal.aborted && abortController === this.abortController) {
+                console.error('Relewise Web Components: Product search failed.', error);
+            }
+            return false;
         } finally {
             if (!abortController.signal.aborted && abortController === this.abortController) {
                 window.dispatchEvent(new CustomEvent(Events.searchingForProductsCompleted));

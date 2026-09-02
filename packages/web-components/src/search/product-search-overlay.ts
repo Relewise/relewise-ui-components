@@ -353,8 +353,10 @@ export class ProductSearchOverlay extends RelewiseLitElement {
             if (this.searchPageUrl && productSearchResult.hits > 0)
                 this.results.push({ showAllResults: true });
 
-        } catch {
-            // Keep the previous result, or render the existing empty state on the first request.
+        } catch (error) {
+            if (!abortController.signal.aborted && abortController === this.abortController) {
+                console.error('Relewise Web Components: Product search overlay failed.', error);
+            }
         } finally {
             if (!abortController.signal.aborted && abortController === this.abortController) {
                 this.hasCompletedSearchRequest = true;

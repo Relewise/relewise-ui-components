@@ -219,9 +219,9 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         this.loading = false;
     }
 
-    private applyResponse(response: ProductSearchResponse | null, facetLabels: string[], reset: boolean, prepend: boolean, resultOffset: number): void {
+    private applyResponse(response: ProductSearchResponse, facetLabels: string[], reset: boolean, prepend: boolean, resultOffset: number): void {
         this.result = response;
-        const results = response?.results ?? [];
+        const results = response.results ?? [];
         this.products = reset
             ? results
             : prepend

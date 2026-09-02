@@ -1,6 +1,7 @@
 import { assert, fixture, html, waitUntil } from '@open-wc/testing';
 import { Searcher } from '@relewise/client';
 import { initializeRelewiseUI, ProductSearch } from '../src';
+import { QueryKeys, readCurrentUrlState } from '../src/helpers';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 suite('product search', () => {
@@ -121,6 +122,63 @@ suite('product search', () => {
             assert.deepEqual(el.facetLabels, ['Existing']);
             assert.isFalse(results.showDimmingOverlay);
             assert.isFalse(results.showLoadingSpinner);
+        });
+    }
+
+    for (const failure of ['throws', 'returns no response'] as const) {
+        test(`retries the same pagination when load more ${failure}`, async() => {
+            let searchCalls = 0;
+            const requestedPages: number[] = [];
+            const requestError = new Error('Temporary failure');
+            Searcher.prototype.searchProducts = async function(request) {
+                searchCalls++;
+                requestedPages.push(((request as any).skip / (request as any).take) + 1);
+
+                if (searchCalls === 1) {
+                    return { hits: 4, results: [{ productId: '1' }, { productId: '2' }] } as any;
+                }
+                if (searchCalls === 2) {
+                    if (failure === 'throws') {
+                        throw requestError;
+                    }
+
+                    return undefined as any;
+                }
+
+                return { hits: 4, results: [{ productId: '3' }, { productId: '4' }] } as any;
+            };
+            initializeRelewiseUI(mockRelewiseOptions()).useSearch();
+            window.history.replaceState({}, document.title, '?rw-term=shoe');
+            const el = await fixture<ProductSearch>(html`
+                <relewise-product-search
+                    displayed-at-location="test"
+                    number-of-products="2">
+                </relewise-product-search>
+            `);
+            await waitUntil(() => el.products.length === 2);
+            const originalConsoleError = console.error;
+            const reportedErrors: unknown[][] = [];
+            console.error = (...args: unknown[]) => reportedErrors.push(args);
+
+            try {
+                await el.handleLoadMoreEvent();
+
+                assert.equal(el.page, 1);
+                assert.isNull(readCurrentUrlState(QueryKeys.take));
+
+                await el.handleLoadMoreEvent();
+            } finally {
+                console.error = originalConsoleError;
+            }
+
+            assert.deepEqual(requestedPages, [1, 2, 2]);
+            assert.equal(readCurrentUrlState(QueryKeys.take), '4');
+            assert.deepEqual(el.products.map(product => product.productId), ['1', '2', '3', '4']);
+            assert.lengthOf(reportedErrors, failure === 'throws' ? 1 : 0);
+            if (failure === 'throws') {
+                assert.equal(reportedErrors[0][0], 'Relewise Web Components: Product search failed.');
+                assert.strictEqual(reportedErrors[0][1], requestError);
+            }
         });
     }
 

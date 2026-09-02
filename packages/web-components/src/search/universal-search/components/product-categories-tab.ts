@@ -170,9 +170,9 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
         this.loading = false;
     }
 
-    private applyResponse(response: ProductCategorySearchResponse | null, facetLabels: string[], reset: boolean): void {
+    private applyResponse(response: ProductCategorySearchResponse, facetLabels: string[], reset: boolean): void {
         this.result = response;
-        this.productCategories = reset ? response?.results ?? [] : this.productCategories.concat(response?.results ?? []);
+        this.productCategories = reset ? response.results ?? [] : this.productCategories.concat(response.results ?? []);
         this.facetLabels = facetLabels;
         this.reportHits();
     }
