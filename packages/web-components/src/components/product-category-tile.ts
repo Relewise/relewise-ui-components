@@ -68,16 +68,16 @@ export class ProductCategoryTile extends RelewiseLitElement {
 
     private renderDefaultTemplate(category: ProductCategoryResult) {
         const url = category.data?.['Url']?.value ?? null;
-        const content = this.renderTileContent(category);
+        const image = category.data?.['ImageUrl']?.value ?? null;
+        const tileClass = `rw-category-tile${image ? ' --rw-has-image' : ''}`;
+        const content = this.renderTileContent(category, image);
 
         return url
-            ? html`<a class="rw-category-tile" part="link" href=${url}>${content}</a>`
-            : html`<article class="rw-category-tile" part="container">${content}</article>`;
+            ? html`<a class=${tileClass} part="link" href=${url}>${content}</a>`
+            : html`<article class=${tileClass} part="container">${content}</article>`;
     }
 
-    private renderTileContent(category: ProductCategoryResult) {
-        const image = category.data?.['ImageUrl']?.value ?? null;
-
+    private renderTileContent(category: ProductCategoryResult, image: string | null) {
         return html`
             ${image ? html`
                 <div class="rw-image-container" part="image-container">
@@ -138,7 +138,6 @@ export class ProductCategoryTile extends RelewiseLitElement {
                 display: -webkit-box;
                 font-size: var(--relewise-display-name-font-size, 1em);
                 font-weight: var(--relewise-display-name-font-weight, 500);
-                height: calc(var(--relewise-display-name-line-height, 1.05em) * 2);
                 text-align: var(--relewise-display-name-alignment, start);
                 letter-spacing: var(--relewise-display-name-letter-spacing, -0.025em);
                 line-height: var(--relewise-display-name-line-height, 1);
@@ -146,6 +145,10 @@ export class ProductCategoryTile extends RelewiseLitElement {
                 overflow: hidden;
                 -webkit-box-orient: vertical;
                 -webkit-line-clamp: 2;
+            }
+
+            .--rw-has-image .rw-display-name {
+                height: calc(var(--relewise-display-name-line-height, 1.05em) * 2);
             }
         `,
     ];

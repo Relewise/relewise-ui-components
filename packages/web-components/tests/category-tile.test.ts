@@ -10,25 +10,25 @@ import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 const imageUrl = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 
-function productCategory(categoryId = 'product-category'): ProductCategoryResult {
+function productCategory(categoryId = 'product-category', image: string | null = imageUrl): ProductCategoryResult {
     return {
         categoryId,
         displayName: 'Product category',
         rank: 1,
         data: {
             Url: { type: 'String', isCollection: false, value: '/product-category' },
-            ImageUrl: { type: 'String', isCollection: false, value: imageUrl },
+            ...(image ? { ImageUrl: { type: 'String', isCollection: false, value: image } } : {}),
         },
     } as unknown as ProductCategoryResult;
 }
 
-function contentCategory(categoryId = 'content-category'): ContentCategoryResult {
+function contentCategory(categoryId = 'content-category', image: string | null = imageUrl): ContentCategoryResult {
     return {
         categoryId,
         displayName: 'Content category',
         rank: 1,
         data: {
-            ImageUrl: { type: 'String', isCollection: false, value: imageUrl },
+            ...(image ? { ImageUrl: { type: 'String', isCollection: false, value: image } } : {}),
         },
     } as unknown as ContentCategoryResult;
 }
@@ -120,6 +120,84 @@ suite('category tiles', () => {
 
         assert.equal(getComputedStyle(productElement.shadowRoot!.querySelector('[part="display-name"]')!).textAlign, 'center');
         assert.equal(getComputedStyle(contentElement.shadowRoot!.querySelector('[part="display-name"]')!).textAlign, 'end');
+    });
+
+    test('only reserves two display name lines for category tiles with images in Shadow DOM', async() => {
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+        const wrapper = await fixture<HTMLElement>(html`
+            <div>
+                <relewise-product-category-tile
+                    style="--relewise-display-name-line-height: 20px"
+                    .productCategory=${productCategory('product-with-image')}>
+                </relewise-product-category-tile>
+                <relewise-product-category-tile
+                    style="--relewise-display-name-line-height: 20px"
+                    .productCategory=${productCategory('product-without-image', null)}>
+                </relewise-product-category-tile>
+                <relewise-content-category-tile
+                    style="--relewise-display-name-line-height: 20px"
+                    .contentCategory=${contentCategory('content-with-image')}>
+                </relewise-content-category-tile>
+                <relewise-content-category-tile
+                    style="--relewise-display-name-line-height: 20px"
+                    .contentCategory=${contentCategory('content-without-image', null)}>
+                </relewise-content-category-tile>
+            </div>
+        `);
+        const elements = [...wrapper.children] as (ProductCategoryTile | ContentCategoryTile)[];
+
+        await Promise.all(elements.map(element => element.updateComplete));
+
+        for (const element of [elements[0], elements[2]]) {
+            assert.isTrue(element.renderRoot.querySelector('.rw-category-tile')?.classList.contains('--rw-has-image'));
+            assert.equal(getComputedStyle(element.renderRoot.querySelector('[part="display-name"]')!).height, '40px');
+        }
+
+        for (const element of [elements[1], elements[3]]) {
+            assert.isFalse(element.renderRoot.querySelector('.rw-category-tile')?.classList.contains('--rw-has-image'));
+            assert.notExists(element.renderRoot.querySelector('[part="image-container"]'));
+            assert.equal(getComputedStyle(element.renderRoot.querySelector('[part="display-name"]')!).height, '20px');
+        }
+    });
+
+    test('only reserves two display name lines for category tiles with images in Light DOM', async() => {
+        const options = mockRelewiseOptions();
+        options.components = { domMode: 'light' };
+        initializeRelewiseUI(options).useRecommendations();
+        const wrapper = await fixture<HTMLElement>(html`
+            <div>
+                <relewise-product-category-tile
+                    style="--relewise-display-name-line-height: 20px"
+                    .productCategory=${productCategory('product-with-image')}>
+                </relewise-product-category-tile>
+                <relewise-product-category-tile
+                    style="--relewise-display-name-line-height: 20px"
+                    .productCategory=${productCategory('product-without-image', null)}>
+                </relewise-product-category-tile>
+                <relewise-content-category-tile
+                    style="--relewise-display-name-line-height: 20px"
+                    .contentCategory=${contentCategory('content-with-image')}>
+                </relewise-content-category-tile>
+                <relewise-content-category-tile
+                    style="--relewise-display-name-line-height: 20px"
+                    .contentCategory=${contentCategory('content-without-image', null)}>
+                </relewise-content-category-tile>
+            </div>
+        `);
+        const elements = [...wrapper.children] as (ProductCategoryTile | ContentCategoryTile)[];
+
+        await Promise.all(elements.map(element => element.updateComplete));
+
+        for (const element of [elements[0], elements[2]]) {
+            assert.isTrue(element.querySelector('.rw-category-tile')?.classList.contains('--rw-has-image'));
+            assert.equal(getComputedStyle(element.querySelector('[part="display-name"]')!).height, '40px');
+        }
+
+        for (const element of [elements[1], elements[3]]) {
+            assert.isFalse(element.querySelector('.rw-category-tile')?.classList.contains('--rw-has-image'));
+            assert.notExists(element.querySelector('[part="image-container"]'));
+            assert.equal(getComputedStyle(element.querySelector('[part="display-name"]')!).height, '20px');
+        }
     });
 
     test('uses the product category custom template and suppresses default styles', async() => {
