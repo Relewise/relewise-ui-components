@@ -7,9 +7,11 @@ import {
     ContentResult,
     User,
 } from '@relewise/client';
-import { css, html } from 'lit';
+import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import type { AdaptiveDiscoveryCompositionTemplate } from '../adaptiveDiscovery';
 import { getSelectedContentProperties, getSelectedProductProperties } from '../defaultSettings';
+import formatPrice from '../helpers/formatPrice';
 import { Events } from '../helpers/events';
 import {
     getRelewiseAdaptiveDiscoveryTargetedConfigurations,
@@ -17,9 +19,11 @@ import {
     getRelewiseUIAdaptiveDiscoveryOptions,
     getRelewiseUIOptions,
 } from '../helpers/relewiseUIOptions';
+import { templateHelpers } from '../helpers/templateHelpers';
 import { RelewiseLitElement } from '../relewise-lit-element';
 import { getRecommender } from '../recommendations/recommender';
 import { getTracker } from '../tracking';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 
 export class AdaptiveDiscovery extends RelewiseLitElement {
     @property({ type: String })
@@ -35,6 +39,7 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
     private user: User | null = null;
 
     private abortController = new AbortController();
+    private compositionTemplates?: Record<string, AdaptiveDiscoveryCompositionTemplate>;
     private initializedFeedId: string | null = null;
     private intersectionObserver?: IntersectionObserver;
     private loadingMore = false;
@@ -71,6 +76,7 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
         const generation = ++this.requestGeneration;
         this.abortController.abort();
         this.intersectionObserver?.disconnect();
+        this.compositionTemplates = undefined;
         this.initializedFeedId = null;
         this.loadingMore = false;
         this.hasMore = true;
@@ -93,6 +99,8 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
                 }
                 return;
             }
+
+            this.compositionTemplates = configuration.compositionTemplates;
 
             const options = getRelewiseUIOptions();
             const settings = await getRelewiseContextSettings(
@@ -253,12 +261,35 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
 
     render() {
         return html`
-            ${this.compositions.map(composition => [
-            composition.products?.map(product => this.renderProduct(product)),
-            composition.content?.map(content => this.renderContent(content)),
-        ])}
+            ${this.compositions.map(composition => this.renderComposition(composition))}
             <div class="rw-load-more-sentinel" aria-hidden="true"></div>
         `;
+    }
+
+    private renderComposition(composition: FeedCompositionResult) {
+        const template = composition.name
+            ? this.compositionTemplates?.[composition.name]
+            : undefined;
+
+        if (template) {
+            return template(composition, {
+                html,
+                helpers: {
+                    ...templateHelpers,
+                    formatPrice,
+                    unsafeHTML,
+                    nothing,
+                    user: this.user,
+                    trackProductClick: product => this.trackProductClick(product),
+                    trackContentClick: content => this.trackContentClick(content),
+                },
+            });
+        }
+
+        return [
+            composition.products?.map(product => this.renderProduct(product)),
+            composition.content?.map(content => this.renderContent(content)),
+        ];
     }
 
     private renderProduct(product: ProductResult) {
