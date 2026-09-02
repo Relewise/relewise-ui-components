@@ -42,6 +42,7 @@ initializeRelewiseUI({
 
                 return html`
                     <a
+                        ${helpers.trackContentVisibility(content)}
                         href=${content.data?.Url?.value ?? ''}
                         style="grid-column: 1 / -1; padding: 2rem; color: inherit; background: #f3f0ff; border-radius: 0.5rem; text-decoration: none;"
                         @click=${() => helpers.trackContentClick(content)}>
