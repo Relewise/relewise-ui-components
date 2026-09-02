@@ -1566,7 +1566,7 @@ Category tiles also use the shared image, information-container, display-name, a
 | `--relewise-product-search-bar-width` | `100%` | Width of the product search bar container. |
 | `--relewise-product-search-bar-height` | `3em` | Height of the product search bar input. |
 | `--relewise-search-combobox-height` | `var(--relewise-product-search-bar-height, 3em)` | Height of the shared search combobox. |
-| `--relewise-search-bar-border-color` | `var(--color)` | Border colour of the search input in its default state. |
+| `--relewise-search-bar-border-color` | `var(--relewise-color, #eee)` | Border colour of the search input in its default state. |
 | `--relewise-search-bar-border-color-focused` | `var(--accent-color)` | Border colour of the search input when focused. |
 | `--relewise-search-suggestions-z-index` | `999` | Stack order of the search suggestions popup. |
 | `--relewise-search-suggestions-offset` | `0.25em` | Space between the search input and suggestions popup. |
@@ -1596,13 +1596,13 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-z-index` | `1000` | Stack order of the Universal Search backdrop. |
 | `--relewise-universal-search-backdrop-background` | `rgb(0 0 0 / 0.35)` | Background behind the Universal Search dialog. |
 | `--relewise-universal-search-background` | `white` | Background of the Universal Search dialog. |
-| `--relewise-universal-search-color` | `var(--relewise-color, #212427)` | Text color inherited by the Universal Search dialog. |
+| `--relewise-universal-search-color` | `#212427` | Primary text color used throughout the Universal Search dialog. |
 | `--relewise-universal-search-width` | `100%` | Width of the Universal Search dialog. |
 | `--relewise-universal-search-height` | `100%` | Height of the Universal Search dialog. |
 | `--relewise-universal-search-dialog-margin` | `0` | Space between the dialog and viewport. Accepts CSS margin shorthand values. |
 | `--relewise-universal-search-mobile-width` | Desktop width | Dialog width at viewport widths up to `48rem` (typically `768px`). |
 | `--relewise-universal-search-mobile-height` | Desktop height | Dialog height at viewport widths up to `48rem` (typically `768px`). |
-| `--relewise-universal-search-border-color` | `var(--relewise-checklist-facet-border-color, #eee)` | Border color used within Universal Search. |
+| `--relewise-universal-search-border-color` | `var(--relewise-checklist-facet-border-color, var(--relewise-color, #eee))` | Border color used within Universal Search. |
 | `--relewise-universal-search-header-gap` | `1em` | Shared desktop spacing between the dialog edge, search input, and close button. |
 | `--relewise-universal-search-header-padding` | `1em` | Block padding inside the Universal Search header. |
 | `--relewise-universal-search-mobile-header-spacing` | `var(--relewise-universal-search-header-gap, 0.75em)` | Shared compact spacing between the dialog edge, search input, and close button. |
@@ -1630,7 +1630,7 @@ Recommendation tiles use the shared [recommendation grid variables](#recommendat
 | `--relewise-universal-search-zero-results-border-radius` | `0.5em` | Corner radius of the no-result state. |
 | `--relewise-universal-search-zero-results-background` | `#f6f6f6` | Background of the no-result state. |
 | `--relewise-universal-search-zero-results-icon-size` | `2.5em` | Width and height of the no-result icon container. |
-| `--relewise-universal-search-zero-results-icon-border-color` | `var(--relewise-universal-search-border-color, #ddd)` | Border color of the no-result icon container. |
+| `--relewise-universal-search-zero-results-icon-border-color` | `var(--relewise-universal-search-border-color, var(--relewise-color, #ddd))` | Border color of the no-result icon container. |
 | `--relewise-universal-search-zero-results-icon-color` | `currentColor` | Color of the no-result search icon. |
 | `--relewise-universal-search-zero-results-icon-background` | `white` | Background of the no-result icon container. |
 | `--relewise-universal-search-zero-results-title-font-size` | `1.1em` | Font size of the primary no-result message. |
