@@ -1,10 +1,10 @@
 import { Settings } from '@relewise/client';
 import { RelewiseUIOptions } from '../initialize';
-import { RelewiseUIRecommendationOptions, RelewiseUISearchOptions } from '../app';
+import { RelewiseUIRecommendationOptions, RelewiseUISearchOptions, RelewiseUIShoppertainmentOptions } from '../app';
 import { TargetedSearchConfigurations } from '../targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from 'src/targetedRecommendationConfigurations';
-import type { AdaptiveDiscoveryFeedConfiguration, TargetedAdaptiveDiscoveryConfigurations } from '../adaptiveDiscovery';
-import type { RelewiseUIShoppertainmentOptions } from '../shoppertainment';
+import type { AdaptiveDiscoveryFeedConfiguration } from '../adaptiveDiscovery';
+import type { TargetedAdaptiveDiscoveryConfigurations } from '../targetedAdaptiveDiscoveryConfigurations';
 
 export function getRelewiseUIOptions(): RelewiseUIOptions {
     const options = window.relewiseUIOptions;

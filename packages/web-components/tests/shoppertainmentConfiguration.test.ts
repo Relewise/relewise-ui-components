@@ -10,7 +10,7 @@ import {
 } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
-suite('shoppertainmentConfiguration', () => {
+suite('Shoppertainment configuration', () => {
     const createConfiguration = (minimumPageSize: number): AdaptiveDiscoveryFeedConfiguration => ({
         minimumPageSize,
         configure: () => undefined,

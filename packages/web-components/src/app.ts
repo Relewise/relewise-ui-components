@@ -45,7 +45,6 @@ import { UniversalSearchProductCategoriesTab } from './search/universal-search/c
 import { UniversalSearchProductsTab } from './search/universal-search/components/products-tab';
 import { UniversalSearchRecommendations } from './search/universal-search/components/recommendations';
 import type { AdaptiveDiscoveryFeedConfiguration } from './adaptiveDiscovery';
-import type { RelewiseUIShoppertainmentOptions } from './shoppertainment';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -131,6 +130,10 @@ export interface RelewiseUIRecommendationOptions {
     popularSearchTerms?: {
         targetEntityTypes?: PopularSearchTermEntityType[];
     };
+}
+
+export interface RelewiseUIShoppertainmentOptions {
+    adaptiveDiscovery?: AdaptiveDiscoveryFeedConfiguration;
 }
 
 export interface SearchLocalization {
@@ -238,7 +241,7 @@ export interface SearchTemplates {
 }
 
 export class App {
-    useShoppertainment(options: RelewiseUIShoppertainmentOptions): App {
+    useShoppertainment(options?: RelewiseUIShoppertainmentOptions): App {
         useShoppertainment(options);
         return this;
     }
@@ -279,8 +282,8 @@ export class App {
     }
 }
 
-export function useShoppertainment(options: RelewiseUIShoppertainmentOptions) {
-    window.relewiseUIShoppertainmentOptions = options;
+export function useShoppertainment(options?: RelewiseUIShoppertainmentOptions) {
+    window.relewiseUIShoppertainmentOptions = options ?? {};
 }
 
 export function useRecommendations(options?: RelewiseUIRecommendationOptions) {
