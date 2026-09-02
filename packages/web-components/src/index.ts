@@ -15,3 +15,4 @@ export * from './targetedRecommendationConfigurations';
 export * from './addFilters';
 export * from './types/userEngagement';
 export * from './relewise-lit-element';
+export * from './adaptiveDiscovery';

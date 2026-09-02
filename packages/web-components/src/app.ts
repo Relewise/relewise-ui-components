@@ -44,6 +44,7 @@ import { UniversalSearchLoadMore } from './search/universal-search/components/lo
 import { UniversalSearchProductCategoriesTab } from './search/universal-search/components/product-categories-tab';
 import { UniversalSearchProductsTab } from './search/universal-search/components/products-tab';
 import { UniversalSearchRecommendations } from './search/universal-search/components/recommendations';
+import { AdaptiveDiscoveryFeedConfiguration } from './adaptiveDiscovery';
 
 export interface RelewiseUISearchOptions {
     filters?: SearchFilters;
@@ -236,6 +237,11 @@ export interface SearchTemplates {
 }
 
 export class App {
+    useAdaptiveDiscovery(configuration: AdaptiveDiscoveryFeedConfiguration): App {
+        useAdaptiveDiscovery(configuration);
+        return this;
+    }
+
     useRecommendations(options?: RelewiseUIRecommendationOptions): App {
         useRecommendations(options);
         return this;
@@ -265,6 +271,15 @@ export class App {
         registerRecommendationTarget(target, configuration);
         return this;
     }
+
+    registerAdaptiveDiscoveryTarget(target: string, configuration: AdaptiveDiscoveryFeedConfiguration): App {
+        registerAdaptiveDiscoveryTarget(target, configuration);
+        return this;
+    }
+}
+
+export function useAdaptiveDiscovery(configuration: AdaptiveDiscoveryFeedConfiguration) {
+    window.relewiseUIAdaptiveDiscoveryOptions = configuration;
 }
 
 export function useRecommendations(options?: RelewiseUIRecommendationOptions) {
@@ -310,6 +325,14 @@ export function registerSearchTarget(target: string, configuration: TargetedSear
 
 export function registerRecommendationTarget(target: string, configuration: TargetedRecommendationConfiguration) {
     const targetedConfigurations = getRelewiseRecommendationTargetedConfigurations();
+    targetedConfigurations.add({
+        target: target,
+        configuration: configuration,
+    });
+}
+
+export function registerAdaptiveDiscoveryTarget(target: string, configuration: AdaptiveDiscoveryFeedConfiguration) {
+    const targetedConfigurations = window.relewiseUIAdaptiveDiscoveryTargetedConfigurations;
     targetedConfigurations.add({
         target: target,
         configuration: configuration,
