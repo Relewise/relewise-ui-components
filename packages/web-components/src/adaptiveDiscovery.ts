@@ -28,6 +28,7 @@ export interface AdaptiveDiscoveryFeedConfiguration {
     minimumPageSize: number;
     configurationKey?: string;
     maximumItems?: number;
+    dwellThresholdMilliseconds?: number;
     configure: (builder: FeedRecommendationInitializationBuilder) => void;
     compositionTemplates?: Record<string, AdaptiveDiscoveryCompositionTemplate>;
 }
