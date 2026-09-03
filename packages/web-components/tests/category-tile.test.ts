@@ -149,12 +149,10 @@ suite('category tiles', () => {
         await Promise.all(elements.map(element => element.updateComplete));
 
         for (const element of [elements[0], elements[2]]) {
-            assert.isTrue(element.renderRoot.querySelector('.rw-category-tile')?.classList.contains('--rw-has-image'));
             assert.equal(getComputedStyle(element.renderRoot.querySelector('[part="display-name"]')!).height, '40px');
         }
 
         for (const element of [elements[1], elements[3]]) {
-            assert.isFalse(element.renderRoot.querySelector('.rw-category-tile')?.classList.contains('--rw-has-image'));
             assert.notExists(element.renderRoot.querySelector('[part="image-container"]'));
             assert.equal(getComputedStyle(element.renderRoot.querySelector('[part="display-name"]')!).height, '20px');
         }
@@ -189,15 +187,35 @@ suite('category tiles', () => {
         await Promise.all(elements.map(element => element.updateComplete));
 
         for (const element of [elements[0], elements[2]]) {
-            assert.isTrue(element.querySelector('.rw-category-tile')?.classList.contains('--rw-has-image'));
             assert.equal(getComputedStyle(element.querySelector('[part="display-name"]')!).height, '40px');
         }
 
         for (const element of [elements[1], elements[3]]) {
-            assert.isFalse(element.querySelector('.rw-category-tile')?.classList.contains('--rw-has-image'));
             assert.notExists(element.querySelector('[part="image-container"]'));
             assert.equal(getComputedStyle(element.querySelector('[part="display-name"]')!).height, '20px');
         }
+    });
+
+    test('keeps cards aligned per row when an image appears in a later grid row', async() => {
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+        const wrapper = await fixture<HTMLElement>(html`
+            <div style="display: grid; grid-template-columns: repeat(2, 10rem); gap: 1rem; --relewise-image-height: 6rem; --relewise-display-name-line-height: 20px;">
+                <relewise-product-category-tile .productCategory=${productCategory('compact-one', null)}></relewise-product-category-tile>
+                <relewise-product-category-tile .productCategory=${productCategory('compact-two', null)}></relewise-product-category-tile>
+                <relewise-product-category-tile .productCategory=${productCategory('mixed-without-image', null)}></relewise-product-category-tile>
+                <relewise-product-category-tile .productCategory=${productCategory('mixed-with-image')}></relewise-product-category-tile>
+            </div>
+        `);
+        const elements = [...wrapper.children] as ProductCategoryTile[];
+
+        await Promise.all(elements.map(element => element.updateComplete));
+
+        const heights = elements.map(element => element.getBoundingClientRect().height);
+        assert.equal(heights[0], heights[1]);
+        assert.equal(heights[2], heights[3]);
+        assert.isBelow(heights[0], heights[2]);
+        assert.equal(getComputedStyle(elements[2].renderRoot.querySelector('[part="display-name"]')!).height, '20px');
+        assert.equal(getComputedStyle(elements[3].renderRoot.querySelector('[part="display-name"]')!).height, '40px');
     });
 
     test('uses the product category custom template and suppresses default styles', async() => {

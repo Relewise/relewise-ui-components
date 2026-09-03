@@ -68,16 +68,16 @@ export class ProductCategoryTile extends RelewiseLitElement {
 
     private renderDefaultTemplate(category: ProductCategoryResult) {
         const url = category.data?.['Url']?.value ?? null;
-        const image = category.data?.['ImageUrl']?.value ?? null;
-        const tileClass = `rw-category-tile${image ? ' --rw-has-image' : ''}`;
-        const content = this.renderTileContent(category, image);
+        const content = this.renderTileContent(category);
 
         return url
-            ? html`<a class=${tileClass} part="link" href=${url}>${content}</a>`
-            : html`<article class=${tileClass} part="container">${content}</article>`;
+            ? html`<a class="rw-category-tile" part="link" href=${url}>${content}</a>`
+            : html`<article class="rw-category-tile" part="container">${content}</article>`;
     }
 
-    private renderTileContent(category: ProductCategoryResult, image: string | null) {
+    private renderTileContent(category: ProductCategoryResult) {
+        const image = category.data?.['ImageUrl']?.value ?? null;
+
         return html`
             ${image ? html`
                 <div class="rw-image-container" part="image-container">
@@ -147,7 +147,7 @@ export class ProductCategoryTile extends RelewiseLitElement {
                 -webkit-line-clamp: 2;
             }
 
-            .--rw-has-image .rw-display-name {
+            .rw-image-container + .rw-information-container .rw-display-name {
                 height: calc(var(--relewise-display-name-line-height, 1.05em) * 2);
             }
         `,
