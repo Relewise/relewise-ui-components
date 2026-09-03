@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+    <title>Category Tiles</title>
+    <style>
+        body {
+            margin: 1rem;
+        }
+
+        section {
+            margin-block: 2rem;
+        }
+
+        .tile-grid {
+            --relewise-image-height: 8rem;
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            max-width: 70rem;
+        }
+
+        relewise-product-category-tile::part(image) {
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        #pagination-status {
+            margin-block: 0.75rem 0;
+        }
+
+        @media (max-width: 48rem) {
+            .tile-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <script type="module" src="index.ts"></script>
+    <h1>Category Tiles</h1>
+    <p>This example shows how category tiles are laid out with and without images.</p>
+
+    <section>
+        <h2>Without images</h2>
+        <p>Titles use their natural height, keeping the tiles compact.</p>
+        <div class="tile-grid" id="compact-grid">
+            <relewise-product-category-tile></relewise-product-category-tile>
+            <relewise-product-category-tile></relewise-product-category-tile>
+            <relewise-product-category-tile></relewise-product-category-tile>
+            <relewise-product-category-tile></relewise-product-category-tile>
+        </div>
+    </section>
+
+    <section>
+        <h2>With and without images</h2>
+        <p>Cards remain aligned within each row when only some categories have images.</p>
+        <div class="tile-grid" id="mixed-grid">
+            <relewise-product-category-tile></relewise-product-category-tile>
+            <relewise-product-category-tile></relewise-product-category-tile>
+            <relewise-product-category-tile></relewise-product-category-tile>
+            <relewise-product-category-tile></relewise-product-category-tile>
+        </div>
+    </section>
+
+    <section>
+        <h2>Loading more results</h2>
+        <p>Adding an image later changes only the row containing that image.</p>
+        <div class="tile-grid" id="pagination-grid"></div>
+        <div class="controls">
+            <button id="load-more" type="button">Append results with an image</button>
+            <button id="reset" type="button">Reset</button>
+        </div>
+        <p id="pagination-status" role="status"></p>
+    </section>
+</body>
+</html>

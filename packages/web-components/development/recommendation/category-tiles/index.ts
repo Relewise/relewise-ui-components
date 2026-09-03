@@ -10,22 +10,14 @@ initializeRelewiseUI({
         currency: 'USD',
     },
     datasetId: '00000000-0000-0000-0000-000000000000',
-    apiKey: 'category-tile-spacing-poc',
+    apiKey: 'category-tiles-example',
 }).useRecommendations();
 
-function image(label: string, start: string, end: string): string {
+function image(label: string): string {
     const svg = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
-            <defs>
-                <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stop-color="${start}" />
-                    <stop offset="1" stop-color="${end}" />
-                </linearGradient>
-            </defs>
-            <rect width="640" height="400" fill="url(#background)" />
-            <circle cx="520" cy="90" r="120" fill="white" fill-opacity="0.16" />
-            <circle cx="100" cy="360" r="180" fill="white" fill-opacity="0.1" />
-            <text x="40" y="350" fill="white" font-family="Arial, sans-serif" font-size="52" font-weight="700">${label}</text>
+            <rect width="640" height="400" fill="#e5e7eb" />
+            <text x="32" y="350" fill="#374151" font-family="Arial, sans-serif" font-size="48">${label}</text>
         </svg>`;
 
     return `data:image/svg+xml,${encodeURIComponent(svg)}`;
@@ -37,7 +29,7 @@ function category(id: string, displayName: string, imageUrl?: string): ProductCa
         displayName,
         rank: 1,
         data: {
-            Url: { type: 'String', isCollection: false, value: '#poc' },
+            Url: { type: 'String', isCollection: false, value: '#example' },
             ...(imageUrl ? { ImageUrl: { type: 'String', isCollection: false, value: imageUrl } } : {}),
         },
     } as unknown as ProductCategoryResult;
@@ -50,9 +42,9 @@ function assignCategories(selector: string, categories: ProductCategoryResult[])
     });
 }
 
-const fashionImage = image('Fashion', '#c026d3', '#7c3aed');
-const gardenImage = image('Garden', '#059669', '#0f766e');
-const electronicsImage = image('Electronics', '#2563eb', '#0f172a');
+const fashionImage = image('Fashion');
+const gardenImage = image('Garden');
+const electronicsImage = image('Electronics');
 
 assignCategories('#compact-grid relewise-product-category-tile', [
     category('compact-1', 'Women'),
@@ -92,14 +84,14 @@ function resetPagination(): void {
     paginationGrid.replaceChildren();
     firstPage.forEach(appendTile);
     loadMoreButton.disabled = false;
-    paginationStatus.textContent = 'Six compact results loaded. The second row is currently incomplete.';
+    paginationStatus.textContent = 'Six results loaded. The second row is incomplete.';
 }
 
 loadMoreButton.addEventListener('click', () => {
-    appendTile(category('page-7', 'Electronics appears on page 2', electronicsImage));
+    appendTile(category('page-7', 'Electronics appears in the next results', electronicsImage));
     appendTile(category('page-8', 'Another category without artwork'));
     loadMoreButton.disabled = true;
-    paginationStatus.textContent = 'Page 2 appended. The completed first row stayed compact; only the shared second row grew and remains aligned.';
+    paginationStatus.textContent = 'Two results appended. The first row stayed compact, and the second row remains aligned.';
 });
 
 resetButton.addEventListener('click', resetPagination);
