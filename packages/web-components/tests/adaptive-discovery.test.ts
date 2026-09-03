@@ -208,6 +208,7 @@ suite('relewise-adaptive-discovery', () => {
         initializeRelewiseUI(mockRelewiseOptions()).useShoppertainment({
             adaptiveDiscovery: {
                 minimumPageSize: 4,
+                maximumItems: 3,
                 configure: () => undefined,
             },
         });
@@ -239,6 +240,42 @@ suite('relewise-adaptive-discovery', () => {
                 .map(tile => tile.product.productId),
             ['initial', 'next'],
         );
+
+        observer.trigger(false);
+        observer.trigger(true);
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        assert.equal(nextRequests.length, 1);
+    });
+
+    test('does not render more than the configured maximum items from the initial response', async() => {
+        Recommender.prototype.recommendFeedInitialization = async() => ({
+            initializedFeedId: 'feed-id',
+            recommendations: [
+                {
+                    products: [
+                        { productId: 'product-1' } as ProductResult,
+                        { productId: 'product-2' } as ProductResult,
+                    ],
+                },
+                { content: [{ contentId: 'content-1' } as ContentResult] },
+            ],
+        } as FeedRecommendationResponse);
+        initializeRelewiseUI(mockRelewiseOptions()).useShoppertainment({
+            adaptiveDiscovery: {
+                minimumPageSize: 4,
+                maximumItems: 2,
+                configure: () => undefined,
+            },
+        });
+
+        const element = await fixture<AdaptiveDiscovery>(html`
+            <relewise-adaptive-discovery></relewise-adaptive-discovery>
+        `);
+        await waitUntil(() => element.renderRoot.querySelectorAll('relewise-product-tile').length === 2);
+
+        assert.isNull(element.renderRoot.querySelector('relewise-content-tile'));
+        assert.equal(MockIntersectionObserver.instances[0].observedElements.size, 0);
     });
 
     test('stops requesting next items after the feed returns an empty page', async() => {

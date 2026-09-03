@@ -74,6 +74,7 @@ initializeRelewiseUI({
     adaptiveDiscovery: {
         minimumPageSize: 20,
         configurationKey: 'homepage',
+        maximumItems: 60,
         configure(builder) {
             builder
                 .allowProductsCurrentlyInCart()
@@ -102,7 +103,7 @@ initializeRelewiseUI({
 A matching target replaces the default Adaptive Discovery configuration. An unknown target reports an error and falls back to the default when one is configured. Targets can also be used without a default configuration, which is useful when each rendered component registers a complete, instance-specific feed configuration.
 
 Render the feed with `relewise-adaptive-discovery`. It preserves the configured composition order and uses the built-in product and content tiles.
-When the shopper scrolls within 400px of the bottom of the rendered feed, the component automatically requests and appends the next items from the initialized feed.
+When the shopper scrolls within 400px of the bottom of the rendered feed, the component automatically requests and appends the next items from the initialized feed. Set the optional `maximumItems` to limit the combined number of rendered Products and Content; omit it for a continuous feed.
 
 ```html
 <relewise-adaptive-discovery
