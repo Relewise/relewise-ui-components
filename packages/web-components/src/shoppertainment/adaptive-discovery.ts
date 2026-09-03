@@ -37,6 +37,7 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
     private intersectionObserver?: IntersectionObserver;
     private loadingMore = false;
     private hasMore = true;
+    private maximumItems?: number;
     private requestGeneration = 0;
     private fetchFeedBound = this.fetchFeed.bind(this);
 
@@ -71,6 +72,7 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
         this.initializedFeedId = null;
         this.loadingMore = false;
         this.hasMore = true;
+        this.maximumItems = undefined;
         const abortController = new AbortController();
         this.abortController = abortController;
 
@@ -128,8 +130,12 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
             }
 
             this.initializedFeedId = response?.initializedFeedId ?? null;
-            this.compositions = response?.recommendations ?? [];
-            this.hasMore = this.initializedFeedId !== null && this.hasItems(this.compositions);
+            this.maximumItems = configuration.maximumItems;
+            const recommendations = response?.recommendations ?? [];
+            this.compositions = this.takeItems(recommendations, this.maximumItems);
+            this.hasMore = this.initializedFeedId !== null
+                && this.hasItems(recommendations)
+                && !this.hasReachedMaximumItems();
 
             await this.updateComplete;
             this.observeLoadMoreSentinel();
@@ -162,11 +168,15 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
             }
 
             const nextCompositions = response?.recommendations ?? [];
-            this.hasMore = this.hasItems(nextCompositions);
-            if (this.hasMore) {
+            const hasNextItems = this.hasItems(nextCompositions);
+            if (hasNextItems) {
                 this.initializedFeedId = response?.initializedFeedId ?? initializedFeedId;
-                this.compositions = [...this.compositions, ...nextCompositions];
+                this.compositions = [
+                    ...this.compositions,
+                    ...this.takeItems(nextCompositions, this.getRemainingItemCount()),
+                ];
             }
+            this.hasMore = hasNextItems && !this.hasReachedMaximumItems();
         } catch (error) {
             if (!abortController.signal.aborted) {
                 console.error('Relewise Web Components: Loading more Adaptive Discovery items failed.', error);
@@ -181,6 +191,55 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
     private hasItems(compositions: FeedCompositionResult[]): boolean {
         return compositions.some(composition =>
             Boolean(composition.products?.length || composition.content?.length));
+    }
+
+    private getItemCount(compositions: FeedCompositionResult[]): number {
+        return compositions.reduce(
+            (count, composition) => count
+                + (composition.products?.length ?? 0)
+                + (composition.content?.length ?? 0),
+            0,
+        );
+    }
+
+    private getRemainingItemCount(): number | undefined {
+        return this.maximumItems === undefined
+            ? undefined
+            : Math.max(0, this.maximumItems - this.getItemCount(this.compositions));
+    }
+
+    private hasReachedMaximumItems(): boolean {
+        return this.maximumItems !== undefined
+            && this.getItemCount(this.compositions) >= this.maximumItems;
+    }
+
+    private takeItems(
+        compositions: FeedCompositionResult[],
+        maximumItems: number | undefined,
+    ): FeedCompositionResult[] {
+        if (maximumItems === undefined) {
+            return compositions;
+        }
+
+        let remainingItems = Math.max(0, maximumItems);
+        const limitedCompositions: FeedCompositionResult[] = [];
+
+        for (const composition of compositions) {
+            if (remainingItems === 0) {
+                break;
+            }
+
+            const products = composition.products?.slice(0, remainingItems);
+            remainingItems -= products?.length ?? 0;
+            const content = composition.content?.slice(0, remainingItems);
+            remainingItems -= content?.length ?? 0;
+
+            if (products?.length || content?.length) {
+                limitedCompositions.push({ ...composition, products, content });
+            }
+        }
+
+        return limitedCompositions;
     }
 
     private observeLoadMoreSentinel(): void {
