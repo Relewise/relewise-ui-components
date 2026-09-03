@@ -196,6 +196,34 @@ suite('category tiles', () => {
         }
     });
 
+    (['shadow', 'light'] as const).forEach(domMode => {
+        test(`uses natural line height for image-less category tiles in ${domMode} DOM`, async() => {
+            const options = mockRelewiseOptions();
+            options.components = { domMode };
+            initializeRelewiseUI(options).useRecommendations();
+            const wrapper = await fixture<HTMLElement>(html`
+                <div>
+                    <relewise-product-category-tile
+                        .productCategory=${productCategory('product-with-image')}>
+                    </relewise-product-category-tile>
+                    <relewise-product-category-tile
+                        .productCategory=${productCategory('product-without-image', null)}>
+                    </relewise-product-category-tile>
+                    <relewise-content-category-tile
+                        .contentCategory=${contentCategory('content-without-image', null)}>
+                    </relewise-content-category-tile>
+                </div>
+            `);
+            const elements = [...wrapper.children] as (ProductCategoryTile | ContentCategoryTile)[];
+
+            await Promise.all(elements.map(element => element.updateComplete));
+
+            assert.equal(getComputedStyle(elements[0].renderRoot.querySelector('[part="display-name"]')!).lineHeight, '16px');
+            assert.equal(getComputedStyle(elements[1].renderRoot.querySelector('[part="display-name"]')!).lineHeight, 'normal');
+            assert.equal(getComputedStyle(elements[2].renderRoot.querySelector('[part="display-name"]')!).lineHeight, 'normal');
+        });
+    });
+
     test('keeps cards aligned per row when an image appears in a later grid row', async() => {
         initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
         const wrapper = await fixture<HTMLElement>(html`

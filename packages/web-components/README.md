@@ -1526,6 +1526,8 @@ Both category tile components expose the same CSS parts:
 - `information`: Category information container.
 - `display-name`: Category display name.
 
+With the default templates, category tiles without images use the display name's natural height and line height. Tiles with images reserve space for two display-name lines. `--relewise-display-name-line-height` overrides the line height in both cases.
+
 The popular product-category and content-category recommendation components forward these parts from their nested category tiles.
 
 | Variable | Default | Description |

@@ -140,7 +140,7 @@ export class ContentCategoryTile extends RelewiseLitElement {
                 font-weight: var(--relewise-display-name-font-weight, 500);
                 text-align: var(--relewise-display-name-alignment, start);
                 letter-spacing: var(--relewise-display-name-letter-spacing, -0.025em);
-                line-height: var(--relewise-display-name-line-height, 1);
+                line-height: var(--relewise-display-name-line-height, normal);
                 margin: var(--relewise-display-name-margin, 0);
                 overflow: hidden;
                 -webkit-box-orient: vertical;
@@ -149,6 +149,7 @@ export class ContentCategoryTile extends RelewiseLitElement {
 
             .rw-image-container + .rw-information-container .rw-display-name {
                 height: calc(var(--relewise-display-name-line-height, 1.05em) * 2);
+                line-height: var(--relewise-display-name-line-height, 1);
             }
         `,
     ];
