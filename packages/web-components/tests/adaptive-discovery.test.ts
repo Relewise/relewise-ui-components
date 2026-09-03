@@ -277,7 +277,7 @@ suite('relewise-adaptive-discovery', () => {
         assert.deepEqual(trackedClicks[1].item, { contentId: 'content-1' });
     });
 
-    test('tracks dwell for items that remain at least 90% visible between scrolls', async() => {
+    test('tracks dwell using the configured threshold for items that remain at least 90% visible', async() => {
         Recommender.prototype.recommendFeedInitialization = async() => ({
             initializedFeedId: 'feed-id',
             recommendations: [
@@ -293,6 +293,7 @@ suite('relewise-adaptive-discovery', () => {
         initializeRelewiseUI(mockRelewiseOptions()).useShoppertainment({
             adaptiveDiscovery: {
                 minimumPageSize: 4,
+                dwellThresholdMilliseconds: 1_000,
                 configure: () => undefined,
             },
         });
@@ -312,12 +313,12 @@ suite('relewise-adaptive-discovery', () => {
         window.dispatchEvent(new Event('scroll'));
         assert.equal(trackedDwells.length, 0);
 
-        now = 7_001;
+        now = 6_001;
         window.dispatchEvent(new Event('scroll'));
 
         assert.equal(trackedDwells.length, 1);
         assert.equal(trackedDwells[0].feedId, 'feed-id');
-        assert.equal(trackedDwells[0].dwellTimeMilliseconds, 2_001);
+        assert.equal(trackedDwells[0].dwellTimeMilliseconds, 1_001);
         assert.deepEqual(trackedDwells[0].visibleItems, [{
             productAndVariantId: {
                 productId: 'product-1',

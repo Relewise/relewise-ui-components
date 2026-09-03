@@ -26,7 +26,7 @@ import { getRecommender } from '../recommendations/recommender';
 import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 
-const dwellThresholdMilliseconds = 2_000;
+const defaultDwellThresholdMilliseconds = 2_000;
 
 export class AdaptiveDiscovery extends RelewiseLitElement {
     @property({ type: String })
@@ -45,6 +45,7 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
     private compositionTemplates?: Record<string, AdaptiveDiscoveryCompositionTemplate>;
     private dwellIntersectionObserver?: IntersectionObserver;
     private dwellItems = new Map<Element, FeedItem>();
+    private dwellThresholdMilliseconds = defaultDwellThresholdMilliseconds;
     private visibleDwellElements = new Set<Element>();
     private dwellStartedAt: number | null = null;
     private dwellWindowItems: FeedItem[] = [];
@@ -97,6 +98,7 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
         this.intersectionObserver?.disconnect();
         this.resetDwellTracking();
         this.compositionTemplates = undefined;
+        this.dwellThresholdMilliseconds = defaultDwellThresholdMilliseconds;
         this.initializedFeedId = null;
         this.loadingMore = false;
         this.hasMore = true;
@@ -121,6 +123,8 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
             }
 
             this.compositionTemplates = configuration.compositionTemplates;
+            this.dwellThresholdMilliseconds = configuration.dwellThresholdMilliseconds
+                ?? defaultDwellThresholdMilliseconds;
 
             const options = getRelewiseUIOptions();
             const settings = await getRelewiseContextSettings(
@@ -442,7 +446,7 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
         }
 
         const dwellTimeMilliseconds = Math.floor(performance.now() - this.dwellStartedAt);
-        if (dwellTimeMilliseconds < dwellThresholdMilliseconds) {
+        if (dwellTimeMilliseconds < this.dwellThresholdMilliseconds) {
             return;
         }
 
