@@ -25,6 +25,8 @@ suite('relewise-adaptive-discovery', () => {
         static instances: MockIntersectionObserver[] = [];
 
         readonly observedElements = new Set<Element>();
+        readonly observeCalls: Element[] = [];
+        readonly unobserveCalls: Element[] = [];
 
         constructor(
             private callback: IntersectionObserverCallback,
@@ -34,7 +36,13 @@ suite('relewise-adaptive-discovery', () => {
         }
 
         observe(element: Element): void {
+            this.observeCalls.push(element);
             this.observedElements.add(element);
+        }
+
+        unobserve(element: Element): void {
+            this.unobserveCalls.push(element);
+            this.observedElements.delete(element);
         }
 
         disconnect(): void {
@@ -276,6 +284,41 @@ suite('relewise-adaptive-discovery', () => {
 
         assert.isNull(element.renderRoot.querySelector('relewise-content-tile'));
         assert.equal(MockIntersectionObserver.instances[0].observedElements.size, 0);
+    });
+
+    test('re-arms loading when the sentinel remains close after appending items', async() => {
+        Recommender.prototype.recommendFeedInitialization = async() => ({
+            initializedFeedId: 'feed-id',
+            recommendations: [{ products: [{ productId: 'initial' } as ProductResult] }],
+        } as FeedRecommendationResponse);
+        Recommender.prototype.recommendFeedNextItems = async request => {
+            nextRequests.push(request);
+            return {
+                initializedFeedId: 'feed-id',
+                recommendations: [{ products: [{ productId: 'next' } as ProductResult] }],
+            } as FeedRecommendationResponse;
+        };
+        initializeRelewiseUI(mockRelewiseOptions()).useShoppertainment({
+            adaptiveDiscovery: {
+                minimumPageSize: 4,
+                configure: () => undefined,
+            },
+        });
+        const element = await fixture<AdaptiveDiscovery>(html`
+            <relewise-adaptive-discovery></relewise-adaptive-discovery>
+        `);
+        await waitUntil(() => MockIntersectionObserver.instances[0]?.observedElements.size === 1);
+
+        const observer = MockIntersectionObserver.instances[0];
+        const sentinel = element.renderRoot.querySelector('.rw-load-more-sentinel')!;
+        observer.trigger(true);
+
+        await waitUntil(() => element.renderRoot.querySelectorAll('relewise-product-tile').length === 2
+            && observer.observeCalls.length === 2);
+
+        assert.strictEqual(observer.observeCalls[0], sentinel);
+        assert.strictEqual(observer.observeCalls[1], sentinel);
+        assert.include(observer.unobserveCalls, sentinel);
     });
 
     test('stops requesting next items after the feed returns an empty page', async() => {
