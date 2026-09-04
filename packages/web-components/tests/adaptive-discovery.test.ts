@@ -163,6 +163,43 @@ suite('relewise-adaptive-discovery', () => {
         assert.equal(element.renderRoot.querySelector('relewise-content-tile')?.getAttribute('part'), 'content-tile');
     });
 
+    test('uses a named composition template instead of the built-in tiles', async() => {
+        const product = { productId: 'featured-product', displayName: 'Featured product' } as ProductResult;
+        Recommender.prototype.recommendFeedInitialization = async() => ({
+            initializedFeedId: 'feed-id',
+            recommendations: [{ name: 'featured', products: [product] }],
+        } as FeedRecommendationResponse);
+        initializeRelewiseUI(mockRelewiseOptions()).useShoppertainment({
+            adaptiveDiscovery: {
+                minimumPageSize: 4,
+                configure: () => undefined,
+                compositionTemplates: {
+                    featured: (composition, { html, helpers }) => html`
+                        <button
+                            class="featured-composition"
+                            @click=${() => helpers.trackProductClick(composition.products![0])}>
+                            ${composition.products![0].displayName}
+                        </button>
+                    `,
+                },
+            },
+        });
+        const element = await fixture<AdaptiveDiscovery>(html`
+            <relewise-adaptive-discovery></relewise-adaptive-discovery>
+        `);
+        await waitUntil(() => element.renderRoot.querySelector('.featured-composition') !== null);
+
+        assert.isNull(element.renderRoot.querySelector('relewise-product-tile'));
+        assert.equal(element.renderRoot.querySelector('.featured-composition')?.textContent?.trim(), 'Featured product');
+
+        element.renderRoot.querySelector<HTMLElement>('.featured-composition')?.click();
+
+        assert.equal(trackedClicks.length, 1);
+        assert.deepEqual(trackedClicks[0].item, {
+            productAndVariantId: { productId: 'featured-product', variantId: undefined },
+        });
+    });
+
     test('tracks product and content tile clicks against the initialized feed', async() => {
         Recommender.prototype.recommendFeedInitialization = async() => ({
             initializedFeedId: 'feed-id',
@@ -241,6 +278,34 @@ suite('relewise-adaptive-discovery', () => {
         await waitUntil(() => element.querySelector('relewise-product-tile') !== null);
 
         assert.strictEqual(element.renderRoot, element);
+    });
+
+    test('renders a named composition template in Light DOM', async() => {
+        const options = mockRelewiseOptions();
+        options.components = { domMode: 'light' };
+        Recommender.prototype.recommendFeedInitialization = async() => ({
+            initializedFeedId: 'feed-id',
+            recommendations: [{ name: 'banner', content: [{ contentId: 'content-1' } as ContentResult] }],
+        } as FeedRecommendationResponse);
+        initializeRelewiseUI(options).useShoppertainment({
+            adaptiveDiscovery: {
+                minimumPageSize: 4,
+                configure: () => undefined,
+                compositionTemplates: {
+                    banner: (composition, { html }) => html`
+                        <article class="custom-banner">${composition.content![0].contentId}</article>
+                    `,
+                },
+            },
+        });
+
+        const element = await fixture<AdaptiveDiscovery>(html`
+            <relewise-adaptive-discovery></relewise-adaptive-discovery>
+        `);
+        await waitUntil(() => element.querySelector('.custom-banner') !== null);
+
+        assert.strictEqual(element.renderRoot, element);
+        assert.equal(element.querySelector('.custom-banner')?.textContent, 'content-1');
     });
 
     test('loads and appends the next items when the bottom sentinel is close to the viewport', async() => {
