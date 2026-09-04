@@ -104,6 +104,7 @@ A matching target replaces the default Adaptive Discovery configuration. An unkn
 
 Render the feed with `relewise-adaptive-discovery`. It preserves the configured composition order and uses the built-in product and content tiles.
 When the shopper scrolls within 400px of the bottom of the rendered feed, the component automatically requests and appends the next items from the initialized feed. Set the optional `maximumItems` to limit the combined number of rendered Products and Content; omit it for a continuous feed.
+Clicks on product and content tiles are automatically tracked against the initialized feed.
 
 ```html
 <relewise-adaptive-discovery
