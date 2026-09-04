@@ -59,6 +59,48 @@ updateContextSettings({
 ```
 Components depending on Context Settings will re-render once settings have been updated.
 
+## Configuring Shoppertainment
+
+Register Shoppertainment features with `useShoppertainment`.
+
+### Adaptive Discovery
+
+Configure future Adaptive Discovery feed components through the `adaptiveDiscovery` subsection. The minimum page size and Product/Content composition are intentionally explicit. Omitting `configurationKey` uses the Dataset's active default feed configuration.
+
+```ts
+initializeRelewiseUI({
+    ...
+}).useShoppertainment({
+    adaptiveDiscovery: {
+        minimumPageSize: 20,
+        configurationKey: 'homepage',
+        configure(builder) {
+            builder
+                .allowProductsCurrentlyInCart()
+                .addComposition({
+                    options: {
+                        type: 'Product',
+                        count: { lowerBoundInclusive: 1, upperBoundInclusive: 1 },
+                    },
+                })
+                .addComposition({
+                    options: {
+                        type: 'Content',
+                        count: { lowerBoundInclusive: 1, upperBoundInclusive: 1 },
+                    },
+                });
+        },
+    },
+}).registerAdaptiveDiscoveryTarget('campaign', {
+    minimumPageSize: 30,
+    configure(builder) {
+        // Configure the complete campaign-specific feed.
+    },
+});
+```
+
+A matching target replaces the default Adaptive Discovery configuration. An unknown target reports an error and falls back to the default. Registering this configuration does not currently render a feed or send Adaptive Discovery requests.
+
 ## Configuring Relewise Client
 You are required to configure the client that you use to call Relewise. Provide the following configuration during initialization.
 
