@@ -105,6 +105,69 @@ suite('product search overlay', () => {
         assert.equal(batchCalls, 0);
     });
 
+    test('settles with the empty state when context resolution fails', async() => {
+        const options = mockRelewiseOptions();
+        options.contextSettings.getUser = async() => {
+            throw new Error('Unable to resolve the user');
+        };
+        initializeRelewiseUI(options).useSearch();
+        const el = await fixture<ProductSearchOverlay>(html`<relewise-product-search-overlay></relewise-product-search-overlay>`);
+
+        await el.search('shoe');
+
+        assert.isTrue(el.hasCompletedSearchRequest);
+        assert.isNull(el.results);
+        assert.equal(el.productSearchResultHits, 0);
+    });
+
+    test('settles and preserves existing results when the batch is missing its product response', async() => {
+        Searcher.prototype.batch = async function() {
+            return {
+                responses: [
+                    undefined,
+                    { $type: 'SearchTermPredictionResponse', predictions: [] },
+                ],
+            } as any;
+        };
+        const el = await fixture<ProductSearchOverlay>(html`<relewise-product-search-overlay></relewise-product-search-overlay>`);
+        const previousResults = [{ searchTermPrediction: { term: 'shoes' } as any }];
+        el.results = previousResults;
+        el.productSearchResultHits = 2;
+
+        await el.search('shoe');
+
+        assert.isTrue(el.hasCompletedSearchRequest);
+        assert.strictEqual(el.results, previousResults);
+        assert.equal(el.productSearchResultHits, 2);
+    });
+
+    test('settles and preserves existing results when the request fails', async() => {
+        const requestError = new Error('Search failed');
+        Searcher.prototype.batch = async function() {
+            throw requestError;
+        };
+        const el = await fixture<ProductSearchOverlay>(html`<relewise-product-search-overlay></relewise-product-search-overlay>`);
+        const previousResults = [{ searchTermPrediction: { term: 'shoes' } as any }];
+        el.results = previousResults;
+        el.productSearchResultHits = 2;
+        const originalConsoleError = console.error;
+        const reportedErrors: unknown[][] = [];
+        console.error = (...args: unknown[]) => reportedErrors.push(args);
+
+        try {
+            await el.search('shoe');
+        } finally {
+            console.error = originalConsoleError;
+        }
+
+        assert.isTrue(el.hasCompletedSearchRequest);
+        assert.strictEqual(el.results, previousResults);
+        assert.equal(el.productSearchResultHits, 2);
+        assert.lengthOf(reportedErrors, 1);
+        assert.equal(reportedErrors[0][0], 'Relewise Web Components: Product search overlay failed.');
+        assert.strictEqual(reportedErrors[0][1], requestError);
+    });
+
     test('ignores a response from a search canceled while the request is in flight', async() => {
         let capturedSignal: AbortSignal | undefined;
         let releaseResponse!: () => void;
@@ -136,6 +199,7 @@ suite('product search overlay', () => {
 
         assert.isNull(el.results);
         assert.equal(el.productSearchResultHits, 0);
+        assert.isFalse(el.hasCompletedSearchRequest);
     });
 
     test('uses a relative redirect destination when submitting the matching term', async() => {

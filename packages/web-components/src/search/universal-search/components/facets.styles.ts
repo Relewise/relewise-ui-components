@@ -12,7 +12,7 @@ export const universalSearchFacetsStyles = [theme, css`
     .rw-close {
         appearance: none;
         background: var(--relewise-universal-search-background, white);
-        border: 1px solid var(--relewise-universal-search-border-color, var(--relewise-checklist-facet-border-color, #eee));
+        border: 1px solid var(--relewise-universal-search-border-color, var(--relewise-checklist-facet-border-color, var(--relewise-color, #eee)));
         border-radius: var(--relewise-border-radius, 0.5em);
         box-sizing: border-box;
         color: inherit;

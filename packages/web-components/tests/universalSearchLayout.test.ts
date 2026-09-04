@@ -123,23 +123,85 @@ suite('universal search layout', () => {
         assert.closeTo(controlSpacing, rightSpacing, 1);
     });
 
-    test('uses the Universal Search foreground color for the input placeholder', async () => {
-        const element = await fixture<UniversalSearch>(html`
-            <relewise-universal-search
-                open
-                style="--relewise-universal-search-color: rgb(30 40 50);">
-            </relewise-universal-search>
-        `);
-        await element.updateComplete;
+    (['shadow', 'light'] as const).forEach(domMode => {
+        test(`keeps the default foreground independent of inherited neutral styling in ${domMode} DOM`, async () => {
+            const options = mockRelewiseOptions();
+            options.components = { domMode };
+            initializeRelewiseUI(options);
+            useSearch({ universalSearch: {} });
 
-        const dialog = element.renderRoot.querySelector<HTMLElement>('[part="dialog"]')!;
-        const search = element.renderRoot.querySelector<any>('relewise-search-combobox')!;
-        await search.updateComplete;
-        const input = search.renderRoot.querySelector('[part="search-input"]') as HTMLInputElement;
+            const container = await fixture<HTMLElement>(html`
+                <div style="
+                    --relewise-color: #eeeeee;
+                    --relewise-accent-color: rgb(18 18 18);
+                    --relewise-border: 1px solid;
+                    --relewise-border-radius: 0rem;
+                    --relewise-product-search-bar-height: 4rem;
+                    --relewise-button-height: 4rem;
+                    --relewise-base-font-size: 16px;
+                    --relewise-font: monospace;
+                    --relewise-icon-width: 16px;
+                    --relewise-icon-height: 16px;
+                ">
+                    <relewise-universal-search open></relewise-universal-search>
+                </div>
+            `);
+            const element = container.querySelector<UniversalSearch>('relewise-universal-search')!;
+            await element.updateComplete;
 
-        assert.equal(getComputedStyle(search).getPropertyValue('--color').trim(), 'rgb(30 40 50)');
-        assert.notEqual(getComputedStyle(input, '::placeholder').color, 'rgb(238, 238, 238)');
-        assert.equal(getComputedStyle(dialog).color, 'rgb(30, 40, 50)');
+            const dialog = element.renderRoot.querySelector<HTMLElement>('[part="dialog"]')!;
+            const header = element.renderRoot.querySelector<HTMLElement>('[part="header"]')!;
+            const search = element.renderRoot.querySelector<any>('relewise-search-combobox')!;
+            const close = element.renderRoot.querySelector<any>('[part="close-button"]')!;
+            await search.updateComplete;
+            await close.updateComplete;
+            const searchControl = search.renderRoot.querySelector('[part="search-input"]') as HTMLElement;
+            const input = searchControl.querySelector('input') as HTMLInputElement;
+            input.blur();
+            await new Promise(requestAnimationFrame);
+            const closeControl = close.renderRoot.querySelector('button') as HTMLButtonElement;
+
+            assert.equal(getComputedStyle(dialog).color, 'rgb(33, 36, 39)');
+            assert.equal(getComputedStyle(header).borderBottomColor, 'rgb(238, 238, 238)');
+            assert.equal(getComputedStyle(searchControl).borderColor, 'rgb(238, 238, 238)');
+            assert.notEqual(getComputedStyle(input, '::placeholder').color, 'rgb(238, 238, 238)');
+            assert.equal(getComputedStyle(closeControl).color, 'rgb(33, 36, 39)');
+            assert.equal(getComputedStyle(search).getPropertyValue('--accent-color').trim(), 'rgb(18 18 18)');
+            assert.equal(getComputedStyle(dialog).fontFamily, 'monospace');
+            assert.equal(getComputedStyle(search).getPropertyValue('--relewise-product-search-bar-height').trim(), '4rem');
+        });
+
+        test(`uses an inherited Universal Search foreground override in ${domMode} DOM`, async () => {
+            const options = mockRelewiseOptions();
+            options.components = { domMode };
+            initializeRelewiseUI(options);
+            useSearch({ universalSearch: {} });
+
+            const container = await fixture<HTMLElement>(html`
+                <div style="
+                    --relewise-color: #eeeeee;
+                    --relewise-universal-search-color: rgb(30 40 50);
+                ">
+                    <relewise-universal-search open></relewise-universal-search>
+                </div>
+            `);
+            const element = container.querySelector<UniversalSearch>('relewise-universal-search')!;
+            await element.updateComplete;
+
+            const dialog = element.renderRoot.querySelector<HTMLElement>('[part="dialog"]')!;
+            const search = element.renderRoot.querySelector<any>('relewise-search-combobox')!;
+            const close = element.renderRoot.querySelector<any>('[part="close-button"]')!;
+            await search.updateComplete;
+            await close.updateComplete;
+            const input = search.renderRoot.querySelector('input') as HTMLInputElement;
+            const closeControl = close.renderRoot.querySelector('button') as HTMLButtonElement;
+
+            assert.equal(getComputedStyle(element).getPropertyValue('--relewise-universal-search-color').trim(), 'rgb(30 40 50)');
+            assert.equal(getComputedStyle(search).getPropertyValue('--color').trim(), 'rgb(30 40 50)');
+            assert.notEqual(getComputedStyle(input, '::placeholder').color, 'rgb(238, 238, 238)');
+            assert.equal(getComputedStyle(closeControl).color, 'rgb(30, 40, 50)');
+            assert.equal(getComputedStyle(dialog).color, 'rgb(30, 40, 50)');
+        });
     });
 
     test('balances visible desktop controls and keeps the result summary left-aligned', async () => {
@@ -287,6 +349,70 @@ suite('universal search layout', () => {
             'Could not load products.',
         );
         assert.isNull(productsTab.renderRoot.querySelector('[part="loading-state"]'));
+    });
+
+    test('shows entity errors when context resolution fails before preparing the batch', async() => {
+        const options = mockRelewiseOptions();
+        options.contextSettings.getUser = async() => {
+            throw new Error('Unable to resolve the user');
+        };
+        initializeRelewiseUI(options);
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: {
+                    products: {},
+                    productCategories: {},
+                    content: {},
+                },
+            },
+        });
+        const element = await fixture<UniversalSearch>(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `);
+
+        (element as any).setSearchTerm('shoe');
+        const tabs = [...element.renderRoot.querySelectorAll<any>(
+            'relewise-universal-search-products-tab, relewise-universal-search-product-categories-tab, relewise-universal-search-content-tab',
+        )];
+        await waitUntil(
+            () => tabs.every(tab => tab.renderRoot.querySelector('[part="error-state"]')),
+            'the entity error states were not rendered',
+        );
+
+        assert.lengthOf(tabs, 3);
+        tabs.forEach(tab => assert.isNull(tab.renderRoot.querySelector('[part="loading-state"]')));
+    });
+
+    test('shows entity errors when the batch is missing individual responses', async() => {
+        Searcher.prototype.batch = async function() {
+            return { responses: [] } as any;
+        };
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: {
+                    products: {},
+                    productCategories: {},
+                    content: {},
+                },
+            },
+        });
+        const element = await fixture<UniversalSearch>(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `);
+
+        (element as any).setSearchTerm('shoe');
+        const tabs = [...element.renderRoot.querySelectorAll<any>(
+            'relewise-universal-search-products-tab, relewise-universal-search-product-categories-tab, relewise-universal-search-content-tab',
+        )];
+        await waitUntil(
+            () => tabs.every(tab => tab.renderRoot.querySelector('[part="error-state"]')),
+            'the missing entity responses did not render errors',
+        );
+
+        assert.lengthOf(tabs, 3);
+        tabs.forEach(tab => assert.isNull(tab.renderRoot.querySelector('[part="loading-state"]')));
     });
 
     test('does not render entity headings before search responses arrive', async () => {
