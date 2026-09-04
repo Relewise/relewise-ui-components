@@ -19,10 +19,14 @@ suite('relewise-adaptive-discovery', () => {
     const originalRecommendFeedInitialization = Recommender.prototype.recommendFeedInitialization;
     const originalRecommendFeedNextItems = Recommender.prototype.recommendFeedNextItems;
     const originalTrackFeedItemClick = Tracker.prototype.trackFeedItemClick;
+    const originalTrackFeedDwell = Tracker.prototype.trackFeedDwell;
     const originalIntersectionObserver = window.IntersectionObserver;
+    const originalPerformanceNow = Object.getOwnPropertyDescriptor(performance, 'now');
     let requests: FeedRecommendationInitializationRequest[];
     let nextRequests: FeedRecommendationNextItemsRequest[];
     let trackedClicks: Parameters<Tracker['trackFeedItemClick']>[0][];
+    let trackedDwells: Parameters<Tracker['trackFeedDwell']>[0][];
+    let now: number;
 
     class MockIntersectionObserver {
         static instances: MockIntersectionObserver[] = [];
@@ -52,16 +56,33 @@ suite('relewise-adaptive-discovery', () => {
             this.observedElements.clear();
         }
 
-        trigger(isIntersecting: boolean): void {
+        trigger(isIntersecting: boolean, intersectionRatio = isIntersecting ? 1 : 0): void {
             if (this.observedElements.size === 0) {
                 return;
             }
 
             const entries = [...this.observedElements].map(target => ({
                 isIntersecting,
+                intersectionRatio,
                 target,
             } as IntersectionObserverEntry));
             this.callback(entries, this as unknown as IntersectionObserver);
+        }
+
+        triggerElement(
+            target: Element,
+            isIntersecting: boolean,
+            intersectionRatio = isIntersecting ? 1 : 0,
+        ): void {
+            if (!this.observedElements.has(target)) {
+                return;
+            }
+
+            this.callback([{
+                isIntersecting,
+                intersectionRatio,
+                target,
+            } as IntersectionObserverEntry], this as unknown as IntersectionObserver);
         }
     }
 
@@ -69,6 +90,12 @@ suite('relewise-adaptive-discovery', () => {
         requests = [];
         nextRequests = [];
         trackedClicks = [];
+        trackedDwells = [];
+        now = 0;
+        Object.defineProperty(performance, 'now', {
+            configurable: true,
+            value: () => now,
+        });
         MockIntersectionObserver.instances = [];
         window.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
         Recommender.prototype.recommendFeedInitialization = async request => {
@@ -82,14 +109,23 @@ suite('relewise-adaptive-discovery', () => {
         Tracker.prototype.trackFeedItemClick = async click => {
             trackedClicks.push(click);
         };
+        Tracker.prototype.trackFeedDwell = async dwell => {
+            trackedDwells.push(dwell);
+        };
     });
 
     teardown(() => {
         Recommender.prototype.recommendFeedInitialization = originalRecommendFeedInitialization;
         Recommender.prototype.recommendFeedNextItems = originalRecommendFeedNextItems;
         Tracker.prototype.trackFeedItemClick = originalTrackFeedItemClick;
+        Tracker.prototype.trackFeedDwell = originalTrackFeedDwell;
         window.IntersectionObserver = originalIntersectionObserver;
         fixtureCleanup();
+        if (originalPerformanceNow) {
+            Object.defineProperty(performance, 'now', originalPerformanceNow);
+        } else {
+            Reflect.deleteProperty(performance, 'now');
+        }
         window.relewiseUIOptions = undefined!;
         window.relewiseUIShoppertainmentOptions = undefined;
     });
@@ -176,6 +212,7 @@ suite('relewise-adaptive-discovery', () => {
                 compositionTemplates: {
                     featured: (composition, { html, helpers }) => html`
                         <button
+                            ${helpers.trackProductVisibility(composition.products![0])}
                             class="featured-composition"
                             @click=${() => helpers.trackProductClick(composition.products![0])}>
                             ${composition.products![0].displayName}
@@ -191,6 +228,11 @@ suite('relewise-adaptive-discovery', () => {
 
         assert.isNull(element.renderRoot.querySelector('relewise-product-tile'));
         assert.equal(element.renderRoot.querySelector('.featured-composition')?.textContent?.trim(), 'Featured product');
+        assert.isTrue(
+            MockIntersectionObserver.instances
+                .find(observer => observer.options?.threshold === 0.9)
+                ?.observedElements.has(element.renderRoot.querySelector('.featured-composition')!) ?? false,
+        );
 
         element.renderRoot.querySelector<HTMLElement>('.featured-composition')?.click();
 
@@ -237,6 +279,103 @@ suite('relewise-adaptive-discovery', () => {
         });
         assert.equal(trackedClicks[1].feedId, 'feed-id');
         assert.deepEqual(trackedClicks[1].item, { contentId: 'content-1' });
+    });
+
+    test('tracks dwell using the configured threshold for items that remain at least 90% visible', async() => {
+        Recommender.prototype.recommendFeedInitialization = async() => ({
+            initializedFeedId: 'feed-id',
+            recommendations: [
+                {
+                    products: [{
+                        productId: 'product-1',
+                        variant: { variantId: 'variant-1' },
+                    } as ProductResult],
+                },
+                { content: [{ contentId: 'content-1' } as ContentResult] },
+            ],
+        } as FeedRecommendationResponse);
+        initializeRelewiseUI(mockRelewiseOptions()).useShoppertainment({
+            adaptiveDiscovery: {
+                minimumPageSize: 4,
+                dwellThresholdMilliseconds: 1_000,
+                configure: () => undefined,
+            },
+        });
+        const element = await fixture<AdaptiveDiscovery>(html`
+            <relewise-adaptive-discovery></relewise-adaptive-discovery>
+        `);
+        await waitUntil(() => element.renderRoot.querySelector('relewise-content-tile') !== null);
+
+        const productTile = element.renderRoot.querySelector('relewise-product-tile')!;
+        const contentTile = element.renderRoot.querySelector('relewise-content-tile')!;
+        const dwellObserver = MockIntersectionObserver.instances
+            .find(observer => observer.options?.threshold === 0.9)!;
+        dwellObserver.triggerElement(productTile, true, 1);
+        dwellObserver.triggerElement(contentTile, true, 0.89);
+
+        now = 5_000;
+        window.dispatchEvent(new Event('scroll'));
+        assert.equal(trackedDwells.length, 0);
+
+        now = 6_001;
+        window.dispatchEvent(new Event('scroll'));
+
+        assert.equal(trackedDwells.length, 1);
+        assert.equal(trackedDwells[0].feedId, 'feed-id');
+        assert.equal(trackedDwells[0].dwellTimeMilliseconds, 1_001);
+        assert.deepEqual(trackedDwells[0].visibleItems, [{
+            productAndVariantId: {
+                productId: 'product-1',
+                variantId: 'variant-1',
+            },
+        }]);
+    });
+
+    test('resets the dwell window when the visible items change', async() => {
+        Recommender.prototype.recommendFeedInitialization = async() => ({
+            initializedFeedId: 'feed-id',
+            recommendations: [
+                { products: [{ productId: 'product-1' } as ProductResult] },
+                { content: [{ contentId: 'content-1' } as ContentResult] },
+            ],
+        } as FeedRecommendationResponse);
+        initializeRelewiseUI(mockRelewiseOptions()).useShoppertainment({
+            adaptiveDiscovery: {
+                minimumPageSize: 4,
+                configure: () => undefined,
+            },
+        });
+        const element = await fixture<AdaptiveDiscovery>(html`
+            <relewise-adaptive-discovery></relewise-adaptive-discovery>
+        `);
+        await waitUntil(() => element.renderRoot.querySelector('relewise-content-tile') !== null);
+
+        const dwellObserver = MockIntersectionObserver.instances
+            .find(observer => observer.options?.threshold === 0.9)!;
+        dwellObserver.triggerElement(
+            element.renderRoot.querySelector('relewise-product-tile')!,
+            true,
+        );
+        window.dispatchEvent(new Event('scroll'));
+
+        now = 1_500;
+        dwellObserver.triggerElement(
+            element.renderRoot.querySelector('relewise-content-tile')!,
+            true,
+        );
+        now = 3_000;
+        window.dispatchEvent(new Event('scroll'));
+        assert.equal(trackedDwells.length, 0);
+
+        now = 5_001;
+        window.dispatchEvent(new Event('scroll'));
+
+        assert.equal(trackedDwells.length, 1);
+        assert.equal(trackedDwells[0].dwellTimeMilliseconds, 2_001);
+        assert.deepEqual(trackedDwells[0].visibleItems, [
+            { productAndVariantId: { productId: 'product-1', variantId: undefined } },
+            { contentId: 'content-1' },
+        ]);
     });
 
     test('uses a target without requiring a default configuration', async() => {
@@ -487,11 +626,21 @@ suite('relewise-adaptive-discovery', () => {
         await waitUntil(() => MockIntersectionObserver.instances[0]?.observedElements.size === 1);
 
         const observer = MockIntersectionObserver.instances[0];
+        const dwellObserver = MockIntersectionObserver.instances
+            .find(instance => instance.options?.threshold === 0.9)!;
+        dwellObserver.triggerElement(
+            element.renderRoot.querySelector('relewise-product-tile')!,
+            true,
+        );
+        window.dispatchEvent(new Event('scroll'));
+        now = 3_000;
         element.remove();
         observer.trigger(true);
         await new Promise(resolve => setTimeout(resolve, 0));
 
         assert.equal(observer.observedElements.size, 0);
+        assert.equal(dwellObserver.observedElements.size, 0);
+        assert.equal(trackedDwells.length, 0);
         assert.equal(nextRequests.length, 0);
     });
 

@@ -75,6 +75,7 @@ initializeRelewiseUI({
         minimumPageSize: 20,
         configurationKey: 'homepage',
         maximumItems: 60,
+        dwellThresholdMilliseconds: 2_000,
         configure(builder) {
             builder
                 .allowProductsCurrentlyInCart()
@@ -150,6 +151,7 @@ initializeRelewiseUI({
                 <section class="featured-products">
                     ${composition.products?.map(product => html`
                         <a
+                            ${helpers.trackProductVisibility(product)}
                             href=${product.data?.Url?.value ?? ''}
                             @click=${() => helpers.trackProductClick(product)}>
                             ${product.displayName}
@@ -162,7 +164,9 @@ initializeRelewiseUI({
 });
 ```
 
-The callback receives the complete `FeedCompositionResult`, Lit's `html` function, the standard template helpers, `formatPrice`, the current `user`, and `trackProductClick`/`trackContentClick`. Use the click helpers when custom markup represents a feed item so Adaptive Discovery analytics remain complete.
+The callback receives the complete `FeedCompositionResult`, Lit's `html` function, the standard template helpers, `formatPrice`, the current `user`, click-tracking helpers, and visibility-tracking helpers. Use `trackProductClick`/`trackContentClick` when custom markup represents a clicked feed item. Attach `trackProductVisibility`/`trackContentVisibility` to each custom item element so it participates in dwell tracking.
+
+Adaptive Discovery automatically tracks dwell for built-in tiles. Dwell tracking starts after the shopper first scrolls, includes items that are at least 90% visible, and reports a window when scrolling resumes. Configure the optional `dwellThresholdMilliseconds` to change the minimum window duration; it defaults to 2,000 milliseconds. Disconnecting the component does not emit a dwell event.
 
 ## Configuring Relewise Client
 You are required to configure the client that you use to call Relewise. Provide the following configuration during initialization.

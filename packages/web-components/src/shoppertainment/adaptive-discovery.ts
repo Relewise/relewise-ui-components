@@ -9,6 +9,7 @@ import {
 } from '@relewise/client';
 import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import { ref } from 'lit/directives/ref.js';
 import type { AdaptiveDiscoveryCompositionTemplate } from '../adaptiveDiscovery';
 import { getSelectedContentProperties, getSelectedProductProperties } from '../defaultSettings';
 import formatPrice from '../helpers/formatPrice';
@@ -25,6 +26,8 @@ import { getRecommender } from '../recommendations/recommender';
 import { getTracker } from '../tracking';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 
+const defaultDwellThresholdMilliseconds = 2_000;
+
 export class AdaptiveDiscovery extends RelewiseLitElement {
     @property({ type: String })
     target: string | null = null;
@@ -40,6 +43,13 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
 
     private abortController = new AbortController();
     private compositionTemplates?: Record<string, AdaptiveDiscoveryCompositionTemplate>;
+    private dwellIntersectionObserver?: IntersectionObserver;
+    private dwellItems = new Map<Element, FeedItem>();
+    private dwellThresholdMilliseconds = defaultDwellThresholdMilliseconds;
+    private visibleDwellElements = new Set<Element>();
+    private dwellStartedAt: number | null = null;
+    private dwellWindowItems: FeedItem[] = [];
+    private dwellTrackingArmed = false;
     private initializedFeedId: string | null = null;
     private intersectionObserver?: IntersectionObserver;
     private loadingMore = false;
@@ -47,10 +57,12 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
     private maximumItems?: number;
     private requestGeneration = 0;
     private fetchFeedBound = this.fetchFeed.bind(this);
+    private trackDwellOnScrollBound = this.trackDwellOnScroll.bind(this);
 
     connectedCallback(): void {
         super.connectedCallback();
         window.addEventListener(Events.contextSettingsUpdated, this.fetchFeedBound);
+        window.addEventListener('scroll', this.trackDwellOnScrollBound, { passive: true });
         void this.fetchFeed();
     }
 
@@ -58,7 +70,9 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
         this.requestGeneration++;
         this.abortController.abort();
         this.intersectionObserver?.disconnect();
+        this.resetDwellTracking();
         window.removeEventListener(Events.contextSettingsUpdated, this.fetchFeedBound);
+        window.removeEventListener('scroll', this.trackDwellOnScrollBound);
         super.disconnectedCallback();
     }
 
@@ -70,13 +84,21 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
         }, {
             rootMargin: '0px 0px 400px 0px',
         });
+
+        this.dwellIntersectionObserver = new IntersectionObserver(
+            entries => this.updateVisibleDwellItems(entries),
+            { threshold: 0.9 },
+        );
+        this.dwellItems.forEach((_, element) => this.dwellIntersectionObserver?.observe(element));
     }
 
     private async fetchFeed(): Promise<void> {
         const generation = ++this.requestGeneration;
         this.abortController.abort();
         this.intersectionObserver?.disconnect();
+        this.resetDwellTracking();
         this.compositionTemplates = undefined;
+        this.dwellThresholdMilliseconds = defaultDwellThresholdMilliseconds;
         this.initializedFeedId = null;
         this.loadingMore = false;
         this.hasMore = true;
@@ -101,6 +123,8 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
             }
 
             this.compositionTemplates = configuration.compositionTemplates;
+            this.dwellThresholdMilliseconds = configuration.dwellThresholdMilliseconds
+                ?? defaultDwellThresholdMilliseconds;
 
             const options = getRelewiseUIOptions();
             const settings = await getRelewiseContextSettings(
@@ -292,6 +316,8 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
                     user: this.user,
                     trackProductClick: product => this.trackProductClick(product),
                     trackContentClick: content => this.trackContentClick(content),
+                    trackProductVisibility: product => this.trackProductVisibility(product),
+                    trackContentVisibility: content => this.trackContentVisibility(content),
                 },
             });
         }
@@ -305,6 +331,7 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
     private renderProduct(product: ProductResult) {
         return html`
             <relewise-product-tile
+                ${this.trackProductVisibility(product)}
                 part="product-tile"
                 .product=${product}
                 .user=${this.user}
@@ -316,6 +343,7 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
     private renderContent(content: ContentResult) {
         return html`
             <relewise-content-tile
+                ${this.trackContentVisibility(content)}
                 part="content-tile"
                 .content=${content}
                 .user=${this.user}
@@ -325,24 +353,17 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
     }
 
     private trackProductClick(product: ProductResult): void {
-        if (!product.productId) {
-            return;
+        const item = this.getProductFeedItem(product);
+        if (item) {
+            this.trackItemClick(item);
         }
-
-        this.trackItemClick({
-            productAndVariantId: {
-                productId: product.productId,
-                variantId: product.variant?.variantId,
-            },
-        });
     }
 
     private trackContentClick(content: ContentResult): void {
-        if (!content.contentId) {
-            return;
+        const item = this.getContentFeedItem(content);
+        if (item) {
+            this.trackItemClick(item);
         }
-
-        this.trackItemClick({ contentId: content.contentId });
     }
 
     private trackItemClick(item: FeedItem): void {
@@ -357,6 +378,149 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
         }).catch(error => {
             console.error('Relewise Web Components: Tracking Adaptive Discovery item click failed.', error);
         });
+    }
+
+    private trackProductVisibility(product: ProductResult): ReturnType<typeof ref> {
+        return this.trackItemVisibility(this.getProductFeedItem(product));
+    }
+
+    private trackContentVisibility(content: ContentResult): ReturnType<typeof ref> {
+        return this.trackItemVisibility(this.getContentFeedItem(content));
+    }
+
+    private trackItemVisibility(item: FeedItem | null): ReturnType<typeof ref> {
+        let observedElement: Element | undefined;
+
+        return ref(element => {
+            if (observedElement && observedElement !== element) {
+                this.unregisterDwellElement(observedElement);
+            }
+
+            observedElement = element;
+            if (element && item) {
+                this.dwellItems.set(element, item);
+                this.dwellIntersectionObserver?.observe(element);
+            }
+        });
+    }
+
+    private unregisterDwellElement(element: Element): void {
+        this.dwellIntersectionObserver?.unobserve(element);
+        this.dwellItems.delete(element);
+        if (this.visibleDwellElements.delete(element)) {
+            this.resetDwellWindow();
+        }
+    }
+
+    private updateVisibleDwellItems(entries: IntersectionObserverEntry[]): void {
+        let changed = false;
+
+        for (const entry of entries) {
+            if (!this.dwellItems.has(entry.target)) {
+                continue;
+            }
+
+            const isVisible = entry.isIntersecting && entry.intersectionRatio >= 0.9;
+            const wasVisible = this.visibleDwellElements.has(entry.target);
+            if (isVisible && !wasVisible) {
+                this.visibleDwellElements.add(entry.target);
+                changed = true;
+            } else if (!isVisible && wasVisible) {
+                this.visibleDwellElements.delete(entry.target);
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            this.resetDwellWindow();
+        }
+    }
+
+    private trackDwellOnScroll(): void {
+        if (!this.dwellTrackingArmed) {
+            this.dwellTrackingArmed = true;
+            this.resetDwellWindow();
+            return;
+        }
+
+        this.trackDwellWindow();
+        this.resetDwellWindow();
+    }
+
+    private trackDwellWindow(): void {
+        if (this.dwellStartedAt === null
+            || !this.initializedFeedId
+            || !this.user
+            || this.dwellWindowItems.length === 0) {
+            return;
+        }
+
+        const dwellTimeMilliseconds = Math.floor(performance.now() - this.dwellStartedAt);
+        if (dwellTimeMilliseconds < this.dwellThresholdMilliseconds) {
+            return;
+        }
+
+        void getTracker(getRelewiseUIOptions()).trackFeedDwell({
+            user: this.user,
+            feedId: this.initializedFeedId,
+            dwellTimeMilliseconds,
+            visibleItems: this.dwellWindowItems,
+        }).catch(error => {
+            console.error('Relewise Web Components: Tracking Adaptive Discovery dwell failed.', error);
+        });
+    }
+
+    private resetDwellWindow(): void {
+        if (!this.dwellTrackingArmed) {
+            this.dwellStartedAt = null;
+            this.dwellWindowItems = [];
+            return;
+        }
+
+        this.dwellWindowItems = this.getVisibleDwellItems();
+        this.dwellStartedAt = this.dwellWindowItems.length > 0 ? performance.now() : null;
+    }
+
+    private getVisibleDwellItems(): FeedItem[] {
+        const items = new Map<string, FeedItem>();
+        for (const element of this.visibleDwellElements) {
+            const item = this.dwellItems.get(element);
+            if (item) {
+                items.set(this.getFeedItemKey(item), item);
+            }
+        }
+
+        return [...items.values()];
+    }
+
+    private resetDwellTracking(): void {
+        this.dwellIntersectionObserver?.disconnect();
+        this.dwellItems.clear();
+        this.visibleDwellElements.clear();
+        this.dwellStartedAt = null;
+        this.dwellWindowItems = [];
+        this.dwellTrackingArmed = false;
+    }
+
+    private getProductFeedItem(product: ProductResult): FeedItem | null {
+        return product.productId
+            ? {
+                productAndVariantId: {
+                    productId: product.productId,
+                    variantId: product.variant?.variantId,
+                },
+            }
+            : null;
+    }
+
+    private getContentFeedItem(content: ContentResult): FeedItem | null {
+        return content.contentId ? { contentId: content.contentId } : null;
+    }
+
+    private getFeedItemKey(item: FeedItem): string {
+        return item.productAndVariantId
+            ? `product:${item.productAndVariantId.productId}:${item.productAndVariantId.variantId ?? ''}`
+            : `content:${item.contentId}`;
     }
 
     static styles = css`
