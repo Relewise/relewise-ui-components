@@ -17,3 +17,4 @@ export * from './addFilters';
 export * from './types/userEngagement';
 export * from './relewise-lit-element';
 export * from './adaptiveDiscovery';
+export * from './shoppertainment';
