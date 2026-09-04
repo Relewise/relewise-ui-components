@@ -128,8 +128,13 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
                 return false;
             }
 
+            if (!response) {
+                this.setError();
+                return false;
+            }
+
             this.user = settings.user;
-            this.applyResponse(response ?? null, requestResult.facetLabels, reset, intent === 'previous', requestResult.request.skip);
+            this.applyResponse(response, requestResult.facetLabels, reset, intent === 'previous', requestResult.request.skip);
             return true;
         } catch {
             if (!abortController.signal.aborted) {
@@ -197,7 +202,12 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
     private applyBatchResponse(response: SearchResponseCollection, facetLabels: string[], resultOffset: number): void {
         const productResponse = response.responses?.find(item => '$type' in item
             && item.$type === 'Relewise.Client.Responses.Search.ProductSearchResponse, Relewise.Client') as ProductSearchResponse | undefined;
-        if (productResponse?.hits
+        if (!productResponse) {
+            this.setError();
+            return;
+        }
+
+        if (productResponse.hits
             && !productResponse.results?.length
             && resultOffset >= productResponse.hits) {
             updateUrlState(QueryKeys.productTake, productResponse.hits.toString());
@@ -205,13 +215,13 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             return;
         }
 
-        this.applyResponse(productResponse ?? null, facetLabels, true, false, resultOffset);
+        this.applyResponse(productResponse, facetLabels, true, false, resultOffset);
         this.loading = false;
     }
 
-    private applyResponse(response: ProductSearchResponse | null, facetLabels: string[], reset: boolean, prepend: boolean, resultOffset: number): void {
+    private applyResponse(response: ProductSearchResponse, facetLabels: string[], reset: boolean, prepend: boolean, resultOffset: number): void {
         this.result = response;
-        const results = response?.results ?? [];
+        const results = response.results ?? [];
         this.products = reset
             ? results
             : prepend
@@ -224,7 +234,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         this.reportHits();
     }
 
-    private setError(): void {
+    setError(): void {
         this.error = getRelewiseUISearchOptions()?.localization?.universalSearch?.products?.error ?? 'Could not load products.';
         this.loading = false;
     }

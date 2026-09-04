@@ -14,7 +14,7 @@ export const searchComboboxStyles = [
             align-items: center;
             padding-left: 1em;
             padding-right: 1em;
-            border-color: var(--relewise-search-bar-border-color, var(--color));
+            border-color: var(--relewise-search-bar-border-color, var(--relewise-color, #eee));
             height: var(--relewise-search-combobox-height, var(--relewise-product-search-bar-height, 3em));
         }
 
