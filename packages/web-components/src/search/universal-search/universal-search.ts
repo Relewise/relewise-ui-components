@@ -264,6 +264,9 @@ export class UniversalSearch extends RelewiseLitElement {
             return;
         }
 
+        const tabs = [...this.renderRoot.querySelectorAll<UniversalSearchBatchTab & Element>(
+            'relewise-universal-search-products-tab, relewise-universal-search-product-categories-tab, relewise-universal-search-content-tab',
+        )];
         let searches: Array<UniversalSearchBatchSearch | SearchSuggestionsBatchSearch> = [];
         this.batchSearching = true;
         try {
@@ -271,9 +274,6 @@ export class UniversalSearch extends RelewiseLitElement {
             if (abortController.signal.aborted || this.searchTerm !== term) {
                 return;
             }
-            const tabs = [...this.renderRoot.querySelectorAll<UniversalSearchBatchTab & Element>(
-                'relewise-universal-search-products-tab, relewise-universal-search-product-categories-tab, relewise-universal-search-content-tab',
-            )];
             searches = tabs.map(tab => tab.prepareBatchSearch(settings));
             const suggestionsSearch = this.renderRoot
                 .querySelector<SearchCombobox>('relewise-search-combobox')
@@ -299,7 +299,11 @@ export class UniversalSearch extends RelewiseLitElement {
             this.activateFirstTabWithResults();
         } catch {
             if (!abortController.signal.aborted) {
-                searches.forEach(search => search.setError());
+                if (searches.length > 0) {
+                    searches.forEach(search => search.setError());
+                } else {
+                    tabs.forEach(tab => tab.setError());
+                }
             }
         } finally {
             if (this.batchAbortController === abortController) {
