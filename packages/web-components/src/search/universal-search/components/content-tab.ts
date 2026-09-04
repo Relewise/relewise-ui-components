@@ -119,8 +119,13 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
                 return false;
             }
 
+            if (!response) {
+                this.setError();
+                return false;
+            }
+
             this.user = settings.user;
-            this.applyResponse(response ?? null, requestResult.facetLabels, reset);
+            this.applyResponse(response, requestResult.facetLabels, reset);
             return true;
         } catch {
             if (!abortController.signal.aborted) {
@@ -159,18 +164,23 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
     private applyBatchResponse(response: SearchResponseCollection, facetLabels: string[]): void {
         const contentResponse = response.responses?.find(item => '$type' in item
             && item.$type === 'Relewise.Client.Responses.Search.ContentSearchResponse, Relewise.Client') as ContentSearchResponse | undefined;
-        this.applyResponse(contentResponse ?? null, facetLabels, true);
+        if (!contentResponse) {
+            this.setError();
+            return;
+        }
+
+        this.applyResponse(contentResponse, facetLabels, true);
         this.loading = false;
     }
 
-    private applyResponse(response: ContentSearchResponse | null, facetLabels: string[], reset: boolean): void {
+    private applyResponse(response: ContentSearchResponse, facetLabels: string[], reset: boolean): void {
         this.result = response;
-        this.content = reset ? response?.results ?? [] : this.content.concat(response?.results ?? []);
+        this.content = reset ? response.results ?? [] : this.content.concat(response.results ?? []);
         this.facetLabels = facetLabels;
         this.reportHits();
     }
 
-    private setError(): void {
+    setError(): void {
         this.error = getRelewiseUISearchOptions()?.localization?.universalSearch?.content?.error ?? 'Could not load content.';
         this.loading = false;
     }

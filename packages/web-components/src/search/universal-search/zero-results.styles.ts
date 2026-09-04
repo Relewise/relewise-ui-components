@@ -18,7 +18,7 @@ export const universalSearchZeroResultsStyles = css`
         justify-content: center;
         width: var(--relewise-universal-search-zero-results-icon-size, 2.5em);
         height: var(--relewise-universal-search-zero-results-icon-size, 2.5em);
-        border: 1px solid var(--relewise-universal-search-zero-results-icon-border-color, var(--relewise-universal-search-border-color, #ddd));
+        border: 1px solid var(--relewise-universal-search-zero-results-icon-border-color, var(--relewise-universal-search-border-color, var(--relewise-color, #ddd)));
         border-radius: 50%;
         color: var(--relewise-universal-search-zero-results-icon-color, currentColor);
         background: var(--relewise-universal-search-zero-results-icon-background, white);
