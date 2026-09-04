@@ -279,41 +279,46 @@ export class ProductSearchOverlay extends RelewiseLitElement {
         const abortController = new AbortController();
         this.abortController = abortController;
 
-        const relewiseUIOptions = getRelewiseUIOptions();
-        const settings = await getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
-        if (abortController.signal.aborted || abortController !== this.abortController) {
-            return;
-        }
+        try {
+            const relewiseUIOptions = getRelewiseUIOptions();
+            const settings = await getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
+            if (abortController.signal.aborted || abortController !== this.abortController) {
+                return;
+            }
 
-        const searcher = getSearcher(relewiseUIOptions);
-        this.user = settings.user;
+            const searcher = getSearcher(relewiseUIOptions);
+            this.user = settings.user;
 
-        const requestBuilder = new SearchCollectionBuilder()
-            .addRequest(createProductSearchBuilder(searchTerm, settings)
-                .pagination(p => p.setPageSize(this.numberOfProducts))
-                .build());
+            const requestBuilder = new SearchCollectionBuilder()
+                .addRequest(createProductSearchBuilder(searchTerm, settings)
+                    .pagination(p => p.setPageSize(this.numberOfProducts))
+                    .build());
 
-        if (this.numberOfSearchTermPredictions > 0) {
-            requestBuilder.addRequest(new SearchTermPredictionBuilder(settings)
-                .setTerm(searchTerm)
-                .take(this.numberOfSearchTermPredictions)
-                .addEntityType('Product')
-                .build());
-        }
+            if (this.numberOfSearchTermPredictions > 0) {
+                requestBuilder.addRequest(new SearchTermPredictionBuilder(settings)
+                    .setTerm(searchTerm)
+                    .take(this.numberOfSearchTermPredictions)
+                    .addEntityType('Product')
+                    .build());
+            }
 
-        if (this.numberOfProductCategories > 0) {
-            requestBuilder.addRequest(createProductCategorySearchBuilder(searchTerm, settings)
-                .pagination(p => p.setPageSize(this.numberOfProductCategories))
-                .build());
-        }
+            if (this.numberOfProductCategories > 0) {
+                requestBuilder.addRequest(createProductCategorySearchBuilder(searchTerm, settings)
+                    .pagination(p => p.setPageSize(this.numberOfProductCategories))
+                    .build());
+            }
 
-        const response = await searcher.batch(requestBuilder.build(), { abortSignal: abortController.signal });
-        if (abortController.signal.aborted || abortController !== this.abortController) {
-            return;
-        }
+            const response = await searcher.batch(requestBuilder.build(), { abortSignal: abortController.signal });
+            if (abortController.signal.aborted || abortController !== this.abortController) {
+                return;
+            }
 
-        if (response && response.responses) {
-            const productSearchResult = response.responses[0] as ProductSearchResponse;
+            const responses = response?.responses;
+            if (!responses?.[0]) {
+                return;
+            }
+
+            const productSearchResult = responses[0] as ProductSearchResponse;
             this.productSearchResultHits = productSearchResult.hits;
             const products: SearchResult[] = productSearchResult.results?.map(product => {
                 return { product };
@@ -322,7 +327,7 @@ export class ProductSearchOverlay extends RelewiseLitElement {
             const redirects: SearchResult[] = productSearchResult.redirects?.filter(x => x.data?.Title && canParseRedirectDestination(x.destination)).map(x => ({ redirect: x })) ?? [];
 
             let searchTermPredictions: SearchResult[] = [];
-            const searchTermPredictionResponse = findResponseOfType<SearchTermPredictionResponse>(response.responses, 'SearchTermPredictionResponse');
+            const searchTermPredictionResponse = findResponseOfType<SearchTermPredictionResponse>(responses, 'SearchTermPredictionResponse');
             if (searchTermPredictionResponse) {
                 searchTermPredictions = searchTermPredictionResponse.predictions?.map(searchTermPrediction => {
                     return { searchTermPrediction };
@@ -331,7 +336,7 @@ export class ProductSearchOverlay extends RelewiseLitElement {
 
             const localization = getRelewiseUISearchOptions()?.localization;
             let productCategories: SearchResult[] = [];
-            const productCategoriesResponse = findResponseOfType<ProductCategorySearchResponse>(response.responses, 'ProductCategorySearchResponse');
+            const productCategoriesResponse = findResponseOfType<ProductCategorySearchResponse>(responses, 'ProductCategorySearchResponse');
             if (productCategoriesResponse) {
                 productCategories = productCategoriesResponse.results?.map(productCategory => {
                     return { productCategory };
@@ -348,7 +353,14 @@ export class ProductSearchOverlay extends RelewiseLitElement {
             if (this.searchPageUrl && productSearchResult.hits > 0)
                 this.results.push({ showAllResults: true });
 
-            this.hasCompletedSearchRequest = true;
+        } catch (error) {
+            if (!abortController.signal.aborted && abortController === this.abortController) {
+                console.error('Relewise Web Components: Product search overlay failed.', error);
+            }
+        } finally {
+            if (!abortController.signal.aborted && abortController === this.abortController) {
+                this.hasCompletedSearchRequest = true;
+            }
         }
     }
 

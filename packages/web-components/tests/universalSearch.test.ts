@@ -2004,6 +2004,64 @@ suite('relewise-universal-search', () => {
         assert.equal(productSearchCount, 2);
     });
 
+    test('preserves existing entity results when individual requests return no response', async() => {
+        let returnMissingResponse = false;
+        Searcher.prototype.searchProducts = async function() {
+            return returnMissingResponse
+                ? undefined as any
+                : productSearchResponse([product('1')], 2);
+        };
+        Searcher.prototype.searchProductCategories = async function() {
+            return returnMissingResponse
+                ? undefined as any
+                : productCategorySearchResponse([productCategory('1')], 2);
+        };
+        Searcher.prototype.searchContents = async function() {
+            return returnMissingResponse
+                ? undefined as any
+                : contentSearchResponse([content('1')], 2);
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({
+            debounceTimeInMs: 0,
+            universalSearch: {
+                entities: {
+                    products: {},
+                    productCategories: {},
+                    content: {},
+                },
+            },
+        });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(
+            () => products(el).length === 1
+                && productCategories(el).length === 1
+                && contentResults(el).length === 1,
+            'initial entity results did not load',
+        );
+        const tabs = [productsTab(el), productCategoriesTab(el), contentTab(el)];
+        const previousResults = tabs.map(tab => tab.result);
+
+        returnMissingResponse = true;
+        await Promise.all(tabs.map(tab => tab.loadMore()));
+        await universalSearchUpdated(el);
+
+        assert.deepEqual(products(el).map(result => result.productId), ['1']);
+        assert.deepEqual(productCategories(el).map(result => result.categoryId), ['1']);
+        assert.deepEqual(contentResults(el).map(result => result.contentId), ['1']);
+        tabs.forEach((tab, index) => {
+            assert.strictEqual(tab.result, previousResults[index]);
+            assert.isNotNull(tab.renderRoot.querySelector('[part="error-state"]'));
+            assert.isNull(tab.renderRoot.querySelector('[part="loading-state"]'));
+        });
+    });
+
     test('uses localized errors without hiding successful tabs', async () => {
         let contentSearchCount = 0;
         Searcher.prototype.searchProducts = async function() {

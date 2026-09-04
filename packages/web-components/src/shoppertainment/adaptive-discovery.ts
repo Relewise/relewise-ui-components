@@ -187,6 +187,11 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
                 ];
             }
             this.hasMore = hasNextItems && !this.hasReachedMaximumItems();
+
+            await this.updateComplete;
+            if (generation === this.requestGeneration && this.isConnected) {
+                this.observeLoadMoreSentinel();
+            }
         } catch (error) {
             if (!abortController.signal.aborted) {
                 console.error('Relewise Web Components: Loading more Adaptive Discovery items failed.', error);
@@ -254,7 +259,12 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
 
     private observeLoadMoreSentinel(): void {
         const sentinel = this.renderRoot.querySelector('.rw-load-more-sentinel');
-        if (sentinel && this.hasMore) {
+        if (!sentinel) {
+            return;
+        }
+
+        this.intersectionObserver?.unobserve(sentinel);
+        if (this.hasMore) {
             this.intersectionObserver?.observe(sentinel);
         }
     }

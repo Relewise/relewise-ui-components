@@ -88,6 +88,26 @@ suite('relewise-search-combobox', () => {
     });
 
     (['shadow', 'light'] as const).forEach(domMode => {
+        test(`uses the legacy neutral color as its default border in ${domMode} DOM`, async() => {
+            const options = mockRelewiseOptions();
+            options.components = { domMode };
+            initializeRelewiseUI(options);
+            useSearch();
+
+            const element = await fixture(html`
+                <relewise-search-combobox
+                    style="--relewise-color: rgb(12 34 56);">
+                </relewise-search-combobox>
+            `) as SearchCombobox;
+            const searchControl = element.renderRoot.querySelector<HTMLElement>('[part~="search-input"]')!;
+
+            assert.equal(getComputedStyle(searchControl).borderColor, 'rgb(12, 34, 56)');
+
+            element.style.setProperty('--relewise-search-bar-border-color', 'rgb(65 43 21)');
+
+            assert.equal(getComputedStyle(searchControl).borderColor, 'rgb(65, 43, 21)');
+        });
+
         test(`clears the term with an accessible button and restores input focus in ${domMode} DOM`, async() => {
             const options = mockRelewiseOptions();
             options.components = { domMode };

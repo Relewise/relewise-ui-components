@@ -19,4 +19,5 @@ export type UniversalSearchBatchSearch = {
 
 export interface UniversalSearchBatchTab {
     prepareBatchSearch(settings: Settings): UniversalSearchBatchSearch;
+    setError(): void;
 }
