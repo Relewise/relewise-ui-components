@@ -6,6 +6,7 @@ import {
     FeedRecommendationResponse,
     ProductResult,
     Recommender,
+    Tracker,
 } from '@relewise/client';
 import {
     AdaptiveDiscovery,
@@ -17,9 +18,11 @@ import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 suite('relewise-adaptive-discovery', () => {
     const originalRecommendFeedInitialization = Recommender.prototype.recommendFeedInitialization;
     const originalRecommendFeedNextItems = Recommender.prototype.recommendFeedNextItems;
+    const originalTrackFeedItemClick = Tracker.prototype.trackFeedItemClick;
     const originalIntersectionObserver = window.IntersectionObserver;
     let requests: FeedRecommendationInitializationRequest[];
     let nextRequests: FeedRecommendationNextItemsRequest[];
+    let trackedClicks: Parameters<Tracker['trackFeedItemClick']>[0][];
 
     class MockIntersectionObserver {
         static instances: MockIntersectionObserver[] = [];
@@ -65,6 +68,7 @@ suite('relewise-adaptive-discovery', () => {
     setup(() => {
         requests = [];
         nextRequests = [];
+        trackedClicks = [];
         MockIntersectionObserver.instances = [];
         window.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
         Recommender.prototype.recommendFeedInitialization = async request => {
@@ -75,11 +79,15 @@ suite('relewise-adaptive-discovery', () => {
             nextRequests.push(request);
             return undefined;
         };
+        Tracker.prototype.trackFeedItemClick = async click => {
+            trackedClicks.push(click);
+        };
     });
 
     teardown(() => {
         Recommender.prototype.recommendFeedInitialization = originalRecommendFeedInitialization;
         Recommender.prototype.recommendFeedNextItems = originalRecommendFeedNextItems;
+        Tracker.prototype.trackFeedItemClick = originalTrackFeedItemClick;
         window.IntersectionObserver = originalIntersectionObserver;
         fixtureCleanup();
         window.relewiseUIOptions = undefined!;
@@ -153,6 +161,45 @@ suite('relewise-adaptive-discovery', () => {
         );
         assert.equal(element.renderRoot.querySelector('relewise-product-tile')?.getAttribute('part'), 'product-tile');
         assert.equal(element.renderRoot.querySelector('relewise-content-tile')?.getAttribute('part'), 'content-tile');
+    });
+
+    test('tracks product and content tile clicks against the initialized feed', async() => {
+        Recommender.prototype.recommendFeedInitialization = async() => ({
+            initializedFeedId: 'feed-id',
+            recommendations: [
+                {
+                    products: [{
+                        productId: 'product-1',
+                        variant: { variantId: 'variant-1' },
+                    } as ProductResult],
+                },
+                { content: [{ contentId: 'content-1' } as ContentResult] },
+            ],
+        } as FeedRecommendationResponse);
+        initializeRelewiseUI(mockRelewiseOptions()).useShoppertainment({
+            adaptiveDiscovery: {
+                minimumPageSize: 4,
+                configure: () => undefined,
+            },
+        });
+        const element = await fixture<AdaptiveDiscovery>(html`
+            <relewise-adaptive-discovery></relewise-adaptive-discovery>
+        `);
+        await waitUntil(() => element.renderRoot.querySelector('relewise-content-tile') !== null);
+
+        element.renderRoot.querySelector<HTMLElement>('relewise-product-tile')?.click();
+        element.renderRoot.querySelector<HTMLElement>('relewise-content-tile')?.click();
+
+        assert.equal(trackedClicks.length, 2);
+        assert.equal(trackedClicks[0].feedId, 'feed-id');
+        assert.deepEqual(trackedClicks[0].item, {
+            productAndVariantId: {
+                productId: 'product-1',
+                variantId: 'variant-1',
+            },
+        });
+        assert.equal(trackedClicks[1].feedId, 'feed-id');
+        assert.deepEqual(trackedClicks[1].item, { contentId: 'content-1' });
     });
 
     test('uses a target without requiring a default configuration', async() => {
