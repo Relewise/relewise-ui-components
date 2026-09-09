@@ -1,8 +1,10 @@
 import { Settings } from '@relewise/client';
 import { RelewiseUIOptions } from '../initialize';
-import { RelewiseUIRecommendationOptions, RelewiseUISearchOptions } from '../app';
+import { RelewiseUIRecommendationOptions, RelewiseUISearchOptions, RelewiseUIShoppertainmentOptions } from '../app';
 import { TargetedSearchConfigurations } from '../targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from 'src/targetedRecommendationConfigurations';
+import type { AdaptiveDiscoveryFeedConfiguration } from '../adaptiveDiscovery';
+import type { TargetedAdaptiveDiscoveryConfigurations } from '../targetedAdaptiveDiscoveryConfigurations';
 
 export function getRelewiseUIOptions(): RelewiseUIOptions {
     const options = window.relewiseUIOptions;
@@ -25,12 +27,24 @@ export function getRelewiseUIRecommendationOptions(): RelewiseUIRecommendationOp
     return window.relewiseUIRecommendationOptions;
 }
 
+export function getRelewiseUIAdaptiveDiscoveryOptions(): AdaptiveDiscoveryFeedConfiguration | undefined {
+    return getRelewiseUIShoppertainmentOptions()?.adaptiveDiscovery;
+}
+
+export function getRelewiseUIShoppertainmentOptions(): RelewiseUIShoppertainmentOptions | undefined {
+    return window.relewiseUIShoppertainmentOptions;
+}
+
 export function getRelewiseSearchTargetedConfigurations(): TargetedSearchConfigurations {
     return window.relewiseUISearchTargetedConfigurations;
 }
 
 export function getRelewiseRecommendationTargetedConfigurations(): TargetedRecommendationConfigurations {
     return window.relewiseUIRecommendationTargetedConfigurations;
+}
+
+export function getRelewiseAdaptiveDiscoveryTargetedConfigurations(): TargetedAdaptiveDiscoveryConfigurations {
+    return window.relewiseUIAdaptiveDiscoveryTargetedConfigurations;
 }
 
 export async function getRelewiseContextSettings(displayedAtLocation: string): Promise<Settings> {

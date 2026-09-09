@@ -12,6 +12,8 @@ export * from './search';
 export * from './theme';
 export * from './targetedSearchConfigurations';
 export * from './targetedRecommendationConfigurations';
+export * from './targetedAdaptiveDiscoveryConfigurations';
 export * from './addFilters';
 export * from './types/userEngagement';
 export * from './relewise-lit-element';
+export * from './adaptiveDiscovery';

@@ -1,10 +1,11 @@
 import { ContentCategoryResult, ContentResult, FilterBuilder, ProductCategoryResult, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedContentCategoryPropertiesSettings, SelectedContentPropertiesSettings, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
-import { App, RelewiseUIRecommendationOptions, RelewiseUISearchOptions } from './app';
+import { App, RelewiseUIRecommendationOptions, RelewiseUISearchOptions, RelewiseUIShoppertainmentOptions } from './app';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { TemplateHelpers } from './helpers/templateHelpers';
 import { TargetedSearchConfigurations } from './targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from './targetedRecommendationConfigurations';
+import { TargetedAdaptiveDiscoveryConfigurations } from './targetedAdaptiveDiscoveryConfigurations';
 
 export interface UserEngagementEntityOptions {
     sentiment?: boolean;
@@ -118,12 +119,14 @@ export interface Templates {
 export interface Targets {
     searchTargets?: (builder: TargetedSearchConfigurations) => void;
     recommendationTargets?: (builder: TargetedRecommendationConfigurations) => void;
+    adaptiveDiscoveryTargets?: (builder: TargetedAdaptiveDiscoveryConfigurations) => void;
 }
 
 export function initializeRelewiseUI(options: RelewiseUIOptions): App {
     window.relewiseUIOptions = options;
     window.relewiseUISearchTargetedConfigurations = new TargetedSearchConfigurations(options.targets?.searchTargets);
     window.relewiseUIRecommendationTargetedConfigurations = new TargetedRecommendationConfigurations(options.targets?.recommendationTargets);
+    window.relewiseUIAdaptiveDiscoveryTargetedConfigurations = new TargetedAdaptiveDiscoveryConfigurations(options.targets?.adaptiveDiscoveryTargets);
     return new App();
 }
 
@@ -132,7 +135,9 @@ declare global {
         relewiseUIOptions: RelewiseUIOptions;
         relewiseUISearchOptions: RelewiseUISearchOptions;
         relewiseUIRecommendationOptions: RelewiseUIRecommendationOptions;
+        relewiseUIShoppertainmentOptions?: RelewiseUIShoppertainmentOptions;
         relewiseUISearchTargetedConfigurations: TargetedSearchConfigurations;
         relewiseUIRecommendationTargetedConfigurations: TargetedRecommendationConfigurations;
+        relewiseUIAdaptiveDiscoveryTargetedConfigurations: TargetedAdaptiveDiscoveryConfigurations;
     }
 }
