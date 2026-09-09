@@ -20,7 +20,7 @@ export class TargetedAdaptiveDiscoveryConfigurations {
         return this.configurations.has(target);
     }
 
-    resolve(target: string, defaultConfiguration: AdaptiveDiscoveryFeedConfiguration): AdaptiveDiscoveryFeedConfiguration {
+    resolve(target: string, defaultConfiguration?: AdaptiveDiscoveryFeedConfiguration): AdaptiveDiscoveryFeedConfiguration | undefined {
         const configuration = this.configurations.get(target);
 
         if (!configuration) {
