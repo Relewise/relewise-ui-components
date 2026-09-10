@@ -273,7 +273,13 @@ suite('facet generalization', () => {
         assert.deepEqual(new URL(window.location.href).searchParams.getAll(QueryKeys.productFacet + 'Brand'), ['brand-1']);
         assert.equal(applyCount, 1);
         assert.isTrue(input.checked);
-        assert.equal(facet.renderRoot.querySelector('[part="selected-count"]')?.textContent, '1');
+        const selectedCount = facet.renderRoot.querySelector<HTMLElement>('[part="selected-count"]')!;
+        const selectedCountBounds = selectedCount.getBoundingClientRect();
+        const selectedCountStyles = getComputedStyle(selectedCount);
+        assert.equal(selectedCount.textContent, '1');
+        assert.closeTo(selectedCountBounds.width, selectedCountBounds.height, 0.5);
+        assert.equal(selectedCountStyles.paddingTop, selectedCountStyles.paddingBottom);
+        assert.equal(selectedCountStyles.paddingLeft, selectedCountStyles.paddingRight);
 
         input.click();
         await facet.updateComplete;

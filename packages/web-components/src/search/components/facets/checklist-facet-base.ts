@@ -221,9 +221,9 @@ export abstract class ChecklistFacetBase extends RelewiseLitElement {
             align-items: center;
             justify-content: center;
             box-sizing: border-box;
-            min-width: 1.25em;
-            height: 1.25em;
-            padding: 0 0.3em 0.1em;
+            min-width: 1.5em;
+            height: 1.5em;
+            padding: 0 0.5em;
             border-radius: 9999px;
             background-color: var(--relewise-checklist-facet-selected-count-background-color, #111);
             color: var(--relewise-checklist-facet-selected-count-color, #fff);
