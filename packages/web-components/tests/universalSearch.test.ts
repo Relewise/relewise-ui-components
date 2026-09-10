@@ -313,6 +313,32 @@ suite('relewise-universal-search', () => {
         assert.isNull(queryDeep(el, '[role="dialog"]'));
     });
 
+    test('clears Universal Search state when the close button is used', async() => {
+        updateUrlState(QueryKeys.term, 'shoe');
+        updateUrlState(QueryKeys.productTake, '4');
+        updateUrlState(`${QueryKeys.productFacet}Brand`, 'Nike');
+        updateUrlState(QueryKeys.sortBy, 'price');
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search"></relewise-universal-search>
+        `) as UniversalSearch;
+
+        queryDeep<HTMLElement>(el, 'relewise-button[part="close-button"]')!.click();
+        await universalSearchUpdated(el);
+
+        assert.isFalse(el.isOpen);
+        assert.isNull(readCurrentUrlState(QueryKeys.term));
+        assert.isNull(readCurrentUrlState(QueryKeys.productTake));
+        assert.isNull(readCurrentUrlState(`${QueryKeys.productFacet}Brand`));
+        assert.equal(readCurrentUrlState(QueryKeys.sortBy), 'price');
+
+        el.open();
+        await universalSearchUpdated(el);
+
+        assert.equal(internals(el).term, '');
+        assert.isNull(queryDeep(el, '[part="tabs"]'));
+    });
+
     test('locks document scrolling while open and restores existing inline values', async () => {
         const originalDocumentElementOverflow = document.documentElement.style.overflow;
         const originalBodyOverflow = document.body.style.overflow;
@@ -534,14 +560,19 @@ suite('relewise-universal-search', () => {
     });
 
     test('closes on Escape', async () => {
+        updateUrlState(QueryKeys.term, 'shoe');
+        updateUrlState(QueryKeys.contentTake, '4');
+
         const el = await fixture(html`
-            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+            <relewise-universal-search displayed-at-location="Universal Search"></relewise-universal-search>
         `) as UniversalSearch;
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
         await universalSearchUpdated(el);
 
         assert.isFalse(el.isOpen);
+        assert.isNull(readCurrentUrlState(QueryKeys.term));
+        assert.isNull(readCurrentUrlState(QueryKeys.contentTake));
     });
 
     test('writes term to URL state', async () => {
@@ -661,6 +692,8 @@ suite('relewise-universal-search', () => {
                 assert.equal(styles.justifyContent, 'center');
                 assert.include(styles.fontVariantNumeric, 'tabular-nums');
                 assert.equal(styles.paddingBottom, '0px');
+                assert.equal(styles.paddingTop, styles.paddingBottom);
+                assert.equal(styles.paddingLeft, styles.paddingRight);
                 assert.equal(styles.backgroundColor, 'rgb(17, 17, 17)');
                 assert.equal(styles.color, 'rgb(255, 255, 255)');
             });

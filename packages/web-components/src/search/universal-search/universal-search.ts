@@ -169,6 +169,17 @@ export class UniversalSearch extends RelewiseLitElement {
     }
 
     close(): void {
+        if (this.debounceTimeoutHandlerId) {
+            clearTimeout(this.debounceTimeoutHandlerId);
+            this.debounceTimeoutHandlerId = null;
+        }
+
+        this.term = '';
+        this.searchTerm = '';
+        this.redirects = [];
+        this.activeTab = null;
+        this.tabHits = { products: null, productCategories: null, content: null };
+        updateUrlStateForUniversalSearchTerm('');
         this.isOpen = false;
         this.syncOpenState();
     }
