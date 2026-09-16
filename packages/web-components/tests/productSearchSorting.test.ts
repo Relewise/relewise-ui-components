@@ -24,7 +24,12 @@ suite('product-search-sorting', () => {
         `);
 
         const options = Array.from(element.shadowRoot!.querySelectorAll('option')).map(option => option.value);
+        const label = element.shadowRoot!.querySelector('label')!;
+        const select = element.shadowRoot!.querySelector('select')!;
 
+        assert.equal(label.getAttribute('part'), 'container');
+        assert.notEqual(getComputedStyle(select).appearance, 'none');
+        assert.equal(getComputedStyle(label, '::after').content, 'none');
         assert.deepEqual(options, [
             'Relevance',
             'SalesPriceAsc',
@@ -102,6 +107,25 @@ suite('product-search-sorting', () => {
         await element.updateComplete;
 
         assert.equal(readCurrentUrlState(QueryKeys.sortBy), 'ProductData:Rating:Product:Descending:Numerical');
+    });
+
+    test('can write sorting to an isolated URL key', async () => {
+        updateUrlState(QueryKeys.sortBy, SortingEnum.Relevance);
+        useSearch();
+
+        const element = await fixture<ProductSearchSorting>(html`
+            <relewise-product-search-sorting
+                .sortingQueryKey=${QueryKeys.productSorting}>
+            </relewise-product-search-sorting>
+        `);
+
+        const select = element.shadowRoot!.querySelector('select') as HTMLSelectElement;
+        select.value = SortingEnum.SalesPriceAsc;
+        select.dispatchEvent(new Event('change'));
+        await element.updateComplete;
+
+        assert.equal(readCurrentUrlState(QueryKeys.productSorting), SortingEnum.SalesPriceAsc);
+        assert.equal(readCurrentUrlState(QueryKeys.sortBy), SortingEnum.Relevance);
     });
 
     test('falls back to the first configured option when the URL contains an unknown id', async () => {

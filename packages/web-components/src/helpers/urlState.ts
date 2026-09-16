@@ -1,10 +1,30 @@
 export enum QueryKeys {
     term = 'rw-term',
     take = 'rw-take',
+    productTake = 'rw-product-take',
+    productCategoryTake = 'rw-product-category-take',
+    contentTake = 'rw-content-take',
     sortBy = 'rw-sorting',
+    productSorting = 'rw-product-sorting',
     facet = 'rw-facet-',
     facetUpperbound = 'rw-facet-upperbound-',
     facetLowerbound = 'rw-facet-lowerbound-',
+    productFacet = 'rw-product-facet-',
+    productFacetUpperbound = 'rw-product-facet-upperbound-',
+    productFacetLowerbound = 'rw-product-facet-lowerbound-',
+    productCategoryFacet = 'rw-product-category-facet-',
+    productCategoryFacetUpperbound = 'rw-product-category-facet-upperbound-',
+    productCategoryFacetLowerbound = 'rw-product-category-facet-lowerbound-',
+    contentFacet = 'rw-content-facet-',
+    contentFacetUpperbound = 'rw-content-facet-upperbound-',
+    contentFacetLowerbound = 'rw-content-facet-lowerbound-',
+}
+
+export function getFacetRangeQueryKeyPrefixes(facetQueryKeyPrefix: string) {
+    return {
+        upperBound: `${facetQueryKeyPrefix}upperbound-`,
+        lowerBound: `${facetQueryKeyPrefix}lowerbound-`,
+    };
 }
 
 export function updateUrlState(queryParamName: string, value: string | null) {
@@ -12,16 +32,22 @@ export function updateUrlState(queryParamName: string, value: string | null) {
     
     if (!value) {
         currentUrl.searchParams.delete(queryParamName);
-        window.history.replaceState({}, document.title, currentUrl);
+    } else {
+        currentUrl.searchParams.set(queryParamName, value);
+    }
+
+    if (currentUrl.href === window.location.href) {
         return;
     }
-    
-    currentUrl.searchParams.set(queryParamName, value);
+
     window.history.replaceState({}, document.title, currentUrl);
 }
 
 export function clearUrlState() {
     const currentUrl = new URL(window.location.href);
+    if (!currentUrl.search) {
+        return;
+    }
     currentUrl.search = '';
     window.history.replaceState({}, document.title, currentUrl);
 }
@@ -33,7 +59,11 @@ export function updateUrlStateValues(queryParamName: string, values: string[]) {
     values.forEach(value => {
         currentUrl.searchParams.append(queryParamName, value);
     });
-    
+
+    if (currentUrl.href === window.location.href) {
+        return;
+    }
+
     window.history.replaceState({}, document.title, currentUrl);
 }
 
@@ -47,6 +77,12 @@ export function readCurrentUrlStateValues(queryParamName: string): string[] {
     const currentUrl = new URL(window.location.href);
 
     return currentUrl.searchParams.getAll(queryParamName);
+}
+
+export function hasUrlStateWithPrefix(queryParamPrefix: string): boolean {
+    const currentUrl = new URL(window.location.href);
+
+    return Array.from(currentUrl.searchParams.keys()).some(queryParamName => queryParamName.startsWith(queryParamPrefix));
 }
 
 export function getNumberOfProductsToFetch(): number | null {

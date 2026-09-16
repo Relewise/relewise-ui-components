@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Web Components"
+  short_description: "Audit Lit component architecture and PR changes"
+  default_prompt: "Use $review-web-components to review this web-component change against repository architecture and validation standards."

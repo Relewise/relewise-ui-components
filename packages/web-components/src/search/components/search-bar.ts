@@ -34,15 +34,24 @@ export class SearchBar extends RelewiseLitElement {
     }
 
     focusSearchInput() {
-        const searchInput = this.shadowRoot?.getElementById('search-input');
+        const searchInput = this.renderRoot.querySelector<HTMLInputElement>('#search-input');
         if (searchInput) {
             searchInput.focus();
         }
     }
 
+    blurSearchInput() {
+        const searchInput = this.renderRoot.querySelector<HTMLInputElement>('#search-input');
+        if (searchInput) {
+            searchInput.blur();
+        }
+    }
+
     render() {
         return html`
-        <div class="rw-search-bar rw-border" part="input">
+        <div class="rw-search-bar rw-border" part="input"
+            @pointerdown=${() => this.setSearchBarInFocus(true)}
+            @touchstart=${() => this.setSearchBarInFocus(true)}>
             <input
                 id="search-input"
                 autocomplete="off"

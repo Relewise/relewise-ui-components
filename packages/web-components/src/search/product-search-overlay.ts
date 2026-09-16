@@ -6,6 +6,7 @@ import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOp
 import { getSearcher } from './searcher';
 import { theme } from '../theme';
 import { createProductSearchBuilder, createProductCategorySearchBuilder } from '../builders';
+import { canParseRedirectDestination } from '../helpers/searchRedirect';
 
 export type SearchResult = {
     title?: string;
@@ -58,6 +59,9 @@ export class ProductSearchOverlay extends RelewiseLitElement {
     resultBoxIsHovered: boolean = false;
 
     @state()
+    overlayIsClosed: boolean = false;
+
+    @state()
     hasCompletedSearchRequest: boolean = false;
 
     @state()
@@ -67,35 +71,75 @@ export class ProductSearchOverlay extends RelewiseLitElement {
     user: User | null = null;
 
     private debounceTimeoutHandlerId: ReturnType<typeof setTimeout> | null = null;
+    private blurTimeoutHandlerId: ReturnType<typeof setTimeout> | null = null;
     private abortController = new AbortController();
+    private readonly handleDocumentPointerDown = (event: Event) => {
+        if (event.composedPath().includes(this)) {
+            return;
+        }
+
+        if (this.blurTimeoutHandlerId) {
+            clearTimeout(this.blurTimeoutHandlerId);
+            this.blurTimeoutHandlerId = null;
+        }
+        this.searchBarInFocus = false;
+        this.resultBoxIsHovered = false;
+    };
 
     async connectedCallback() {
         if (!this.displayedAtLocation) {
             console.error('No displayedAtLocation defined!');
         }
         super.connectedCallback();
+        document.addEventListener('pointerdown', this.handleDocumentPointerDown, true);
+        document.addEventListener('touchstart', this.handleDocumentPointerDown, true);
+    }
+
+    disconnectedCallback() {
+        document.removeEventListener('pointerdown', this.handleDocumentPointerDown, true);
+        document.removeEventListener('touchstart', this.handleDocumentPointerDown, true);
+        if (this.debounceTimeoutHandlerId) {
+            clearTimeout(this.debounceTimeoutHandlerId);
+        }
+        this.abortController.abort();
+        super.disconnectedCallback();
     }
 
     setSearchTerm(term: string) {
         this.term = term;
         this.selectedIndex = -1;
 
-        if (!term) {
+        if (this.debounceTimeoutHandlerId) {
+            clearTimeout(this.debounceTimeoutHandlerId);
+            this.debounceTimeoutHandlerId = null;
+        }
+
+        const minimumQueryLength = getRelewiseUISearchOptions()?.minimumQueryLength ?? 1;
+        if (term.length < minimumQueryLength) {
+            this.abortController.abort();
             this.results = null;
+            this.redirects = null;
+            this.productSearchResultHits = 0;
             this.hasCompletedSearchRequest = false;
+            this.overlayIsClosed = false;
             return;
         }
 
-        if (this.debounceTimeoutHandlerId) {
-            clearTimeout(this.debounceTimeoutHandlerId);
-        }
+        this.overlayIsClosed = false;
 
         this.debounceTimeoutHandlerId = setTimeout(() => {
+            this.debounceTimeoutHandlerId = null;
             this.search(term);
         }, getRelewiseUISearchOptions()?.debounceTimeInMs);
     }
 
     handleKeyDown(event: KeyboardEvent): void {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            this.closeOverlay();
+            return;
+        }
+
         if (!this.results) {
             return;
         }
@@ -123,6 +167,38 @@ export class ProductSearchOverlay extends RelewiseLitElement {
                 this.handleActionOnResult(this.results[this.selectedIndex]);
                 break;
         }
+    }
+
+    closeOverlay() {
+        this.searchBarInFocus = false;
+        this.resultBoxIsHovered = false;
+        this.overlayIsClosed = true;
+        this.renderRoot.querySelector('relewise-search-bar')?.blurSearchInput();
+    }
+
+    setSearchBarInFocus(inFocus: boolean) {
+        if (inFocus) {
+            if (this.blurTimeoutHandlerId) {
+                clearTimeout(this.blurTimeoutHandlerId);
+                this.blurTimeoutHandlerId = null;
+            }
+            this.overlayIsClosed = false;
+            this.searchBarInFocus = true;
+            return;
+        }
+
+        this.blurTimeoutHandlerId = setTimeout(() => {
+            this.blurTimeoutHandlerId = null;
+            if (!this.resultBoxIsHovered) {
+                this.searchBarInFocus = false;
+            }
+        });
+    }
+
+    closeSearchKeyboard() {
+        this.resultBoxIsHovered = true;
+        const searchBar = this.renderRoot.querySelector('relewise-search-bar');
+        searchBar?.blurSearchInput();
     }
 
     redirectToSearchPage(termOverride?: string): boolean {
@@ -189,7 +265,7 @@ export class ProductSearchOverlay extends RelewiseLitElement {
         } else if (result?.redirect) {
             // We have previously validated the destination as a valid URL.
             window.location.href = result?.redirect.destination ?? '';
-        } else if (this.redirects && this.redirects.length > 0 && URL.canParse(this.redirects[0].destination ?? '')) {
+        } else if (this.redirects && this.redirects.length > 0 && canParseRedirectDestination(this.redirects[0].destination)) {
             if (this.redirects[0].destination) {
                 window.location.href = this.redirects[0].destination;
             }
@@ -200,44 +276,58 @@ export class ProductSearchOverlay extends RelewiseLitElement {
 
     async search(searchTerm: string) {
         this.abortController.abort();
+        const abortController = new AbortController();
+        this.abortController = abortController;
 
-        const relewiseUIOptions = getRelewiseUIOptions();
-        const settings = await getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
-        const searcher = getSearcher(relewiseUIOptions);
-        this.user = settings.user;
+        try {
+            const relewiseUIOptions = getRelewiseUIOptions();
+            const settings = await getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
+            if (abortController.signal.aborted || abortController !== this.abortController) {
+                return;
+            }
 
-        const requestBuilder = new SearchCollectionBuilder()
-            .addRequest(createProductSearchBuilder(this.term, settings)
-                .pagination(p => p.setPageSize(this.numberOfProducts))
-                .build());
+            const searcher = getSearcher(relewiseUIOptions);
+            this.user = settings.user;
 
-        if (this.numberOfSearchTermPredictions > 0) {
-            requestBuilder.addRequest(new SearchTermPredictionBuilder(settings)
-                .setTerm(searchTerm)
-                .take(this.numberOfSearchTermPredictions)
-                .addEntityType('Product')
-                .build());
-        }
+            const requestBuilder = new SearchCollectionBuilder()
+                .addRequest(createProductSearchBuilder(searchTerm, settings)
+                    .pagination(p => p.setPageSize(this.numberOfProducts))
+                    .build());
 
-        if (this.numberOfProductCategories > 0) {
-            requestBuilder.addRequest(createProductCategorySearchBuilder(this.term, settings)
-                .pagination(p => p.setPageSize(this.numberOfProductCategories))
-                .build());
-        }
+            if (this.numberOfSearchTermPredictions > 0) {
+                requestBuilder.addRequest(new SearchTermPredictionBuilder(settings)
+                    .setTerm(searchTerm)
+                    .take(this.numberOfSearchTermPredictions)
+                    .addEntityType('Product')
+                    .build());
+            }
 
-        this.abortController = new AbortController();
-        const response = await searcher.batch(requestBuilder.build(), { abortSignal: this.abortController.signal });
-        if (response && response.responses) {
-            const productSearchResult = response.responses[0] as ProductSearchResponse;
+            if (this.numberOfProductCategories > 0) {
+                requestBuilder.addRequest(createProductCategorySearchBuilder(searchTerm, settings)
+                    .pagination(p => p.setPageSize(this.numberOfProductCategories))
+                    .build());
+            }
+
+            const response = await searcher.batch(requestBuilder.build(), { abortSignal: abortController.signal });
+            if (abortController.signal.aborted || abortController !== this.abortController) {
+                return;
+            }
+
+            const responses = response?.responses;
+            if (!responses?.[0]) {
+                return;
+            }
+
+            const productSearchResult = responses[0] as ProductSearchResponse;
             this.productSearchResultHits = productSearchResult.hits;
             const products: SearchResult[] = productSearchResult.results?.map(product => {
                 return { product };
             }) ?? [];
             this.redirects = productSearchResult.redirects;
-            const redirects: SearchResult[] = productSearchResult.redirects?.filter(x => x.data?.Title && URL.canParse(x.destination ?? '')).map(x => ({ redirect: x })) ?? [];
+            const redirects: SearchResult[] = productSearchResult.redirects?.filter(x => x.data?.Title && canParseRedirectDestination(x.destination)).map(x => ({ redirect: x })) ?? [];
 
             let searchTermPredictions: SearchResult[] = [];
-            const searchTermPredictionResponse = findResponseOfType<SearchTermPredictionResponse>(response.responses, 'SearchTermPredictionResponse');
+            const searchTermPredictionResponse = findResponseOfType<SearchTermPredictionResponse>(responses, 'SearchTermPredictionResponse');
             if (searchTermPredictionResponse) {
                 searchTermPredictions = searchTermPredictionResponse.predictions?.map(searchTermPrediction => {
                     return { searchTermPrediction };
@@ -246,7 +336,7 @@ export class ProductSearchOverlay extends RelewiseLitElement {
 
             const localization = getRelewiseUISearchOptions()?.localization;
             let productCategories: SearchResult[] = [];
-            const productCategoriesResponse = findResponseOfType<ProductCategorySearchResponse>(response.responses, 'ProductCategorySearchResponse');
+            const productCategoriesResponse = findResponseOfType<ProductCategorySearchResponse>(responses, 'ProductCategorySearchResponse');
             if (productCategoriesResponse) {
                 productCategories = productCategoriesResponse.results?.map(productCategory => {
                     return { productCategory };
@@ -263,27 +353,36 @@ export class ProductSearchOverlay extends RelewiseLitElement {
             if (this.searchPageUrl && productSearchResult.hits > 0)
                 this.results.push({ showAllResults: true });
 
-            this.hasCompletedSearchRequest = true;
+        } catch (error) {
+            if (!abortController.signal.aborted && abortController === this.abortController) {
+                console.error('Relewise Web Components: Product search overlay failed.', error);
+            }
+        } finally {
+            if (!abortController.signal.aborted && abortController === this.abortController) {
+                this.hasCompletedSearchRequest = true;
+            }
         }
     }
 
     render() {
         const localization = getRelewiseUISearchOptions()?.localization;
+        const shouldShowOverlay = !this.overlayIsClosed &&
+            this.hasCompletedSearchRequest &&
+            this.term &&
+            (this.searchBarInFocus || this.resultBoxIsHovered);
+
         return html`
             <relewise-search-bar 
                 part="searchbar"
                 exportparts="input: searchbar-input, icon: searchbar-icon"
                 .term=${this.term}
                 .setSearchTerm=${(term: string) => this.setSearchTerm(term)}
-                .setSearchBarInFocus=${(inFocus: boolean) => this.searchBarInFocus = inFocus}
+                .setSearchBarInFocus=${(inFocus: boolean) => this.setSearchBarInFocus(inFocus)}
                 .placeholder=${localization?.searchBar?.placeholder ?? 'Search'}
                 .handleKeyEvent=${(e: KeyboardEvent) => this.handleKeyDown(e)}
                 .autofocus="${this.autofocus}"
                 ></relewise-search-bar>    
-            ${(this.searchBarInFocus &&
-                this.hasCompletedSearchRequest &&
-                this.term) ||
-                this.resultBoxIsHovered ?
+            ${shouldShowOverlay ?
                 html`<relewise-product-search-overlay-results
                     part="overlay"
                     exportparts="overlay: overlay-container, title: overlay-title"
@@ -293,6 +392,7 @@ export class ProductSearchOverlay extends RelewiseLitElement {
                     .redirectToSearchPage=${(term?: string) => this.redirectToSearchPage(term)}
                     .noResultsMessage=${localization?.searchResults?.noResults ?? 'No products found'}
                     .setResultOverlayHovered=${(hovered: boolean) => this.resultBoxIsHovered = hovered}
+                    .closeSearchKeyboard=${() => this.closeSearchKeyboard()}
                     .hits=${this.productSearchResultHits}
                     .user=${this.user}
                     .navigateOnSuggestion=${this.navigateOnSuggestion}>

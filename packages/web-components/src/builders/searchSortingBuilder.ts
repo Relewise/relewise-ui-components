@@ -1,5 +1,5 @@
 import { ProductSortingBuilder } from '@relewise/client';
-import { SortingEnum } from './enums';
+import { SortingEnum } from '../search/enums';
 import type { SortingLocalization } from '../app';
 
 export interface SearchSortingOption {

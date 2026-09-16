@@ -1,4 +1,4 @@
-import { SelectedCategoryPropertiesSettings, SelectedContentPropertiesSettings, SelectedProductPropertiesSettings } from '@relewise/client';
+import { SelectedContentCategoryPropertiesSettings, SelectedContentPropertiesSettings, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings } from '@relewise/client';
 import { RelewiseUIOptions } from './initialize';
 
 const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = {
@@ -7,9 +7,14 @@ const defaultProductProperties: Partial<SelectedProductPropertiesSettings> = {
     dataKeys: ['ImageUrl', 'Url'],
 };
 
-export const defaultProductCategoryProperties: Partial<SelectedCategoryPropertiesSettings> = {
+export const defaultProductCategoryProperties: Partial<SelectedProductCategoryPropertiesSettings> = {
     displayName: true,
-    dataKeys: ['Url'],
+    dataKeys: ['ImageUrl', 'Url'],
+};
+
+export const defaultContentCategoryProperties: Partial<SelectedContentCategoryPropertiesSettings> = {
+    displayName: true,
+    dataKeys: ['ImageUrl', 'Url'],
 };
 
 const defaultContentProperties: Partial<SelectedContentPropertiesSettings> = {
@@ -17,7 +22,7 @@ const defaultContentProperties: Partial<SelectedContentPropertiesSettings> = {
     dataKeys: ['Url', 'ImageUrl', 'Summary'],
 };
 
-export const defaultExplodedVariants = 1;
+export const defaultMaxVariantsPerProduct = 1;
 
 export function getSelectedProductProperties(options: RelewiseUIOptions): Partial<SelectedProductPropertiesSettings> {
     const base = options.selectedPropertiesSettings?.product ?? defaultProductProperties;

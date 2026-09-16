@@ -1,11 +1,12 @@
-import { ContentResult, FilterBuilder, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedContentPropertiesSettings, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
+import { ContentCategoryResult, ContentResult, FilterBuilder, ProductCategoryResult, ProductResult, RelevanceModifierBuilder, RelewiseClientOptions, SelectedContentCategoryPropertiesSettings, SelectedContentPropertiesSettings, SelectedProductCategoryPropertiesSettings, SelectedProductPropertiesSettings, SelectedVariantPropertiesSettings, User } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
-import { App, RelewiseUISearchOptions } from './app';
+import { App, RelewiseUIRecommendationOptions, RelewiseUISearchOptions, RelewiseUIShoppertainmentOptions } from './app';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { TemplateHelpers } from './helpers/templateHelpers';
 import { TargetedSearchConfigurations } from './targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from './targetedRecommendationConfigurations';
 import type { RetailMediaConfiguration } from './search/retailMediaBuilder';
+import { TargetedAdaptiveDiscoveryConfigurations } from './targetedAdaptiveDiscoveryConfigurations';
 
 export interface UserEngagementEntityOptions {
     sentiment?: boolean;
@@ -51,6 +52,7 @@ export interface RelewiseUIOptions {
         product?: Partial<SelectedProductPropertiesSettings>;
         variant?: Partial<SelectedVariantPropertiesSettings>;
         productCategory?: Partial<SelectedProductCategoryPropertiesSettings>;
+        contentCategory?: Partial<SelectedContentCategoryPropertiesSettings>;
         content?: Partial<SelectedContentPropertiesSettings>;
     };
     clientOptions: RelewiseClientOptions;
@@ -65,12 +67,14 @@ export interface RelewiseUIOptions {
 export interface Filters {
     product?: (builder: FilterBuilder) => void;
     productCategory?: (builder: FilterBuilder) => void;
+    contentCategory?: (builder: FilterBuilder) => void;
     content?: (builder: FilterBuilder) => void;
 }
 
 export interface RelevanceModifiers {
     product?: (builder: RelevanceModifierBuilder) => void;
     productCategory?: (builder: RelevanceModifierBuilder) => void;
+    contentCategory?: (builder: RelevanceModifierBuilder) => void;
     content?: (builder: RelevanceModifierBuilder) => void;
 }
 
@@ -98,14 +102,25 @@ export interface ContentTemplateExtensions {
     helpers: CommonTemplateHelpers;
 }
 
+export interface CategoryTemplateExtensions {
+    html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>;
+    helpers: Omit<CommonTemplateHelpers, 'user'>;
+}
+
+export type ProductCategoryTemplateExtensions = CategoryTemplateExtensions;
+export type ContentCategoryTemplateExtensions = CategoryTemplateExtensions;
+
 export interface Templates {
     product?: (product: ProductResult, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
     content?: (content: ContentResult, extensions: ContentTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    productCategory?: (productCategory: ProductCategoryResult, extensions: ProductCategoryTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    contentCategory?: (contentCategory: ContentCategoryResult, extensions: ContentCategoryTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
 }
 
 export interface Targets {
     searchTargets?: (builder: TargetedSearchConfigurations) => void;
     recommendationTargets?: (builder: TargetedRecommendationConfigurations) => void;
+    adaptiveDiscoveryTargets?: (builder: TargetedAdaptiveDiscoveryConfigurations) => void;
 }
 
 export function initializeRelewiseUI(options: RelewiseUIOptions): App {
@@ -113,6 +128,7 @@ export function initializeRelewiseUI(options: RelewiseUIOptions): App {
     window.relewiseUIRetailMediaConfiguration = null;
     window.relewiseUISearchTargetedConfigurations = new TargetedSearchConfigurations(options.targets?.searchTargets);
     window.relewiseUIRecommendationTargetedConfigurations = new TargetedRecommendationConfigurations(options.targets?.recommendationTargets);
+    window.relewiseUIAdaptiveDiscoveryTargetedConfigurations = new TargetedAdaptiveDiscoveryConfigurations(options.targets?.adaptiveDiscoveryTargets);
     return new App();
 }
 
@@ -121,7 +137,10 @@ declare global {
         relewiseUIOptions: RelewiseUIOptions;
         relewiseUISearchOptions: RelewiseUISearchOptions;
         relewiseUIRetailMediaConfiguration: RetailMediaConfiguration | null;
+        relewiseUIRecommendationOptions: RelewiseUIRecommendationOptions;
+        relewiseUIShoppertainmentOptions?: RelewiseUIShoppertainmentOptions;
         relewiseUISearchTargetedConfigurations: TargetedSearchConfigurations;
         relewiseUIRecommendationTargetedConfigurations: TargetedRecommendationConfigurations;
+        relewiseUIAdaptiveDiscoveryTargetedConfigurations: TargetedAdaptiveDiscoveryConfigurations;
     }
 }

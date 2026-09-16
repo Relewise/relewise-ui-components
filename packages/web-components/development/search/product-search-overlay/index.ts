@@ -25,7 +25,7 @@ initializeRelewiseUI(
             showAllResults: 'Se alle resultater',
         },
     },
-    explodedVariants: 1,
+    variantRequestSettings: builder => builder.setMaxVariantsPerProduct(1),
     // templates: {
     //     searchOverlayProductCategoryResult: (category, { html, helpers }) => {
 

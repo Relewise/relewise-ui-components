@@ -1,6 +1,6 @@
 import { RelewiseLitElement } from '../relewise-lit-element';
 import { ProductResult, User } from '@relewise/client';
-import { adoptStyles, css, html, nothing } from 'lit';
+import { adoptStyles, css, html, nothing, TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';
 import formatPrice from '../helpers/formatPrice';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
@@ -53,21 +53,10 @@ export class ProductTile extends RelewiseLitElement {
         const settings = getRelewiseUIOptions();
         if (settings.templates?.product) {
             const result = settings.templates.product(this.product, { html, helpers: { ...templateHelpers, formatPrice, unsafeHTML, nothing, user: this.user } });
-            const markup = result instanceof Promise ? html`
-                ${until(result.then(result => {
-                if (result === nothing) {
-                    this.toggleAttribute('hidden', true);
-                }
-
-                return result;
-            }))}` : result;
-
-            if (result === nothing) {
-                this.toggleAttribute('hidden', true);
-            }
-
-            return html`${markup}`;
+            return this.renderCustomTemplate(result);
         }
+
+        this.removeAttribute('hidden');
 
         const url = this.product.data && 'Url' in this.product.data ? this.product.data['Url'].value ?? '' : null;
 
@@ -93,6 +82,21 @@ export class ProductTile extends RelewiseLitElement {
             </div>`;
     }
 
+    private renderCustomTemplate(
+        result: TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>,
+    ) {
+        if (result instanceof Promise) {
+            this.removeAttribute('hidden');
+            return html`${until(result.then(result => {
+                this.toggleAttribute('hidden', result === nothing);
+                return result;
+            }))}`;
+        }
+
+        this.toggleAttribute('hidden', result === nothing);
+        return result;
+    }
+
     renderTileContent(product: ProductResult) {
         return html`
             ${(product.data && 'ImageUrl' in product.data)
@@ -113,9 +117,9 @@ export class ProductTile extends RelewiseLitElement {
     }
 
     private getProductImageAlt(product: ProductResult): string {
-        const altText = product.variant?.displayName ?? product.displayName ?? '';
+        const altText = product.variant?.displayName;
 
-        return altText ?? '';
+        return altText && altText !== product.displayName ? altText : '';
     }
 
     static defaultStyles = [
@@ -125,12 +129,12 @@ export class ProductTile extends RelewiseLitElement {
             font-family: var(--font);
             border: 1px solid var(--relewise-checklist-facet-border-color, #eee);
             background-color: var(--button-color, white);
-            clip-path: inset(0 round 0.5em);
-            border-radius: 0.5em;
+            border-radius: var(--relewise-product-tile-border-radius, 0.5em);
             box-shadow: 0 1px rgb(0 0 0 / 0.05);
         }
         
         .rw-tile {
+            border-radius: max(0px, calc(var(--relewise-product-tile-border-radius, 0.5em) - 1px));
             display: flex;
             flex-direction: column;
             position: relative;
@@ -138,6 +142,7 @@ export class ProductTile extends RelewiseLitElement {
             text-size-adjust: none;
             height: 100%;
             gap: var(--relewise-sentiment-gap, 0.5em);
+            overflow: var(--relewise-tile-overflow, clip);
         }
 
         .rw-tile-link {
@@ -184,7 +189,7 @@ export class ProductTile extends RelewiseLitElement {
         .rw-display-name {
             display: -webkit-box;
             letter-spacing: var(--relewise-display-name-letter-spacing, -0.025em);
-            justify-content: var(--relewise-display-name-alignment, start);
+            text-align: var(--relewise-display-name-alignment, start);
             color: var(--relewise-display-name-color, #212427);
             line-height: var(--relewise-display-name-line-height, 1);
             font-weight: var(--relewise-display-name-font-weight, 500);

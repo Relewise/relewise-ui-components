@@ -9,7 +9,7 @@ suite('relewise-popular-products', () => {
 
     setup(() => {
         recommendPopularProductsCalls = [];
-        Recommender.prototype.recommendPopularProducts = async (request: ProductRecommendationRequest) => {
+        Recommender.prototype.recommendPopularProducts = async(request: ProductRecommendationRequest) => {
             recommendPopularProductsCalls.push(request);
             return undefined;
         };
@@ -53,23 +53,20 @@ suite('relewise-popular-products', () => {
         const numberOfRecommendations = 3;
         const recommendations: ProductResult[] = [
             {
-                productId: 'product-1',
                 displayName: 'First product',
                 data: {},
             } as ProductResult,
             {
-                productId: 'product-2',
                 displayName: 'Second product',
                 data: {},
             } as ProductResult,
             {
-                productId: 'product-3',
                 displayName: 'Third product',
                 data: {},
             } as ProductResult,
         ];
 
-        Recommender.prototype.recommendPopularProducts = async (request: ProductRecommendationRequest) => {
+        Recommender.prototype.recommendPopularProducts = async(request: ProductRecommendationRequest) => {
             recommendPopularProductsCalls.push(request);
             return {
                 recommendations: recommendations.slice(0, request.settings.numberOfRecommendations),
@@ -80,11 +77,13 @@ suite('relewise-popular-products', () => {
         const el = await fixture(html`<relewise-popular-products number-of-recommendations=${numberOfRecommendations}></relewise-popular-products>`) as PopularProducts;
 
         await waitUntil(() => recommendPopularProductsCalls.length > 0, 'recommendPopularProducts was never called', { timeout: 2000 });
-        assert.equal(recommendPopularProductsCalls[0].settings.numberOfRecommendations, numberOfRecommendations);
+
+        const request = recommendPopularProductsCalls[0];
+        assert.equal(request.settings.numberOfRecommendations, numberOfRecommendations);
         
         await waitUntil(
             () => { return el.shadowRoot!.querySelectorAll('relewise-product-tile').length === numberOfRecommendations; },
-            'Never rendered any products', { timeout: 5000 },
+            'Never rendered any products', { timeout: 2000 },
         );
 
         assert.equal(el.shadowRoot!.querySelectorAll('relewise-product-tile').length, numberOfRecommendations);

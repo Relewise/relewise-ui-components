@@ -32,6 +32,10 @@ export function addFilters(filters: Partial<Filters>): void {
         options.filters.productCategory = composeFilterCallbacks(options.filters.productCategory, filters.productCategory);
     }
 
+    if (filters.contentCategory) {
+        options.filters.contentCategory = composeFilterCallbacks(options.filters.contentCategory, filters.contentCategory);
+    }
+
     if (filters.content) {
         options.filters.content = composeFilterCallbacks(options.filters.content, filters.content);
     }
