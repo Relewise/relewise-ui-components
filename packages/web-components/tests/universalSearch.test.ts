@@ -169,9 +169,10 @@ suite('relewise-universal-search', () => {
         && !navigator.userAgent.includes('Chrome');
 
     setup(async() => {
-        // WebKit limits History API calls per page. This suite intentionally exercises URL state heavily.
+        // WebKit limits History API calls per page. Leave enough time for both setup cleanup
+        // and the URL state updates performed within each test.
         if (isWebKit) {
-            await new Promise(resolve => setTimeout(resolve, 125));
+            await new Promise(resolve => setTimeout(resolve, 250));
         }
 
         clearUrlState();
