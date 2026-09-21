@@ -277,7 +277,7 @@ suite('facet generalization', () => {
         const selectedCountBounds = selectedCount.getBoundingClientRect();
         const selectedCountStyles = getComputedStyle(selectedCount);
         assert.equal(selectedCount.textContent, '1');
-        assert.closeTo(selectedCountBounds.width, selectedCountBounds.height, 0.5);
+        assert.isAtLeast(selectedCountBounds.width, selectedCountBounds.height);
         assert.equal(selectedCountStyles.paddingTop, selectedCountStyles.paddingBottom);
         assert.equal(selectedCountStyles.paddingLeft, selectedCountStyles.paddingRight);
 

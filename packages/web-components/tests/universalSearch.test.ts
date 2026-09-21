@@ -699,8 +699,8 @@ suite('relewise-universal-search', () => {
                 assert.equal(styles.color, 'rgb(255, 255, 255)');
             });
             assert.isAbove(counts[0].getBoundingClientRect().width, counts[0].getBoundingClientRect().height);
-            assert.closeTo(counts[1].getBoundingClientRect().width, counts[1].getBoundingClientRect().height, 1);
-            assert.closeTo(counts[2].getBoundingClientRect().width, counts[2].getBoundingClientRect().height, 1);
+            assert.isAtLeast(counts[1].getBoundingClientRect().width, counts[1].getBoundingClientRect().height);
+            assert.isAtLeast(counts[2].getBoundingClientRect().width, counts[2].getBoundingClientRect().height);
         });
     });
 

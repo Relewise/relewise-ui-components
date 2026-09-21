@@ -123,7 +123,7 @@ export const universalSearchStyles = [theme, universalSearchZeroResultsStyles, c
         box-sizing: border-box;
         min-width: 1.5em;
         height: 1.5em;
-        padding: 0 0.25em;
+        padding: 0 0.5em;
         border-radius: 9999px;
         background-color: var(--relewise-universal-search-tab-count-background-color, var(--relewise-checklist-facet-selected-count-background-color, #111));
         color: var(--relewise-universal-search-tab-count-color, var(--relewise-checklist-facet-selected-count-color, #fff));
