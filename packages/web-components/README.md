@@ -1320,13 +1320,13 @@ The min-width can be overwritten, and custom variation names can be configured b
 
 ```ts
 useRetailMedia(builder => builder
-    .variation({ key: 'Mobile', minWidth: 0 })
-    .variation({ key: 'Tablet', minWidth: 700 })
-    .variation({ key: 'Desktop', minWidth: 1100 })
-    .variation({ key: 'Wide', minWidth: 1440 }));
+    .variation({ key: 'MOBILE', minWidth: 0 })
+    .variation({ key: 'TABLET', minWidth: 700 })
+    .variation({ key: 'DESKTOP', minWidth: 1100 })
+    .variation({ key: 'WIDE', minWidth: 1440 }));
 ```
 
-Retail media keys are passed directly to Relewise. If a matching location, variation, or placement cannot be resolved, the configuration is skipped with a console warning.
+Retail media keys are passed directly to Relewise and must exactly match the location, variation, and placement keys configured in My Relewise. The component warns and skips locally incomplete configurations, duplicate placements, and invalid placement positions. A non-empty but incorrect key is sent to Relewise and typically results in no retail media being returned for that key.
 
 Whether a placement returns sponsored products, display ads, or both is configured in Relewise backoffice.
 
@@ -1353,7 +1353,7 @@ useRetailMedia(builder => builder
     }));
 ```
 
-Retail media results are rendered by `<relewise-retail-media-tile>`. Sponsored products use the configured product tile template and include a `Sponsored` label by default. `retailMediaSponsoredLabel` replaces that label. Display ads are skipped with a warning unless `retailMediaDisplayAd` is configured. Use an anchor in the display-ad template when the component should automatically track the display-ad click.
+Retail media results are rendered by `<relewise-retail-media-tile>`. Sponsored products use the configured product tile template and include a `Sponsored` label by default. `retailMediaSponsoredLabel` replaces that label. Display ads are skipped unless `retailMediaDisplayAd` is configured. Use an anchor in the display-ad template when the component should automatically track the display-ad click.
 
 Retail media rendering is based on the configured placement position. `atPosition` is one-based, so position `4` makes the retail media result the fourth item in the product grid:
 

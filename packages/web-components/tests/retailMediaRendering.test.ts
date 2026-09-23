@@ -24,6 +24,11 @@ function displayAd(displayAdId: string): RetailMediaResultPlacementResultEntity 
 
 suite('retail media rendering', () => {
     test('merges configured placements and organic products in display order', () => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useRetailMedia(builder => builder.templates({
+            retailMediaDisplayAd: (ad, { html }) => html`<span>${ad.result.name}</span>`,
+        }));
+
         const configuration: RetailMediaTargetConfiguration = {
             locationKey: 'Search Results',
             placements: [
@@ -63,6 +68,23 @@ suite('retail media rendering', () => {
             'sponsored:sponsored-overflow',
             'display:after',
         ]);
+    });
+
+    test('skips display ads without a template before resolving the empty state', () => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useRetailMedia(builder => builder.variation({ key: 'Default', minWidth: 0 }));
+        const entity = displayAd('unrenderable');
+        const configuration: RetailMediaTargetConfiguration = {
+            locationKey: 'Search Results',
+            placements: [{ key: 'Hero', position: { type: 'beforeResults' } }],
+        };
+        const retailMedia: RetailMediaResult = {
+            placements: {
+                Hero: { results: [entity] },
+            },
+        };
+
+        assert.deepEqual(getProductSearchRenderItems([], retailMedia, configuration), []);
     });
 
     test('renders promoted products with the default sponsored label', async() => {

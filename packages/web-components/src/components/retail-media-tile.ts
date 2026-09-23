@@ -25,8 +25,6 @@ export class RetailMediaTile extends RelewiseLitElement {
     @property({ attribute: false })
     user: User | null = null;
 
-    private warnedAboutMissingDisplayAdTemplate = false;
-
     render() {
         if (this.entity?.promotedProduct) {
             this.removeAttribute('hidden');
@@ -63,10 +61,6 @@ export class RetailMediaTile extends RelewiseLitElement {
     private renderDisplayAd(displayAd: RetailMediaResultPlacementResultEntityDisplayAd) {
         const displayAdTemplate = getRelewiseUIRetailMediaConfiguration()?.templates?.retailMediaDisplayAd;
         if (!displayAdTemplate) {
-            if (!this.warnedAboutMissingDisplayAdTemplate) {
-                console.warn('Relewise Web Components: A retail media display ad was skipped because no retailMediaDisplayAd template was configured.');
-                this.warnedAboutMissingDisplayAdTemplate = true;
-            }
             this.setAttribute('hidden', '');
             return nothing;
         }

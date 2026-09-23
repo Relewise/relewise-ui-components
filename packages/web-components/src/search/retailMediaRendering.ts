@@ -4,6 +4,7 @@ import type {
     RetailMediaResultPlacementResultEntity,
 } from '@relewise/client';
 import type { RetailMediaPlacementPosition, RetailMediaTargetConfiguration } from '../builders/retailMediaBuilder';
+import { getRelewiseUIRetailMediaConfiguration } from '../helpers/relewiseUIOptions';
 
 export type ProductSearchRenderItem =
     | {
@@ -73,11 +74,17 @@ function getRetailMediaRenderPlacements(
         return [];
     }
 
+    const displayAdTemplate = getRelewiseUIRetailMediaConfiguration()?.templates?.retailMediaDisplayAd;
+
     return configuration.placements.flatMap(placement => {
         const results = retailMedia.placements?.[placement.key]?.results ?? [];
         const entities = results.flatMap(entity => {
             if (!entity.promotedProduct && !entity.promotedDisplayAd) {
                 console.warn(`Relewise Web Components: An empty retail media result for placement '${placement.key}' was skipped.`);
+                return [];
+            }
+
+            if (!entity.promotedProduct && entity.promotedDisplayAd && !displayAdTemplate) {
                 return [];
             }
 
