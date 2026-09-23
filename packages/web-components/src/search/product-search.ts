@@ -8,6 +8,7 @@ import { theme } from '../theme';
 import { getSearcher } from './searcher';
 import { buildProductSearchRequest } from '../builders/productSearchRequestBuilder';
 import { hasRenderableFacets } from './components/facets/facet-result-visibility';
+import type { RetailMediaTargetConfiguration } from '../builders/retailMediaBuilder';
 
 export class ProductSearch extends RelewiseLitElement {
 
@@ -37,6 +38,9 @@ export class ProductSearch extends RelewiseLitElement {
 
     @state()
     facetLabels: string[] = [];
+
+    @state()
+    private retailMediaTargetConfiguration: RetailMediaTargetConfiguration | null = null;
 
     @state()
     private user: User | null = null;
@@ -133,6 +137,7 @@ export class ProductSearch extends RelewiseLitElement {
             this.products = [];
             this.searchResult = null;
             this.facetLabels = [];
+            this.retailMediaTargetConfiguration = null;
             if (this.renderRoot) {
                 this.setSearchResultOnSlotChilderen();
             }
@@ -183,6 +188,7 @@ export class ProductSearch extends RelewiseLitElement {
 
             this.user = settings.user;
             this.facetLabels = requestResult.facetLabels;
+            this.retailMediaTargetConfiguration = requestResult.retailMediaTargetConfiguration;
             this.searchResult = response;
             this.products = this.products.concat(response.results ?? []);
 
@@ -213,7 +219,16 @@ export class ProductSearch extends RelewiseLitElement {
             if (node.nodeType === Node.ELEMENT_NODE && node instanceof HTMLElement) {
 
                 if (node.tagName.toLowerCase() === 'relewise-product-search-results') {
-                    node.setAttribute('products', JSON.stringify(this.products));
+                    const results = node as HTMLElement & {
+                        products: ProductResult[];
+                        retailMedia: ProductSearchResponse['retailMedia'];
+                        retailMediaTargetConfiguration: RetailMediaTargetConfiguration | null;
+                        user: User | null;
+                    };
+                    results.products = this.products;
+                    results.retailMedia = this.searchResult?.retailMedia ?? null;
+                    results.retailMediaTargetConfiguration = this.retailMediaTargetConfiguration;
+                    results.user = this.user;
                 }
 
                 if (node.tagName.toLowerCase() === 'relewise-product-search-load-more-button') {
@@ -284,7 +299,11 @@ export class ProductSearch extends RelewiseLitElement {
                     </div>` : nothing}
                  
                     <relewise-product-search-results
-                        .products=${this.products} .user=${this.user}>
+                        exportparts="retail-media-product, retail-media-display-ad, retail-media-product-tile, sponsored-label, display-ad"
+                        .products=${this.products}
+                        .retailMedia=${this.searchResult?.retailMedia ?? null}
+                        .retailMediaTargetConfiguration=${this.retailMediaTargetConfiguration}
+                        .user=${this.user}>
                     </relewise-product-search-results>
                     <relewise-product-search-load-more-button
                         class="rw-load-more"

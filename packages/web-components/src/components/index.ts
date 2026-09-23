@@ -1,4 +1,5 @@
 export * from './product-tile';
+export * from './retail-media-tile';
 export * from './content-tile';
 export * from './product-category-tile';
 export * from './content-category-tile';

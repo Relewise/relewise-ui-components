@@ -1,7 +1,7 @@
 import { FilterBuilder, ProductCategoryResult, ProductResult, RecommendPopularSearchTermSettings, VariantSearchRequestSettingsBuilder } from '@relewise/client';
 import type { SearchTermPredictionRequest } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
-import { ContentCategoryTile, FilterIcon, ProductCategoryTile, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
+import { ContentCategoryTile, FilterIcon, ProductCategoryTile, ProductTile, RetailMediaTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
 import { Button } from './components/button';
 import { LoadingSpinner } from './components/loading-spinner';
 import { FavoriteButtonContent } from './components/content-favorite-button';
@@ -417,6 +417,7 @@ function registerGenericComponents() {
     tryRegisterElement('relewise-content-category-tile', ContentCategoryTile);
     tryRegisterElement('relewise-content-tile', ContentTile);
     tryRegisterElement('relewise-product-tile', ProductTile);
+    tryRegisterElement('relewise-retail-media-tile', RetailMediaTile);
     tryRegisterElement('relewise-search-icon', SearchIcon);
     tryRegisterElement('relewise-arrow-up-icon', ArrowUpIcon);
     tryRegisterElement('relewise-filter-icon', FilterIcon);

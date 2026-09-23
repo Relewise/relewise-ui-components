@@ -157,7 +157,11 @@ export function buildRetailMediaQuery(
         return null;
     }
 
-    const configuration = targetedConfiguration ?? globalConfiguration?.targets.get(target);
+    const configuration = resolveRetailMediaTargetConfiguration(
+        target,
+        globalConfiguration,
+        targetedConfiguration,
+    );
     if (!configuration) {
         return null;
     }
@@ -190,6 +194,14 @@ export function buildRetailMediaQuery(
         })
         .setSelectedDisplayAdProperties(globalConfiguration?.selectedDisplayAdProperties ?? null)
         .build();
+}
+
+export function resolveRetailMediaTargetConfiguration(
+    target: string,
+    globalConfiguration: RetailMediaConfiguration | null,
+    targetedConfiguration: RetailMediaTargetConfiguration | null,
+): RetailMediaTargetConfiguration | null {
+    return targetedConfiguration ?? globalConfiguration?.targets.get(target) ?? null;
 }
 
 function getVariationKey(
@@ -231,6 +243,12 @@ function getPlacementSelectors(
 
         if (placementKeys.has(placement.key)) {
             console.warn(`Relewise Web Components: Duplicate retail media placement key '${placement.key}' for target '${target}' was skipped.`);
+            return;
+        }
+
+        if (placement.position.type === 'atPosition'
+            && (!Number.isInteger(placement.position.position) || placement.position.position < 1)) {
+            console.warn(`Relewise Web Components: Retail media placement '${placement.key}' for target '${target}' was skipped because its position must be a positive integer.`);
             return;
         }
 

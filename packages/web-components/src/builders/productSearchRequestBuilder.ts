@@ -5,7 +5,7 @@ import { getRelewiseSearchTargetedConfigurations, getRelewiseUIRetailMediaConfig
 import { QueryKeys, readCurrentUrlState } from '../helpers/urlState';
 import { getSearchSortingOptions, getSearchSortingSelection } from './searchSortingBuilder';
 import { applySelectedValuesToFacets } from './facetSelectionHelpers';
-import { buildRetailMediaQuery } from './retailMediaBuilder';
+import { buildRetailMediaQuery, resolveRetailMediaTargetConfiguration, type RetailMediaTargetConfiguration } from './retailMediaBuilder';
 
 export type ProductSearchRequestOptions = {
     term: string | null;
@@ -22,6 +22,7 @@ export type ProductSearchRequestOptions = {
 export type ProductSearchRequestResult = {
     request: ProductSearchRequest;
     facetLabels: string[];
+    retailMediaTargetConfiguration: RetailMediaTargetConfiguration | null;
 };
 
 export function buildProductSearchRequest(options: ProductSearchRequestOptions): ProductSearchRequestResult {
@@ -59,10 +60,18 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
         }
     }
 
+    const globalRetailMediaConfiguration = getRelewiseUIRetailMediaConfiguration() ?? null;
+    const retailMediaTargetConfiguration = options.target
+        ? resolveRetailMediaTargetConfiguration(
+            options.target,
+            globalRetailMediaConfiguration,
+            targetedConfigurations.getRetailMediaConfiguration(options.target),
+        )
+        : null;
     const retailMediaQuery = buildRetailMediaQuery(
         options.target,
-        getRelewiseUIRetailMediaConfiguration() ?? null,
-        options.target ? targetedConfigurations.getRetailMediaConfiguration(options.target) : null,
+        globalRetailMediaConfiguration,
+        retailMediaTargetConfiguration,
     );
 
     if (retailMediaQuery) {
@@ -76,5 +85,6 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
     return {
         request,
         facetLabels,
+        retailMediaTargetConfiguration,
     };
 }

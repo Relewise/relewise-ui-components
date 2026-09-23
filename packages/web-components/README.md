@@ -1353,11 +1353,33 @@ useRetailMedia(builder => builder
     }));
 ```
 
-Retail media rendering is based on the configured placement position:
+Retail media results are rendered by `<relewise-retail-media-tile>`. Sponsored products use the configured product tile template and include a `Sponsored` label by default. `retailMediaSponsoredLabel` replaces that label. Display ads are skipped with a warning unless `retailMediaDisplayAd` is configured. Use an anchor in the display-ad template when the component should automatically track the display-ad click.
+
+Retail media rendering is based on the configured placement position. `atPosition` is one-based, so position `4` makes the retail media result the fourth item in the product grid:
 
 - `beforeResults()`
 - `afterResults()`
 - `atPosition({ position: 4 })`
+
+The same placement behavior is used by Product Search, collection/category pages that use Product Search with an empty term, and the products tab in Universal Search. Retail media does not change the organic hit count or load-more pagination.
+
+Retail media rendering exposes these CSS parts through Product Search, Product Search Results, and Universal Search:
+
+- `retail-media-product`
+- `retail-media-display-ad`
+- `retail-media-product-tile`
+- `sponsored-label`
+- `display-ad`
+
+The default sponsored label can be styled with these CSS custom properties:
+
+- `--relewise-retail-media-sponsored-label-background`
+- `--relewise-retail-media-sponsored-label-border-radius`
+- `--relewise-retail-media-sponsored-label-color`
+- `--relewise-retail-media-sponsored-label-font-size`
+- `--relewise-retail-media-sponsored-label-inset-block-start`
+- `--relewise-retail-media-sponsored-label-inset-inline-start`
+- `--relewise-retail-media-sponsored-label-padding`
 
 #### Facets
 By default the component will not render any facets.

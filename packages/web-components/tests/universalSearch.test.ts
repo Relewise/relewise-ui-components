@@ -2042,16 +2042,41 @@ suite('relewise-universal-search', () => {
         const requests: ProductSearchRequest[] = [];
         Searcher.prototype.searchProducts = async function(request) {
             requests.push(request);
-            return productSearchResponse([product(requests.length.toString())]);
+            return {
+                ...productSearchResponse([product(requests.length.toString())]),
+                retailMedia: {
+                    placements: {
+                        Hero: {
+                            results: [{
+                                promotedDisplayAd: {
+                                    campaignId: 'campaign-hero',
+                                    result: { displayAdId: 'hero', name: 'Universal hero' },
+                                },
+                            }],
+                        },
+                        'Sponsored Products': {
+                            results: [{
+                                promotedProduct: {
+                                    result: product('sponsored'),
+                                },
+                            }],
+                        },
+                    },
+                },
+            };
         };
 
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: {} } } });
         useRetailMedia(builder => builder
             .variation({ key: 'Default', minWidth: 0 })
+            .templates({
+                retailMediaDisplayAd: (ad, { html }) => html`<a href="/campaign">${ad.result.name}</a>`,
+            })
             .target('universal-search', target => target
                 .location('Universal Search')
-                .placement('Sponsored Products', placement => placement.atPosition({ position: 4 }))));
+                .placement('Hero', placement => placement.beforeResults())
+                .placement('Sponsored Products', placement => placement.atPosition({ position: 2 }))));
 
         const el = await fixture(html`
             <relewise-universal-search
@@ -2063,6 +2088,19 @@ suite('relewise-universal-search', () => {
 
         internals(el).setSearchTerm('shoe');
         await waitUntil(() => products(el)[0]?.productId === '1', 'initial product search did not complete');
+        await waitUntil(() => queryAllDeep(el.renderRoot, 'relewise-retail-media-tile').length === 2, 'retail media results were not rendered');
+
+        const retailMediaResults = queryAllDeep<HTMLElement & { entity: { promotedProduct?: { result: ProductResult } } }>(
+            el.renderRoot,
+            'relewise-retail-media-tile',
+        );
+        assert.isUndefined(retailMediaResults[0].entity.promotedProduct);
+        assert.equal(retailMediaResults[1].entity.promotedProduct?.result.productId, 'sponsored');
+        assert.include(retailMediaResults[0].shadowRoot?.textContent ?? '', 'Universal hero');
+        assert.include(
+            queryDeep(el, 'relewise-universal-search-products-tab')?.getAttribute('exportparts') ?? '',
+            'retail-media-product',
+        );
 
         queryDeep<any>(el, 'relewise-product-search-sorting')!.applySorting();
         await waitUntil(() => products(el)[0]?.productId === '2', 'local sorting search did not complete');
@@ -2072,7 +2110,7 @@ suite('relewise-universal-search', () => {
             location: {
                 key: 'Universal Search',
                 variation: { key: 'Default' },
-                placements: [{ key: 'Sponsored Products' }],
+                placements: [{ key: 'Hero' }, { key: 'Sponsored Products' }],
             },
             settings: {
                 selectedDisplayAdProperties: null,
