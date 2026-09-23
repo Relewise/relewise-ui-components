@@ -1,7 +1,7 @@
 import { FilterBuilder, ProductSearchBuilder, RelevanceModifierBuilder } from '@relewise/client';
 import { QueryKeys, readCurrentUrlState } from './helpers/urlState';
 import { RelewiseFacetBuilder } from './facetBuilder';
-import { RetailMediaTargetBuilder, RetailMediaTargetConfiguration } from './search/retailMediaBuilder';
+import { RetailMediaTargetBuilder, RetailMediaTargetConfiguration } from './builders/retailMediaBuilder';
 import { SearchSortingOption, SearchSortingOptionsBuilder, getSearchSortingOptions, getSearchSortingSelection } from './builders/searchSortingBuilder';
 
 

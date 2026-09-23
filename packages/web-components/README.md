@@ -1278,7 +1278,7 @@ The `explodedVariants` option is deprecated. Existing configurations remain supp
 #### Retail Media
 Retail media can be requested for product search requests by configuring it through `useRetailMedia`.
 
-The product search component's `target` attribute selects the retail media configuration. The retail media location is not related to the component's `displayed-at-location` attribute.
+The product search and Universal Search components' `target` attributes select the retail media configuration for their product search requests. The retail media location is not related to a component's `displayed-at-location` attribute.
 
 ```ts
 useRetailMedia(builder => builder
@@ -1307,6 +1307,11 @@ useRetailMedia(builder => builder
     displayed-at-location="Search Page"
     target="search-page">
 </relewise-product-search>
+
+<relewise-universal-search
+    displayed-at-location="Universal Search"
+    target="search-page">
+</relewise-universal-search>
 ```
 
 Variation keys are global for retail media requests. Configure each variation with the Relewise variation key and the min-width where it becomes active.

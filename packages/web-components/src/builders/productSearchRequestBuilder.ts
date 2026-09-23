@@ -5,7 +5,7 @@ import { getRelewiseSearchTargetedConfigurations, getRelewiseUIRetailMediaConfig
 import { QueryKeys, readCurrentUrlState } from '../helpers/urlState';
 import { getSearchSortingOptions, getSearchSortingSelection } from './searchSortingBuilder';
 import { applySelectedValuesToFacets } from './facetSelectionHelpers';
-import { buildRetailMediaQuery } from '../search/retailMediaBuilder';
+import { buildRetailMediaQuery } from './retailMediaBuilder';
 
 export type ProductSearchRequestOptions = {
     term: string | null;
@@ -27,6 +27,7 @@ export type ProductSearchRequestResult = {
 export function buildProductSearchRequest(options: ProductSearchRequestOptions): ProductSearchRequestResult {
     const searchOptions = getRelewiseUISearchOptions();
     const sortingOptions = getSearchSortingOptions(searchOptions?.sorting);
+    const targetedConfigurations = getRelewiseSearchTargetedConfigurations();
     let facetLabels: string[] = [];
 
     const requestBuilder = createProductSearchBuilder(options.term, options.settings)
@@ -51,8 +52,8 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
             builder.sortByProductRelevance();
         });
 
-    if (options.target) {
-        const overwrittenConfigSettings = getRelewiseSearchTargetedConfigurations().handle(options.target, requestBuilder, options.sortingQueryKey);
+    if (options.target && targetedConfigurations.has(options.target)) {
+        const overwrittenConfigSettings = targetedConfigurations.handle(options.target, requestBuilder, options.sortingQueryKey);
         if (overwrittenConfigSettings.facetLabels) {
             facetLabels = overwrittenConfigSettings.facetLabels;
         }
@@ -61,7 +62,7 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
     const retailMediaQuery = buildRetailMediaQuery(
         options.target,
         getRelewiseUIRetailMediaConfiguration() ?? null,
-        options.target ? getRelewiseSearchTargetedConfigurations().getRetailMediaConfiguration(options.target) : null,
+        options.target ? targetedConfigurations.getRetailMediaConfiguration(options.target) : null,
     );
 
     if (retailMediaQuery) {

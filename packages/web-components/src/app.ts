@@ -37,7 +37,7 @@ import { LikeIcon } from './components/icons/like';
 import { LikeFilledIcon } from './components/icons/like-filled';
 import { DislikeIcon } from './components/icons/dislike';
 import { DislikeFilledIcon } from './components/icons/dislike-filled';
-import { getRetailMediaConfiguration, RetailMediaOptionsBuilder } from './search/retailMediaBuilder';
+import { getRetailMediaConfiguration, RetailMediaOptionsBuilder } from './builders/retailMediaBuilder';
 import { SearchSortingOptionsBuilder } from './builders/searchSortingBuilder';
 import { UniversalSearchContentTab } from './search/universal-search/components/content-tab';
 import { UniversalSearchFacets } from './search/universal-search/components/facets';

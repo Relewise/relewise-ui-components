@@ -1,6 +1,6 @@
 import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
-import { ContentResult, ProductCategoryResult, ProductResult, Searcher } from '@relewise/client';
-import { Button, clearUrlState, UniversalSearch, UniversalSearchTab, initializeRelewiseUI, QueryKeys, readCurrentUrlState, universalSearchTabs, updateUrlState, updateUrlStateValues, useSearch } from '../src';
+import { ContentResult, ProductCategoryResult, ProductResult, ProductSearchRequest, Searcher } from '@relewise/client';
+import { Button, clearUrlState, UniversalSearch, UniversalSearchTab, initializeRelewiseUI, QueryKeys, readCurrentUrlState, universalSearchTabs, updateUrlState, updateUrlStateValues, useRetailMedia, useSearch } from '../src';
 import { updateUrlStateForUniversalSearchTerm } from '../src/search/universal-search/universal-search-url-state';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
@@ -2036,6 +2036,48 @@ suite('relewise-universal-search', () => {
 
         assert.equal(batchSearchCount, 1);
         assert.equal(productSearchCount, 2);
+    });
+
+    test('includes retail media in batched and subsequent product requests', async() => {
+        const requests: ProductSearchRequest[] = [];
+        Searcher.prototype.searchProducts = async function(request) {
+            requests.push(request);
+            return productSearchResponse([product(requests.length.toString())]);
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: {} } } });
+        useRetailMedia(builder => builder
+            .variation({ key: 'Default', minWidth: 0 })
+            .target('universal-search', target => target
+                .location('Universal Search')
+                .placement('Sponsored Products', placement => placement.atPosition({ position: 4 }))));
+
+        const el = await fixture(html`
+            <relewise-universal-search
+                displayed-at-location="Universal Search"
+                target="universal-search"
+                open>
+            </relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el)[0]?.productId === '1', 'initial product search did not complete');
+
+        queryDeep<any>(el, 'relewise-product-search-sorting')!.applySorting();
+        await waitUntil(() => products(el)[0]?.productId === '2', 'local sorting search did not complete');
+
+        assert.lengthOf(requests, 2);
+        requests.forEach(request => assert.deepEqual(request.retailMedia, {
+            location: {
+                key: 'Universal Search',
+                variation: { key: 'Default' },
+                placements: [{ key: 'Sponsored Products' }],
+            },
+            settings: {
+                selectedDisplayAdProperties: null,
+            },
+        }));
     });
 
     test('preserves existing entity results when individual requests return no response', async() => {
