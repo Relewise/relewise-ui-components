@@ -32,8 +32,9 @@ initializeRelewiseUI({
             retailMediaDisplayAd: (displayAd, { html }) => html`
                 <a
                     href="#retail-media-display-ad"
-                    style="align-items:center;background:#ebebeb; border-radius: 8px;color:#fff;display:flex;height:100%;justify-content:center;text-align:center;text-decoration:none;">
-                    <strong>${displayAd.result.name}</strong>
+                    style="position: relative; align-items:center; border-radius: 8px;color:#fff;display:flex;height:100%;justify-content:center;text-align:center;text-decoration:none;">
+                    <img src="${displayAd.result.data?.ImageUrl.value}" style="max-height: 100%; max-width: 100%; border-radius: 8px;" />
+                    <strong style="position: absolute; bottom: 28px">${displayAd.result.data?.Title?.value ?? displayAd.result.name}</strong>
                 </a>
             `,
         })

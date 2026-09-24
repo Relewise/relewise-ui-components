@@ -26,8 +26,9 @@ export class RetailMediaTile extends RelewiseLitElement {
     user: User | null = null;
 
     render() {
+        this.removeAttribute('hidden');
+
         if (this.entity?.promotedProduct) {
-            this.removeAttribute('hidden');
             return this.renderPromotedProduct(this.entity.promotedProduct);
         }
 
