@@ -19,6 +19,8 @@ import { universalSearchTabStyles } from './tab.styles';
 import { hasRenderableFacets } from '../../components/facets/facet-result-visibility';
 import type { UniversalSearchBatchSearch } from '../universal-search.types';
 import { universalSearchRecommendationsExportParts } from './recommendations';
+import { getProductSearchRenderItems } from '../../retailMediaRendering';
+import type { RetailMediaTargetConfiguration } from '../../../builders/retailMediaBuilder';
 
 const defaultPageSize = 15;
 const tab = 'products';
@@ -39,6 +41,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
     @state() private loadingDirection: 'next' | 'previous' | null = null;
     @state() private error: string | null = null;
     @state() private user: User | null = null;
+    @state() private retailMediaTargetConfiguration: RetailMediaTargetConfiguration | null = null;
 
     private resultOffset = 0;
     private abortController = new AbortController();
@@ -92,7 +95,12 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
 
         return {
             request: requestResult.request,
-            applyResponse: response => this.applyBatchResponse(response, requestResult.facetLabels, requestResult.request.skip),
+            applyResponse: response => this.applyBatchResponse(
+                response,
+                requestResult.facetLabels,
+                requestResult.retailMediaTargetConfiguration,
+                requestResult.request.skip,
+            ),
             setError: () => this.setError(),
         };
     }
@@ -134,7 +142,14 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             }
 
             this.user = settings.user;
-            this.applyResponse(response, requestResult.facetLabels, reset, intent === 'previous', requestResult.request.skip);
+            this.applyResponse(
+                response,
+                requestResult.facetLabels,
+                requestResult.retailMediaTargetConfiguration,
+                reset,
+                intent === 'previous',
+                requestResult.request.skip,
+            );
             return true;
         } catch {
             if (!abortController.signal.aborted) {
@@ -195,11 +210,17 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             this.result = null;
             this.products = [];
             this.facetLabels = [];
+            this.retailMediaTargetConfiguration = null;
             this.reportHits();
         }
     }
 
-    private applyBatchResponse(response: SearchResponseCollection, facetLabels: string[], resultOffset: number): void {
+    private applyBatchResponse(
+        response: SearchResponseCollection,
+        facetLabels: string[],
+        retailMediaTargetConfiguration: RetailMediaTargetConfiguration | null,
+        resultOffset: number,
+    ): void {
         const productResponse = response.responses?.find(item => '$type' in item
             && item.$type === 'Relewise.Client.Responses.Search.ProductSearchResponse, Relewise.Client') as ProductSearchResponse | undefined;
         if (!productResponse) {
@@ -215,12 +236,20 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             return;
         }
 
-        this.applyResponse(productResponse, facetLabels, true, false, resultOffset);
+        this.applyResponse(productResponse, facetLabels, retailMediaTargetConfiguration, true, false, resultOffset);
         this.loading = false;
     }
 
-    private applyResponse(response: ProductSearchResponse, facetLabels: string[], reset: boolean, prepend: boolean, resultOffset: number): void {
+    private applyResponse(
+        response: ProductSearchResponse,
+        facetLabels: string[],
+        retailMediaTargetConfiguration: RetailMediaTargetConfiguration | null,
+        reset: boolean,
+        prepend: boolean,
+        resultOffset: number,
+    ): void {
         this.result = response;
+        this.retailMediaTargetConfiguration = retailMediaTargetConfiguration;
         const results = response.results ?? [];
         this.products = reset
             ? results
@@ -244,6 +273,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         this.result = null;
         this.products = [];
         this.facetLabels = [];
+        this.retailMediaTargetConfiguration = null;
         this.error = null;
         this.loading = false;
         this.resultOffset = 0;
@@ -267,6 +297,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
 
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.products;
+        const renderItems = getProductSearchRenderItems(this.products, this.result?.retailMedia, this.retailMediaTargetConfiguration);
         const noResultsHint = localization?.noResultsHint ?? 'Try another search term or check the spelling.';
         const hasSearchTermAndSelectedFacets = Boolean(readCurrentUrlState(QueryKeys.term))
             && hasUrlStateWithPrefix(QueryKeys.productFacet);
@@ -318,7 +349,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
                         <div class="rw-loading" part="loading-state">
                             <relewise-loading-spinner></relewise-loading-spinner>
                         </div>
-                    ` : !this.result ? nothing : this.products.length === 0 ? html`
+                    ` : !this.result ? nothing : renderItems.length === 0 ? html`
                         <div class="rw-zero-results" part="zero-results" role="status">
                             <span class="rw-zero-results-icon" part="zero-results-icon" aria-hidden="true">
                                 <relewise-search-icon></relewise-search-icon>
@@ -351,13 +382,20 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
                             @universal-search-load-previous=${this.loadPrevious}>
                         </relewise-universal-search-load-more>
                         <div class="rw-result-grid rw-product-grid" part="product-grid">
-                            ${this.products.map(product => html`
+                            ${renderItems.map(item => item.type === 'product' ? html`
                                 <relewise-product-tile
                                     class="rw-product-tile"
                                     part="product-tile"
-                                    .product=${product}
+                                    .product=${item.product}
                                     .user=${this.user}>
                                 </relewise-product-tile>
+                            ` : html`
+                                <relewise-retail-media-tile
+                                    part=${item.entity.promotedProduct ? 'retail-media-product' : 'retail-media-display-ad'}
+                                    exportparts="product-tile: retail-media-product-tile, sponsored-label, display-ad"
+                                    .entity=${item.entity}
+                                    .user=${this.user}>
+                                </relewise-retail-media-tile>
                             `)}
                         </div>
                         <relewise-universal-search-load-more

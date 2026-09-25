@@ -48,6 +48,88 @@ suite('product search', () => {
         assert.isAtLeast(searchCalls, 1);
     });
 
+    test('renders retail media in a slotted collection-page result grid', async() => {
+        Searcher.prototype.searchProducts = async function() {
+            return {
+                hits: 2,
+                results: [
+                    { productId: 'organic-1', rank: 1 },
+                    { productId: 'organic-2', rank: 2 },
+                ],
+                retailMedia: {
+                    placements: {
+                        Hero: {
+                            results: [{
+                                promotedDisplayAd: {
+                                    campaignId: 'campaign-1',
+                                    result: { displayAdId: 'hero', name: 'Collection hero' },
+                                },
+                            }],
+                        },
+                        Sponsored: {
+                            results: [{
+                                promotedProduct: {
+                                    result: { productId: 'sponsored', rank: 1 },
+                                },
+                            }],
+                        },
+                    },
+                },
+            } as any;
+        };
+        const options = mockRelewiseOptions();
+        options.templates = {
+            product: async(product, { html }) => html`<article>${product.productId}</article>`,
+        };
+        initializeRelewiseUI(options)
+            .useSearch()
+            .useRetailMedia(builder => builder
+                .variation({ key: 'Default', minWidth: 0 })
+                .templates({
+                    retailMediaDisplayAd: (ad, { html }) => html`<a href="/collection-campaign">${ad.result.name}</a>`,
+                })
+                .target('plp', target => target
+                    .location('Product Listing Page')
+                    .placement('Hero', placement => placement.beforeResults())
+                    .placement('Sponsored', placement => placement.atPosition({ position: 2 }))))
+            .registerSearchTarget('plp', {
+                filters: builder => builder.addProductCategoryIdFilter('ImmediateParent', ['collection-id']),
+            });
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+        const element = await fixture<ProductSearch>(html`
+            <relewise-product-search displayed-at-location="Collection" target="plp">
+                <relewise-product-search-results></relewise-product-search-results>
+            </relewise-product-search>
+        `);
+        const results = element.querySelector('relewise-product-search-results')!;
+
+        await waitUntil(() => results.renderRoot.querySelectorAll('relewise-product-tile, relewise-retail-media-tile').length === 4);
+        const items = [...results.renderRoot.querySelectorAll<HTMLElement & {
+            entity?: { promotedProduct?: { result: { productId: string } } };
+            product?: { productId: string };
+        }>('relewise-product-tile, relewise-retail-media-tile')];
+
+        assert.deepEqual(items.map(item => item.localName === 'relewise-product-tile'
+            ? `product:${item.product?.productId}`
+            : item.entity?.promotedProduct
+                ? `sponsored:${item.entity.promotedProduct.result.productId}`
+                : 'display:hero'), [
+            'display:hero',
+            'product:organic-1',
+            'sponsored:sponsored',
+            'product:organic-2',
+        ]);
+        const sponsoredTile = items[2].shadowRoot?.querySelector('relewise-product-tile')!;
+        await waitUntil(() => sponsoredTile.shadowRoot?.textContent?.includes('sponsored') === true);
+        assert.include(items[0].shadowRoot?.textContent ?? '', 'Collection hero');
+        assert.include(sponsoredTile.shadowRoot?.textContent ?? '', 'sponsored');
+        assert.equal(items[2].getAttribute('part'), 'retail-media-product');
+        assert.include(items[2].getAttribute('exportparts') ?? '', 'sponsored-label');
+        assert.equal(element.products.length, 2);
+        assert.equal(element.searchResult?.retailMedia?.placements?.Sponsored.results?.length, 1);
+    });
+
     test('settles with the empty state when context resolution fails', async() => {
         const options = mockRelewiseOptions();
         options.contextSettings.getUser = async() => {

@@ -1,6 +1,7 @@
 import { FilterBuilder, ProductSearchBuilder, RelevanceModifierBuilder } from '@relewise/client';
 import { QueryKeys, readCurrentUrlState } from './helpers/urlState';
 import { RelewiseFacetBuilder } from './facetBuilder';
+import { RetailMediaTargetBuilder, RetailMediaTargetConfiguration } from './builders/retailMediaBuilder';
 import { SearchSortingOption, SearchSortingOptionsBuilder, getSearchSortingOptions, getSearchSortingSelection } from './builders/searchSortingBuilder';
 
 
@@ -9,6 +10,7 @@ export type TargetedSearchConfiguration = {
     overwriteSorting?: (builder: SearchSortingOptionsBuilder) => void,
     filters?: (builder: FilterBuilder) => void;
     relevanceModifiers?: (builder: RelevanceModifierBuilder) => void;
+    retailMedia?: (builder: RetailMediaTargetBuilder) => void;
 };
 
 export class TargetedSearchConfigurations {
@@ -41,6 +43,19 @@ export class TargetedSearchConfigurations {
         }
 
         return getSearchSortingOptions(configuration.overwriteSorting);
+    }
+
+    getRetailMediaConfiguration(target: string): RetailMediaTargetConfiguration | null {
+        const configuration = this.templates.get(target);
+
+        if (!configuration?.retailMedia) {
+            return null;
+        }
+
+        const builder = new RetailMediaTargetBuilder();
+        configuration.retailMedia(builder);
+
+        return builder.build();
     }
 
     handle(target: string, builder: ProductSearchBuilder, sortingQueryKey: string = QueryKeys.sortBy): { facetLabels?: string[] } {

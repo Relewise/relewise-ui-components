@@ -1,7 +1,7 @@
 import { FilterBuilder, ProductCategoryResult, ProductResult, RecommendPopularSearchTermSettings, VariantSearchRequestSettingsBuilder } from '@relewise/client';
 import type { SearchTermPredictionRequest } from '@relewise/client';
 import { nothing, TemplateResult } from 'lit';
-import { ContentCategoryTile, FilterIcon, ProductCategoryTile, ProductTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
+import { ContentCategoryTile, FilterIcon, ProductCategoryTile, ProductTile, RetailMediaTile, ContentTile, SearchIcon, SortIcon, XIcon, ProductSentimentButtons, ContentSentimentButtons } from './components';
 import { Button } from './components/button';
 import { LoadingSpinner } from './components/loading-spinner';
 import { FavoriteButtonContent } from './components/content-favorite-button';
@@ -37,6 +37,7 @@ import { LikeIcon } from './components/icons/like';
 import { LikeFilledIcon } from './components/icons/like-filled';
 import { DislikeIcon } from './components/icons/dislike';
 import { DislikeFilledIcon } from './components/icons/dislike-filled';
+import { getRetailMediaConfiguration, RetailMediaOptionsBuilder } from './builders/retailMediaBuilder';
 import { SearchSortingOptionsBuilder } from './builders/searchSortingBuilder';
 import { UniversalSearchContentTab } from './search/universal-search/components/content-tab';
 import { UniversalSearchFacets } from './search/universal-search/components/facets';
@@ -267,6 +268,11 @@ export class App {
         return this;
     }
 
+    useRetailMedia(configure: (builder: RetailMediaOptionsBuilder) => void): App {
+        useRetailMedia(configure);
+        return this;
+    }
+
     registerSearchTarget(target: string, configuration: TargetedSearchConfiguration): App {
         registerSearchTarget(target, configuration);
         return this;
@@ -402,11 +408,16 @@ export function useSearch(options?: RelewiseUISearchOptions) {
     registerGenericComponents();
 }
 
+export function useRetailMedia(configure: (builder: RetailMediaOptionsBuilder) => void) {
+    window.relewiseUIRetailMediaConfiguration = getRetailMediaConfiguration(configure);
+}
+
 function registerGenericComponents() {
     tryRegisterElement('relewise-product-category-tile', ProductCategoryTile);
     tryRegisterElement('relewise-content-category-tile', ContentCategoryTile);
     tryRegisterElement('relewise-content-tile', ContentTile);
     tryRegisterElement('relewise-product-tile', ProductTile);
+    tryRegisterElement('relewise-retail-media-tile', RetailMediaTile);
     tryRegisterElement('relewise-search-icon', SearchIcon);
     tryRegisterElement('relewise-arrow-up-icon', ArrowUpIcon);
     tryRegisterElement('relewise-filter-icon', FilterIcon);

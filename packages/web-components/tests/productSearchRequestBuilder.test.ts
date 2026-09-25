@@ -1,6 +1,6 @@
 import { assert } from '@esm-bundle/chai';
 import { ProductSortingBuilder, Settings, UserFactory } from '@relewise/client';
-import { buildProductSearchRequest, clearUrlState, initializeRelewiseUI, QueryKeys, registerSearchTarget, SortingEnum, updateUrlState, updateUrlStateValues, useSearch } from '../src';
+import { buildProductSearchRequest, clearUrlState, initializeRelewiseUI, QueryKeys, registerSearchTarget, SortingEnum, updateUrlState, updateUrlStateValues, useRetailMedia, useSearch } from '../src';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 const settings: Settings = {
@@ -18,6 +18,7 @@ suite('productSearchRequestBuilder', () => {
 
     teardown(() => {
         clearUrlState();
+        window.relewiseUIRetailMediaConfiguration = null;
     });
 
     test('builds product facets with labels and selected values from URL state', () => {
@@ -173,5 +174,136 @@ suite('productSearchRequestBuilder', () => {
 
         assert.equal((result.request as any).take, 48);
         assert.equal((result.request as any).skip, 0);
+    });
+
+    test('adds retail media query configured for the product search target', () => {
+        Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1200 });
+
+        useSearch();
+        useRetailMedia(builder => builder
+            .selectedDisplayAdProperties({
+                displayName: true,
+                allData: true,
+                clickedByUserInfo: false,
+            })
+            .variation({ key: 'Mobile', minWidth: 0 })
+            .variation({ key: 'Tablet', minWidth: 768 })
+            .variation({ key: 'Desktop', minWidth: 1024 })
+            .templates({
+                retailMediaSponsoredLabel: (product, { html }) => html`<span>${product.result.productId} Sponsored</span>`,
+                retailMediaDisplayAd: (displayAd, { html }) => html`<span>${displayAd.result.name}</span>`,
+            })
+            .target('campaign', target => target
+                .location('Search Results')
+                .placement('Top Banner', placement => placement.beforeResults())
+                .placement('Sponsored Grid', placement => placement
+                    .atPosition({ position: 4 }))));
+
+        const result = buildProductSearchRequest({
+            term: 'shoe',
+            settings,
+            page: 1,
+            pageSize: 16,
+            productsLoaded: 0,
+            productsToFetch: null,
+            target: 'campaign',
+        });
+
+        assert.deepEqual(result.request.retailMedia, {
+            location: {
+                key: 'Search Results',
+                variation: {
+                    key: 'Desktop',
+                },
+                placements: [
+                    { key: 'Top Banner' },
+                    { key: 'Sponsored Grid' },
+                ],
+            },
+            settings: {
+                selectedDisplayAdProperties: {
+                    displayName: true,
+                    allData: true,
+                    clickedByUserInfo: false,
+                },
+            },
+        });
+        assert.exists(window.relewiseUIRetailMediaConfiguration?.templates?.retailMediaSponsoredLabel);
+        assert.exists(window.relewiseUIRetailMediaConfiguration?.templates?.retailMediaDisplayAd);
+    });
+
+    test('uses custom retail media variation min widths and falls back to first configured variation', () => {
+        Object.defineProperty(window, 'innerWidth', { configurable: true, value: 700 });
+
+        useSearch();
+        useRetailMedia(builder => builder
+            .variation({ key: 'Tablet', minWidth: 768 })
+            .variation({ key: 'Desktop', minWidth: 1024 })
+            .target('campaign', target => target
+                .location('Search Results')
+                .placement('Sponsored Grid')));
+
+        const result = buildProductSearchRequest({
+            term: 'shoe',
+            settings,
+            page: 1,
+            pageSize: 16,
+            productsLoaded: 0,
+            productsToFetch: null,
+            target: 'campaign',
+        });
+
+        assert.equal(result.request.retailMedia?.location.variation.key, 'Tablet');
+    });
+
+    test('uses targeted retail media configuration before global target configuration', () => {
+        Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1200 });
+
+        useSearch();
+        useRetailMedia(builder => builder
+            .variation({ key: 'Desktop', minWidth: 1024 })
+            .target('campaign', target => target
+                .location('Global Search Results')
+                .placement('Global Placement')));
+
+        registerSearchTarget('campaign', {
+            retailMedia: builder => builder
+                .location('Targeted Search Results')
+                .placement('Targeted Placement'),
+        });
+
+        const result = buildProductSearchRequest({
+            term: 'shoe',
+            settings,
+            page: 1,
+            pageSize: 16,
+            productsLoaded: 0,
+            productsToFetch: null,
+            target: 'campaign',
+        });
+
+        assert.equal(result.request.retailMedia?.location.key, 'Targeted Search Results');
+        assert.equal(result.request.retailMedia?.location.variation.key, 'Desktop');
+        assert.deepEqual(result.request.retailMedia?.location.placements, [{ key: 'Targeted Placement' }]);
+    });
+
+    test('skips incomplete retail media configuration', () => {
+        useSearch();
+        useRetailMedia(builder => builder
+            .variation({ key: 'Desktop', minWidth: 1024 })
+            .target('campaign', target => target
+                .placement('Sponsored Grid')));
+
+        const result = buildProductSearchRequest({
+            term: 'shoe',
+            settings,
+            page: 1,
+            pageSize: 16,
+            productsLoaded: 0,
+            productsToFetch: null,
+            target: 'campaign',
+        });
+
+        assert.isNull(result.request.retailMedia);
     });
 });

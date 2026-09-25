@@ -1275,6 +1275,112 @@ useSearch({
 
 The `explodedVariants` option is deprecated. Existing configurations remain supported and are mapped to `maxVariantsPerProduct`, but `variantRequestSettings` takes precedence when both options are provided.
 
+#### Retail Media
+Retail media can be requested for product search requests by configuring it through `useRetailMedia`.
+
+The product search and Universal Search components' `target` attributes select the retail media configuration for their product search requests. The retail media location is not related to a component's `displayed-at-location` attribute.
+
+```ts
+useRetailMedia(builder => builder
+    .variation({ key: 'MOBILE', minWidth: 0 })
+    .variation({ key: 'TABLET', minWidth: 768 })
+    .variation({ key: 'DESKTOP', minWidth: 1024 })
+    .selectedDisplayAdProperties({
+        displayName: true,
+        allData: true,
+        clickedByUserInfo: false,
+    })
+    .templates({
+        retailMediaSponsoredLabel: (product, { html }) => html`<span>Sponsored</span>`,
+        retailMediaDisplayAd: (displayAd, { html }) => html`<span>${displayAd.result.name}</span>`,
+    })
+    .target('search-page', target => target
+        .location('SEARCH_RESULTS')
+        .placement('TOP_BANNER', placement => placement
+            .beforeResults())
+        .placement('IN_GRID', placement => placement
+            .atPosition({ position: 4 }))));
+```
+
+```html
+<relewise-product-search
+    displayed-at-location="Search Page"
+    target="search-page">
+</relewise-product-search>
+
+<relewise-universal-search
+    displayed-at-location="Universal Search"
+    target="search-page">
+</relewise-universal-search>
+```
+
+Variation keys are global for retail media requests. Configure each variation with the Relewise variation key and the min-width where it becomes active.
+
+The min-width can be overwritten, and custom variation names can be configured by passing the key and min-width together:
+
+```ts
+useRetailMedia(builder => builder
+    .variation({ key: 'MOBILE', minWidth: 0 })
+    .variation({ key: 'TABLET', minWidth: 700 })
+    .variation({ key: 'DESKTOP', minWidth: 1100 })
+    .variation({ key: 'WIDE', minWidth: 1440 }));
+```
+
+Retail media keys are passed directly to Relewise and must exactly match the location, variation, and placement keys configured in My Relewise. The component warns and skips locally incomplete configurations, duplicate placements, and invalid placement positions. A non-empty but incorrect key is sent to Relewise and typically results in no retail media being returned for that key.
+
+Whether a placement returns sponsored products, display ads, or both is configured in Relewise backoffice.
+
+Targeted search configuration can also define retail media for the target:
+
+```ts
+registerSearchTarget('search-page', {
+    retailMedia(builder) {
+        builder
+            .location('SEARCH_RESULTS')
+            .placement('IN_GRID', placement => placement
+                .atPosition({ position: 4 }));
+    },
+});
+```
+
+Display ad and sponsored label rendering can be overwritten with Lit templates in the retail media configuration:
+
+```ts
+useRetailMedia(builder => builder
+    .templates({
+        retailMediaSponsoredLabel: (product, { html }) => html`<span>Sponsored</span>`,
+        retailMediaDisplayAd: (displayAd, { html }) => html`<span>${displayAd.result.name}</span>`,
+    }));
+```
+
+Retail media results are rendered by `<relewise-retail-media-tile>`. Sponsored products use the configured product tile template and include a `Sponsored` label by default. `retailMediaSponsoredLabel` replaces that label. Display ads are skipped unless `retailMediaDisplayAd` is configured. Use an anchor in the display-ad template when the component should automatically track the display-ad click.
+
+Retail media rendering is based on the configured placement position. `atPosition` is one-based, so position `4` makes the retail media result the fourth item in the product grid:
+
+- `beforeResults()`
+- `afterResults()`
+- `atPosition({ position: 4 })`
+
+The same placement behavior is used by Product Search, collection/category pages that use Product Search with an empty term, and the products tab in Universal Search. Retail media does not change the organic hit count or load-more pagination.
+
+Retail media rendering exposes these CSS parts through Product Search, Product Search Results, and Universal Search:
+
+- `retail-media-product`
+- `retail-media-display-ad`
+- `retail-media-product-tile`
+- `sponsored-label`
+- `display-ad`
+
+The default sponsored label can be styled with these CSS custom properties:
+
+- `--relewise-retail-media-sponsored-label-background`
+- `--relewise-retail-media-sponsored-label-border-radius`
+- `--relewise-retail-media-sponsored-label-color`
+- `--relewise-retail-media-sponsored-label-font-size`
+- `--relewise-retail-media-sponsored-label-inset-block-start`
+- `--relewise-retail-media-sponsored-label-inset-inline-start`
+- `--relewise-retail-media-sponsored-label-padding`
+
 #### Facets
 By default the component will not render any facets.
 

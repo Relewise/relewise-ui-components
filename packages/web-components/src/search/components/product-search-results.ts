@@ -1,9 +1,11 @@
 import { RelewiseLitElement } from '../../relewise-lit-element';
-import { ProductResult, User } from '@relewise/client';
+import { ProductResult, RetailMediaResult, User } from '@relewise/client';
 import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, getRelewiseUISearchOptions, QueryKeys, readCurrentUrlState } from '../../helpers';
 import { theme } from '../../theme';
+import { getProductSearchRenderItems } from '../retailMediaRendering';
+import type { RetailMediaTargetConfiguration } from '../../builders/retailMediaBuilder';
 
 export class ProductSearchResults extends RelewiseLitElement {
     @property({ type: Array })
@@ -11,6 +13,12 @@ export class ProductSearchResults extends RelewiseLitElement {
 
     @property({ type: Object })
     private user: User | null = null;
+
+    @property({ attribute: false })
+    private retailMedia: RetailMediaResult | null = null;
+
+    @property({ attribute: false })
+    private retailMediaTargetConfiguration: RetailMediaTargetConfiguration | null = null;
 
     @state()
     showLoadingSpinner: boolean = true;
@@ -53,16 +61,24 @@ export class ProductSearchResults extends RelewiseLitElement {
 
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.searchResults;
-        if (this.products.length > 0) {
+        const renderItems = getProductSearchRenderItems(this.products, this.retailMedia, this.retailMediaTargetConfiguration);
+        if (renderItems.length > 0) {
             return html`
-                ${this.products.map(product => {
-                return html`
+                ${renderItems.map(item => item.type === 'product' ? html`
                         <relewise-product-tile
                             class="rw-product-tile ${this.showDimmingOverlay ? 'rw-dimmed' : ''}"
-                            .product=${product}
+                            .product=${item.product}
                             .user=${this.user}>
-                        </relewise-product-tile>`;
-            })}
+                        </relewise-product-tile>
+                    ` : html`
+                        <relewise-retail-media-tile
+                            class="${this.showDimmingOverlay ? 'rw-dimmed' : ''}"
+                            part=${item.entity.promotedProduct ? 'retail-media-product' : 'retail-media-display-ad'}
+                            exportparts="product-tile: retail-media-product-tile, sponsored-label, display-ad"
+                            .entity=${item.entity}
+                            .user=${this.user}>
+                        </relewise-retail-media-tile>
+                    `)}
                 ${this.showLoadingSpinner ? html`
                     <div class="rw-fill-grid"><relewise-loading-spinner></relewise-loading-spinner></div>
                 `: nothing}
