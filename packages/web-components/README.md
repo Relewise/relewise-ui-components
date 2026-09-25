@@ -1282,9 +1282,9 @@ The product search and Universal Search components' `target` attributes select t
 
 ```ts
 useRetailMedia(builder => builder
-    .variation({ key: 'Mobile', minWidth: 0 })
-    .variation({ key: 'Tablet', minWidth: 768 })
-    .variation({ key: 'Desktop', minWidth: 1024 })
+    .variation({ key: 'MOBILE', minWidth: 0 })
+    .variation({ key: 'TABLET', minWidth: 768 })
+    .variation({ key: 'DESKTOP', minWidth: 1024 })
     .selectedDisplayAdProperties({
         displayName: true,
         allData: true,
@@ -1295,10 +1295,10 @@ useRetailMedia(builder => builder
         retailMediaDisplayAd: (displayAd, { html }) => html`<span>${displayAd.result.name}</span>`,
     })
     .target('search-page', target => target
-        .location('Search Results')
-        .placement('Top Banner', placement => placement
+        .location('SEARCH_RESULTS')
+        .placement('TOP_BANNER', placement => placement
             .beforeResults())
-        .placement('Sponsored Grid', placement => placement
+        .placement('IN_GRID', placement => placement
             .atPosition({ position: 4 }))));
 ```
 
@@ -1336,8 +1336,8 @@ Targeted search configuration can also define retail media for the target:
 registerSearchTarget('search-page', {
     retailMedia(builder) {
         builder
-            .location('Search Results')
-            .placement('Sponsored Grid', placement => placement
+            .location('SEARCH_RESULTS')
+            .placement('IN_GRID', placement => placement
                 .atPosition({ position: 4 }));
     },
 });
