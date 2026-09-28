@@ -16,7 +16,8 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import type { ProductTemplateExtensions } from '../initialize';
 import { getTracker } from '../tracking/tracker';
 
-type RetailMediaTemplateResult = TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+type RetailMediaTemplate = TemplateResult<1> | typeof nothing;
+type RetailMediaTemplateResult = RetailMediaTemplate | Promise<RetailMediaTemplate>;
 
 export class RetailMediaTile extends RelewiseLitElement {
     @property({ attribute: false })
@@ -53,10 +54,26 @@ export class RetailMediaTile extends RelewiseLitElement {
                 .product=${product.result}
                 .user=${this.user}>
             </relewise-product-tile>
-            <div class="rw-sponsored-label" part="sponsored-label">
-                ${sponsoredLabel instanceof Promise ? until(sponsoredLabel) : sponsoredLabel}
-            </div>
+            ${this.renderSponsoredLabel(sponsoredLabel)}
         `;
+    }
+
+    private renderSponsoredLabel(result: RetailMediaTemplateResult) {
+        if (result instanceof Promise) {
+            return until(result.then(template => this.renderSponsoredLabelTemplate(template)));
+        }
+
+        return this.renderSponsoredLabelTemplate(result);
+    }
+
+    private renderSponsoredLabelTemplate(result: RetailMediaTemplate) {
+        return result === nothing
+            ? nothing
+            : html`
+                <div class="rw-sponsored-label" part="sponsored-label">
+                    ${result}
+                </div>
+            `;
     }
 
     private renderDisplayAd(displayAd: RetailMediaResultPlacementResultEntityDisplayAd) {

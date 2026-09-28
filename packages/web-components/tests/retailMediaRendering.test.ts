@@ -1,6 +1,6 @@
 import { assert, fixture, html, waitUntil } from '@open-wc/testing';
 import { Tracker, type ProductResult, type RetailMediaResult, type RetailMediaResultPlacementResultEntity } from '@relewise/client';
-import type { TemplateResult } from 'lit';
+import { nothing, type TemplateResult } from 'lit';
 import { initializeRelewiseUI, useRetailMedia, useSearch } from '../src';
 import type { RetailMediaTargetConfiguration } from '../src/builders/retailMediaBuilder';
 import { getProductSearchRenderItems } from '../src/search/retailMediaRendering';
@@ -104,6 +104,41 @@ suite('retail media rendering', () => {
             (element.shadowRoot?.querySelector('relewise-product-tile') as HTMLElement & { product: ProductResult }).product.productId,
             'sponsored',
         );
+    });
+
+    test('omits the sponsored-label wrapper when its template returns nothing', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch();
+        useRetailMedia(builder => builder.templates({
+            retailMediaSponsoredLabel: () => nothing,
+        }));
+
+        const element = await fixture<HTMLElement & { entity: RetailMediaResultPlacementResultEntity }>(html`
+            <relewise-retail-media-tile
+                .entity=${promotedProduct('unlabelled')}>
+            </relewise-retail-media-tile>
+        `);
+
+        assert.exists(element.shadowRoot?.querySelector('relewise-product-tile'));
+        assert.isNull(element.shadowRoot?.querySelector('[part="sponsored-label"]'));
+    });
+
+    test('omits the sponsored-label wrapper when its asynchronous template resolves to nothing', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch();
+        useRetailMedia(builder => builder.templates({
+            retailMediaSponsoredLabel: () => Promise.resolve<typeof nothing>(nothing),
+        }));
+
+        const element = await fixture<HTMLElement & { entity: RetailMediaResultPlacementResultEntity }>(html`
+            <relewise-retail-media-tile
+                .entity=${promotedProduct('async-unlabelled')}>
+            </relewise-retail-media-tile>
+        `);
+
+        await new Promise(resolve => setTimeout(resolve, 0));
+        assert.exists(element.shadowRoot?.querySelector('relewise-product-tile'));
+        assert.isNull(element.shadowRoot?.querySelector('[part="sponsored-label"]'));
     });
 
     test('uses custom sponsored-label and display-ad templates', async() => {
