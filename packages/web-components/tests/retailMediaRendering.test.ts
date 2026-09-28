@@ -1,8 +1,8 @@
 import { assert, fixture, html, waitUntil } from '@open-wc/testing';
 import { Tracker, type ProductResult, type RetailMediaResult, type RetailMediaResultPlacementResultEntity } from '@relewise/client';
-import { nothing, type TemplateResult } from 'lit';
+import { nothing } from 'lit';
 import { initializeRelewiseUI, useRetailMedia, useSearch } from '../src';
-import type { RetailMediaTargetConfiguration } from '../src/builders/retailMediaBuilder';
+import { RetailMediaTargetBuilder, type RetailMediaTargetConfiguration } from '../src/builders/retailMediaBuilder';
 import { getProductSearchRenderItems, getProductSearchRenderItemsForPages } from '../src/search/retailMediaRendering';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
@@ -120,13 +120,11 @@ suite('retail media rendering', () => {
 
     test('renders duplicate placement keys only once', () => {
         initializeRelewiseUI(mockRelewiseOptions());
-        const configuration: RetailMediaTargetConfiguration = {
-            locationKey: 'Search Results',
-            placements: [
-                { key: 'Hero', position: { type: 'beforeResults' } },
-                { key: 'Hero', position: { type: 'afterResults' } },
-            ],
-        };
+        const configuration = new RetailMediaTargetBuilder()
+            .location('Search Results')
+            .placement('Hero', placement => placement.beforeResults())
+            .placement('Hero', placement => placement.afterResults())
+            .build();
         const retailMedia: RetailMediaResult = {
             placements: {
                 Hero: { results: [promotedProduct('hero')] },
@@ -158,42 +156,6 @@ suite('retail media rendering', () => {
         };
 
         assert.deepEqual(getProductSearchRenderItems([], retailMedia, configuration), []);
-    });
-
-    test('shows the product-search empty state when an asynchronous display ad resolves to nothing', async() => {
-        let resolveDisplayAd!: (result: typeof nothing) => void;
-        const displayAdTemplate = new Promise<typeof nothing>(resolve => {
-            resolveDisplayAd = resolve;
-        });
-        initializeRelewiseUI(mockRelewiseOptions());
-        useSearch();
-        useRetailMedia(builder => builder.templates({
-            retailMediaDisplayAd: () => displayAdTemplate,
-        }));
-        const configuration: RetailMediaTargetConfiguration = {
-            locationKey: 'Search Results',
-            placements: [{ key: 'Hero', position: { type: 'beforeResults' } }],
-        };
-
-        const element = await fixture<HTMLElement & {
-            showLoadingSpinner: boolean;
-            updateComplete: Promise<boolean>;
-        }>(html`
-            <relewise-product-search-results
-                .retailMediaPages=${[{
-                    products: [],
-                    retailMedia: { placements: { Hero: { results: [displayAd('hidden')] } } },
-                    retailMediaTargetConfiguration: configuration,
-                }]}>
-            </relewise-product-search-results>
-        `);
-        element.showLoadingSpinner = false;
-        await element.updateComplete;
-
-        assert.exists(element.shadowRoot?.querySelector('relewise-retail-media-tile'));
-        resolveDisplayAd(nothing);
-        await waitUntil(() => element.shadowRoot?.querySelector('relewise-retail-media-tile') === null);
-        assert.include(element.shadowRoot?.textContent ?? '', 'No results');
     });
 
     test('renders promoted products with the default sponsored label', async() => {
@@ -249,6 +211,24 @@ suite('retail media rendering', () => {
         assert.isNull(element.shadowRoot?.querySelector('[part="sponsored-label"]'));
     });
 
+    test('hides the sponsored wrapper when the product template resolves to nothing', async() => {
+        const options = mockRelewiseOptions();
+        options.templates = {
+            product: () => Promise.resolve<typeof nothing>(nothing),
+        };
+        initializeRelewiseUI(options);
+        useSearch();
+
+        const element = await fixture<HTMLElement & { entity: RetailMediaResultPlacementResultEntity }>(html`
+            <relewise-retail-media-tile
+                .entity=${promotedProduct('hidden-sponsored')}>
+            </relewise-retail-media-tile>
+        `);
+
+        await waitUntil(() => element.hidden);
+        assert.isTrue(element.hidden);
+    });
+
     test('uses custom sponsored-label and display-ad templates', async() => {
         initializeRelewiseUI(mockRelewiseOptions());
         useSearch();
@@ -256,7 +236,7 @@ suite('retail media rendering', () => {
             .variation({ key: 'Default', minWidth: 0 })
             .templates({
                 retailMediaSponsoredLabel: (promoted, { html }) => html`<strong>${promoted.result.productId} partner</strong>`,
-                retailMediaDisplayAd: async(ad, { html }) => html`<a href="/campaign">${ad.result.name}</a>`,
+                retailMediaDisplayAd: (ad, { html }) => html`<a href="/campaign">${ad.result.name}</a>`,
             }));
 
         const sponsored = await fixture<HTMLElement & { entity: RetailMediaResultPlacementResultEntity }>(html`
@@ -270,35 +250,9 @@ suite('retail media rendering', () => {
             </relewise-retail-media-tile>
         `);
 
-        await new Promise(resolve => setTimeout(resolve, 0));
         assert.equal(sponsored.shadowRoot?.querySelector('[part="sponsored-label"]')?.textContent?.trim(), 'sponsored partner');
         assert.equal(ad.shadowRoot?.querySelector('[part="display-ad"]')?.textContent?.trim(), 'Display ad hero');
         assert.isFalse(ad.hidden);
-    });
-
-    test('shows a previously hidden display ad while its asynchronous template resolves', async() => {
-        let resolveTemplate!: (template: TemplateResult<1>) => void;
-        const template = new Promise<TemplateResult<1>>(resolve => {
-            resolveTemplate = resolve;
-        });
-
-        initializeRelewiseUI(mockRelewiseOptions());
-        useSearch();
-        useRetailMedia(builder => builder.templates({
-            retailMediaDisplayAd: () => template,
-        }));
-
-        const element = await fixture<HTMLElement & { entity: RetailMediaResultPlacementResultEntity }>(html`
-            <relewise-retail-media-tile
-                hidden
-                .entity=${displayAd('async')}>
-            </relewise-retail-media-tile>
-        `);
-
-        assert.isFalse(element.hidden);
-
-        resolveTemplate(html`<span>Resolved display ad</span>` as TemplateResult<1>);
-        await waitUntil(() => element.shadowRoot?.textContent?.includes('Resolved display ad') === true);
     });
 
     test('tracks display ad link clicks', async() => {
@@ -344,6 +298,9 @@ suite('retail media rendering', () => {
     test('supports light DOM rendering', async() => {
         const options = mockRelewiseOptions();
         options.components = { domMode: 'light' };
+        options.templates = {
+            product: () => nothing,
+        };
         initializeRelewiseUI(options);
         useSearch();
         useRetailMedia(builder => builder
@@ -360,5 +317,13 @@ suite('retail media rendering', () => {
 
         assert.isNull(element.shadowRoot);
         assert.equal(element.querySelector('[part="display-ad"]')?.textContent?.trim(), 'Display ad light');
+
+        const sponsored = await fixture<HTMLElement & { entity: RetailMediaResultPlacementResultEntity }>(html`
+            <relewise-retail-media-tile
+                .entity=${promotedProduct('hidden-light')}>
+            </relewise-retail-media-tile>
+        `);
+        await waitUntil(() => sponsored.hidden);
+        assert.isTrue(sponsored.hidden);
     });
 });

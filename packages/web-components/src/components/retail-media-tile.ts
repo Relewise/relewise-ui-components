@@ -20,7 +20,8 @@ type RetailMediaTemplate = TemplateResult<1> | typeof nothing;
 type RetailMediaTemplateResult = RetailMediaTemplate | Promise<RetailMediaTemplate>;
 
 export class RetailMediaTile extends RelewiseLitElement {
-    private renderVersion = 0;
+    private renderedPromotedProduct: RetailMediaResultPlacementResultEntityProduct | null = null;
+    private productRenderable = true;
 
     @property({ attribute: false })
     entity: RetailMediaResultPlacementResultEntity | null = null;
@@ -29,15 +30,13 @@ export class RetailMediaTile extends RelewiseLitElement {
     user: User | null = null;
 
     render() {
-        const renderVersion = ++this.renderVersion;
-        this.removeAttribute('hidden');
-
         if (this.entity?.promotedProduct) {
             return this.renderPromotedProduct(this.entity.promotedProduct);
         }
 
         if (this.entity?.promotedDisplayAd) {
-            return this.renderDisplayAd(this.entity.promotedDisplayAd, renderVersion);
+            this.removeAttribute('hidden');
+            return this.renderDisplayAd(this.entity.promotedDisplayAd);
         }
 
         this.setAttribute('hidden', '');
@@ -45,6 +44,12 @@ export class RetailMediaTile extends RelewiseLitElement {
     }
 
     private renderPromotedProduct(product: RetailMediaResultPlacementResultEntityProduct) {
+        if (this.renderedPromotedProduct !== product) {
+            this.renderedPromotedProduct = product;
+            this.productRenderable = true;
+        }
+        this.toggleAttribute('hidden', !this.productRenderable);
+
         const sponsoredLabelTemplate = getRelewiseUIRetailMediaConfiguration()?.templates?.retailMediaSponsoredLabel;
         const sponsoredLabel = sponsoredLabelTemplate
             ? sponsoredLabelTemplate(product, this.templateExtensions())
@@ -55,7 +60,8 @@ export class RetailMediaTile extends RelewiseLitElement {
                 class="rw-product-tile"
                 part="product-tile"
                 .product=${product.result}
-                .user=${this.user}>
+                .user=${this.user}
+                @product-tile-renderability-changed=${this.handleProductTileRenderabilityChanged}>
             </relewise-product-tile>
             ${this.renderSponsoredLabel(sponsoredLabel)}
         `;
@@ -79,20 +85,25 @@ export class RetailMediaTile extends RelewiseLitElement {
             `;
     }
 
-    private renderDisplayAd(displayAd: RetailMediaResultPlacementResultEntityDisplayAd, renderVersion: number) {
+    private renderDisplayAd(displayAd: RetailMediaResultPlacementResultEntityDisplayAd) {
         const displayAdTemplate = getRelewiseUIRetailMediaConfiguration()?.templates?.retailMediaDisplayAd;
         if (!displayAdTemplate) {
-            this.setDisplayAdRenderable(false);
+            this.setAttribute('hidden', '');
             return nothing;
         }
 
-        const result = displayAdTemplate(displayAd, this.templateExtensions());
         return html`
             <div class="rw-display-ad" part="display-ad" @click=${this.trackDisplayAdClick}>
-                ${this.renderDisplayAdTemplate(result, renderVersion)}
+                ${displayAdTemplate(displayAd, this.templateExtensions())}
             </div>
         `;
     }
+
+    private readonly handleProductTileRenderabilityChanged = (event: Event): void => {
+        const productTile = event.currentTarget as HTMLElement;
+        this.productRenderable = !productTile.hidden;
+        this.toggleAttribute('hidden', !this.productRenderable);
+    };
 
     private readonly trackDisplayAdClick = (event: MouseEvent): void => {
         const displayAd = this.entity?.promotedDisplayAd;
@@ -107,28 +118,6 @@ export class RetailMediaTile extends RelewiseLitElement {
             user: this.user,
         }).catch(error => console.error('Relewise Web Components: Display ad click tracking failed.', error));
     };
-
-    private renderDisplayAdTemplate(result: RetailMediaTemplateResult, renderVersion: number) {
-        if (result instanceof Promise) {
-            return until(result.then(template => {
-                if (renderVersion === this.renderVersion) {
-                    this.setDisplayAdRenderable(template !== nothing);
-                }
-                return template;
-            }));
-        }
-
-        this.setDisplayAdRenderable(result !== nothing);
-        return result;
-    }
-
-    private setDisplayAdRenderable(renderable: boolean): void {
-        this.toggleAttribute('hidden', !renderable);
-        this.dispatchEvent(new CustomEvent('retail-media-renderability-changed', {
-            bubbles: true,
-            composed: true,
-        }));
-    }
 
     private templateExtensions(): ProductTemplateExtensions {
         return {

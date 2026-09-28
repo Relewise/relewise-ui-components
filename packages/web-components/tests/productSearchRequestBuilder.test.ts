@@ -192,12 +192,14 @@ suite('productSearchRequestBuilder', () => {
             .templates({
                 retailMediaSponsoredLabel: (product, { html }) => html`<span>${product.result.productId} Sponsored</span>`,
                 retailMediaDisplayAd: (displayAd, { html }) => html`<span>${displayAd.result.name}</span>`,
-            })
-            .target('campaign', target => target
+            }));
+        registerSearchTarget('campaign', {
+            retailMedia: target => target
                 .location('Search Results')
                 .placement('Top Banner', placement => placement.beforeResults())
                 .placement('Sponsored Grid', placement => placement
-                    .atPosition({ position: 4 }))));
+                    .atPosition({ position: 4 })),
+        });
 
         const result = buildProductSearchRequest({
             term: 'shoe',
@@ -238,10 +240,12 @@ suite('productSearchRequestBuilder', () => {
         useSearch();
         useRetailMedia(builder => builder
             .variation({ key: 'Tablet', minWidth: 768 })
-            .variation({ key: 'Desktop', minWidth: 1024 })
-            .target('campaign', target => target
+            .variation({ key: 'Desktop', minWidth: 1024 }));
+        registerSearchTarget('campaign', {
+            retailMedia: target => target
                 .location('Search Results')
-                .placement('Sponsored Grid')));
+                .placement('Sponsored Grid'),
+        });
 
         const result = buildProductSearchRequest({
             term: 'shoe',
@@ -256,15 +260,12 @@ suite('productSearchRequestBuilder', () => {
         assert.equal(result.request.retailMedia?.location.variation.key, 'Tablet');
     });
 
-    test('uses targeted retail media configuration before global target configuration', () => {
+    test('uses the registered search target retail media configuration', () => {
         Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1200 });
 
         useSearch();
         useRetailMedia(builder => builder
-            .variation({ key: 'Desktop', minWidth: 1024 })
-            .target('campaign', target => target
-                .location('Global Search Results')
-                .placement('Global Placement')));
+            .variation({ key: 'Desktop', minWidth: 1024 }));
 
         registerSearchTarget('campaign', {
             retailMedia: builder => builder
@@ -290,9 +291,10 @@ suite('productSearchRequestBuilder', () => {
     test('skips incomplete retail media configuration', () => {
         useSearch();
         useRetailMedia(builder => builder
-            .variation({ key: 'Desktop', minWidth: 1024 })
-            .target('campaign', target => target
-                .placement('Sponsored Grid')));
+            .variation({ key: 'Desktop', minWidth: 1024 }));
+        registerSearchTarget('campaign', {
+            retailMedia: target => target.placement('Sponsored Grid'),
+        });
 
         const result = buildProductSearchRequest({
             term: 'shoe',
@@ -305,5 +307,34 @@ suite('productSearchRequestBuilder', () => {
         });
 
         assert.isNull(result.request.retailMedia);
+    });
+
+    test('normalizes invalid and duplicate placements when the target is configured', () => {
+        useSearch();
+        useRetailMedia(builder => builder.variation({ key: 'Default', minWidth: 0 }));
+        registerSearchTarget('campaign', {
+            retailMedia: target => target
+                .location('Search Results')
+                .placement('Hero', placement => placement.beforeResults())
+                .placement('Hero', placement => placement.afterResults())
+                .placement('Invalid', placement => placement.atPosition({ position: 0 }))
+                .placement(''),
+        });
+
+        const result = buildProductSearchRequest({
+            term: 'shoe',
+            settings,
+            page: 1,
+            pageSize: 16,
+            productsLoaded: 0,
+            productsToFetch: null,
+            target: 'campaign',
+        });
+
+        assert.deepEqual(result.request.retailMedia?.location.placements, [{ key: 'Hero' }]);
+        assert.deepEqual(result.retailMediaTargetConfiguration?.placements, [{
+            key: 'Hero',
+            position: { type: 'beforeResults' },
+        }]);
     });
 });

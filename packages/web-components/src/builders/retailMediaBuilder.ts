@@ -1,7 +1,6 @@
 import {
     RetailMediaQuery,
     RetailMediaQueryBuilder,
-    RetailMediaQueryPlacementSelector,
     RetailMediaResultPlacementResultEntityDisplayAd,
     RetailMediaResultPlacementResultEntityProduct,
     SelectedDisplayAdPropertiesSettings,
@@ -33,12 +32,11 @@ export interface RetailMediaConfiguration {
     variations: RetailMediaVariationConfiguration[];
     selectedDisplayAdProperties: Partial<SelectedDisplayAdPropertiesSettings> | null;
     templates?: RetailMediaTemplates;
-    targets: Map<string, RetailMediaTargetConfiguration>;
 }
 
 export interface RetailMediaTemplates {
     retailMediaSponsoredLabel?: (product: RetailMediaResultPlacementResultEntityProduct, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
-    retailMediaDisplayAd?: (displayAd: RetailMediaResultPlacementResultEntityDisplayAd, extensions: ProductTemplateExtensions) => TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>;
+    retailMediaDisplayAd?: (displayAd: RetailMediaResultPlacementResultEntityDisplayAd, extensions: ProductTemplateExtensions) => TemplateResult<1>;
 }
 
 export class RetailMediaPlacementBuilder {
@@ -76,6 +74,7 @@ export class RetailMediaPlacementBuilder {
 export class RetailMediaTargetBuilder {
     private locationKey: string | null = null;
     private readonly placements: RetailMediaPlacementConfiguration[] = [];
+    private readonly placementKeys = new Set<string>();
 
     location(key: string): this {
         this.locationKey = key;
@@ -85,7 +84,26 @@ export class RetailMediaTargetBuilder {
     placement(key: string, configure?: (builder: RetailMediaPlacementBuilder) => void): this {
         const placementBuilder = new RetailMediaPlacementBuilder(key);
         configure?.(placementBuilder);
-        this.placements.push(placementBuilder.build());
+        const placement = placementBuilder.build();
+
+        if (!placement.key) {
+            console.warn('Relewise Web Components: A retail media placement was skipped because no placement key was configured.');
+            return this;
+        }
+
+        if (this.placementKeys.has(placement.key)) {
+            console.warn(`Relewise Web Components: Duplicate retail media placement key '${placement.key}' was skipped.`);
+            return this;
+        }
+
+        if (placement.position.type === 'atPosition'
+            && (!Number.isInteger(placement.position.position) || placement.position.position < 1)) {
+            console.warn(`Relewise Web Components: Retail media placement '${placement.key}' was skipped because its position must be a positive integer.`);
+            return this;
+        }
+
+        this.placementKeys.add(placement.key);
+        this.placements.push(placement);
         return this;
     }
 
@@ -103,7 +121,6 @@ export class RetailMediaOptionsBuilder {
     private readonly variations: RetailMediaVariationConfiguration[] = [];
     private selectedDisplayAdPropertiesValue: Partial<SelectedDisplayAdPropertiesSettings> | null = null;
     private templatesValue: RetailMediaTemplates | undefined = undefined;
-    private readonly targets = new Map<string, RetailMediaTargetConfiguration>();
 
     variation(configuration: RetailMediaVariationConfiguration): this {
         this.variations.push({ ...configuration });
@@ -120,19 +137,11 @@ export class RetailMediaOptionsBuilder {
         return this;
     }
 
-    target(target: string, configure: (builder: RetailMediaTargetBuilder) => void): this {
-        const builder = new RetailMediaTargetBuilder();
-        configure(builder);
-        this.targets.set(target, builder.build());
-        return this;
-    }
-
     build(): RetailMediaConfiguration {
         return {
             variations: this.variations.map(variation => ({ ...variation })),
             selectedDisplayAdProperties: this.selectedDisplayAdPropertiesValue,
             templates: this.templatesValue ? { ...this.templatesValue } : undefined,
-            targets: new Map(this.targets),
         };
     }
 }
@@ -151,22 +160,13 @@ export function getRetailMediaConfiguration(configure?: (builder: RetailMediaOpt
 export function buildRetailMediaQuery(
     target: string | null,
     globalConfiguration: RetailMediaConfiguration | null,
-    targetedConfiguration: RetailMediaTargetConfiguration | null,
+    targetConfiguration: RetailMediaTargetConfiguration | null,
 ): RetailMediaQuery | null {
-    if (!target) {
+    if (!target || !targetConfiguration) {
         return null;
     }
 
-    const configuration = resolveRetailMediaTargetConfiguration(
-        target,
-        globalConfiguration,
-        targetedConfiguration,
-    );
-    if (!configuration) {
-        return null;
-    }
-
-    if (!configuration.locationKey) {
+    if (!targetConfiguration.locationKey) {
         console.warn(`Relewise Web Components: Retail media configuration for target '${target}' was skipped because no location key was configured.`);
         return null;
     }
@@ -179,29 +179,21 @@ export function buildRetailMediaQuery(
         return null;
     }
 
-    const placements = getPlacementSelectors(configuration, target);
-    if (placements.length < 1) {
+    if (targetConfiguration.placements.length < 1) {
+        console.warn(`Relewise Web Components: Retail media configuration for target '${target}' was skipped because no placements were configured.`);
         return null;
     }
 
     return new RetailMediaQueryBuilder()
         .setLocation({
-            key: configuration.locationKey,
+            key: targetConfiguration.locationKey,
             variation: {
                 key: variationKey,
             },
-            placements,
+            placements: targetConfiguration.placements.map(placement => ({ key: placement.key })),
         })
         .setSelectedDisplayAdProperties(globalConfiguration?.selectedDisplayAdProperties ?? null)
         .build();
-}
-
-export function resolveRetailMediaTargetConfiguration(
-    target: string,
-    globalConfiguration: RetailMediaConfiguration | null,
-    targetedConfiguration: RetailMediaTargetConfiguration | null,
-): RetailMediaTargetConfiguration | null {
-    return targetedConfiguration ?? globalConfiguration?.targets.get(target) ?? null;
 }
 
 function getVariationKey(
@@ -226,39 +218,4 @@ function getVariationKey(
     console.warn(`Relewise Web Components: Retail media target '${target}' did not match a configured breakpoint. Falling back to variation '${fallbackVariation.key}'.`);
 
     return fallbackVariation.key;
-}
-
-function getPlacementSelectors(
-    configuration: RetailMediaTargetConfiguration,
-    target: string,
-): RetailMediaQueryPlacementSelector[] {
-    const placementKeys = new Set<string>();
-    const placements: RetailMediaQueryPlacementSelector[] = [];
-
-    configuration.placements.forEach(placement => {
-        if (!placement.key) {
-            console.warn(`Relewise Web Components: A retail media placement for target '${target}' was skipped because no placement key was configured.`);
-            return;
-        }
-
-        if (placementKeys.has(placement.key)) {
-            console.warn(`Relewise Web Components: Duplicate retail media placement key '${placement.key}' for target '${target}' was skipped.`);
-            return;
-        }
-
-        if (placement.position.type === 'atPosition'
-            && (!Number.isInteger(placement.position.position) || placement.position.position < 1)) {
-            console.warn(`Relewise Web Components: Retail media placement '${placement.key}' for target '${target}' was skipped because its position must be a positive integer.`);
-            return;
-        }
-
-        placementKeys.add(placement.key);
-        placements.push({ key: placement.key });
-    });
-
-    if (placements.length < 1) {
-        console.warn(`Relewise Web Components: Retail media configuration for target '${target}' was skipped because no placements were configured.`);
-    }
-
-    return placements;
 }

@@ -5,7 +5,7 @@ import { getRelewiseSearchTargetedConfigurations, getRelewiseUIRetailMediaConfig
 import { QueryKeys, readCurrentUrlState } from '../helpers/urlState';
 import { getSearchSortingOptions, getSearchSortingSelection } from './searchSortingBuilder';
 import { applySelectedValuesToFacets } from './facetSelectionHelpers';
-import { buildRetailMediaQuery, resolveRetailMediaTargetConfiguration, type RetailMediaTargetConfiguration } from './retailMediaBuilder';
+import { buildRetailMediaQuery, type RetailMediaTargetConfiguration } from './retailMediaBuilder';
 
 export type ProductSearchRequestOptions = {
     term: string | null;
@@ -53,7 +53,7 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
             builder.sortByProductRelevance();
         });
 
-    if (options.target && targetedConfigurations.has(options.target)) {
+    if (options.target) {
         const overwrittenConfigSettings = targetedConfigurations.handle(options.target, requestBuilder, options.sortingQueryKey);
         if (overwrittenConfigSettings.facetLabels) {
             facetLabels = overwrittenConfigSettings.facetLabels;
@@ -62,11 +62,7 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
 
     const globalRetailMediaConfiguration = getRelewiseUIRetailMediaConfiguration() ?? null;
     const retailMediaTargetConfiguration = options.target
-        ? resolveRetailMediaTargetConfiguration(
-            options.target,
-            globalRetailMediaConfiguration,
-            targetedConfigurations.getRetailMediaConfiguration(options.target),
-        )
+        ? targetedConfigurations.getRetailMediaConfiguration(options.target)
         : null;
     const retailMediaQuery = buildRetailMediaQuery(
         options.target,

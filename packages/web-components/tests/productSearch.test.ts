@@ -87,13 +87,13 @@ suite('product search', () => {
                 .variation({ key: 'Default', minWidth: 0 })
                 .templates({
                     retailMediaDisplayAd: (ad, { html }) => html`<a href="/collection-campaign">${ad.result.name}</a>`,
-                })
-                .target('plp', target => target
-                    .location('Product Listing Page')
-                    .placement('Hero', placement => placement.beforeResults())
-                    .placement('Sponsored', placement => placement.atPosition({ position: 2 }))))
+                }))
             .registerSearchTarget('plp', {
                 filters: builder => builder.addProductCategoryIdFilter('ImmediateParent', ['collection-id']),
+                retailMedia: target => target
+                    .location('Product Listing Page')
+                    .placement('Hero', placement => placement.beforeResults())
+                    .placement('Sponsored', placement => placement.atPosition({ position: 2 })),
             });
         window.history.replaceState({}, document.title, window.location.pathname);
 
@@ -153,10 +153,12 @@ suite('product search', () => {
         initializeRelewiseUI(mockRelewiseOptions())
             .useSearch()
             .useRetailMedia(builder => builder
-                .variation({ key: 'Default', minWidth: 0 })
-                .target('plp', target => target
+                .variation({ key: 'Default', minWidth: 0 }))
+            .registerSearchTarget('plp', {
+                retailMedia: target => target
                     .location('Product Listing Page')
-                    .placement('Sponsored', placement => placement.atPosition({ position: 1 }))));
+                    .placement('Sponsored', placement => placement.atPosition({ position: 1 })),
+            });
         window.history.replaceState({}, document.title, '?rw-term=shoe');
 
         const element = await fixture<ProductSearch>(html`

@@ -37,8 +37,10 @@ initializeRelewiseUI({
                     <strong style="position: absolute; bottom: 28px">${displayAd.result.data?.Title?.value ?? displayAd.result.name}</strong>
                 </a>
             `,
-        })
-        .target('retail-media-product-search', target => target
+        }))
+    .registerSearchTarget('retail-media-product-search', {
+        retailMedia: target => target
             .location('WEB_COMPONENTS')
             .placement('TOP', placement => placement.beforeResults())
-            .placement('GRID', placement => placement.atPosition({ position: 4 }))));
+            .placement('GRID', placement => placement.atPosition({ position: 4 })),
+    });

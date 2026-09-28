@@ -1293,13 +1293,16 @@ useRetailMedia(builder => builder
     .templates({
         retailMediaSponsoredLabel: (product, { html }) => html`<span>Sponsored</span>`,
         retailMediaDisplayAd: (displayAd, { html }) => html`<span>${displayAd.result.name}</span>`,
-    })
-    .target('search-page', target => target
+    }));
+
+registerSearchTarget('search-page', {
+    retailMedia: target => target
         .location('SEARCH_RESULTS')
         .placement('TOP_BANNER', placement => placement
             .beforeResults())
         .placement('IN_GRID', placement => placement
-            .atPosition({ position: 4 }))));
+            .atPosition({ position: 4 })),
+});
 ```
 
 ```html
@@ -1330,7 +1333,7 @@ Retail media keys are passed directly to Relewise and must exactly match the loc
 
 Whether a placement returns sponsored products, display ads, or both is configured in Relewise backoffice.
 
-Targeted search configuration can also define retail media for the target:
+Location and placement settings belong to the targeted search configuration:
 
 ```ts
 registerSearchTarget('search-page', {
@@ -1353,7 +1356,7 @@ useRetailMedia(builder => builder
     }));
 ```
 
-Retail media results are rendered by `<relewise-retail-media-tile>`. Sponsored products use the configured product tile template and include a `Sponsored` label by default. `retailMediaSponsoredLabel` replaces that label. Display ads are skipped unless `retailMediaDisplayAd` is configured. Use an anchor in the display-ad template when the component should automatically track the display-ad click.
+Retail media results are rendered by `<relewise-retail-media-tile>`. Sponsored products use the configured product tile template and include a `Sponsored` label by default. `retailMediaSponsoredLabel` replaces that label and may be asynchronous. Display ads are skipped unless the synchronous `retailMediaDisplayAd` template is configured. Use an anchor in the display-ad template when the component should automatically track the display-ad click.
 
 Retail media rendering is based on the configured placement position. `atPosition` is one-based, so position `4` makes the retail media result the fourth item in the product grid:
 

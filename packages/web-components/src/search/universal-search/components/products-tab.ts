@@ -1,4 +1,4 @@
-import { ProductResult, ProductSearchResponse, RetailMediaResultPlacementResultEntity, SearchResponseCollection, Settings, User } from '@relewise/client';
+import { ProductResult, ProductSearchResponse, SearchResponseCollection, Settings, User } from '@relewise/client';
 import { html, nothing } from 'lit';
 import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
@@ -21,7 +21,6 @@ import type { UniversalSearchBatchSearch } from '../universal-search.types';
 import { universalSearchRecommendationsExportParts } from './recommendations';
 import { getProductSearchRenderItemsForPages, type ProductSearchRenderPage } from '../../retailMediaRendering';
 import type { RetailMediaTargetConfiguration } from '../../../builders/retailMediaBuilder';
-import type { RetailMediaTile } from '../../../components/retail-media-tile';
 
 const defaultPageSize = 15;
 const tab = 'products';
@@ -43,7 +42,6 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
     @state() private error: string | null = null;
     @state() private user: User | null = null;
     @state() private retailMediaPages: ProductSearchRenderPage[] = [];
-    @state() private hiddenRetailMediaEntities = new Set<RetailMediaResultPlacementResultEntity>();
 
     private resultOffset = 0;
     private abortController = new AbortController();
@@ -213,7 +211,6 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             this.products = [];
             this.facetLabels = [];
             this.retailMediaPages = [];
-            this.hiddenRetailMediaEntities = new Set();
             this.reportHits();
         }
     }
@@ -268,9 +265,6 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
             : prepend
                 ? [retailMediaPage, ...this.retailMediaPages]
                 : [...this.retailMediaPages, retailMediaPage];
-        if (reset) {
-            this.hiddenRetailMediaEntities = new Set();
-        }
         if (reset || prepend) {
             this.resultOffset = resultOffset;
         }
@@ -289,7 +283,6 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         this.products = [];
         this.facetLabels = [];
         this.retailMediaPages = [];
-        this.hiddenRetailMediaEntities = new Set();
         this.error = null;
         this.loading = false;
         this.resultOffset = 0;
@@ -311,26 +304,9 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
         }));
     }
 
-    private readonly handleRetailMediaRenderabilityChanged = (event: Event): void => {
-        const tile = event.currentTarget as RetailMediaTile;
-        const entity = tile.entity;
-        if (!entity?.promotedDisplayAd || this.hiddenRetailMediaEntities.has(entity) === tile.hidden) {
-            return;
-        }
-
-        const hiddenEntities = new Set(this.hiddenRetailMediaEntities);
-        if (tile.hidden) {
-            hiddenEntities.add(entity);
-        } else {
-            hiddenEntities.delete(entity);
-        }
-        this.hiddenRetailMediaEntities = hiddenEntities;
-    };
-
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.universalSearch?.products;
-        const renderItems = getProductSearchRenderItemsForPages(this.retailMediaPages)
-            .filter(item => item.type === 'product' || !this.hiddenRetailMediaEntities.has(item.entity));
+        const renderItems = getProductSearchRenderItemsForPages(this.retailMediaPages);
         const noResultsHint = localization?.noResultsHint ?? 'Try another search term or check the spelling.';
         const hasSearchTermAndSelectedFacets = Boolean(readCurrentUrlState(QueryKeys.term))
             && hasUrlStateWithPrefix(QueryKeys.productFacet);
@@ -427,8 +403,7 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
                                     part=${item.entity.promotedProduct ? 'retail-media-product' : 'retail-media-display-ad'}
                                     exportparts="product-tile: retail-media-product-tile, sponsored-label, display-ad"
                                     .entity=${item.entity}
-                                    .user=${this.user}
-                                    @retail-media-renderability-changed=${this.handleRetailMediaRenderabilityChanged}>
+                                    .user=${this.user}>
                                 </relewise-retail-media-tile>
                             `)}
                         </div>

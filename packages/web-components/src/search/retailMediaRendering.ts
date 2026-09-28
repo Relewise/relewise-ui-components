@@ -91,17 +91,7 @@ function getRetailMediaRenderPlacements(
     }
 
     const displayAdTemplate = getRelewiseUIRetailMediaConfiguration()?.templates?.retailMediaDisplayAd;
-    const placementKeys = new Set<string>();
-
     return configuration.placements.flatMap(placement => {
-        if (!placement.key
-            || placementKeys.has(placement.key)
-            || (placement.position.type === 'atPosition'
-                && (!Number.isInteger(placement.position.position) || placement.position.position < 1))) {
-            return [];
-        }
-
-        placementKeys.add(placement.key);
         const results = retailMedia.placements?.[placement.key]?.results ?? [];
         const entities = results.flatMap(entity => {
             if (!entity.promotedProduct && !entity.promotedDisplayAd) {
