@@ -1,11 +1,12 @@
 import { RelewiseLitElement } from '../../relewise-lit-element';
-import { ProductResult, RetailMediaResult, User } from '@relewise/client';
+import { ProductResult, RetailMediaResult, RetailMediaResultPlacementResultEntity, User } from '@relewise/client';
 import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, getRelewiseUISearchOptions, QueryKeys, readCurrentUrlState } from '../../helpers';
 import { theme } from '../../theme';
-import { getProductSearchRenderItems } from '../retailMediaRendering';
+import { getProductSearchRenderItems, getProductSearchRenderItemsForPages, type ProductSearchRenderPage } from '../retailMediaRendering';
 import type { RetailMediaTargetConfiguration } from '../../builders/retailMediaBuilder';
+import type { RetailMediaTile } from '../../components/retail-media-tile';
 
 export class ProductSearchResults extends RelewiseLitElement {
     @property({ type: Array })
@@ -20,11 +21,17 @@ export class ProductSearchResults extends RelewiseLitElement {
     @property({ attribute: false })
     private retailMediaTargetConfiguration: RetailMediaTargetConfiguration | null = null;
 
+    @property({ attribute: false })
+    private retailMediaPages: ProductSearchRenderPage[] = [];
+
     @state()
     showLoadingSpinner: boolean = true;
 
     @state()
     showDimmingOverlay: boolean = false;
+
+    @state()
+    private hiddenRetailMediaEntities = new Set<RetailMediaResultPlacementResultEntity>();
 
     handleShowLoadingSpinnerEventBound = this.handleShowLoadingSpinnerEvent.bind(this);
     handleDimPreviousResultEventBound = this.handleDimPreviousResultEvent.bind(this);
@@ -59,9 +66,28 @@ export class ProductSearchResults extends RelewiseLitElement {
         this.showDimmingOverlay = false;
     }
 
+    private readonly handleRetailMediaRenderabilityChanged = (event: Event): void => {
+        const tile = event.currentTarget as RetailMediaTile;
+        const entity = tile.entity;
+        if (!entity?.promotedDisplayAd || this.hiddenRetailMediaEntities.has(entity) === tile.hidden) {
+            return;
+        }
+
+        const hiddenEntities = new Set(this.hiddenRetailMediaEntities);
+        if (tile.hidden) {
+            hiddenEntities.add(entity);
+        } else {
+            hiddenEntities.delete(entity);
+        }
+        this.hiddenRetailMediaEntities = hiddenEntities;
+    };
+
     render() {
         const localization = getRelewiseUISearchOptions()?.localization?.searchResults;
-        const renderItems = getProductSearchRenderItems(this.products, this.retailMedia, this.retailMediaTargetConfiguration);
+        const renderItems = (this.retailMediaPages.length > 0
+            ? getProductSearchRenderItemsForPages(this.retailMediaPages)
+            : getProductSearchRenderItems(this.products, this.retailMedia, this.retailMediaTargetConfiguration))
+            .filter(item => item.type === 'product' || !this.hiddenRetailMediaEntities.has(item.entity));
         if (renderItems.length > 0) {
             return html`
                 ${renderItems.map(item => item.type === 'product' ? html`
@@ -76,7 +102,8 @@ export class ProductSearchResults extends RelewiseLitElement {
                             part=${item.entity.promotedProduct ? 'retail-media-product' : 'retail-media-display-ad'}
                             exportparts="product-tile: retail-media-product-tile, sponsored-label, display-ad"
                             .entity=${item.entity}
-                            .user=${this.user}>
+                            .user=${this.user}
+                            @retail-media-renderability-changed=${this.handleRetailMediaRenderabilityChanged}>
                         </relewise-retail-media-tile>
                     `)}
                 ${this.showLoadingSpinner ? html`

@@ -3,7 +3,7 @@ import { Tracker, type ProductResult, type RetailMediaResult, type RetailMediaRe
 import { nothing, type TemplateResult } from 'lit';
 import { initializeRelewiseUI, useRetailMedia, useSearch } from '../src';
 import type { RetailMediaTargetConfiguration } from '../src/builders/retailMediaBuilder';
-import { getProductSearchRenderItems } from '../src/search/retailMediaRendering';
+import { getProductSearchRenderItems, getProductSearchRenderItemsForPages } from '../src/search/retailMediaRendering';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 function product(productId: string): ProductResult {
@@ -71,6 +71,78 @@ suite('retail media rendering', () => {
         ]);
     });
 
+    test('keeps each response placements relative to that response products', () => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        const configuration: RetailMediaTargetConfiguration = {
+            locationKey: 'Search Results',
+            placements: [
+                { key: 'Hero', position: { type: 'beforeResults' } },
+                { key: 'Inline', position: { type: 'atPosition', position: 2 } },
+            ],
+        };
+
+        const items = getProductSearchRenderItemsForPages([
+            {
+                products: [product('1'), product('2')],
+                retailMedia: {
+                    placements: {
+                        Hero: { results: [promotedProduct('hero-1')] },
+                        Inline: { results: [promotedProduct('inline-1')] },
+                    },
+                },
+                retailMediaTargetConfiguration: configuration,
+            },
+            {
+                products: [product('3'), product('4')],
+                retailMedia: {
+                    placements: {
+                        Hero: { results: [promotedProduct('hero-2')] },
+                        Inline: { results: [promotedProduct('inline-2')] },
+                    },
+                },
+                retailMediaTargetConfiguration: configuration,
+            },
+        ]);
+
+        assert.deepEqual(items.map(item => item.type === 'product'
+            ? `product:${item.product.productId}`
+            : `sponsored:${item.entity.promotedProduct?.result.productId}`), [
+            'sponsored:hero-1',
+            'product:1',
+            'sponsored:inline-1',
+            'product:2',
+            'sponsored:hero-2',
+            'product:3',
+            'sponsored:inline-2',
+            'product:4',
+        ]);
+    });
+
+    test('renders duplicate placement keys only once', () => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        const configuration: RetailMediaTargetConfiguration = {
+            locationKey: 'Search Results',
+            placements: [
+                { key: 'Hero', position: { type: 'beforeResults' } },
+                { key: 'Hero', position: { type: 'afterResults' } },
+            ],
+        };
+        const retailMedia: RetailMediaResult = {
+            placements: {
+                Hero: { results: [promotedProduct('hero')] },
+            },
+        };
+
+        const items = getProductSearchRenderItems([product('1')], retailMedia, configuration);
+
+        assert.deepEqual(items.map(item => item.type === 'product'
+            ? `product:${item.product.productId}`
+            : `sponsored:${item.entity.promotedProduct?.result.productId}`), [
+            'sponsored:hero',
+            'product:1',
+        ]);
+    });
+
     test('skips display ads without a template before resolving the empty state', () => {
         initializeRelewiseUI(mockRelewiseOptions());
         useRetailMedia(builder => builder.variation({ key: 'Default', minWidth: 0 }));
@@ -86,6 +158,42 @@ suite('retail media rendering', () => {
         };
 
         assert.deepEqual(getProductSearchRenderItems([], retailMedia, configuration), []);
+    });
+
+    test('shows the product-search empty state when an asynchronous display ad resolves to nothing', async() => {
+        let resolveDisplayAd!: (result: typeof nothing) => void;
+        const displayAdTemplate = new Promise<typeof nothing>(resolve => {
+            resolveDisplayAd = resolve;
+        });
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch();
+        useRetailMedia(builder => builder.templates({
+            retailMediaDisplayAd: () => displayAdTemplate,
+        }));
+        const configuration: RetailMediaTargetConfiguration = {
+            locationKey: 'Search Results',
+            placements: [{ key: 'Hero', position: { type: 'beforeResults' } }],
+        };
+
+        const element = await fixture<HTMLElement & {
+            showLoadingSpinner: boolean;
+            updateComplete: Promise<boolean>;
+        }>(html`
+            <relewise-product-search-results
+                .retailMediaPages=${[{
+                    products: [],
+                    retailMedia: { placements: { Hero: { results: [displayAd('hidden')] } } },
+                    retailMediaTargetConfiguration: configuration,
+                }]}>
+            </relewise-product-search-results>
+        `);
+        element.showLoadingSpinner = false;
+        await element.updateComplete;
+
+        assert.exists(element.shadowRoot?.querySelector('relewise-retail-media-tile'));
+        resolveDisplayAd(nothing);
+        await waitUntil(() => element.shadowRoot?.querySelector('relewise-retail-media-tile') === null);
+        assert.include(element.shadowRoot?.textContent ?? '', 'No results');
     });
 
     test('renders promoted products with the default sponsored label', async() => {

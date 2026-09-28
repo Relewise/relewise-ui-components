@@ -1,5 +1,6 @@
 import { assert, fixture, fixtureCleanup, html, waitUntil } from '@open-wc/testing';
 import { ContentResult, ProductCategoryResult, ProductResult, ProductSearchRequest, Searcher } from '@relewise/client';
+import { nothing } from 'lit';
 import { Button, clearUrlState, UniversalSearch, UniversalSearchTab, initializeRelewiseUI, QueryKeys, readCurrentUrlState, universalSearchTabs, updateUrlState, updateUrlStateValues, useRetailMedia, useSearch } from '../src';
 import { updateUrlStateForUniversalSearchTerm } from '../src/search/universal-search/universal-search-url-state';
 import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
@@ -1257,6 +1258,62 @@ suite('relewise-universal-search', () => {
         assert.equal(queryAllDeep(el.renderRoot, 'relewise-product-tile').length, 3);
     });
 
+    test('keeps retail media positioned within each loaded product page', async() => {
+        let searchCount = 0;
+        Searcher.prototype.searchProducts = async function() {
+            searchCount++;
+            return {
+                ...productSearchResponse([product(`organic-${searchCount}`)], 2),
+                retailMedia: {
+                    placements: {
+                        Sponsored: {
+                            results: [{
+                                promotedProduct: {
+                                    result: product(`sponsored-${searchCount}`),
+                                },
+                            }],
+                        },
+                    },
+                },
+            };
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: { pageSize: 1 } } } });
+        useRetailMedia(builder => builder
+            .variation({ key: 'Default', minWidth: 0 })
+            .target('universal-search', target => target
+                .location('Universal Search')
+                .placement('Sponsored', placement => placement.atPosition({ position: 1 }))));
+
+        const el = await fixture(html`
+            <relewise-universal-search
+                displayed-at-location="Universal Search"
+                target="universal-search"
+                open>
+            </relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => products(el).length === 1, 'initial products were not rendered');
+
+        await productsTab(el).loadMore();
+        await waitUntil(() => products(el).length === 2, 'more products were not appended');
+
+        const items = [...productsTab(el).renderRoot.querySelectorAll<HTMLElement & {
+            entity?: { promotedProduct?: { result: ProductResult } };
+            product?: ProductResult;
+        }>('relewise-product-tile, relewise-retail-media-tile')];
+        assert.deepEqual(items.map(item => item.localName === 'relewise-product-tile'
+            ? `product:${item.product?.productId}`
+            : `sponsored:${item.entity?.promotedProduct?.result.productId}`), [
+            'sponsored:sponsored-1',
+            'product:organic-1',
+            'sponsored:sponsored-2',
+            'product:organic-2',
+        ]);
+    });
+
     test('prevents overlapping load-more requests', async () => {
         let searchCount = 0;
         let resolveLoadMore!: (response: ReturnType<typeof productSearchResponse>) => void;
@@ -2116,6 +2173,57 @@ suite('relewise-universal-search', () => {
                 selectedDisplayAdProperties: null,
             },
         }));
+    });
+
+    test('shows zero results when an asynchronous display-ad template resolves to nothing', async() => {
+        let resolveDisplayAd!: (result: typeof nothing) => void;
+        const displayAdTemplate = new Promise<typeof nothing>(resolve => {
+            resolveDisplayAd = resolve;
+        });
+        Searcher.prototype.searchProducts = async function() {
+            return {
+                ...productSearchResponse([], 0),
+                retailMedia: {
+                    placements: {
+                        Hero: {
+                            results: [{
+                                promotedDisplayAd: {
+                                    campaignId: 'campaign-hidden',
+                                    result: { displayAdId: 'hidden', name: 'Hidden display ad' },
+                                },
+                            }],
+                        },
+                    },
+                },
+            } as any;
+        };
+
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: {} } } });
+        useRetailMedia(builder => builder
+            .variation({ key: 'Default', minWidth: 0 })
+            .templates({
+                retailMediaDisplayAd: () => displayAdTemplate,
+            })
+            .target('universal-search', target => target
+                .location('Universal Search')
+                .placement('Hero', placement => placement.beforeResults())));
+
+        const el = await fixture(html`
+            <relewise-universal-search
+                displayed-at-location="Universal Search"
+                target="universal-search"
+                open>
+            </relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => queryDeep(el, 'relewise-retail-media-tile') !== null, 'display ad was not rendered while its template was pending');
+        assert.isNull(queryDeep(el, '[part="zero-results"]'));
+
+        resolveDisplayAd(nothing);
+        await waitUntil(() => queryDeep(el, '[part="zero-results"]') !== null, 'zero results was not rendered after the display ad was hidden');
+        assert.isNull(queryDeep(el, 'relewise-retail-media-tile'));
     });
 
     test('preserves existing entity results when individual requests return no response', async() => {
