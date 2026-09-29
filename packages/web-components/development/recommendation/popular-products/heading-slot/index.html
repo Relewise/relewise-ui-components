@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Popular Products heading</title>
+    <style>
+        body {
+            max-width: 70rem;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            font-family: system-ui, sans-serif;
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: end;
+            gap: 1rem;
+        }
+
+        label {
+            display: grid;
+            gap: .25rem;
+        }
+
+        #take {
+            width: 5rem;
+        }
+
+        #heading-text {
+            width: 20rem;
+            max-width: 80vw;
+        }
+
+        #status {
+            min-height: 1.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Popular Products heading</h1>
+    <p>Choose a Take value and request recommendations. Try a positive value, then 0, then a positive value again. Leave the heading text blank to render products without a heading.</p>
+    <form id="request-form">
+        <label for="take">Take
+            <input id="take" type="number" min="0" step="1" value="4" required>
+        </label>
+        <label for="heading-text">Heading text
+            <input id="heading-text" type="text" value="Recommended products">
+        </label>
+        <button type="submit">Request recommendations</button>
+    </form>
+    <p id="status" role="status">No request sent yet.</p>
+    <div id="result"></div>
+    <script type="module" src="index.ts"></script>
+</body>
+
+</html>

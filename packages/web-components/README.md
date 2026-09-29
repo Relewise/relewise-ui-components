@@ -207,12 +207,25 @@ initializeRelewiseUI().useRecommendations();
 
 Attributes and properties that affect recommendation requests are initialization-time inputs. Configure them before the component connects. Components automatically request again when the Relewise context is updated.
 
+All product recommendation components support an optional named `heading` slot. Put one heading element inside a template so the browser does not display it before the component loads:
+
+```html
+<relewise-popular-products displayed-at-location="LOCATION">
+    <template slot="heading"><h2>Popular products</h2></template>
+</relewise-popular-products>
+```
+
+The browser keeps template content inert. The component renders the heading only after a request finishes with products. The element can instead be a `p`, `span`, or another heading level. Style the rendered element with `[slot="heading"]`; in Shadow DOM, style its full-width container through `::part(heading)`.
+
+Without a heading template, the component reserves no space for a heading.
+
 #### Popular Products
 This component renders the most [popular products](https://docs.relewise.com/docs/recommendations/recommendation-types.html#popular-products).
 
 ```html
 <relewise-popular-products displayed-at-location="LOCATION"></relewise-popular-products>
 ```
+
 ##### Attributes
 - **displayed-at-location** : 
     
