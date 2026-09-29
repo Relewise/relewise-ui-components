@@ -120,7 +120,7 @@ suite('product search', () => {
             'sponsored:sponsored',
             'product:organic-2',
         ]);
-        const sponsoredTile = items[2].shadowRoot?.querySelector('relewise-product-tile')!;
+        const sponsoredTile = items[2].shadowRoot!.querySelector('relewise-product-tile')!;
         await waitUntil(() => sponsoredTile.shadowRoot?.textContent?.includes('sponsored') === true);
         assert.include(items[0].shadowRoot?.textContent ?? '', 'Collection hero');
         assert.include(sponsoredTile.shadowRoot?.textContent ?? '', 'sponsored');
@@ -186,6 +186,58 @@ suite('product search', () => {
             'sponsored:sponsored-2',
             'product:organic-2',
         ]);
+    });
+
+    test('restores a saved result window and loads previous products', async() => {
+        const requests: Array<{ skip: number; take: number }> = [];
+        Searcher.prototype.searchProducts = async function(request) {
+            const skip = (request as any).skip as number;
+            const take = (request as any).take as number;
+            requests.push({ skip, take });
+            return {
+                hits: 6,
+                results: Array.from({ length: take }, (_, index) => ({
+                    productId: (skip + index + 1).toString(),
+                    rank: 1,
+                })),
+            } as any;
+        };
+        initializeRelewiseUI(mockRelewiseOptions()).useSearch();
+        window.history.replaceState({}, document.title, '?rw-term=shoe&rw-take=4');
+
+        const element = await fixture<ProductSearch>(html`
+            <relewise-product-search
+                displayed-at-location="Search"
+                number-of-products="2">
+            </relewise-product-search>
+        `);
+        await waitUntil(() => element.products.length === 2);
+
+        assert.deepEqual(requests, [{ skip: 2, take: 2 }]);
+        assert.deepEqual(element.products.map(product => product.productId), ['3', '4']);
+        assert.equal(element.resultOffset, 2);
+        const loadPrevious = [...element.renderRoot.querySelectorAll<HTMLElement & {
+            direction: string;
+            updateComplete: Promise<boolean>;
+        }>('relewise-product-search-load-more-button')]
+            .find(button => button.direction === 'previous')!;
+        await loadPrevious.updateComplete;
+        assert.include(loadPrevious.shadowRoot?.textContent ?? '', 'Load previous');
+
+        window.dispatchEvent(new CustomEvent(Events.loadPreviousProducts));
+        await waitUntil(() => element.products.length === 4);
+
+        assert.deepEqual(requests[1], { skip: 0, take: 2 });
+        assert.deepEqual(element.products.map(product => product.productId), ['1', '2', '3', '4']);
+        assert.equal(element.resultOffset, 0);
+        assert.equal(readCurrentUrlState(QueryKeys.take), '4');
+
+        window.dispatchEvent(new CustomEvent(Events.loadMoreProducts));
+        await waitUntil(() => element.products.length === 6);
+
+        assert.deepEqual(requests[2], { skip: 4, take: 2 });
+        assert.deepEqual(element.products.map(product => product.productId), ['1', '2', '3', '4', '5', '6']);
+        assert.equal(readCurrentUrlState(QueryKeys.take), '6');
     });
 
     test('settles with the empty state when context resolution fails', async() => {

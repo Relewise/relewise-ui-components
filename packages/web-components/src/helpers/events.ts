@@ -4,6 +4,7 @@ export const Events = {
     applyFacet: 'relewise-ui-components:apply-facet',
     applySorting: 'relewise-ui-components:apply-sorting',
     loadMoreProducts: 'relewise-ui-components:load-more-products',
+    loadPreviousProducts: 'relewise-ui-components:load-previous-products',
     showLoadingSpinner: 'relewise-ui-components:show-loading-spinner',
     dimPreviousResult: 'relewise-ui-components:dim-previous-result',
     searchingForProductsCompleted: 'relewise-ui-components:search-for-products-completed',

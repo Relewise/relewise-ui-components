@@ -1438,6 +1438,7 @@ Every tag inside the `relewise-product-search` html tag, will be rendered as reg
         <hr>
         <h1>Results</h1>
         <div>
+            <relewise-product-search-load-more-button direction="previous"></relewise-product-search-load-more-button>
             <relewise-product-search-results></relewise-product-search-results>
             <relewise-product-search-load-more-button></relewise-product-search-load-more-button>
         </div>
@@ -1526,10 +1527,11 @@ To overwrite the default product tile, [call the initialise function with the de
 <relewise-product-search-results></relewise-product-search-results>
 ```
 
-###### Product search results
-Renders button that will load more results once pressed.
+###### Product search pagination
+Renders a button that loads more results. Use `direction="previous"` before the results to let users restore earlier products when a saved result window starts after the first product.
 
 ```html
+<relewise-product-search-load-more-button direction="previous"></relewise-product-search-load-more-button>
 <relewise-product-search-load-more-button></relewise-product-search-load-more-button>
 ```
 
