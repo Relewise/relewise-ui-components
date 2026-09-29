@@ -5,9 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
     <title>Web components</title>
-</head>
-
 <style>
+    relewise-popular-products:not(:defined) > [slot='before-results'] {
+        display: none;
+    }
+
     .custom {
         display: flex;
         background: beige;
@@ -43,11 +45,19 @@
         --relewise-display-name-margin: 0rem 0rem 0rem 0rem;
     }
 </style>
+</head>
 
 <body>
     <script type="module" src="index.ts"></script>
     <h1>Popular Products</h1>
-    <relewise-popular-products displayed-at-location="web component dev"></relewise-popular-products>
+    <relewise-popular-products displayed-at-location="web component dev">
+        <div slot="before-results">
+            <div>
+                <h2 style="margin: 0px;">Before results</h2>
+            </div>
+        </div>
+
+    </relewise-popular-products>
     <h3>Custom styling on html tag</h3>
     <relewise-popular-products displayed-at-location="web component dev" class="custom"></relewise-popular-products>
     <h3>CSS variables</h3>
@@ -61,6 +71,15 @@
     <h3>Show 10 results</h3>
     <relewise-popular-products displayed-at-location="web component dev" number-of-recommendations="10"
         based-on="MostPurchased"></relewise-popular-products>
+
+    <relewise-popular-products displayed-at-location="web component dev" number-of-recommendations="0">
+        <div slot="before-results">
+            <div>
+                <h2 style="margin: 0px;">Before results</h2>
+            </div>
+        </div>
+
+    </relewise-popular-products>
 </body>
 
 </html>

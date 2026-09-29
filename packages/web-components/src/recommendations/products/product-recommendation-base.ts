@@ -1,5 +1,5 @@
 import { ProductRecommendationRequest, ProductRecommendationResponse, ProductResult, User } from '@relewise/client';
-import { css, html } from 'lit';
+import { css, html, nothing } from 'lit';
 import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
@@ -148,24 +148,38 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
     }
 
     render() {
-        return html`${this.renderedProducts?.map(product =>
-            html`<relewise-product-tile part="product-tile" .product=${product} .user=${this.user}></relewise-product-tile>`)}`;
+        const hasResults = Boolean(this.renderedProducts?.length);
+
+        return html`
+            ${hasResults ? html`<slot name="before-results"></slot>` : nothing}
+
+            ${this.renderedProducts?.map(product => html`
+                <relewise-product-tile
+                    part="product-tile"
+                    .product=${product}
+                    .user=${this.user}>
+                </relewise-product-tile>`)}`;
     }
 
     static styles = css`
         :host {
             display: grid;
             width: 100%;
-            grid-template-columns: repeat(var(--relewise-recommendation-grid-columns, 4), minmax(0, 1fr));
+            grid-template-columns: repeat(
+                var(--relewise-recommendation-grid-columns, 4),
+                minmax(0, 1fr)
+            );
             gap: var(--relewise-recommendation-grid-gap, 1em);
-            grid-auto-rows: 1fr;
+            grid-auto-rows: auto;
         }
 
-        @media (max-width: 768px) {
-            :host {
-                grid-template-columns: repeat(var(--relewise-recommendation-grid-mobile-columns, 2), minmax(0, 1fr));
-            }
-        }    
+        slot[name="before-results"]::slotted(*) {
+            grid-column: 1 / -1;
+        }
+
+        slot[name="before-results"]:not(:defined) {
+            display: none;
+        }
     `;
 
 }
