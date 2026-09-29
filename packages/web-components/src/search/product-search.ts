@@ -8,6 +8,7 @@ import { theme } from '../theme';
 import { getSearcher } from './searcher';
 import { buildProductSearchRequest } from '../builders/productSearchRequestBuilder';
 import { hasRenderableFacets } from './components/facets/facet-result-visibility';
+import type { ProductSearchRenderPage } from './retailMediaRendering';
 
 export class ProductSearch extends RelewiseLitElement {
 
@@ -30,6 +31,9 @@ export class ProductSearch extends RelewiseLitElement {
     page: number = 1;
 
     @state()
+    resultOffset: number = 0;
+
+    @state()
     rememberScrollPosition: boolean | undefined = undefined;
 
     @state()
@@ -39,10 +43,14 @@ export class ProductSearch extends RelewiseLitElement {
     facetLabels: string[] = [];
 
     @state()
+    private retailMediaPages: ProductSearchRenderPage[] = [];
+
+    @state()
     private user: User | null = null;
 
     handleSearchEventBound = this.handleSearchEvent.bind(this);
     handleLoadMoreEventBound = this.handleLoadMoreEvent.bind(this);
+    handleLoadPreviousEventBound = this.handleLoadPreviousEvent.bind(this);
     handleScrollEventBound = this.handleScrollEvent.bind(this);
 
     async connectedCallback() {
@@ -54,7 +62,7 @@ export class ProductSearch extends RelewiseLitElement {
 
         const productsToFetch = getNumberOfProductsToFetch();
         if (productsToFetch) {
-            this.page = productsToFetch / this.numberOfProducts;
+            this.page = Math.ceil(productsToFetch / this.numberOfProducts);
         }
 
         this.search(false);
@@ -63,6 +71,7 @@ export class ProductSearch extends RelewiseLitElement {
         window.addEventListener(Events.applyFacet, this.handleSearchEventBound);
         window.addEventListener(Events.applySorting, this.handleSearchEventBound);
         window.addEventListener(Events.loadMoreProducts, this.handleLoadMoreEventBound);
+        window.addEventListener(Events.loadPreviousProducts, this.handleLoadPreviousEventBound);
 
         if (this.rememberScrollPosition) {
             window.addEventListener('scroll', this.handleScrollEventBound);
@@ -76,6 +85,7 @@ export class ProductSearch extends RelewiseLitElement {
         window.removeEventListener(Events.applyFacet, this.handleSearchEventBound);
         window.removeEventListener(Events.applySorting, this.handleSearchEventBound);
         window.removeEventListener(Events.loadMoreProducts, this.handleLoadMoreEventBound);
+        window.removeEventListener(Events.loadPreviousProducts, this.handleLoadPreviousEventBound);
 
         if (this.rememberScrollPosition) {
             window.removeEventListener('scroll', this.handleScrollEventBound);
@@ -93,18 +103,32 @@ export class ProductSearch extends RelewiseLitElement {
         void this.loadMore();
     }
 
+    handleLoadPreviousEvent(): void {
+        void this.loadPrevious();
+    }
+
     private async loadMore(): Promise<void> {
         const previousPage = this.page;
-        const previousTake = readCurrentUrlState(QueryKeys.take);
         const requestedPage = previousPage + 1;
         this.page = requestedPage;
-        updateUrlState(QueryKeys.take, (this.numberOfProducts * this.page).toString());
         const succeeded = await this.performSearch(false);
 
-        if (!succeeded && this.page === requestedPage) {
-            this.page = previousPage;
-            updateUrlState(QueryKeys.take, previousTake);
+        if (!succeeded) {
+            if (this.page === requestedPage) {
+                this.page = previousPage;
+            }
+            return;
         }
+
+        updateUrlState(QueryKeys.take, (this.resultOffset + this.products.length).toString());
+    }
+
+    private async loadPrevious(): Promise<void> {
+        if (this.resultOffset === 0) {
+            return;
+        }
+
+        await this.performSearch(false, true);
     }
 
     handleScrollEvent() {
@@ -115,7 +139,7 @@ export class ProductSearch extends RelewiseLitElement {
         await this.performSearch(shouldClearOldResult);
     }
 
-    private async performSearch(shouldClearOldResult: boolean): Promise<boolean> {
+    private async performSearch(shouldClearOldResult: boolean, prepend = false): Promise<boolean> {
         this.abortController.abort();
 
         if (shouldClearOldResult) {
@@ -133,6 +157,8 @@ export class ProductSearch extends RelewiseLitElement {
             this.products = [];
             this.searchResult = null;
             this.facetLabels = [];
+            this.retailMediaPages = [];
+            this.resultOffset = 0;
             if (this.renderRoot) {
                 this.setSearchResultOnSlotChilderen();
             }
@@ -143,7 +169,6 @@ export class ProductSearch extends RelewiseLitElement {
         const abortController = new AbortController();
         this.abortController = abortController;
         try {
-            const numberOfProductsToFetch = getNumberOfProductsToFetch();
             const relewiseUIOptions = getRelewiseUIOptions();
             const searcher = getSearcher(relewiseUIOptions);
 
@@ -158,15 +183,18 @@ export class ProductSearch extends RelewiseLitElement {
                 return false;
             }
 
+            const pagination = this.getPagination(shouldClearOldResult, prepend);
             const requestResult = buildProductSearchRequest({
                 term,
                 settings,
                 page: this.page,
-                pageSize: this.numberOfProducts,
+                pageSize: pagination.take,
                 productsLoaded: this.products.length,
-                productsToFetch: numberOfProductsToFetch,
+                productsToFetch: null,
                 target: this.target,
             });
+            requestResult.request.take = pagination.take;
+            requestResult.request.skip = pagination.skip;
             const response = await searcher.searchProducts(requestResult.request, { abortSignal: abortController.signal });
             if (abortController.signal.aborted || abortController !== this.abortController) {
                 return false;
@@ -176,15 +204,37 @@ export class ProductSearch extends RelewiseLitElement {
                 return false;
             }
 
+            if (response.hits
+                && !response.results?.length
+                && this.products.length === 0
+                && pagination.skip >= response.hits) {
+                updateUrlState(QueryKeys.take, response.hits.toString());
+                this.page = Math.max(1, Math.ceil(response.hits / this.numberOfProducts));
+                return this.performSearch(false);
+            }
+
             if (shouldClearOldResult) {
                 this.products = [];
                 this.searchResult = null;
+                this.retailMediaPages = [];
             }
 
+            const products = response.results ?? [];
+            const retailMediaPage: ProductSearchRenderPage = {
+                products,
+                retailMedia: response.retailMedia,
+                retailMediaTargetConfiguration: requestResult.retailMediaTargetConfiguration,
+            };
             this.user = settings.user;
             this.facetLabels = requestResult.facetLabels;
             this.searchResult = response;
-            this.products = this.products.concat(response.results ?? []);
+            this.products = prepend ? products.concat(this.products) : this.products.concat(products);
+            this.retailMediaPages = prepend
+                ? [retailMediaPage, ...this.retailMediaPages]
+                : [...this.retailMediaPages, retailMediaPage];
+            if (shouldClearOldResult || prepend || this.products.length === products.length) {
+                this.resultOffset = pagination.skip;
+            }
 
             this.setSearchResultOnSlotChilderen();
             return true;
@@ -200,6 +250,28 @@ export class ProductSearch extends RelewiseLitElement {
         }
     }
 
+    private getPagination(reset: boolean, prepend: boolean): { take: number; skip: number } {
+        if (reset) {
+            return { take: this.numberOfProducts, skip: 0 };
+        }
+
+        if (prepend) {
+            const take = Math.min(this.resultOffset, this.numberOfProducts);
+            return { take, skip: this.resultOffset - take };
+        }
+
+        const productsToFetch = this.products.length === 0 ? getNumberOfProductsToFetch() : null;
+        if (productsToFetch) {
+            const take = Math.min(productsToFetch, this.numberOfProducts);
+            return { take, skip: productsToFetch - take };
+        }
+
+        return {
+            take: this.numberOfProducts,
+            skip: this.resultOffset + this.products.length,
+        };
+    }
+
     setSearchResultOnSlotChilderen() {
         const slot = this.renderRoot.querySelector('slot');
         if (slot) {
@@ -213,12 +285,20 @@ export class ProductSearch extends RelewiseLitElement {
             if (node.nodeType === Node.ELEMENT_NODE && node instanceof HTMLElement) {
 
                 if (node.tagName.toLowerCase() === 'relewise-product-search-results') {
-                    node.setAttribute('products', JSON.stringify(this.products));
+                    const results = node as HTMLElement & {
+                        products: ProductResult[];
+                        retailMediaPages: ProductSearchRenderPage[];
+                        user: User | null;
+                    };
+                    results.products = this.products;
+                    results.retailMediaPages = this.retailMediaPages;
+                    results.user = this.user;
                 }
 
                 if (node.tagName.toLowerCase() === 'relewise-product-search-load-more-button') {
                     node.setAttribute('products-loaded', this.products.length.toString());
                     node.setAttribute('hits', this.searchResult?.hits.toString() ?? '');
+                    node.setAttribute('offset', this.resultOffset.toString());
                 }
 
                 if (node.tagName.toLowerCase() === 'relewise-facets') {
@@ -277,17 +357,28 @@ export class ProductSearch extends RelewiseLitElement {
                 <div class="rw-full-width">
                 ${this.products.length > 0 ? html`
                     <div class="rw-sorting-container">
-                     <span class="rw-results-text">${this.searchResult?.hits ?? 0} ${this.searchResult?.hits === 1 ? localization?.result ?? "Result" : localization?.results ?? "Results"}</span>
+                     <span class="rw-results-text">${this.searchResult?.hits ?? 0} ${this.searchResult?.hits === 1 ? localization?.result ?? 'Result' : localization?.results ?? 'Results'}</span>
                      <div class="rw-sorting-button-container">
                         <relewise-product-search-sorting .target=${this.target} class="rw-sorting-button" exportparts="select: sorting-select, label: sorting-label"></relewise-product-search-sorting>
                         </div>
                     </div>` : nothing}
                  
+                    <relewise-product-search-load-more-button
+                        class="rw-load-more"
+                        direction="previous"
+                        .offset=${this.resultOffset}
+                        .productsLoaded=${this.products.length}
+                        .hits=${this.searchResult?.hits ?? null}>
+                    </relewise-product-search-load-more-button>
                     <relewise-product-search-results
-                        .products=${this.products} .user=${this.user}>
+                        exportparts="retail-media-product, retail-media-display-ad, retail-media-product-tile, sponsored-label, display-ad"
+                        .products=${this.products}
+                        .retailMediaPages=${this.retailMediaPages}
+                        .user=${this.user}>
                     </relewise-product-search-results>
                     <relewise-product-search-load-more-button
                         class="rw-load-more"
+                        .offset=${this.resultOffset}
                         .productsLoaded=${this.products.length}
                         .hits=${this.searchResult?.hits ?? null}>
                     </relewise-product-search-load-more-button>

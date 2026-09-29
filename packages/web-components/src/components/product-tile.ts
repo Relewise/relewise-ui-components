@@ -47,6 +47,7 @@ export class ProductTile extends RelewiseLitElement {
 
     render() {
         if (!this.product) {
+            this.setRenderable(false);
             return;
         }
 
@@ -56,7 +57,7 @@ export class ProductTile extends RelewiseLitElement {
             return this.renderCustomTemplate(result);
         }
 
-        this.removeAttribute('hidden');
+        this.setRenderable(true);
 
         const url = this.product.data && 'Url' in this.product.data ? this.product.data['Url'].value ?? '' : null;
 
@@ -86,15 +87,27 @@ export class ProductTile extends RelewiseLitElement {
         result: TemplateResult<1> | typeof nothing | Promise<TemplateResult<1> | typeof nothing>,
     ) {
         if (result instanceof Promise) {
-            this.removeAttribute('hidden');
+            this.setRenderable(true);
             return html`${until(result.then(result => {
-                this.toggleAttribute('hidden', result === nothing);
+                this.setRenderable(result !== nothing);
                 return result;
             }))}`;
         }
 
-        this.toggleAttribute('hidden', result === nothing);
+        this.setRenderable(result !== nothing);
         return result;
+    }
+
+    private setRenderable(renderable: boolean): void {
+        if (this.hidden === !renderable) {
+            return;
+        }
+
+        this.toggleAttribute('hidden', !renderable);
+        this.dispatchEvent(new CustomEvent('product-tile-renderability-changed', {
+            bubbles: true,
+            composed: true,
+        }));
     }
 
     renderTileContent(product: ProductResult) {

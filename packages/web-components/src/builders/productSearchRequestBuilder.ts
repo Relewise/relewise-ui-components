@@ -1,10 +1,11 @@
 import { ProductSearchRequest, Settings } from '@relewise/client';
 import { createProductSearchBuilder } from './productSearchBuilder';
 import { RelewiseFacetBuilder } from '../facetBuilder';
-import { getRelewiseSearchTargetedConfigurations, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
+import { getRelewiseSearchTargetedConfigurations, getRelewiseUIRetailMediaConfiguration, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { QueryKeys, readCurrentUrlState } from '../helpers/urlState';
 import { getSearchSortingOptions, getSearchSortingSelection } from './searchSortingBuilder';
 import { applySelectedValuesToFacets } from './facetSelectionHelpers';
+import { buildRetailMediaQuery, type RetailMediaTargetConfiguration } from './retailMediaBuilder';
 
 export type ProductSearchRequestOptions = {
     term: string | null;
@@ -21,11 +22,13 @@ export type ProductSearchRequestOptions = {
 export type ProductSearchRequestResult = {
     request: ProductSearchRequest;
     facetLabels: string[];
+    retailMediaTargetConfiguration: RetailMediaTargetConfiguration | null;
 };
 
 export function buildProductSearchRequest(options: ProductSearchRequestOptions): ProductSearchRequestResult {
     const searchOptions = getRelewiseUISearchOptions();
     const sortingOptions = getSearchSortingOptions(searchOptions?.sorting);
+    const targetedConfigurations = getRelewiseSearchTargetedConfigurations();
     let facetLabels: string[] = [];
 
     const requestBuilder = createProductSearchBuilder(options.term, options.settings)
@@ -51,10 +54,24 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
         });
 
     if (options.target) {
-        const overwrittenConfigSettings = getRelewiseSearchTargetedConfigurations().handle(options.target, requestBuilder, options.sortingQueryKey);
+        const overwrittenConfigSettings = targetedConfigurations.handle(options.target, requestBuilder, options.sortingQueryKey);
         if (overwrittenConfigSettings.facetLabels) {
             facetLabels = overwrittenConfigSettings.facetLabels;
         }
+    }
+
+    const globalRetailMediaConfiguration = getRelewiseUIRetailMediaConfiguration() ?? null;
+    const retailMediaTargetConfiguration = options.target
+        ? targetedConfigurations.getRetailMediaConfiguration(options.target)
+        : null;
+    const retailMediaQuery = buildRetailMediaQuery(
+        options.target,
+        globalRetailMediaConfiguration,
+        retailMediaTargetConfiguration,
+    );
+
+    if (retailMediaQuery) {
+        requestBuilder.setRetailMedia(retailMediaQuery);
     }
 
     const request = requestBuilder.build();
@@ -64,5 +81,6 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
     return {
         request,
         facetLabels,
+        retailMediaTargetConfiguration,
     };
 }

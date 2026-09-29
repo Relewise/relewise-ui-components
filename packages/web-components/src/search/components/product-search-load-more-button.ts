@@ -1,15 +1,21 @@
 import { RelewiseLitElement } from '../../relewise-lit-element';
-import { css, html } from 'lit';
+import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events, getRelewiseUISearchOptions } from '../../helpers';
 import { theme } from '../../theme';
 
 export class LoadMoreProducts extends RelewiseLitElement {
+    @property()
+    direction: 'next' | 'previous' = 'next';
+
     @property({ type: Number })
     hits: number | null = null;
 
     @property({ type: Number, attribute: 'products-loaded' })
     productsLoaded: number | null = null;
+
+    @property({ type: Number })
+    offset: number = 0;
 
     @state()
     loading: boolean = false;
@@ -40,19 +46,32 @@ export class LoadMoreProducts extends RelewiseLitElement {
     }
 
     render() {
-        if (this.loading || !this.productsLoaded || !this.hits || this.productsLoaded === this.hits) {
+        const hasMore = this.direction === 'previous'
+            ? this.offset > 0
+            : Boolean(this.productsLoaded && this.hits && this.offset + this.productsLoaded < this.hits);
+        if (this.loading || !hasMore) {
             return;
         }
         const localization = getRelewiseUISearchOptions()?.localization?.loadMoreButton;
+        const buttonLabel = this.direction === 'previous'
+            ? localization?.loadPrevious ?? 'Load previous'
+            : localization?.loadMore ?? 'Load More';
         return html`
-            <span class="rw-products-shown">${localization?.showing ?? 'Showing'} ${this.productsLoaded} ${localization?.outOf ?? 'out of'} ${this.hits} ${localization?.products ?? 'products'}</span>
+            ${this.direction === 'next' ? html`
+                <span class="rw-products-shown">${localization?.showing ?? 'Showing'} ${this.offset + (this.productsLoaded ?? 0)} ${localization?.outOf ?? 'out of'} ${this.hits} ${localization?.products ?? 'products'}</span>
+            ` : nothing}
             <div class="rw-button-container">
-                <relewise-button @click=${() => window.dispatchEvent(new CustomEvent(Events.loadMoreProducts))}>
-                    <span class="rw-load-more-text">${localization?.loadMore ?? 'Load More'}</span>
+                <relewise-button @click=${this.loadMore}>
+                    <span class="rw-load-more-text">${buttonLabel}</span>
                 </relewise-button>
             </div>
         `;
     }
+
+    private readonly loadMore = (): void => {
+        const event = this.direction === 'previous' ? Events.loadPreviousProducts : Events.loadMoreProducts;
+        window.dispatchEvent(new CustomEvent(event));
+    };
 
     static styles = [theme, css`
         :host {

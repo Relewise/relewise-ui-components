@@ -5,6 +5,7 @@ import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { TemplateHelpers } from './helpers/templateHelpers';
 import { TargetedSearchConfigurations } from './targetedSearchConfigurations';
 import { TargetedRecommendationConfigurations } from './targetedRecommendationConfigurations';
+import type { RetailMediaConfiguration } from './builders/retailMediaBuilder';
 import { TargetedAdaptiveDiscoveryConfigurations } from './targetedAdaptiveDiscoveryConfigurations';
 
 export interface UserEngagementEntityOptions {
@@ -124,6 +125,7 @@ export interface Targets {
 
 export function initializeRelewiseUI(options: RelewiseUIOptions): App {
     window.relewiseUIOptions = options;
+    window.relewiseUIRetailMediaConfiguration = null;
     window.relewiseUISearchTargetedConfigurations = new TargetedSearchConfigurations(options.targets?.searchTargets);
     window.relewiseUIRecommendationTargetedConfigurations = new TargetedRecommendationConfigurations(options.targets?.recommendationTargets);
     window.relewiseUIAdaptiveDiscoveryTargetedConfigurations = new TargetedAdaptiveDiscoveryConfigurations(options.targets?.adaptiveDiscoveryTargets);
@@ -134,6 +136,7 @@ declare global {
     interface Window {
         relewiseUIOptions: RelewiseUIOptions;
         relewiseUISearchOptions: RelewiseUISearchOptions;
+        relewiseUIRetailMediaConfiguration: RetailMediaConfiguration | null;
         relewiseUIRecommendationOptions: RelewiseUIRecommendationOptions;
         relewiseUIShoppertainmentOptions?: RelewiseUIShoppertainmentOptions;
         relewiseUISearchTargetedConfigurations: TargetedSearchConfigurations;

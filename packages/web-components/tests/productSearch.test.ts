@@ -48,6 +48,198 @@ suite('product search', () => {
         assert.isAtLeast(searchCalls, 1);
     });
 
+    test('renders retail media in a slotted collection-page result grid', async() => {
+        Searcher.prototype.searchProducts = async function() {
+            return {
+                hits: 2,
+                results: [
+                    { productId: 'organic-1', rank: 1 },
+                    { productId: 'organic-2', rank: 2 },
+                ],
+                retailMedia: {
+                    placements: {
+                        Hero: {
+                            results: [{
+                                promotedDisplayAd: {
+                                    campaignId: 'campaign-1',
+                                    result: { displayAdId: 'hero', name: 'Collection hero' },
+                                },
+                            }],
+                        },
+                        Sponsored: {
+                            results: [{
+                                promotedProduct: {
+                                    result: { productId: 'sponsored', rank: 1 },
+                                },
+                            }],
+                        },
+                    },
+                },
+            } as any;
+        };
+        const options = mockRelewiseOptions();
+        options.templates = {
+            product: async(product, { html }) => html`<article>${product.productId}</article>`,
+        };
+        initializeRelewiseUI(options)
+            .useSearch()
+            .useRetailMedia(builder => builder
+                .variation({ key: 'Default', minWidth: 0 })
+                .templates({
+                    retailMediaDisplayAd: (ad, { html }) => html`<a href="/collection-campaign">${ad.result.name}</a>`,
+                }))
+            .registerSearchTarget('plp', {
+                filters: builder => builder.addProductCategoryIdFilter('ImmediateParent', ['collection-id']),
+                retailMedia: target => target
+                    .location('Product Listing Page')
+                    .placement('Hero', placement => placement.beforeResults())
+                    .placement('Sponsored', placement => placement.atPosition({ position: 2 })),
+            });
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+        const element = await fixture<ProductSearch>(html`
+            <relewise-product-search displayed-at-location="Collection" target="plp">
+                <relewise-product-search-results></relewise-product-search-results>
+            </relewise-product-search>
+        `);
+        const results = element.querySelector('relewise-product-search-results')!;
+
+        await waitUntil(() => results.renderRoot.querySelectorAll('relewise-product-tile, relewise-retail-media-tile').length === 4);
+        const items = [...results.renderRoot.querySelectorAll<HTMLElement & {
+            entity?: { promotedProduct?: { result: { productId: string } } };
+            product?: { productId: string };
+        }>('relewise-product-tile, relewise-retail-media-tile')];
+
+        assert.deepEqual(items.map(item => item.localName === 'relewise-product-tile'
+            ? `product:${item.product?.productId}`
+            : item.entity?.promotedProduct
+                ? `sponsored:${item.entity.promotedProduct.result.productId}`
+                : 'display:hero'), [
+            'display:hero',
+            'product:organic-1',
+            'sponsored:sponsored',
+            'product:organic-2',
+        ]);
+        const sponsoredTile = items[2].shadowRoot!.querySelector('relewise-product-tile')!;
+        await waitUntil(() => sponsoredTile.shadowRoot?.textContent?.includes('sponsored') === true);
+        assert.include(items[0].shadowRoot?.textContent ?? '', 'Collection hero');
+        assert.include(sponsoredTile.shadowRoot?.textContent ?? '', 'sponsored');
+        assert.equal(items[2].getAttribute('part'), 'retail-media-product');
+        assert.include(items[2].getAttribute('exportparts') ?? '', 'sponsored-label');
+        assert.equal(element.products.length, 2);
+        assert.equal(element.searchResult?.retailMedia?.placements?.Sponsored.results?.length, 1);
+    });
+
+    test('keeps retail media positioned within each loaded page', async() => {
+        let searchCalls = 0;
+        Searcher.prototype.searchProducts = async function() {
+            searchCalls++;
+            return {
+                hits: 2,
+                results: [{ productId: `organic-${searchCalls}`, rank: 1 }],
+                retailMedia: {
+                    placements: {
+                        Sponsored: {
+                            results: [{
+                                promotedProduct: {
+                                    result: { productId: `sponsored-${searchCalls}`, rank: 1 },
+                                },
+                            }],
+                        },
+                    },
+                },
+            } as any;
+        };
+        initializeRelewiseUI(mockRelewiseOptions())
+            .useSearch()
+            .useRetailMedia(builder => builder
+                .variation({ key: 'Default', minWidth: 0 }))
+            .registerSearchTarget('plp', {
+                retailMedia: target => target
+                    .location('Product Listing Page')
+                    .placement('Sponsored', placement => placement.atPosition({ position: 1 })),
+            });
+        window.history.replaceState({}, document.title, '?rw-term=shoe');
+
+        const element = await fixture<ProductSearch>(html`
+            <relewise-product-search
+                displayed-at-location="Collection"
+                number-of-products="1"
+                target="plp">
+            </relewise-product-search>
+        `);
+        await waitUntil(() => element.products.length === 1);
+
+        window.dispatchEvent(new CustomEvent(Events.loadMoreProducts));
+        await waitUntil(() => element.products.length === 2);
+
+        const results = element.renderRoot.querySelector('relewise-product-search-results')!;
+        const items = [...results.renderRoot.querySelectorAll<HTMLElement & {
+            entity?: { promotedProduct?: { result: { productId: string } } };
+            product?: { productId: string };
+        }>('relewise-product-tile, relewise-retail-media-tile')];
+        assert.deepEqual(items.map(item => item.localName === 'relewise-product-tile'
+            ? `product:${item.product?.productId}`
+            : `sponsored:${item.entity?.promotedProduct?.result.productId}`), [
+            'sponsored:sponsored-1',
+            'product:organic-1',
+            'sponsored:sponsored-2',
+            'product:organic-2',
+        ]);
+    });
+
+    test('restores a saved result window and loads previous products', async() => {
+        const requests: Array<{ skip: number; take: number }> = [];
+        Searcher.prototype.searchProducts = async function(request) {
+            const skip = (request as any).skip as number;
+            const take = (request as any).take as number;
+            requests.push({ skip, take });
+            return {
+                hits: 6,
+                results: Array.from({ length: take }, (_, index) => ({
+                    productId: (skip + index + 1).toString(),
+                    rank: 1,
+                })),
+            } as any;
+        };
+        initializeRelewiseUI(mockRelewiseOptions()).useSearch();
+        window.history.replaceState({}, document.title, '?rw-term=shoe&rw-take=4');
+
+        const element = await fixture<ProductSearch>(html`
+            <relewise-product-search
+                displayed-at-location="Search"
+                number-of-products="2">
+            </relewise-product-search>
+        `);
+        await waitUntil(() => element.products.length === 2);
+
+        assert.deepEqual(requests, [{ skip: 2, take: 2 }]);
+        assert.deepEqual(element.products.map(product => product.productId), ['3', '4']);
+        assert.equal(element.resultOffset, 2);
+        const loadPrevious = [...element.renderRoot.querySelectorAll<HTMLElement & {
+            direction: string;
+            updateComplete: Promise<boolean>;
+        }>('relewise-product-search-load-more-button')]
+            .find(button => button.direction === 'previous')!;
+        await loadPrevious.updateComplete;
+        assert.include(loadPrevious.shadowRoot?.textContent ?? '', 'Load previous');
+
+        window.dispatchEvent(new CustomEvent(Events.loadPreviousProducts));
+        await waitUntil(() => element.products.length === 4);
+
+        assert.deepEqual(requests[1], { skip: 0, take: 2 });
+        assert.deepEqual(element.products.map(product => product.productId), ['1', '2', '3', '4']);
+        assert.equal(element.resultOffset, 0);
+        assert.equal(readCurrentUrlState(QueryKeys.take), '4');
+
+        window.dispatchEvent(new CustomEvent(Events.loadMoreProducts));
+        await waitUntil(() => element.products.length === 6);
+
+        assert.deepEqual(requests[2], { skip: 4, take: 2 });
+        assert.deepEqual(element.products.map(product => product.productId), ['1', '2', '3', '4', '5', '6']);
+        assert.equal(readCurrentUrlState(QueryKeys.take), '6');
+    });
+
     test('settles with the empty state when context resolution fails', async() => {
         const options = mockRelewiseOptions();
         options.contextSettings.getUser = async() => {
