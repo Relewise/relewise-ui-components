@@ -9,8 +9,6 @@ import { getRelewiseUIOptions } from '../../helpers';
 import { RecommendationStateElement } from '../recommendation-state';
 
 export abstract class ProductRecommendationBase extends RecommendationStateElement {
-    private headingTemplate: HTMLTemplateElement | null = null;
-    private headingElement: HTMLElement | null = null;
 
     @property({ type: String, attribute: 'target' })
     target: string | null = null;
@@ -56,26 +54,6 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
         return this.products;
     }
 
-    // The template is inert; keep the same cloned heading across renders.
-    private prepareHeading(): HTMLElement | null {
-        const template = this.querySelector<HTMLTemplateElement>(':scope > template[slot="heading"]');
-        if (template !== this.headingTemplate) {
-            this.headingElement?.remove();
-            this.headingTemplate = template;
-
-            const content = template?.content.firstElementChild;
-            this.headingElement = content instanceof HTMLElement
-                ? document.importNode(content, true)
-                : null;
-
-            if (this.headingElement) {
-                this.headingElement.slot = 'heading';
-            }
-        }
-
-        return this.headingElement;
-    }
-
     async connectedCallback() {
         super.connectedCallback();
         if (!this.displayedAtLocation) {
@@ -93,30 +71,8 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
         super.disconnectedCallback();
     }
 
-    protected willUpdate(changedProperties: PropertyValues<this>): void {
-        // Fetch leaves loading true while the batcher works. Its result arrives through
-        // providedData and schedules a render. Clear loading before that render so
-        // products and their heading appear together; updated() would be too late.
-        if (changedProperties.has('providedData')
-            && this.batchEnabled
-            && this.batchRequest
-            && 'result' in this.batchRequest) {
-            this.loading = false;
-        }
-    }
-
     protected updated(changedProperties: PropertyValues<this>): void {
         super.updated(changedProperties);
-
-        const headingRendered = this.renderRoot.querySelector('.rw-recommendation-heading') !== null;
-        this.toggleAttribute('has-heading', headingRendered);
-
-        const heading = this.headingElement;
-        // The cloned heading must be a direct child of the host for the native slot.
-        if (headingRendered && this.renderRoot !== this && heading && !this.contains(heading)) {
-            this.append(heading);
-        }
-
         const previousData = changedProperties.get('providedData');
         if (previousData !== undefined && previousData.enabled !== false && !this.batchEnabled) {
             void this.fetchAndUpdateProducts();
@@ -127,6 +83,7 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
             && this.batchEnabled
             && this.batchRequest
             && 'result' in this.batchRequest) {
+            this.loading = false;
             this.reportCurrentRecommendationState();
         }
     }
@@ -135,12 +92,6 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
         const generation = ++this.requestGeneration;
         this.loading = true;
         this.reportCurrentRecommendationState();
-
-        // Loading is not reactive, so hide an existing heading when a request starts.
-        if (this.headingTemplate) {
-            this.requestUpdate();
-        }
-
         let waitingForBatch = false;
 
         try {
@@ -185,11 +136,6 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
             if (generation === this.requestGeneration && this.isConnected && !waitingForBatch) {
                 this.loading = false;
                 this.reportCurrentRecommendationState();
-
-                // The product array may be unchanged, but the heading must reappear.
-                if (this.headingTemplate) {
-                    this.requestUpdate();
-                }
             }
         }
     };
@@ -201,54 +147,60 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
         });
     }
 
+    private addHeadingFromTemplate() {
+        const template = this.querySelector<HTMLTemplateElement>(':scope > template[slot="result-heading"]');
+        const heading = template?.content.firstElementChild;
+
+        // The template stays inert when assigned to the slot. Clone its heading
+        // when results create the slot; the guard also ignores the slotchange
+        // caused by appending the clone and reuses it for later results.
+        if (heading && !this.querySelector(':scope > :not(template)[slot="result-heading"]')) {
+            const clone = heading.cloneNode(true) as Element;
+            clone.setAttribute('slot', 'result-heading');
+            this.append(clone);
+        }
+    }
+
     render() {
         const renderedProducts = this.renderedProducts;
-        const products = html`${renderedProducts?.map(product =>
-            html`<relewise-product-tile part="product-tile" .product=${product} .user=${this.user}></relewise-product-tile>`)}`;
 
-        const lightDom = this.renderRoot === this;
-        const heading = this.prepareHeading();
-        // Light DOM rendering writes into the host, so retain the source template.
-        const template = lightDom ? this.headingTemplate : null;
-
-        if (!heading && !template) {
-            return products;
+        if (!renderedProducts?.length) {
+            return nothing;
         }
 
-        const showHeading = !this.loading
-            && Boolean(renderedProducts?.length)
-            && Boolean(heading);
-
         return html`
-            ${template ?? nothing}
-            ${showHeading ? html`
-                <div class="rw-recommendation-heading" part="heading">
-                    ${lightDom ? heading : html`<slot name="heading"></slot>`}
-                </div>
-            ` : nothing}
-            ${products}
+            <slot name="result-heading" @slotchange=${this.addHeadingFromTemplate}></slot>
+            <div class="products">
+                ${renderedProducts.map(product =>
+                    html`<relewise-product-tile part="product-tile" .product=${product} .user=${this.user}></relewise-product-tile>`)}
+            </div>
         `;
     }
 
     static styles = css`
-        :host([has-heading]) {
-            grid-template-rows: auto;
-        }
-
-        .rw-recommendation-heading {
-            grid-column: 1 / -1;
-        }
-
         :host {
-            display: grid;
+            display: block;
             width: 100%;
+        }
+
+        slot[name="result-heading"] {
+            display: contents;
+        }
+
+        ::slotted([slot="result-heading"]:empty) {
+            display: none;
+        }
+
+        /* Keep the heading outside the equal-height product rows. */
+        .products {
+            display: grid;
             grid-template-columns: repeat(var(--relewise-recommendation-grid-columns, 4), minmax(0, 1fr));
             gap: var(--relewise-recommendation-grid-gap, 1em);
             grid-auto-rows: 1fr;
         }
 
         @media (max-width: 768px) {
-            :host {
+            .products {
                 grid-template-columns: repeat(var(--relewise-recommendation-grid-mobile-columns, 2), minmax(0, 1fr));
             }
         }    
