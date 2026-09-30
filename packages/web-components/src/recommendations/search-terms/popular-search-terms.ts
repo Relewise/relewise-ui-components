@@ -2,7 +2,7 @@ import {
     PopularSearchTermsRecommendationBuilder,
     SearchTermResult,
 } from '@relewise/client';
-import { css, html } from 'lit';
+import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
 import {
@@ -131,6 +131,9 @@ export class PopularSearchTerms extends RecommendationStateElement {
         }
 
         return html`
+            ${this.hasResultHeadingTemplate()
+                ? html`<slot name="result-heading" @slotchange=${this.addHeadingFromTemplate}></slot>`
+                : nothing}
             <ul class="rw-popular-search-terms" part="terms">
                 ${this.recommendations.map(recommendation => html`
                     <li>
@@ -150,6 +153,14 @@ export class PopularSearchTerms extends RecommendationStateElement {
     static styles = css`
         :host {
             display: block;
+        }
+
+        slot[name="result-heading"] {
+            display: contents;
+        }
+
+        ::slotted([slot="result-heading"]:empty) {
+            display: none;
         }
 
         .rw-popular-search-terms {

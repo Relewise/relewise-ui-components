@@ -147,20 +147,6 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
         });
     }
 
-    private addHeadingFromTemplate() {
-        const template = this.querySelector<HTMLTemplateElement>(':scope > template[slot="result-heading"]');
-        const heading = template?.content.firstElementChild;
-
-        // The template stays inert when assigned to the slot. Clone its heading
-        // when results create the slot; the guard also ignores the slotchange
-        // caused by appending the clone and reuses it for later results.
-        if (heading && !this.querySelector(':scope > :not(template)[slot="result-heading"]')) {
-            const clone = heading.cloneNode(true) as Element;
-            clone.setAttribute('slot', 'result-heading');
-            this.append(clone);
-        }
-    }
-
     render() {
         const renderedProducts = this.renderedProducts;
 
@@ -168,19 +154,36 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
             return nothing;
         }
 
+        const products = renderedProducts.map(product =>
+            html`<relewise-product-tile part="product-tile" .product=${product} .user=${this.user}></relewise-product-tile>`);
+
+        if (!this.hasResultHeadingTemplate()) {
+            return html`${products}`;
+        }
+
         return html`
-            <slot name="result-heading" @slotchange=${this.addHeadingFromTemplate}></slot>
-            <div class="products">
-                ${renderedProducts.map(product =>
-                    html`<relewise-product-tile part="product-tile" .product=${product} .user=${this.user}></relewise-product-tile>`)}
+            <div class="heading-layout">
+                <slot name="result-heading" @slotchange=${this.addHeadingFromTemplate}></slot>
+                <div class="products">${products}</div>
             </div>
         `;
     }
 
     static styles = css`
         :host {
-            display: block;
             width: 100%;
+        }
+
+        :host, .products {
+            display: grid;
+            grid-template-columns: repeat(var(--relewise-recommendation-grid-columns, 4), minmax(0, 1fr));
+            gap: var(--relewise-recommendation-grid-gap, 1em);
+            grid-auto-rows: 1fr;
+        }
+
+        .heading-layout {
+            grid-column: 1 / -1;
+            min-width: 0;
         }
 
         slot[name="result-heading"] {
@@ -191,16 +194,8 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
             display: none;
         }
 
-        /* Keep the heading outside the equal-height product rows. */
-        .products {
-            display: grid;
-            grid-template-columns: repeat(var(--relewise-recommendation-grid-columns, 4), minmax(0, 1fr));
-            gap: var(--relewise-recommendation-grid-gap, 1em);
-            grid-auto-rows: 1fr;
-        }
-
         @media (max-width: 768px) {
-            .products {
+            :host, .products {
                 grid-template-columns: repeat(var(--relewise-recommendation-grid-mobile-columns, 2), minmax(0, 1fr));
             }
         }    

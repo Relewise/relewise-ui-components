@@ -114,6 +114,7 @@ suite('relewise-popular-products', () => {
         assert.include(slot.assignedElements(), heading);
         assert.isAbove(heading.getClientRects().length, 0);
         const firstTile = el.shadowRoot!.querySelector<HTMLElement>('relewise-product-tile')!;
+        assert.exists(el.shadowRoot!.querySelector('.heading-layout > .products'));
         firstTile.style.minHeight = '600px';
         assert.isBelow(heading.getBoundingClientRect().height, 100);
         assert.isBelow(firstTile.getBoundingClientRect().top - heading.getBoundingClientRect().bottom, 100);
@@ -152,7 +153,26 @@ suite('relewise-popular-products', () => {
             const tile = el.shadowRoot!.querySelector('relewise-product-tile')!;
             assert.equal(tile.getBoundingClientRect().top, el.getBoundingClientRect().top);
         }
+        assert.equal(getComputedStyle(withoutHeading).display, 'grid');
+        assert.equal(withoutHeading.shadowRoot!.querySelector('relewise-product-tile')!.parentNode, withoutHeading.shadowRoot);
+        assert.notExists(withoutHeading.shadowRoot!.querySelector('.heading-layout'));
         assert.equal(emptyHeading.querySelector('h2')!.getClientRects().length, 0);
+    });
+
+    test('keeps products as direct children in Light DOM without a heading', async() => {
+        Recommender.prototype.recommendPopularProducts = async() => ({
+            recommendations: [{ displayName: 'Product', data: {} } as ProductResult],
+        } as ProductRecommendationResponse);
+        const options = mockRelewiseOptions();
+        options.components = { domMode: 'light' };
+        initializeRelewiseUI(options).useRecommendations();
+
+        const el = await fixture<PopularProducts>(html`<relewise-popular-products displayed-at-location="test"></relewise-popular-products>`);
+        await waitUntil(() => el.querySelector('relewise-product-tile'));
+
+        assert.equal(getComputedStyle(el).display, 'grid');
+        assert.equal(el.querySelector('relewise-product-tile')!.parentNode, el);
+        assert.notExists(el.querySelector('.heading-layout'));
     });
 
     test('shares the slot with personal products', async() => {

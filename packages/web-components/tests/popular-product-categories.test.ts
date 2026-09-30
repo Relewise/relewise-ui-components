@@ -50,9 +50,25 @@ suite('relewise-popular-product-categories', () => {
         assert.equal(requests[0].settings.numberOfRecommendations, 2);
         assert.equal(requests[0].sinceMinutesAgo, 60);
         assert.equal(element.renderRoot.querySelectorAll('relewise-product-category-tile').length, 2);
+        assert.equal(element.renderRoot.querySelector('relewise-product-category-tile')?.parentNode, element.renderRoot);
+        assert.equal(getComputedStyle(element).gridAutoRows, '1fr');
         assert.deepInclude(states, { loading: true, hasResults: false });
         assert.deepInclude(states, { loading: false, hasResults: true });
         assert.equal(Events.recommendationStateChanged, 'relewise-ui-components:recommendation-state-changed');
+    });
+
+    test('shows a template heading with category results', async() => {
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+        const element = await fixture<PopularProductCategories>(html`
+            <relewise-popular-product-categories displayed-at-location="test">
+                <template slot="result-heading"><h2>Popular categories</h2></template>
+            </relewise-popular-product-categories>
+        `);
+        await waitUntil(() => element.querySelector('h2'));
+
+        const slot = element.shadowRoot!.querySelector<HTMLSlotElement>('slot[name="result-heading"]')!;
+        assert.include(slot.assignedElements(), element.querySelector('h2'));
+        assert.exists(element.shadowRoot!.querySelector('.heading-layout > .results > relewise-product-category-tile'));
     });
 
     test('refreshes recommendations when context changes', async() => {

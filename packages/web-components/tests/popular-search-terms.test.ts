@@ -70,6 +70,29 @@ suite('relewise-popular-search-terms', () => {
         assert.equal(Events.recommendationStateChanged, 'relewise-ui-components:recommendation-state-changed');
     });
 
+    test('shows a template heading only when search terms are available', async() => {
+        let resolveResponse!: (response: { recommendations: SearchTermResult[] }) => void;
+        Recommender.prototype.recommendPopularSearchTerms = () =>
+            new Promise<{ recommendations: SearchTermResult[] }>(resolve => resolveResponse = resolve);
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+
+        const element = await fixture<PopularSearchTerms>(html`
+            <relewise-popular-search-terms displayed-at-location="test">
+                <template slot="result-heading"><h2>Popular searches</h2></template>
+            </relewise-popular-search-terms>
+        `);
+        await waitUntil(() => Boolean(resolveResponse));
+        assert.notExists(element.shadowRoot!.querySelector('slot[name="result-heading"]'));
+        assert.notExists(element.querySelector('h2'));
+
+        resolveResponse({ recommendations: [{ term: 'Trail shoes', rank: 1 }] as SearchTermResult[] });
+        await waitUntil(() => element.querySelector('h2'));
+
+        const slot = element.shadowRoot!.querySelector<HTMLSlotElement>('slot[name="result-heading"]')!;
+        assert.include(slot.assignedElements(), element.querySelector('h2'));
+        assert.exists(element.shadowRoot!.querySelector('[part="term"]'));
+    });
+
     test('emits the selected term', async() => {
         initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
         const element = await fixture<PopularSearchTerms>(html`

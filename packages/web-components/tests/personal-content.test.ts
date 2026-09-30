@@ -17,13 +17,13 @@ suite('relewise-personal-content', () => {
         window.relewiseUIOptions = undefined!;
     });
 
-    test('is not instance of when relewise not instantiated', async () => {
+    test('is not instance of when relewise not instantiated', async() => {
         const el = await fixture(html`<relewise-personal-content displayed-at-location="test"></relewise-personal-content>`);
         assert.notInstanceOf(el, PersonalContent);
     });
 
-    test('is instance of when relewise is instantiated', async () => {
-        Recommender.prototype.recommendPersonalContents = async (request: ContentRecommendationRequest) => {
+    test('is instance of when relewise is instantiated', async() => {
+        Recommender.prototype.recommendPersonalContents = async(request: ContentRecommendationRequest) => {
             recommendPersonalContentsCalls.push(request);
             return undefined;
         };
@@ -36,8 +36,8 @@ suite('relewise-personal-content', () => {
         assert.equal(recommendPersonalContentsCalls.length, 1);
     });
 
-    test('renders nothing when recommendations return empty result', async () => {
-        Recommender.prototype.recommendPersonalContents = async (request: ContentRecommendationRequest) => {
+    test('renders nothing when recommendations return empty result', async() => {
+        Recommender.prototype.recommendPersonalContents = async(request: ContentRecommendationRequest) => {
             recommendPersonalContentsCalls.push(request);
             return {
                 recommendations: [],
@@ -54,7 +54,7 @@ suite('relewise-personal-content', () => {
         assert.equal(recommendPersonalContentsCalls.length, 1);
     });
 
-    test('requests and renders numberOfRecommendations', async () => {
+    test('requests and renders numberOfRecommendations', async() => {
         const numberOfRecommendations = 2;
         const recommendations: ContentResult[] = [
             {
@@ -67,7 +67,7 @@ suite('relewise-personal-content', () => {
             } as ContentResult,
         ];
 
-        Recommender.prototype.recommendPersonalContents = async (request: ContentRecommendationRequest) => {
+        Recommender.prototype.recommendPersonalContents = async(request: ContentRecommendationRequest) => {
             recommendPersonalContentsCalls.push(request);
             return {
                 recommendations: recommendations.slice(0, request.settings.numberOfRecommendations),
@@ -91,5 +91,25 @@ suite('relewise-personal-content', () => {
             { timeout: 2000 });
 
         assert.equal(el.shadowRoot?.querySelectorAll('relewise-content-tile').length, numberOfRecommendations);
+        assert.equal(el.shadowRoot?.querySelector('relewise-content-tile')?.parentNode, el.shadowRoot);
+        assert.equal(getComputedStyle(el).gridAutoRows, '1fr');
+    });
+
+    test('shows a template heading with content results', async() => {
+        Recommender.prototype.recommendPersonalContents = async() => ({
+            recommendations: [{ displayName: 'Content', data: {} } as ContentResult],
+        } as ContentRecommendationResponse);
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+
+        const el = await fixture<PersonalContent>(html`
+            <relewise-personal-content displayed-at-location="test">
+                <template slot="result-heading"><h2>For you</h2></template>
+            </relewise-personal-content>
+        `);
+        await waitUntil(() => el.querySelector('h2'));
+
+        const slot = el.shadowRoot!.querySelector<HTMLSlotElement>('slot[name="result-heading"]')!;
+        assert.include(slot.assignedElements(), el.querySelector('h2'));
+        assert.exists(el.shadowRoot!.querySelector('.heading-layout > .results > relewise-content-tile'));
     });
 });

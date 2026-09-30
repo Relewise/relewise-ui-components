@@ -148,21 +148,53 @@ export abstract class ContentRecommendationBase extends RecommendationStateEleme
     }
 
     render() {
-        return html`${this.renderedContent?.map(content =>
-            html`<relewise-content-tile part="content-tile" .content=${content} .user=${this.user}></relewise-content-tile>`)}`;
+        const renderedContent = this.renderedContent;
+        if (!renderedContent?.length) {
+            return;
+        }
+
+        const results = renderedContent.map(content =>
+            html`<relewise-content-tile part="content-tile" .content=${content} .user=${this.user}></relewise-content-tile>`);
+
+        if (!this.hasResultHeadingTemplate()) {
+            return html`${results}`;
+        }
+
+        return html`
+            <div class="heading-layout">
+                <slot name="result-heading" @slotchange=${this.addHeadingFromTemplate}></slot>
+                <div class="results">${results}</div>
+            </div>
+        `;
     }
 
     static styles = css`
         :host {
-            display: grid;
             width: 100%;
+        }
+
+        :host, .results {
+            display: grid;
             grid-template-columns: repeat(var(--relewise-recommendation-grid-columns, 4), minmax(0, 1fr));
             gap: var(--relewise-recommendation-grid-gap, 1em);
             grid-auto-rows: 1fr;
         }
 
+        .heading-layout {
+            grid-column: 1 / -1;
+            min-width: 0;
+        }
+
+        slot[name="result-heading"] {
+            display: contents;
+        }
+
+        ::slotted([slot="result-heading"]:empty) {
+            display: none;
+        }
+
         @media (max-width: 768px) {
-            :host {
+            :host, .results {
                 grid-template-columns: repeat(var(--relewise-recommendation-grid-mobile-columns, 2), minmax(0, 1fr));
             }
         }    
