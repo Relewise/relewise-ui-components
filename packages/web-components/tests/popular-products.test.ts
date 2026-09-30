@@ -87,5 +87,54 @@ suite('relewise-popular-products', () => {
         );
 
         assert.equal(el.shadowRoot!.querySelectorAll('relewise-product-tile').length, numberOfRecommendations);
+        assert.notExists(el.shadowRoot!.querySelector('[part~="recommendation-grid"]'));
+    });
+
+    test('renders slotted content before an exposed product grid in Shadow DOM', async() => {
+        Recommender.prototype.recommendPopularProducts = async() => ({
+            recommendations: [{ productId: 'product-1', data: {} } as ProductResult],
+        } as ProductRecommendationResponse);
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+        const el = await fixture<PopularProducts>(html`
+            <relewise-popular-products displayed-at-location="test">
+                <h2 slot="before-results">Recommended for you</h2>
+            </relewise-popular-products>
+        `);
+
+        await waitUntil(() => el.shadowRoot!.querySelector('[part~="recommendation-grid"]') !== null);
+
+        const slot = el.shadowRoot!.querySelector<HTMLSlotElement>('slot[name="before-results"]')!;
+        const grid = el.shadowRoot!.querySelector<HTMLElement>('[part~="recommendation-grid"]')!;
+        assert.equal(slot.assignedElements()[0]?.textContent, 'Recommended for you');
+        assert.isTrue(grid.part.contains('product-recommendation-grid'));
+        assert.exists(el.shadowRoot!.querySelector('.rw-recommendation-layout'));
+    });
+
+    test('renders slotted content and the product grid in Light DOM', async() => {
+        let resolveRecommendations!: (response: ProductRecommendationResponse) => void;
+        Recommender.prototype.recommendPopularProducts = () => new Promise(resolve => resolveRecommendations = resolve);
+        const options = mockRelewiseOptions();
+        options.components = { domMode: 'light' };
+        initializeRelewiseUI(options).useRecommendations();
+        const el = await fixture<PopularProducts>(html`
+            <relewise-popular-products displayed-at-location="test">
+                <h2 slot="before-results">Recommended for you</h2>
+            </relewise-popular-products>
+        `);
+        const beforeResults = el.querySelector<HTMLElement>('[slot="before-results"]')!;
+
+        await waitUntil(() => resolveRecommendations !== undefined);
+        assert.equal(getComputedStyle(beforeResults).display, 'none');
+
+        resolveRecommendations({
+            recommendations: [{ productId: 'product-1', data: {} } as ProductResult],
+        } as ProductRecommendationResponse);
+        await waitUntil(() => el.querySelector('[part~="recommendation-grid"]') !== null);
+
+        assert.equal(el.renderRoot, el);
+        assert.equal(getComputedStyle(el).gridAutoRows, 'auto');
+        assert.notEqual(getComputedStyle(beforeResults).display, 'none');
+        assert.exists(el.querySelector('.rw-recommendation-layout'));
+        assert.exists(el.querySelector('.rw-product-recommendation-grid'));
     });
 });

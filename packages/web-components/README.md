@@ -238,6 +238,22 @@ This component renders the most [popular products](https://docs.relewise.com/doc
 
     The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
 
+##### Slots and parts
+
+Product recommendation components support a `before-results` slot that is rendered before the products when recommendations are available. When the slot is used, the products are wrapped in the `recommendation-grid` and `product-recommendation-grid` CSS parts so the nested grid remains customizable.
+
+```html
+<relewise-popular-products displayed-at-location="Front page">
+    <h2 slot="before-results">Recommended for you</h2>
+</relewise-popular-products>
+```
+
+```css
+relewise-popular-products::part(recommendation-grid) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+```
+
 #### Popular Product Categories
 This component renders the most popular product categories.
 

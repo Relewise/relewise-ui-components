@@ -147,38 +147,88 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
         });
     }
 
+    private get beforeResultsElements(): HTMLElement[] {
+        return Array.from(this.children)
+            .filter((element): element is HTMLElement => element instanceof HTMLElement && element.slot === 'before-results');
+    }
+
+    private renderProducts() {
+        return this.renderedProducts?.map(product => html`
+            <relewise-product-tile
+                part="product-tile"
+                .product=${product}
+                .user=${this.user}>
+            </relewise-product-tile>`);
+    }
+
     render() {
         const hasResults = Boolean(this.renderedProducts?.length);
+        if (!hasResults) {
+            return nothing;
+        }
+
+        const products = this.renderProducts();
+        if (this.beforeResultsElements.length === 0) {
+            return products;
+        }
+
+        const productGrid = html`
+            <div
+                class="rw-recommendation-grid rw-product-recommendation-grid"
+                part="recommendation-grid product-recommendation-grid">
+                ${products}
+            </div>`;
 
         return html`
-            ${hasResults ? html`<slot name="before-results"></slot>` : nothing}
-
-            ${this.renderedProducts?.map(product => html`
-                <relewise-product-tile
-                    part="product-tile"
-                    .product=${product}
-                    .user=${this.user}>
-                </relewise-product-tile>`)}`;
+            <div class="rw-recommendation-layout">
+                <slot name="before-results"></slot>
+                ${productGrid}
+            </div>`;
     }
 
     static styles = css`
         :host {
             display: grid;
             width: 100%;
-            grid-template-columns: repeat(
-                var(--relewise-recommendation-grid-columns, 4),
-                minmax(0, 1fr)
-            );
+            grid-template-columns: repeat(var(--relewise-recommendation-grid-columns, 4), minmax(0, 1fr));
             gap: var(--relewise-recommendation-grid-gap, 1em);
+            grid-auto-rows: 1fr;
+        }
+
+        :host:has(> [slot="before-results"]) {
             grid-auto-rows: auto;
         }
 
-        slot[name="before-results"]::slotted(*) {
+        :host:not(:has(.rw-recommendation-grid)) > [slot="before-results"] {
+            display: none;
+        }
+
+        .rw-recommendation-layout,
+        .rw-recommendation-grid,
+        :host > [slot="before-results"] {
             grid-column: 1 / -1;
         }
 
-        slot[name="before-results"]:not(:defined) {
-            display: none;
+        .rw-recommendation-layout {
+            display: flex;
+            flex-direction: column;
+            gap: var(--relewise-recommendation-grid-gap, 1em);
+            min-width: 0;
+        }
+
+        .rw-recommendation-grid {
+            display: grid;
+            width: 100%;
+            grid-template-columns: repeat(var(--relewise-recommendation-grid-columns, 4), minmax(0, 1fr));
+            gap: var(--relewise-recommendation-grid-gap, 1em);
+            grid-auto-rows: 1fr;
+        }
+
+        @media (max-width: 768px) {
+            :host,
+            .rw-recommendation-grid {
+                grid-template-columns: repeat(var(--relewise-recommendation-grid-mobile-columns, 2), minmax(0, 1fr));
+            }
         }
     `;
 
