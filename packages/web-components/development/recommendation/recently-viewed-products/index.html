@@ -10,7 +10,9 @@
 <body>
     <script type="module" src="index.ts"></script>
     <h2>Recently Viewed Products</h2>
-    <relewise-recently-viewed-products displayed-at-location="web component dev"></relewise-recently-viewed-products>
+    <relewise-recently-viewed-products displayed-at-location="web component dev">
+        <template slot="result-heading"><h2>Recently viewed products</h2></template>
+    </relewise-recently-viewed-products>
     <h3>Show 10 results</h3>
     <relewise-recently-viewed-products displayed-at-location="web component dev"
         number-of-recommendations="10"></relewise-recently-viewed-products>

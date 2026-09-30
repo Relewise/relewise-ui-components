@@ -47,7 +47,9 @@
     <script type="module" src="index.ts"></script>
     <h2>Purchased With Product</h2>
     <relewise-purchased-with-product product-id="1922"
-        displayed-at-location="web component dev"></relewise-purchased-with-product>
+        displayed-at-location="web component dev">
+        <template slot="result-heading"><h2>Purchased with product</h2></template>
+    </relewise-purchased-with-product>
     <h3>Without product id</h3>
     <relewise-purchased-with-product displayed-at-location="web component dev"></relewise-purchased-with-product>
     <h3>Custom styling on html tag</h3>
