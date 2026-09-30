@@ -1,4 +1,4 @@
-import { css, html, TemplateResult } from 'lit';
+import { css, html, nothing, TemplateResult } from 'lit';
 import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
@@ -143,13 +143,34 @@ export abstract class CategoryRecommendationBase<
         });
     }
 
+    private get beforeResultsElements(): HTMLElement[] {
+        return Array.from(this.children)
+            .filter((element): element is HTMLElement => element instanceof HTMLElement && element.slot === 'before-results');
+    }
+
     render() {
         const categories = this.renderedCategories;
         if (!categories || categories.length === 0) {
-            return;
+            return nothing;
         }
 
-        return html`${categories.map(category => this.renderCategory(category))}`;
+        const categoryTiles = categories.map(category => this.renderCategory(category));
+        if (this.beforeResultsElements.length === 0) {
+            return categoryTiles;
+        }
+
+        const categoryGrid = html`
+            <div
+                class="rw-recommendation-grid rw-category-recommendation-grid"
+                part="recommendation-grid category-recommendation-grid">
+                ${categoryTiles}
+            </div>`;
+
+        return html`
+            <div class="rw-recommendation-layout">
+                <slot name="before-results"></slot>
+                ${categoryGrid}
+            </div>`;
     }
 
     static styles = css`
@@ -161,8 +182,38 @@ export abstract class CategoryRecommendationBase<
             grid-auto-rows: 1fr;
         }
 
+        :host:has(> [slot="before-results"]) {
+            grid-auto-rows: auto;
+        }
+
+        :host:not(:has(.rw-recommendation-grid)) > [slot="before-results"] {
+            display: none;
+        }
+
+        .rw-recommendation-layout,
+        .rw-recommendation-grid,
+        :host > [slot="before-results"] {
+            grid-column: 1 / -1;
+        }
+
+        .rw-recommendation-layout {
+            display: flex;
+            flex-direction: column;
+            gap: var(--relewise-recommendation-grid-gap, 1em);
+            min-width: 0;
+        }
+
+        .rw-recommendation-grid {
+            display: grid;
+            width: 100%;
+            grid-template-columns: repeat(var(--relewise-recommendation-grid-columns, 4), minmax(0, 1fr));
+            gap: var(--relewise-recommendation-grid-gap, 1em);
+            grid-auto-rows: 1fr;
+        }
+
         @media (max-width: 768px) {
-            :host {
+            :host,
+            .rw-recommendation-grid {
                 grid-template-columns: repeat(var(--relewise-recommendation-grid-mobile-columns, 2), minmax(0, 1fr));
             }
         }

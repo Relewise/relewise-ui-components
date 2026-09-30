@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <title>Search-Term-Based Products - Light DOM</title>
+    <style>
+        relewise-search-term-based-products:not(:defined)>[slot='before-results'] {
+            display: none;
+        }
+
+        relewise-search-term-based-products {
+            max-width: 100%;
+        }
+
+        relewise-search-term-based-products .rw-product-recommendation-grid {
+            max-width: 100%;
+        }
+
+        [slot='before-results'] {
+            padding: 1rem;
+            max-width: 100%;
+            background: #f3edff;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module" src="index.ts"></script>
+    <h1>Search-Term-Based Products - Light DOM</h1>
+
+    <h2>With before-results content</h2>
+    <relewise-search-term-based-products displayed-at-location="light dom development" term="shirt" number-of-recommendations="10">
+        <div slot="before-results">Content before the product grid</div>
+    </relewise-search-term-based-products>
+
+    <h2>Without before-results content</h2>
+    <relewise-search-term-based-products displayed-at-location="light dom development" term="shirt"></relewise-search-term-based-products>
+</body>
+
+</html>

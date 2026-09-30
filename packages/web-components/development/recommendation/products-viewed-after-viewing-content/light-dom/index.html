@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <title>Products Viewed After Viewing Content - Light DOM</title>
+    <style>
+        relewise-products-viewed-after-viewing-content:not(:defined)>[slot='before-results'] {
+            display: none;
+        }
+
+        relewise-products-viewed-after-viewing-content {
+            max-width: 100%;
+        }
+
+        relewise-products-viewed-after-viewing-content .rw-product-recommendation-grid {
+            max-width: 100%;
+        }
+
+        [slot='before-results'] {
+            padding: 1rem;
+            max-width: 100%;
+            background: #f3edff;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module" src="index.ts"></script>
+    <h1>Products Viewed After Viewing Content - Light DOM</h1>
+
+    <h2>With before-results content</h2>
+    <relewise-products-viewed-after-viewing-content content-id="628584153407" displayed-at-location="light dom development" number-of-recommendations="10">
+        <div slot="before-results">Content before the product grid</div>
+    </relewise-products-viewed-after-viewing-content>
+
+    <h2>Without before-results content</h2>
+    <relewise-products-viewed-after-viewing-content content-id="628584153407" displayed-at-location="light dom development"></relewise-products-viewed-after-viewing-content>
+</body>
+
+</html>

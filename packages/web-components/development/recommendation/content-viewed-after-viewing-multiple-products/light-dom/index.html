@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <title>Content Viewed After Viewing Multiple Products - Light DOM</title>
+    <style>
+        relewise-content-viewed-after-viewing-multiple-products:not(:defined)>[slot='before-results'] {
+            display: none;
+        }
+
+        relewise-content-viewed-after-viewing-multiple-products {
+            max-width: 100%;
+        }
+
+        relewise-content-viewed-after-viewing-multiple-products .rw-content-recommendation-grid {
+            max-width: 100%;
+        }
+
+        [slot='before-results'] {
+            padding: 1rem;
+            max-width: 100%;
+            background: #f3edff;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module" src="index.ts"></script>
+    <h1>Content Viewed After Viewing Multiple Products - Light DOM</h1>
+
+    <h2>With before-results content</h2>
+    <relewise-content-viewed-after-viewing-multiple-products displayed-at-location="light dom development" number-of-recommendations="10">
+        <div slot="before-results">Content before the content grid</div>
+        <product-and-variant-id product-id="9874576769323"></product-and-variant-id>
+        <product-and-variant-id product-id="9874577588523" variant-id="sony-wh-ch710n"></product-and-variant-id>
+    </relewise-content-viewed-after-viewing-multiple-products>
+
+    <h2>Without before-results content</h2>
+    <relewise-content-viewed-after-viewing-multiple-products displayed-at-location="light dom development">
+        <product-and-variant-id product-id="9874576769323"></product-and-variant-id>
+        <product-and-variant-id product-id="9874577588523" variant-id="sony-wh-ch710n"></product-and-variant-id>
+    </relewise-content-viewed-after-viewing-multiple-products>
+</body>
+
+</html>

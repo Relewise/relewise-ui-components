@@ -91,5 +91,33 @@ suite('relewise-personal-content', () => {
             { timeout: 2000 });
 
         assert.equal(el.shadowRoot?.querySelectorAll('relewise-content-tile').length, numberOfRecommendations);
+        assert.isNull(el.shadowRoot?.querySelector('[part~="recommendation-grid"]'));
+    });
+
+    test('shows a Light DOM heading only after content is available', async() => {
+        let resolveRecommendations!: (response: ContentRecommendationResponse) => void;
+        Recommender.prototype.recommendPersonalContents = () => new Promise(resolve => resolveRecommendations = resolve);
+        const options = mockRelewiseOptions();
+        options.components = { domMode: 'light' };
+        initializeRelewiseUI(options).useRecommendations();
+
+        const el = await fixture<PersonalContent>(html`
+            <relewise-personal-content displayed-at-location="test">
+                <h2 slot="before-results">Personal content</h2>
+            </relewise-personal-content>
+        `);
+        const heading = el.querySelector<HTMLElement>('[slot="before-results"]')!;
+
+        await waitUntil(() => resolveRecommendations !== undefined);
+        assert.equal(getComputedStyle(heading).display, 'none');
+
+        resolveRecommendations({
+            recommendations: [{ contentId: 'content-1', data: {} } as ContentResult],
+        } as ContentRecommendationResponse);
+        await waitUntil(() => el.querySelector('[part~="recommendation-grid"]') !== null);
+
+        assert.notEqual(getComputedStyle(heading).display, 'none');
+        assert.equal(getComputedStyle(el).gridAutoRows, 'auto');
+        assert.exists(el.querySelector('.rw-content-recommendation-grid'));
     });
 });

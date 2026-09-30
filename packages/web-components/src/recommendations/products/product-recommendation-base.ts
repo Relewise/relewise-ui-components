@@ -203,6 +203,10 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
             display: none;
         }
 
+        :host > product-and-variant-id {
+            display: none;
+        }
+
         .rw-recommendation-layout,
         .rw-recommendation-grid,
         :host > [slot="before-results"] {

@@ -240,7 +240,7 @@ This component renders the most [popular products](https://docs.relewise.com/doc
 
 ##### Slots and parts
 
-Product recommendation components support a `before-results` slot that is rendered before the products when recommendations are available. When the slot is used, the products are wrapped in the `recommendation-grid` and `product-recommendation-grid` CSS parts so the nested grid remains customizable.
+Product, content, and category recommendation components support a `before-results` slot. The slotted heading is shown only when recommendations are available. Components without slotted content retain their existing grid layout. When the slot is used, the results are wrapped in the `recommendation-grid` CSS part and a type-specific part (`product-recommendation-grid`, `content-recommendation-grid`, or `category-recommendation-grid`) so the nested grid remains customizable.
 
 ```html
 <relewise-popular-products displayed-at-location="Front page">

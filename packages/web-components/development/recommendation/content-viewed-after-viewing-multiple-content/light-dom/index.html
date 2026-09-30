@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <title>Content Viewed After Viewing Multiple Content - Light DOM</title>
+    <style>
+        relewise-content-viewed-after-viewing-multiple-content:not(:defined)>[slot='before-results'] {
+            display: none;
+        }
+
+        relewise-content-viewed-after-viewing-multiple-content {
+            max-width: 100%;
+        }
+
+        relewise-content-viewed-after-viewing-multiple-content .rw-content-recommendation-grid {
+            max-width: 100%;
+        }
+
+        [slot='before-results'] {
+            padding: 1rem;
+            max-width: 100%;
+            background: #f3edff;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module" src="index.ts"></script>
+    <h1>Content Viewed After Viewing Multiple Content - Light DOM</h1>
+
+    <h2>With before-results content</h2>
+    <relewise-content-viewed-after-viewing-multiple-content displayed-at-location="light dom development" number-of-recommendations="10">
+        <div slot="before-results">Content before the content grid</div>
+        <content-id content-id="blogPost-227f90a4-4d9d-4ab0-bbe6-3ec714e49893"></content-id>
+        <content-id content-id="blogPost-392f0bd7-ca0d-41d5-8194-8f2523f310da"></content-id>
+    </relewise-content-viewed-after-viewing-multiple-content>
+
+    <h2>Without before-results content</h2>
+    <relewise-content-viewed-after-viewing-multiple-content displayed-at-location="light dom development">
+        <content-id content-id="blogPost-227f90a4-4d9d-4ab0-bbe6-3ec714e49893"></content-id>
+        <content-id content-id="blogPost-392f0bd7-ca0d-41d5-8194-8f2523f310da"></content-id>
+    </relewise-content-viewed-after-viewing-multiple-content>
+</body>
+
+</html>
