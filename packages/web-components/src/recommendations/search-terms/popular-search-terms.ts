@@ -3,6 +3,7 @@ import {
     SearchTermResult,
 } from '@relewise/client';
 import { css, html } from 'lit';
+import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
 import {
@@ -54,6 +55,15 @@ export class PopularSearchTerms extends RecommendationStateElement {
         this.requestGeneration++;
         window.removeEventListener(Events.contextSettingsUpdated, this.fetchAndUpdateRecommendationsBound);
         super.disconnectedCallback();
+    }
+
+    protected updated(changedProperties: PropertyValues<this>): void {
+        super.updated(changedProperties);
+
+        // WebKit does not reliably restyle a Light DOM heading after empty results become nonempty.
+        if (this.renderRoot === this) {
+            this.toggleAttribute('has-results', this.recommendations.length > 0);
+        }
     }
 
     private async fetchAndUpdateRecommendations() {
@@ -130,7 +140,7 @@ export class PopularSearchTerms extends RecommendationStateElement {
             return;
         }
 
-        return html`
+        const terms = html`
             <ul class="rw-popular-search-terms" part="terms">
                 ${this.recommendations.map(recommendation => html`
                     <li>
@@ -145,11 +155,38 @@ export class PopularSearchTerms extends RecommendationStateElement {
                 `)}
             </ul>
         `;
+
+        if (!this.querySelector(':scope > [slot="before-results"]')) {
+            return terms;
+        }
+
+        return html`
+            <div class="rw-recommendation-layout">
+                <slot name="before-results"></slot>
+                ${terms}
+            </div>
+        `;
     }
 
     static styles = css`
         :host {
             display: block;
+        }
+
+        :host:not([has-results]) > [slot="before-results"] {
+            display: none;
+        }
+
+        :host:has(> [slot="before-results"]) {
+            display: flex;
+            flex-direction: column;
+            gap: var(--relewise-recommendation-grid-gap, 1em);
+        }
+
+        .rw-recommendation-layout {
+            display: flex;
+            flex-direction: column;
+            gap: var(--relewise-recommendation-grid-gap, 1em);
         }
 
         .rw-popular-search-terms {

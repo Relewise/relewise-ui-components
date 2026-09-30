@@ -68,6 +68,58 @@ suite('relewise-popular-search-terms', () => {
         assert.deepInclude(states, { loading: true, hasResults: false });
         assert.deepInclude(states, { loading: false, hasResults: true });
         assert.equal(Events.recommendationStateChanged, 'relewise-ui-components:recommendation-state-changed');
+        assert.isNull(element.renderRoot.querySelector('slot[name="before-results"]'));
+    });
+
+    test('renders slotted content before the terms in Shadow DOM', async() => {
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+        const element = await fixture<PopularSearchTerms>(html`
+            <relewise-popular-search-terms displayed-at-location="test">
+                <h2 slot="before-results">Popular searches</h2>
+            </relewise-popular-search-terms>
+        `);
+
+        await waitUntil(() => element.shadowRoot!.querySelector('slot[name="before-results"]') !== null);
+
+        const slot = element.shadowRoot!.querySelector<HTMLSlotElement>('slot[name="before-results"]')!;
+        assert.equal(slot.assignedElements()[0]?.textContent, 'Popular searches');
+        assert.exists(element.shadowRoot!.querySelector('.rw-popular-search-terms'));
+    });
+
+    test('keeps Light DOM slot content hidden until terms are available', async() => {
+        let resolveInitial!: (response: { recommendations: SearchTermResult[] }) => void;
+        const initialResponse = new Promise<{ recommendations: SearchTermResult[] }>(resolve => resolveInitial = resolve);
+        Recommender.prototype.recommendPopularSearchTerms = async request => {
+            requests.push(request);
+            return requests.length === 1
+                ? initialResponse
+                : { recommendations: [{ term: 'Trail shoes', rank: 1 }] as SearchTermResult[] };
+        };
+        const options = mockRelewiseOptions();
+        options.components = { domMode: 'light' };
+        initializeRelewiseUI(options).useRecommendations();
+        const element = await fixture<PopularSearchTerms>(html`
+            <relewise-popular-search-terms displayed-at-location="test">
+                <h2 slot="before-results">Popular searches</h2>
+            </relewise-popular-search-terms>
+        `);
+        const heading = element.querySelector<HTMLElement>('[slot="before-results"]')!;
+
+        await waitUntil(() => requests.length === 1);
+        assert.equal(getComputedStyle(heading).display, 'none');
+
+        resolveInitial({ recommendations: [] });
+        await initialResponse;
+        await element.updateComplete;
+        assert.equal(getComputedStyle(heading).display, 'none');
+        assert.isNull(element.querySelector('.rw-popular-search-terms'));
+
+        window.dispatchEvent(new CustomEvent(Events.contextSettingsUpdated));
+        await waitUntil(() => element.querySelector('.rw-popular-search-terms') !== null);
+        await waitUntil(() => getComputedStyle(heading).display !== 'none');
+
+        assert.notEqual(getComputedStyle(heading).display, 'none');
+        assert.exists(element.querySelector('slot[name="before-results"]'));
     });
 
     test('emits the selected term', async() => {
