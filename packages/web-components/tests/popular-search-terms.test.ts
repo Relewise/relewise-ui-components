@@ -68,6 +68,22 @@ suite('relewise-popular-search-terms', () => {
         assert.deepInclude(states, { loading: true, hasResults: false });
         assert.deepInclude(states, { loading: false, hasResults: true });
         assert.equal(Events.recommendationStateChanged, 'relewise-ui-components:recommendation-state-changed');
+        assert.isNull(element.renderRoot.querySelector('slot[name="before-results"]'));
+    });
+
+    test('renders slotted content before the terms in Shadow DOM', async() => {
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+        const element = await fixture<PopularSearchTerms>(html`
+            <relewise-popular-search-terms displayed-at-location="test">
+                <h2 slot="before-results">Popular searches</h2>
+            </relewise-popular-search-terms>
+        `);
+
+        await waitUntil(() => element.shadowRoot!.querySelector('slot[name="before-results"]') !== null);
+
+        const slot = element.shadowRoot!.querySelector<HTMLSlotElement>('slot[name="before-results"]')!;
+        assert.equal(slot.assignedElements()[0]?.textContent, 'Popular searches');
+        assert.exists(element.shadowRoot!.querySelector('.rw-popular-search-terms'));
     });
 
     test('emits the selected term', async() => {

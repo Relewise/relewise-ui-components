@@ -1,5 +1,5 @@
 import { RelewiseLitElement } from '../relewise-lit-element';
-import { html } from 'lit';
+import { html, nothing } from 'lit';
 import { getRecommender } from './recommender';
 import { getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
 import { ProductRecommendationRequest, ProductRecommendationResponse, ProductsRecommendationCollectionBuilder } from '@relewise/client';
@@ -25,57 +25,72 @@ export class RecommendationBatcher extends RelewiseLitElement {
 
     timeoutHandler: ReturnType<typeof setTimeout> | undefined;
 
-    batchBound = this.batch.bind(this);
     registerEventBound = this.registerEvent.bind(this);
-
-    constructor() {
-        super();
-
-        this.attachShadow({ mode: 'open' });
-    }
+    private abortController = new AbortController();
+    private requestGeneration = 0;
 
     async connectedCallback() {
         super.connectedCallback();
 
-        window.addEventListener(Events.contextSettingsUpdated, this.batchBound);
-        this.shadowRoot?.addEventListener(Events.registerProductRecommendation, this.registerEventBound);
+        this.renderRoot.addEventListener(Events.registerProductRecommendation, this.registerEventBound);
     }
 
     disconnectedCallback() {
-        window.removeEventListener(Events.contextSettingsUpdated, this.batchBound);
-        this.shadowRoot?.removeEventListener(Events.registerProductRecommendation, this.registerEventBound);
-        
+        this.requestGeneration++;
+        this.abortController.abort();
+        if (this.timeoutHandler) {
+            clearTimeout(this.timeoutHandler);
+        }
+        this.renderRoot.removeEventListener(Events.registerProductRecommendation, this.registerEventBound);
+
         super.disconnectedCallback();
     }
 
     async batch() {
-        if (this.data.requests.length === 0) {
+        const generation = ++this.requestGeneration;
+        this.abortController.abort();
+        const requests = [...this.data.requests];
+        if (requests.length === 0) {
             // No recommendation components found to batch
             return;
         }
 
+        const abortController = new AbortController();
+        this.abortController = abortController;
+
         const builder = new ProductsRecommendationCollectionBuilder()
             .requireDistinctProductsAcrossResults();
 
-        this.data.requests.forEach(x => builder.addRequest(x.request));
+        requests.forEach(x => builder.addRequest(x.request));
 
         const recommender = getRecommender(getRelewiseUIOptions());
-        const response = await recommender.batchProductRecommendations(builder.build());
-        if (!response || !response.responses || response.responses.length === 0) {
-            return;
-        }
-
-        const newState: BatchingContextValue = { requests: this.data.requests };
-        newState.requests.forEach((x, index) => {
-            if (response.responses) {
-                x.result = response.responses[index];
+        try {
+            const response = await recommender.batchProductRecommendations(builder.build(), { abortSignal: abortController.signal });
+            if (abortController.signal.aborted || generation !== this.requestGeneration || !this.isConnected) {
+                return;
             }
-        });
-        this.data = newState;
+            if (!response?.responses?.length) {
+                return;
+            }
+
+            this.data = {
+                requests: requests.map((request, index) => ({
+                    ...request,
+                    result: response.responses?.[index],
+                })),
+            };
+        } catch (error) {
+            if (!abortController.signal.aborted) {
+                throw error;
+            }
+        }
     }
 
     registerEvent(e: Event) {
         e.preventDefault();
+
+        this.requestGeneration++;
+        this.abortController.abort();
 
         const event = e as CustomEvent<ProductRecommendationRequest>;
         const requests = this.data.requests.filter(request => request.id !== event.target);
@@ -91,6 +106,6 @@ export class RecommendationBatcher extends RelewiseLitElement {
     }
 
     render() {
-        return html`<slot></slot>`;
+        return this.renderRoot === this ? nothing : html`<slot></slot>`;
     }
 }

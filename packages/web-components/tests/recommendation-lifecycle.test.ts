@@ -3,6 +3,7 @@ import {
     ContentResult,
     ContentRecommendationResponse,
     ProductResult,
+    ProductRecommendationRequest,
     ProductRecommendationResponse,
     Recommender,
 } from '@relewise/client';
@@ -44,6 +45,64 @@ suite('recommendation lifecycle', () => {
         await batcher.batch();
 
         assert.isTrue(requireDistinctProductsAcrossResults);
+    });
+
+    test('renders and batches child recommendations in Light DOM', async() => {
+        let requests = 0;
+        const product = { productId: 'light-dom-product', data: {} } as ProductResult;
+        Recommender.prototype.batchProductRecommendations = async() => {
+            requests++;
+            return {
+                responses: [{ recommendations: [product] }],
+            } as never;
+        };
+        const options = mockRelewiseOptions();
+        options.components = { domMode: 'light' };
+        initializeRelewiseUI(options).useRecommendations();
+
+        const batcher = await fixture<RecommendationBatcher>(html`
+            <relewise-product-recommendation-batcher>
+                <relewise-popular-products displayed-at-location="test"></relewise-popular-products>
+            </relewise-product-recommendation-batcher>
+        `);
+
+        await waitUntil(() => requests === 1, 'The recommendation batch was never requested', { timeout: 2000 });
+        await waitUntil(() => batcher.querySelector('relewise-product-tile') !== null, 'The batched product was never rendered');
+
+        assert.isNull(batcher.shadowRoot);
+        assert.exists(batcher.querySelector('relewise-popular-products'));
+    });
+
+    test('ignores an older batch response after a newer batch starts', async() => {
+        let calls = 0;
+        let resolveFirst!: (response: { responses: ProductRecommendationResponse[] }) => void;
+        const firstResponse = new Promise<{ responses: ProductRecommendationResponse[] }>(resolve => resolveFirst = resolve);
+        const staleResponse = { recommendations: [{ productId: 'stale' } as ProductResult] } as ProductRecommendationResponse;
+        const currentResponse = { recommendations: [{ productId: 'current' } as ProductResult] } as ProductRecommendationResponse;
+        Recommender.prototype.batchProductRecommendations = async() => {
+            calls++;
+            return calls === 1
+                ? firstResponse as never
+                : { responses: [currentResponse] } as never;
+        };
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+        const batcher = await fixture<RecommendationBatcher>(html`
+            <relewise-product-recommendation-batcher></relewise-product-recommendation-batcher>
+        `);
+        const staleRequest = { $type: 'stale-request' } as ProductRecommendationRequest;
+        const currentRequest = { $type: 'current-request' } as ProductRecommendationRequest;
+
+        batcher.data = { requests: [{ request: staleRequest, id: null }] };
+        const staleBatch = batcher.batch();
+        await waitUntil(() => calls === 1);
+
+        batcher.data = { requests: [{ request: currentRequest, id: null }] };
+        await batcher.batch();
+        resolveFirst({ responses: [staleResponse] });
+        await staleBatch;
+
+        assert.strictEqual(batcher.data.requests[0].request, currentRequest);
+        assert.strictEqual(batcher.data.requests[0].result, currentResponse);
     });
 
     test('product recommendation base removes its listener when disconnected during the initial request', async() => {

@@ -1,5 +1,5 @@
 import { ProductRecommendationRequest, ProductRecommendationResponse, ProductResult, User } from '@relewise/client';
-import { css, html } from 'lit';
+import { css, html, nothing } from 'lit';
 import type { PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
@@ -147,9 +147,43 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
         });
     }
 
+    private get beforeResultsElements(): HTMLElement[] {
+        return Array.from(this.children)
+            .filter((element): element is HTMLElement => element instanceof HTMLElement && element.slot === 'before-results');
+    }
+
+    private renderProducts() {
+        return this.renderedProducts?.map(product => html`
+            <relewise-product-tile
+                part="product-tile"
+                .product=${product}
+                .user=${this.user}>
+            </relewise-product-tile>`);
+    }
+
     render() {
-        return html`${this.renderedProducts?.map(product =>
-            html`<relewise-product-tile part="product-tile" .product=${product} .user=${this.user}></relewise-product-tile>`)}`;
+        const hasResults = Boolean(this.renderedProducts?.length);
+        if (!hasResults) {
+            return nothing;
+        }
+
+        const products = this.renderProducts();
+        if (this.beforeResultsElements.length === 0) {
+            return products;
+        }
+
+        const productGrid = html`
+            <div
+                class="rw-recommendation-grid rw-product-recommendation-grid"
+                part="recommendation-grid product-recommendation-grid">
+                ${products}
+            </div>`;
+
+        return html`
+            <div class="rw-recommendation-layout">
+                <slot name="before-results"></slot>
+                ${productGrid}
+            </div>`;
     }
 
     static styles = css`
@@ -161,11 +195,45 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
             grid-auto-rows: 1fr;
         }
 
+        :host:has(> [slot="before-results"]) {
+            grid-auto-rows: auto;
+        }
+
+        :host:not(:has(.rw-recommendation-grid)) > [slot="before-results"] {
+            display: none;
+        }
+
+        :host > product-and-variant-id {
+            display: none;
+        }
+
+        .rw-recommendation-layout,
+        .rw-recommendation-grid,
+        :host > [slot="before-results"] {
+            grid-column: 1 / -1;
+        }
+
+        .rw-recommendation-layout {
+            display: flex;
+            flex-direction: column;
+            gap: var(--relewise-recommendation-grid-gap, 1em);
+            min-width: 0;
+        }
+
+        .rw-recommendation-grid {
+            display: grid;
+            width: 100%;
+            grid-template-columns: repeat(var(--relewise-recommendation-grid-columns, 4), minmax(0, 1fr));
+            gap: var(--relewise-recommendation-grid-gap, 1em);
+            grid-auto-rows: 1fr;
+        }
+
         @media (max-width: 768px) {
-            :host {
+            :host,
+            .rw-recommendation-grid {
                 grid-template-columns: repeat(var(--relewise-recommendation-grid-mobile-columns, 2), minmax(0, 1fr));
             }
-        }    
+        }
     `;
 
 }

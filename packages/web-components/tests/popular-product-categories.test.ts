@@ -50,6 +50,7 @@ suite('relewise-popular-product-categories', () => {
         assert.equal(requests[0].settings.numberOfRecommendations, 2);
         assert.equal(requests[0].sinceMinutesAgo, 60);
         assert.equal(element.renderRoot.querySelectorAll('relewise-product-category-tile').length, 2);
+        assert.isNull(element.renderRoot.querySelector('[part~="recommendation-grid"]'));
         assert.deepInclude(states, { loading: true, hasResults: false });
         assert.deepInclude(states, { loading: false, hasResults: true });
         assert.equal(Events.recommendationStateChanged, 'relewise-ui-components:recommendation-state-changed');
@@ -102,6 +103,28 @@ suite('relewise-popular-product-categories', () => {
             element.renderRoot.querySelector('relewise-product-category-tile')?.getAttribute('exportparts'),
             'link, container, image-container, image, information, display-name',
         );
+    });
+
+    test('renders the heading slot and category grid only when categories are available', async() => {
+        let resolveRecommendations!: (response: { recommendations: ProductCategoryResult[] }) => void;
+        Recommender.prototype.recommendPopularProductCategories = () => new Promise(resolve => resolveRecommendations = resolve);
+        initializeRelewiseUI(mockRelewiseOptions()).useRecommendations();
+        const element = await fixture<PopularProductCategories>(html`
+            <relewise-popular-product-categories displayed-at-location="test">
+                <h2 slot="before-results">Popular categories</h2>
+            </relewise-popular-product-categories>
+        `);
+
+        await waitUntil(() => resolveRecommendations !== undefined);
+        assert.isNull(element.shadowRoot!.querySelector('slot[name="before-results"]'));
+
+        resolveRecommendations({ recommendations: [{ categoryId: 'first', displayName: 'First' } as ProductCategoryResult] });
+        await waitUntil(() => element.shadowRoot!.querySelector('[part~="recommendation-grid"]') !== null);
+
+        const slot = element.shadowRoot!.querySelector<HTMLSlotElement>('slot[name="before-results"]')!;
+        const grid = element.shadowRoot!.querySelector<HTMLElement>('[part~="recommendation-grid"]')!;
+        assert.equal(slot.assignedElements()[0]?.textContent, 'Popular categories');
+        assert.isTrue(grid.part.contains('category-recommendation-grid'));
     });
 
     test('ignores an older response after a context update', async() => {

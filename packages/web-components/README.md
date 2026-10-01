@@ -238,6 +238,22 @@ This component renders the most [popular products](https://docs.relewise.com/doc
 
     The target for the additional specific configuration added. You can read more [here](#targeted-recommendations).
 
+##### Slots and parts
+
+Product, content, category, and popular search terms recommendation components support a `before-results` slot. The slotted content is shown only when recommendations are available. Components without slotted content retain their existing layout. For product, content, and category recommendations, using the slot wraps the results in the `recommendation-grid` CSS part and a type-specific part (`product-recommendation-grid`, `content-recommendation-grid`, or `category-recommendation-grid`) so the nested grid remains customizable.
+
+```html
+<relewise-popular-products displayed-at-location="Front page">
+    <h2 slot="before-results">Recommended for you</h2>
+</relewise-popular-products>
+```
+
+```css
+relewise-popular-products::part(recommendation-grid) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+```
+
 #### Popular Product Categories
 This component renders the most popular product categories.
 
@@ -529,6 +545,15 @@ This component renders popular search terms as buttons. Selecting a term dispatc
 ```html
 <relewise-popular-search-terms displayed-at-location="LOCATION"></relewise-popular-search-terms>
 ```
+
+To show content before a nonempty list of terms, use the `before-results` slot:
+
+```html
+<relewise-popular-search-terms displayed-at-location="LOCATION">
+    <h2 slot="before-results">Popular searches</h2>
+</relewise-popular-search-terms>
+```
+
 ##### Attributes and properties
 - **displayed-at-location**:
 

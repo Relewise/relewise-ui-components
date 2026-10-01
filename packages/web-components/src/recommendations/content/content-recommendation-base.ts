@@ -1,5 +1,5 @@
 import { ContentRecommendationRequest, ContentRecommendationResponse, ContentResult, User } from '@relewise/client';
-import { css, html } from 'lit';
+import { css, html, nothing } from 'lit';
 import type { PropertyValues } from 'lit';
 import { consume } from '@lit/context';
 import { property, state } from 'lit/decorators.js';
@@ -147,9 +147,43 @@ export abstract class ContentRecommendationBase extends RecommendationStateEleme
         });
     }
 
+    private get beforeResultsElements(): HTMLElement[] {
+        return Array.from(this.children)
+            .filter((element): element is HTMLElement => element instanceof HTMLElement && element.slot === 'before-results');
+    }
+
+    private renderContent() {
+        return this.renderedContent?.map(content => html`
+            <relewise-content-tile
+                part="content-tile"
+                .content=${content}
+                .user=${this.user}>
+            </relewise-content-tile>`);
+    }
+
     render() {
-        return html`${this.renderedContent?.map(content =>
-            html`<relewise-content-tile part="content-tile" .content=${content} .user=${this.user}></relewise-content-tile>`)}`;
+        const hasResults = Boolean(this.renderedContent?.length);
+        if (!hasResults) {
+            return nothing;
+        }
+
+        const content = this.renderContent();
+        if (this.beforeResultsElements.length === 0) {
+            return content;
+        }
+
+        const contentGrid = html`
+            <div
+                class="rw-recommendation-grid rw-content-recommendation-grid"
+                part="recommendation-grid content-recommendation-grid">
+                ${content}
+            </div>`;
+
+        return html`
+            <div class="rw-recommendation-layout">
+                <slot name="before-results"></slot>
+                ${contentGrid}
+            </div>`;
     }
 
     static styles = css`
@@ -161,11 +195,46 @@ export abstract class ContentRecommendationBase extends RecommendationStateEleme
             grid-auto-rows: 1fr;
         }
 
+        :host:has(> [slot="before-results"]) {
+            grid-auto-rows: auto;
+        }
+
+        :host:not(:has(.rw-recommendation-grid)) > [slot="before-results"] {
+            display: none;
+        }
+
+        :host > product-and-variant-id,
+        :host > content-id {
+            display: none;
+        }
+
+        .rw-recommendation-layout,
+        .rw-recommendation-grid,
+        :host > [slot="before-results"] {
+            grid-column: 1 / -1;
+        }
+
+        .rw-recommendation-layout {
+            display: flex;
+            flex-direction: column;
+            gap: var(--relewise-recommendation-grid-gap, 1em);
+            min-width: 0;
+        }
+
+        .rw-recommendation-grid {
+            display: grid;
+            width: 100%;
+            grid-template-columns: repeat(var(--relewise-recommendation-grid-columns, 4), minmax(0, 1fr));
+            gap: var(--relewise-recommendation-grid-gap, 1em);
+            grid-auto-rows: 1fr;
+        }
+
         @media (max-width: 768px) {
-            :host {
+            :host,
+            .rw-recommendation-grid {
                 grid-template-columns: repeat(var(--relewise-recommendation-grid-mobile-columns, 2), minmax(0, 1fr));
             }
-        }    
+        }
     `;
 
 }

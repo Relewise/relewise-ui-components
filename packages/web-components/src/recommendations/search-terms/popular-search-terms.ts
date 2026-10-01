@@ -130,7 +130,7 @@ export class PopularSearchTerms extends RecommendationStateElement {
             return;
         }
 
-        return html`
+        const terms = html`
             <ul class="rw-popular-search-terms" part="terms">
                 ${this.recommendations.map(recommendation => html`
                     <li>
@@ -145,11 +145,38 @@ export class PopularSearchTerms extends RecommendationStateElement {
                 `)}
             </ul>
         `;
+
+        if (!this.querySelector(':scope > [slot="before-results"]')) {
+            return terms;
+        }
+
+        return html`
+            <div class="rw-recommendation-layout">
+                <slot name="before-results"></slot>
+                ${terms}
+            </div>
+        `;
     }
 
     static styles = css`
         :host {
             display: block;
+        }
+
+        :host:not(:has(.rw-popular-search-terms)) > [slot="before-results"] {
+            display: none;
+        }
+
+        :host:has(> [slot="before-results"]) {
+            display: flex;
+            flex-direction: column;
+            gap: var(--relewise-recommendation-grid-gap, 1em);
+        }
+
+        .rw-recommendation-layout {
+            display: flex;
+            flex-direction: column;
+            gap: var(--relewise-recommendation-grid-gap, 1em);
         }
 
         .rw-popular-search-terms {

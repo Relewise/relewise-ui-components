@@ -87,6 +87,29 @@ Prefer the simplest type/control-flow that correctly expresses the runtime behav
 - When exposing ordered user-configured options, prefer defaults derived from the configured order unless a stronger domain-specific default is required.
 - Do not require users to supply internal-only identifiers when those ids can be derived deterministically from the configuration itself.
 
+### Minimal Implementation Rule
+Implement the smallest solution that satisfies the current request. Evaluate solutions in this order:
+1. Existing markup and CSS
+2. A render-only conditional
+3. A small component-local helper
+4. Component state or lifecycle logic
+5. DOM mutation, observers, or template cloning
+6. A shared abstraction or rollout to sibling components
+
+Do not move to a later option unless the earlier options cannot satisfy the required behavior.
+
+Additional rules:
+- Preserve the existing render path for consumers who do not opt into the feature.
+- Prefer native, consumer-owned slot content over cloning content from `<template>`.
+- For optional slot-based layout, prefer an ordinary live slot, a render-time presence check, and scoped CSS. Use `<template>` cloning only when repeated or deferred instantiation is itself an explicit requirement.
+- Do not add `slotchange`, `MutationObserver`, lifecycle bookkeeping, reflected state attributes, or manual DOM mutation when CSS or the existing render function can express the behavior.
+- Do not expand a feature to other entity types, components, examples, or shared base classes unless the task explicitly requests that scope or there is a current second consumer.
+- Inspecting related components does not authorize modifying them.
+- Before introducing a shared helper, identify at least two current consumers with the same required behavior.
+- Use proportionate tests: cover the unchanged path and the new behavior without duplicating identical assertions across every sibling component.
+- After implementation, perform a deletion pass and remove any state, helpers, wrappers, and branches that are not required.
+- If the implementation grows materially beyond the initially requested component or behavior, stop and confirm the expanded scope with the user.
+
 ## Safe Change Patterns
 When adding/changing components:
 1. Identify the nearest existing reference components and compare ownership, properties, events, lifecycle, rendering, styling, registration, exports, and tests before choosing an architecture.
