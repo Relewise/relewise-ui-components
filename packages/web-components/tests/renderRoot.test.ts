@@ -211,7 +211,7 @@ suite('domMode', () => {
         assert.include(style?.textContent, 'border-radius: 0.5em');
     });
 
-    test('registers product search result styles for the spinner-only state', async() => {
+    test('registers product search result styles in light DOM', async() => {
         const options = mockRelewiseOptions();
         options.components = {
             domMode: 'light',
@@ -224,6 +224,8 @@ suite('domMode', () => {
 
         assert.exists(el.querySelector('.rw-fill-grid relewise-loading-spinner'));
         assert.include(style?.textContent, 'relewise-product-search-results .rw-fill-grid');
+        assert.include(style?.textContent, 'grid-template-columns: repeat(2, minmax(0, 1fr))');
+        assert.include(style?.textContent, 'grid-template-columns: repeat(4, minmax(0, 1fr))');
     });
 
     test('scopes product search bar width to the child search bar host', async() => {
