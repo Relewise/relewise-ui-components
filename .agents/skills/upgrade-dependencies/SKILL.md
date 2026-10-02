@@ -162,8 +162,6 @@ npx playwright install --with-deps
 npm run test
 ```
 
-If `INTEGRATION_TEST_DATASET_ID` and `INTEGRATION_TEST_API_KEY` are unavailable, ask for them or clearly report test limitations in final output and PR notes.
-
 ## Commit, Push, and Pull Request
 1. Commit dependency and compatibility changes on the upgrade branch.
 2. Push branch:
