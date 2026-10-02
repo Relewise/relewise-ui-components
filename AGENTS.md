@@ -135,9 +135,7 @@ Test framework conventions in this repo:
 - Use `suite(...)` / `test(...)` style with `@open-wc/testing`.
 - Prefer focused unit tests for builder/config logic and component behavior.
 - For component render tests, assert shadow DOM output and state transitions.
-- For integration-like flows, rely on existing env-driven test options:
-  - `INTEGRATION_TEST_DATASET_ID`
-  - `INTEGRATION_TEST_API_KEY`
+- Use `mockRelewiseOptions` for component tests; the current suite does not need a live dataset or API key.
 
 Add tests for:
 - New public options/attributes

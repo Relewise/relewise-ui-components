@@ -52,7 +52,6 @@
     "@web/dev-server-esbuild": "^2.0.0",
     "@web/test-runner": "^1.0.0",
     "@web/test-runner-playwright": "^1.0.0",
-    "dotenv": "^18.0.1",
     "eslint": "^9.39.5",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-lit": "^2.3.1",
