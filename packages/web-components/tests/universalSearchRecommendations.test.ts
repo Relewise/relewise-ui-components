@@ -974,6 +974,107 @@ suite('universal search recommendations', () => {
         assert.lengthOf(queryAllDeep(element.renderRoot, 'relewise-product-tile'), 0);
     });
 
+    for (const domMode of ['shadow', 'light'] as const) {
+        test(`preserves slotted recommendation headings and spacing in ${domMode} DOM`, async() => {
+            const options = mockRelewiseOptions();
+            options.components = { domMode };
+            initializeRelewiseUI(options);
+            useSearch({ universalSearch: {} });
+            const configuration: UniversalSearchRecommendationBlock[] = [
+                { type: 'PopularProducts' },
+                { type: 'PersonalProducts' },
+                { type: 'RecentlyViewedProducts' },
+                { type: 'PopularProductCategories' },
+                { type: 'PopularContents' },
+                { type: 'PersonalContent' },
+                { type: 'PopularContentCategories' },
+                { type: 'PopularSearchTerms' },
+                { type: 'SearchTermBasedProduct' },
+                { type: 'PopularProducts', title: '' },
+            ];
+            const element = await fixture<UniversalSearchRecommendations>(html`
+                <relewise-universal-search-recommendations
+                    style="--relewise-universal-search-recommendation-title-margin-bottom: 31px"
+                    .configuration=${configuration}
+                    term="Boots">
+                </relewise-universal-search-recommendations>
+            `);
+            await waitUntil(() => [...element.renderRoot.querySelectorAll<HTMLElement>('section')]
+                .every(section => !section.hidden));
+            const sections = [...element.renderRoot.querySelectorAll<HTMLElement>('section')];
+            assert.lengthOf(sections, 10);
+            for (const section of sections.slice(0, 9)) {
+                const heading = section.querySelector<HTMLElement>('[part="recommendation-title"]')!;
+                const child = heading.parentElement as HTMLElement & { renderRoot: HTMLElement | DocumentFragment };
+                assert.equal(heading.slot, 'before-results');
+                assert.notEqual(child, section);
+                assert.equal(getComputedStyle(heading).marginBottom, '31px');
+                const layout = child.renderRoot.querySelector<HTMLElement>('.rw-recommendation-layout')!;
+                assert.equal(getComputedStyle(layout).gap, '0px');
+                const results = child.renderRoot.querySelector<HTMLElement>('[part~="recommendation-grid"], [part="terms"]')!;
+                assert.closeTo(results.getBoundingClientRect().top - heading.getBoundingClientRect().bottom, 31, 1);
+                if (domMode === 'shadow') {
+                    const slot = child.renderRoot.querySelector<HTMLSlotElement>('slot[name="before-results"]')!;
+                    assert.equal(slot.assignedElements()[0], heading);
+                }
+            }
+            assert.isNull(sections[9].querySelector('[slot="before-results"]'));
+        });
+    }
+
+    test('forwards the slotted results grid for external styling', async() => {
+        initializeRelewiseUI(mockRelewiseOptions());
+        useSearch({ universalSearch: {} });
+        const wrapper = await fixture<HTMLElement>(html`
+            <div>
+                <style>
+                    relewise-universal-search-recommendations::part(recommendation-grid) {
+                        grid-template-columns: repeat(3, minmax(0, 1fr));
+                    }
+                </style>
+                <relewise-universal-search-recommendations
+                    .configuration=${[{ type: 'PopularProducts' as const }]}>
+                </relewise-universal-search-recommendations>
+            </div>
+        `);
+        const element = wrapper.querySelector<UniversalSearchRecommendations>('relewise-universal-search-recommendations')!;
+        await waitUntil(() => queryAllDeep(element.renderRoot, 'relewise-product-tile').length > 0);
+        const child = element.renderRoot.querySelector('relewise-popular-products')!;
+        const grid = child.shadowRoot!.querySelector<HTMLElement>('[part~="recommendation-grid"]')!;
+        assert.lengthOf(getComputedStyle(grid).gridTemplateColumns.split(' '), 3);
+    });
+
+    test('keeps a slotted category heading full width when its grid part uses flex layout', async() => {
+        const options = mockRelewiseOptions();
+        options.templates = {
+            productCategory: (category, { html }) => html`<span>${category.displayName}</span>`,
+        };
+        initializeRelewiseUI(options);
+        useSearch({ universalSearch: {} });
+        const wrapper = await fixture<HTMLElement>(html`
+            <div>
+                <style>
+                    relewise-universal-search-recommendations::part(category-recommendation-grid) {
+                        display: flex;
+                        flex-wrap: wrap;
+                    }
+                    relewise-universal-search-recommendations::part(recommendation-category-tile) {
+                        width: max-content;
+                        flex: 0 0 auto;
+                    }
+                </style>
+                <relewise-universal-search-recommendations
+                    .configuration=${[{ type: 'PopularProductCategories' as const }]}>
+                </relewise-universal-search-recommendations>
+            </div>
+        `);
+        const element = wrapper.querySelector<UniversalSearchRecommendations>('relewise-universal-search-recommendations')!;
+        await waitUntil(() => queryAllDeep(element.renderRoot, 'relewise-product-category-tile').length > 0);
+        const child = element.renderRoot.querySelector('relewise-popular-product-categories')!;
+        const heading = child.querySelector<HTMLElement>('[slot="before-results"]')!;
+        assert.closeTo(heading.getBoundingClientRect().width, child.getBoundingClientRect().width, 1);
+    });
+
     test('renders the internal composition in Light DOM', async() => {
         const options = mockRelewiseOptions();
         options.components = { domMode: 'light' };

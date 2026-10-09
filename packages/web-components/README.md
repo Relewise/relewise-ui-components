@@ -240,6 +240,8 @@ This component renders the most [popular products](https://docs.relewise.com/doc
 
 ##### Slots and parts
 
+`--relewise-recommendation-heading-gap` controls spacing after `before-results` content. It defaults to `--relewise-recommendation-grid-gap` (or `1em`), independently of the result grid's tile spacing.
+
 Product, content, category, and popular search terms recommendation components support a `before-results` slot. The slotted content is shown only when recommendations are available. Components without slotted content retain their existing layout. For product, content, and category recommendations, using the slot wraps the results in the `recommendation-grid` CSS part and a type-specific part (`product-recommendation-grid`, `content-recommendation-grid`, or `category-recommendation-grid`) so the nested grid remains customizable.
 
 ```html
@@ -1069,7 +1071,7 @@ Universal Search can compose the standalone recommendation components into the t
 
 The top-level `localization.universalSearch.noResults` and `noResultsHint` values customize the no-result state shown when all zero-result tabs are hidden. The corresponding values under `products`, `productCategories`, and `content` customize the state shown inside a visible zero-result tab. Set a `noResultsHint` to an empty string to omit the secondary guidance.
 
-Each block accepts `type`, optional `title`, and optional `take`; `take` defaults to five so a block fills the default desktop row. Set `title` to an empty string to omit the heading.
+Each block accepts `type`, optional `title`, and optional `take`; `take` defaults to five so a block fills the default desktop row. Set `title` to an empty string to omit the heading. Universal Search supplies headings through each recommendation component's `before-results` slot, preserving title spacing and hiding empty blocks.
 
 ```ts
 export interface UniversalSearchRecommendationBlock {

@@ -30,6 +30,7 @@ export abstract class CategoryRecommendationBase<
             result?: TResponse | null;
         }>;
     };
+
     protected abstract readonly registerRecommendationEvent: string;
 
     private requestGeneration = 0;
@@ -184,6 +185,7 @@ export abstract class CategoryRecommendationBase<
 
         :host:has(> [slot="before-results"]) {
             grid-auto-rows: auto;
+            gap: var(--relewise-recommendation-heading-gap, var(--relewise-recommendation-grid-gap, 1em));
         }
 
         :host:not(:has(.rw-recommendation-grid)) > [slot="before-results"] {
@@ -199,8 +201,9 @@ export abstract class CategoryRecommendationBase<
         .rw-recommendation-layout {
             display: flex;
             flex-direction: column;
-            gap: var(--relewise-recommendation-grid-gap, 1em);
+            gap: var(--relewise-recommendation-heading-gap, var(--relewise-recommendation-grid-gap, 1em));
             min-width: 0;
+            width: 100%;
         }
 
         .rw-recommendation-grid {
