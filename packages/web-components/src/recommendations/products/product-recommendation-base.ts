@@ -197,6 +197,7 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
 
         :host:has(> [slot="before-results"]) {
             grid-auto-rows: auto;
+            gap: var(--relewise-recommendation-heading-gap, var(--relewise-recommendation-grid-gap, 1em));
         }
 
         :host:not(:has(.rw-recommendation-grid)) > [slot="before-results"] {
@@ -216,7 +217,7 @@ export abstract class ProductRecommendationBase extends RecommendationStateEleme
         .rw-recommendation-layout {
             display: flex;
             flex-direction: column;
-            gap: var(--relewise-recommendation-grid-gap, 1em);
+            gap: var(--relewise-recommendation-heading-gap, var(--relewise-recommendation-grid-gap, 1em));
             min-width: 0;
         }
 

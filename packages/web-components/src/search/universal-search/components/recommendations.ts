@@ -39,6 +39,7 @@ interface RecommendationBlockRenderContext {
     take: number;
     displayedAtLocation: string;
     term: string;
+    heading: TemplateResult | typeof nothing;
 }
 
 interface RecommendationBlockDefinition {
@@ -59,9 +60,10 @@ const recommendationBlockDefinitions = {
         render: context => html`
             <relewise-popular-products
                 part="recommendation-grid product-recommendation-grid"
-                exportparts="product-tile: recommendation-product-tile"
+                exportparts="recommendation-grid, product-recommendation-grid, product-tile: recommendation-product-tile"
                 .numberOfRecommendations=${context.take}
                 .displayedAtLocation=${context.displayedAtLocation}>
+                ${context.heading}
             </relewise-popular-products>
         `,
     },
@@ -71,9 +73,10 @@ const recommendationBlockDefinitions = {
         render: context => html`
             <relewise-personal-products
                 part="recommendation-grid product-recommendation-grid"
-                exportparts="product-tile: recommendation-product-tile"
+                exportparts="recommendation-grid, product-recommendation-grid, product-tile: recommendation-product-tile"
                 .numberOfRecommendations=${context.take}
                 .displayedAtLocation=${context.displayedAtLocation}>
+                ${context.heading}
             </relewise-personal-products>
         `,
     },
@@ -83,9 +86,10 @@ const recommendationBlockDefinitions = {
         render: context => html`
             <relewise-recently-viewed-products
                 part="recommendation-grid product-recommendation-grid"
-                exportparts="product-tile: recommendation-product-tile"
+                exportparts="recommendation-grid, product-recommendation-grid, product-tile: recommendation-product-tile"
                 .numberOfRecommendations=${context.take}
                 .displayedAtLocation=${context.displayedAtLocation}>
+                ${context.heading}
             </relewise-recently-viewed-products>
         `,
     },
@@ -95,9 +99,10 @@ const recommendationBlockDefinitions = {
         render: context => html`
             <relewise-popular-product-categories
                 part="recommendation-grid category-recommendation-grid"
-                exportparts="category-tile: recommendation-category-tile"
+                exportparts="recommendation-grid, category-recommendation-grid, category-tile: recommendation-category-tile"
                 .numberOfRecommendations=${context.take}
                 .displayedAtLocation=${context.displayedAtLocation}>
+                ${context.heading}
             </relewise-popular-product-categories>
         `,
     },
@@ -107,9 +112,10 @@ const recommendationBlockDefinitions = {
         render: context => html`
             <relewise-popular-content
                 part="recommendation-grid content-recommendation-grid"
-                exportparts="content-tile: recommendation-content-tile"
+                exportparts="recommendation-grid, content-recommendation-grid, content-tile: recommendation-content-tile"
                 .numberOfRecommendations=${context.take}
                 .displayedAtLocation=${context.displayedAtLocation}>
+                ${context.heading}
             </relewise-popular-content>
         `,
     },
@@ -119,9 +125,10 @@ const recommendationBlockDefinitions = {
         render: context => html`
             <relewise-personal-content
                 part="recommendation-grid content-recommendation-grid"
-                exportparts="content-tile: recommendation-content-tile"
+                exportparts="recommendation-grid, content-recommendation-grid, content-tile: recommendation-content-tile"
                 .numberOfRecommendations=${context.take}
                 .displayedAtLocation=${context.displayedAtLocation}>
+                ${context.heading}
             </relewise-personal-content>
         `,
     },
@@ -131,9 +138,10 @@ const recommendationBlockDefinitions = {
         render: context => html`
             <relewise-popular-content-categories
                 part="recommendation-grid category-recommendation-grid"
-                exportparts="category-tile: recommendation-category-tile"
+                exportparts="recommendation-grid, category-recommendation-grid, category-tile: recommendation-category-tile"
                 .numberOfRecommendations=${context.take}
                 .displayedAtLocation=${context.displayedAtLocation}>
+                ${context.heading}
             </relewise-popular-content-categories>
         `,
     },
@@ -147,6 +155,7 @@ const recommendationBlockDefinitions = {
                 .numberOfRecommendations=${context.take}
                 .displayedAtLocation=${context.displayedAtLocation}
                 .term=${context.term}>
+                ${context.heading}
             </relewise-popular-search-terms>
         `,
     },
@@ -156,10 +165,11 @@ const recommendationBlockDefinitions = {
         render: context => html`
             <relewise-search-term-based-products
                 part="recommendation-grid product-recommendation-grid"
-                exportparts="product-tile: recommendation-product-tile"
+                exportparts="recommendation-grid, product-recommendation-grid, product-tile: recommendation-product-tile"
                 .numberOfRecommendations=${context.take}
                 .displayedAtLocation=${context.displayedAtLocation}
                 .term=${context.term}>
+                ${context.heading}
             </relewise-search-term-based-products>
         `,
     },
@@ -524,6 +534,7 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
             take: configuration.take ?? defaultNumberOfRecommendations,
             displayedAtLocation: this.displayedAtLocation ?? 'Relewise Universal Search',
             term: this.term,
+            heading: title ? html`<h2 slot="before-results" class="rw-recommendation-title" part="recommendation-title">${title}</h2>` : nothing,
         };
 
         return html`
@@ -532,7 +543,6 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
                 part=${`recommendation-block ${definition.part}`}
                 ?hidden=${!state?.hasResults}
                 @relewise-ui-components:recommendation-state-changed=${(event: CustomEvent<RecommendationStateChangedEventDetail>) => this.handleRecommendationStateChanged(index, event)}>
-                ${title ? html`<h2 class="rw-recommendation-title" part="recommendation-title">${title}</h2>` : nothing}
                 ${keyed(key, definition.render(context))}
             </section>
         `;
@@ -556,6 +566,11 @@ export class UniversalSearchRecommendations extends RelewiseLitElement {
         .rw-recommendation-loading {
             display: flex;
             justify-content: center;
+        }
+
+        [part~="recommendation-grid"],
+        [part~="popular-search-term-recommendations"] {
+            --relewise-recommendation-heading-gap: 0px;
         }
 
         [part~="recommendation-grid"] {

@@ -170,13 +170,13 @@ export class PopularSearchTerms extends RecommendationStateElement {
         :host:has(> [slot="before-results"]) {
             display: flex;
             flex-direction: column;
-            gap: var(--relewise-recommendation-grid-gap, 1em);
+            gap: var(--relewise-recommendation-heading-gap, var(--relewise-recommendation-grid-gap, 1em));
         }
 
         .rw-recommendation-layout {
             display: flex;
             flex-direction: column;
-            gap: var(--relewise-recommendation-grid-gap, 1em);
+            gap: var(--relewise-recommendation-heading-gap, var(--relewise-recommendation-grid-gap, 1em));
         }
 
         .rw-popular-search-terms {
