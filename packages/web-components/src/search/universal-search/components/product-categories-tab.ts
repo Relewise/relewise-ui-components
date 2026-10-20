@@ -78,8 +78,8 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
     async prepareBatchSearch(settings: Settings): Promise<UniversalSearchBatchSearch> {
         this.abortController.abort();
         this.resetForSearch();
-        const requestResult = await this.buildRequest(settings, true);
         this.loading = true;
+        const requestResult = await this.buildRequest(settings, true);
 
         return {
             request: requestResult.request,

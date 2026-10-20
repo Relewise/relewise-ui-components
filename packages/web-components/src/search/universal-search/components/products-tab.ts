@@ -89,9 +89,9 @@ export class UniversalSearchProductsTab extends RelewiseLitElement {
     async prepareBatchSearch(settings: Settings): Promise<UniversalSearchBatchSearch> {
         this.abortController.abort();
         this.resetForSearch();
-        const requestResult = await this.buildRequest(settings, 'replace');
         this.loading = true;
         this.user = settings.user;
+        const requestResult = await this.buildRequest(settings, 'replace');
 
         return {
             request: requestResult.request,

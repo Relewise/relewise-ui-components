@@ -104,6 +104,7 @@ type TabTestApi<TResult> = {
     result: unknown;
     resultOffset: number;
     facetLabels: string[];
+    loading: boolean;
     loadMore: () => Promise<void>;
     loadPrevious: () => Promise<void>;
     renderRoot: HTMLElement | DocumentFragment;
@@ -805,6 +806,39 @@ suite('relewise-universal-search', () => {
         await waitUntil(() => products(el).length === 1, 'current search response was not applied');
 
         assert.equal(products(el)[0].productId, 'current');
+    });
+
+    test('does not restore loading state when an obsolete context provider resolves last', async() => {
+        const resolveContextValues: Array<() => void> = [];
+        Searcher.prototype.searchProducts = async function(request) {
+            return productSearchResponse([product(request.term ?? 'missing')]);
+        };
+        const options = mockRelewiseOptions();
+        options.getContextValues = () => new Promise(resolve => {
+            resolveContextValues.push(() => resolve({}));
+        });
+        initializeRelewiseUI(options);
+        useSearch({ debounceTimeInMs: 0, universalSearch: { entities: { products: {} } } });
+
+        const el = await fixture(html`
+            <relewise-universal-search displayed-at-location="Universal Search" open></relewise-universal-search>
+        `) as UniversalSearch;
+
+        internals(el).setSearchTerm('shoe');
+        await waitUntil(() => resolveContextValues.length === 1, 'first context provider was not called');
+        internals(el).setSearchTerm('boot');
+        await waitUntil(() => resolveContextValues.length === 2, 'second context provider was not called');
+
+        resolveContextValues[1]();
+        await waitUntil(() => products(el)[0]?.productId === 'boot', 'current search response was not applied');
+        assert.isFalse(productsTab(el).loading);
+
+        resolveContextValues[0]();
+        await new Promise(resolve => setTimeout(resolve, 0));
+        await universalSearchUpdated(el);
+
+        assert.equal(products(el)[0].productId, 'boot');
+        assert.isFalse(productsTab(el).loading);
     });
 
     test('recreates facet and sorting controls when the search term changes', async () => {
