@@ -20,7 +20,7 @@ suite('productCategorySearchRequestBuilder', () => {
         clearUrlState();
     });
 
-    test('builds product category facets with labels and selected values from scoped URL state', () => {
+    test('builds product category facets with labels and selected values from scoped URL state', async() => {
         useSearch({
             facets: {
                 productCategory(builder) {
@@ -35,7 +35,7 @@ suite('productCategorySearchRequestBuilder', () => {
         updateUrlState(QueryKeys.productCategoryFacetLowerbound + 'DataPriority', '1');
         updateUrlState(QueryKeys.productCategoryFacetUpperbound + 'DataPriority', '10');
 
-        const result = buildProductCategorySearchRequest({
+        const result = await buildProductCategorySearchRequest({
             term: 'phone',
             settings,
             page: 1,

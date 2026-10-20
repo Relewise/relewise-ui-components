@@ -32,27 +32,27 @@ suite('productRecommendationBuilder', () => {
 
     test('combines global, recommendation, and targeted context values with later scopes taking precedence', async() => {
         const options = mockRelewiseOptions();
-        options.contextValues = {
+        options.getContextValues = async() => ({
             DeviceType: 'Desktop',
             Market: 'DK',
-        };
+        });
         options.targets = {
             recommendationTargets: configurations => configurations.add({
                 target: 'mobile',
                 configuration: {
-                    contextValues: {
+                    getContextValues: async() => ({
                         DeviceType: 'Mobile',
                         Campaign: 'Summer',
-                    },
+                    }),
                 },
             }),
         };
         initializeRelewiseUI(options);
         useRecommendations({
-            contextValues: {
+            getContextValues: async() => ({
                 DeviceType: 'Tablet',
                 PageId: 'page-1',
-            },
+            }),
         });
 
         const request = (await getProductRecommendationBuilderWithDefaults(

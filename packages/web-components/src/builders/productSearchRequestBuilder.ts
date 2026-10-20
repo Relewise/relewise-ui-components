@@ -25,13 +25,13 @@ export type ProductSearchRequestResult = {
     retailMediaTargetConfiguration: RetailMediaTargetConfiguration | null;
 };
 
-export function buildProductSearchRequest(options: ProductSearchRequestOptions): ProductSearchRequestResult {
+export async function buildProductSearchRequest(options: ProductSearchRequestOptions): Promise<ProductSearchRequestResult> {
     const searchOptions = getRelewiseUISearchOptions();
     const sortingOptions = getSearchSortingOptions(searchOptions?.sorting);
     const targetedConfigurations = getRelewiseSearchTargetedConfigurations();
     let facetLabels: string[] = [];
 
-    const requestBuilder = createProductSearchBuilder(options.term, options.settings)
+    const requestBuilder = (await createProductSearchBuilder(options.term, options.settings))
         .pagination(p => p
             .setPageSize(options.productsToFetch && options.productsLoaded < 1 ? options.productsToFetch : options.pageSize)
             .setPage(options.productsToFetch && options.productsLoaded < 1 ? 1 : options.page))
@@ -54,7 +54,7 @@ export function buildProductSearchRequest(options: ProductSearchRequestOptions):
         });
 
     if (options.target) {
-        const overwrittenConfigSettings = targetedConfigurations.handle(options.target, requestBuilder, options.sortingQueryKey);
+        const overwrittenConfigSettings = await targetedConfigurations.handle(options.target, requestBuilder, options.sortingQueryKey);
         if (overwrittenConfigSettings.facetLabels) {
             facetLabels = overwrittenConfigSettings.facetLabels;
         }

@@ -75,10 +75,10 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
         updateUrlState(QueryKeys.productCategoryTake, (this.pageSize * this.page).toString());
     }
 
-    prepareBatchSearch(settings: Settings): UniversalSearchBatchSearch {
+    async prepareBatchSearch(settings: Settings): Promise<UniversalSearchBatchSearch> {
         this.abortController.abort();
         this.resetForSearch();
-        const requestResult = this.buildRequest(settings, true);
+        const requestResult = await this.buildRequest(settings, true);
         this.loading = true;
 
         return {
@@ -110,7 +110,7 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
             // Let runtime configuration register before the automatic search starts.
             await new Promise(resolve => setTimeout(resolve, 0));
             const settings = await getRelewiseContextSettings(this.displayedAtLocation ?? 'Relewise Universal Search');
-            const requestResult = this.buildRequest(settings, reset);
+            const requestResult = await this.buildRequest(settings, reset);
             const response = await getSearcher(getRelewiseUIOptions()).searchProductCategories(requestResult.request, { abortSignal: abortController.signal });
 
             if (abortController.signal.aborted) {
@@ -136,9 +136,9 @@ export class UniversalSearchProductCategoriesTab extends RelewiseLitElement {
         }
     }
 
-    private buildRequest(settings: Settings, reset: boolean) {
+    private async buildRequest(settings: Settings, reset: boolean) {
         const resultsToFetch = this.getResultsToFetch();
-        return buildProductCategorySearchRequest({
+        return await buildProductCategorySearchRequest({
             term: this.term,
             settings,
             page: reset && resultsToFetch ? 1 : this.page,

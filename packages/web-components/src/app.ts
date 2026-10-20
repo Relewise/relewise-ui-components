@@ -6,7 +6,7 @@ import { Button } from './components/button';
 import { LoadingSpinner } from './components/loading-spinner';
 import { FavoriteButtonContent } from './components/content-favorite-button';
 import { FavoriteButtonProducts } from './components/product-favorite-button';
-import { ContextSettings, ProductTemplateExtensions } from './initialize';
+import { ContextSettings, GetContextValues, ProductTemplateExtensions } from './initialize';
 import { PopularProducts, ProductsViewedAfterViewingProduct, PurchasedWithMultipleProducts, PurchasedWithProduct, PersonalProducts, RecentlyViewedProducts, PopularContent, PersonalContent, ContentViewedAfterViewingContent, ContentViewedAfterViewingMultipleContent, ProductsViewedAfterViewingContent, ContentViewedAfterViewingProduct, ContentViewedAfterViewingMultipleProducts, PopularProductCategories, PopularContentCategories, PopularSearchTerms, SearchTermBasedProducts } from './recommendations';
 import { UniversalSearch, ProductSearchOverlayProduct, ProductSearchOverlayResults, SearchBar, SearchCombobox } from './search';
 import { ChecklistBooleanValueFacet } from './search/components/facets/checklist-boolean-value-facet';
@@ -49,7 +49,7 @@ import type { AdaptiveDiscoveryFeedConfiguration } from './adaptiveDiscovery';
 import { AdaptiveDiscovery } from './shoppertainment';
 
 export interface RelewiseUISearchOptions {
-    contextValues?: Record<string, string>;
+    getContextValues?: GetContextValues;
     filters?: SearchFilters;
     templates?: SearchTemplates;
     facets?: SearchFacets;
@@ -130,14 +130,14 @@ export interface UniversalSearchEntityOptions {
 export type PopularSearchTermEntityType = NonNullable<RecommendPopularSearchTermSettings['targetEntityTypes']>[number];
 
 export interface RelewiseUIRecommendationOptions {
-    contextValues?: Record<string, string>;
+    getContextValues?: GetContextValues;
     popularSearchTerms?: {
         targetEntityTypes?: PopularSearchTermEntityType[];
     };
 }
 
 export interface RelewiseUIShoppertainmentOptions {
-    contextValues?: Record<string, string>;
+    getContextValues?: GetContextValues;
     adaptiveDiscovery?: AdaptiveDiscoveryFeedConfiguration;
 }
 

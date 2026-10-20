@@ -2,7 +2,7 @@ import { RelewiseLitElement } from '../relewise-lit-element';
 import { ProductCategoryResult, ProductCategorySearchResponse, ProductResult, ProductSearchResponse, RedirectResult, SearchCollectionBuilder, SearchTermPredictionBuilder, SearchTermPredictionResponse, SearchTermPredictionResult, User } from '@relewise/client';
 import { css, html, nothing } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { mergeContextValues } from '../helpers/contextValues';
+import { resolveContextValues } from '../helpers/contextValues';
 import { getRelewiseContextSettings, getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { getSearcher } from './searcher';
 import { theme } from '../theme';
@@ -283,6 +283,10 @@ export class ProductSearchOverlay extends RelewiseLitElement {
         try {
             const relewiseUIOptions = getRelewiseUIOptions();
             const searchOptions = getRelewiseUISearchOptions();
+            const contextValues = await resolveContextValues(
+                relewiseUIOptions.getContextValues,
+                searchOptions?.getContextValues,
+            );
             const settings = await getRelewiseContextSettings(this.displayedAtLocation ? this.displayedAtLocation : 'Relewise Product Search Overlay');
             if (abortController.signal.aborted || abortController !== this.abortController) {
                 return;
@@ -292,13 +296,13 @@ export class ProductSearchOverlay extends RelewiseLitElement {
             this.user = settings.user;
 
             const requestBuilder = new SearchCollectionBuilder()
-                .addRequest(createProductSearchBuilder(searchTerm, settings)
+                .addRequest((await createProductSearchBuilder(searchTerm, settings))
                     .pagination(p => p.setPageSize(this.numberOfProducts))
                     .build());
 
             if (this.numberOfSearchTermPredictions > 0) {
                 requestBuilder.addRequest(new SearchTermPredictionBuilder(settings)
-                    .contextValues(mergeContextValues(relewiseUIOptions.contextValues, searchOptions?.contextValues))
+                    .contextValues(contextValues)
                     .setTerm(searchTerm)
                     .take(this.numberOfSearchTermPredictions)
                     .addEntityType('Product')
@@ -306,7 +310,7 @@ export class ProductSearchOverlay extends RelewiseLitElement {
             }
 
             if (this.numberOfProductCategories > 0) {
-                requestBuilder.addRequest(createProductCategorySearchBuilder(searchTerm, settings)
+                requestBuilder.addRequest((await createProductCategorySearchBuilder(searchTerm, settings))
                     .pagination(p => p.setPageSize(this.numberOfProductCategories))
                     .build());
             }

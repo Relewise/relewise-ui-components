@@ -1,5 +1,5 @@
 import { ProductSettingsRecommendationBuilder, Settings } from '@relewise/client';
-import { mergeContextValues } from '../helpers/contextValues';
+import { resolveContextValues } from '../helpers/contextValues';
 import { getRelewiseContextSettings, getRelewiseRecommendationTargetedConfigurations, getRelewiseUIOptions, getRelewiseUIRecommendationOptions } from '../helpers/relewiseUIOptions';
 import { getSelectedProductProperties } from '../defaultSettings';
 
@@ -11,9 +11,13 @@ export async function getProductRecommendationBuilderWithDefaults<T extends Prod
     const relewiseUIOptions = getRelewiseUIOptions();
     const recommendationOptions = getRelewiseUIRecommendationOptions();
     const targetedConfiguration = getRelewiseRecommendationTargetedConfigurations();
+    const contextValues = await resolveContextValues(
+        relewiseUIOptions.getContextValues,
+        recommendationOptions?.getContextValues,
+    );
 
     const builder = createBuilder(settings)
-        .contextValues(mergeContextValues(relewiseUIOptions.contextValues, recommendationOptions?.contextValues))
+        .contextValues(contextValues)
         .setSelectedProductProperties(getSelectedProductProperties(relewiseUIOptions))
         .setSelectedVariantProperties(relewiseUIOptions.selectedPropertiesSettings?.variant ?? null)
         .relevanceModifiers(builder => {
@@ -28,7 +32,7 @@ export async function getProductRecommendationBuilderWithDefaults<T extends Prod
         });
 
     if (target) {
-        targetedConfiguration.handle(target, builder);
+        await targetedConfiguration.handle(target, builder);
     }
 
     return builder;

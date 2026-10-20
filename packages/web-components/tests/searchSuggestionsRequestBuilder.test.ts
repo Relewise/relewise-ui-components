@@ -14,13 +14,13 @@ const settings: Settings = {
 suite('searchSuggestionsRequestBuilder', () => {
     setup(() => {
         const options = mockRelewiseOptions();
-        options.contextValues = { DeviceType: 'Desktop', Market: 'DK' };
+        options.getContextValues = async() => ({ DeviceType: 'Desktop', Market: 'DK' });
         initializeRelewiseUI(options);
-        useSearch({ contextValues: { DeviceType: 'Mobile', SearchExperience: 'Universal' } });
+        useSearch({ getContextValues: async() => ({ DeviceType: 'Mobile', SearchExperience: 'Universal' }) });
     });
 
-    test('builds a popular search terms request', () => {
-        const request = buildPopularSearchTermsRequest({
+    test('builds a popular search terms request', async() => {
+        const request = await buildPopularSearchTermsRequest({
             settings,
             take: 5,
             targetEntityTypes: ['Product', 'Content'],
@@ -35,8 +35,8 @@ suite('searchSuggestionsRequestBuilder', () => {
         });
     });
 
-    test('builds a search term prediction request', () => {
-        const request = buildSearchTermPredictionRequest({
+    test('builds a search term prediction request', async() => {
+        const request = await buildSearchTermPredictionRequest({
             settings,
             term: 'shoe',
             take: 7,

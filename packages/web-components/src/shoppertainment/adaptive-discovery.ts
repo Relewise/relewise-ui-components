@@ -13,7 +13,7 @@ import { ref } from 'lit/directives/ref.js';
 import type { AdaptiveDiscoveryCompositionTemplate } from '../adaptiveDiscovery';
 import { getSelectedContentProperties, getSelectedProductProperties } from '../defaultSettings';
 import formatPrice from '../helpers/formatPrice';
-import { mergeContextValues } from '../helpers/contextValues';
+import { resolveContextValues } from '../helpers/contextValues';
 import { Events } from '../helpers/events';
 import {
     getRelewiseAdaptiveDiscoveryTargetedConfigurations,
@@ -130,6 +130,10 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
 
             const options = getRelewiseUIOptions();
             const shoppertainmentOptions = getRelewiseUIShoppertainmentOptions();
+            const contextValues = await resolveContextValues(
+                options.getContextValues,
+                shoppertainmentOptions?.getContextValues,
+            );
             const settings = await getRelewiseContextSettings(
                 this.displayedAtLocation ?? 'Relewise Adaptive Discovery',
             );
@@ -143,7 +147,7 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
                 minimumPageSize: configuration.minimumPageSize,
                 configurationKey: configuration.configurationKey,
             })
-                .contextValues(mergeContextValues(options.contextValues, shoppertainmentOptions?.contextValues))
+                .contextValues(contextValues)
                 .setSelectedProductProperties(getSelectedProductProperties(options))
                 .setSelectedVariantProperties(options.selectedPropertiesSettings?.variant ?? null)
                 .setSelectedContentProperties(getSelectedContentProperties(options))

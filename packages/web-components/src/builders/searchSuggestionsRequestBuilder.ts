@@ -6,7 +6,7 @@ import {
     Settings,
 } from '@relewise/client';
 import type { SearchSuggestionEntityType } from '../app';
-import { mergeContextValues } from '../helpers/contextValues';
+import { resolveContextValues } from '../helpers/contextValues';
 import { getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 
 type PopularSearchTermsRequestOptions = {
@@ -19,11 +19,15 @@ type SearchTermPredictionRequestOptions = PopularSearchTermsRequestOptions & {
     term: string;
 };
 
-export function buildPopularSearchTermsRequest(options: PopularSearchTermsRequestOptions): PopularSearchTermsRecommendationRequest {
+export async function buildPopularSearchTermsRequest(options: PopularSearchTermsRequestOptions): Promise<PopularSearchTermsRecommendationRequest> {
     const relewiseUIOptions = getRelewiseUIOptions();
     const searchOptions = getRelewiseUISearchOptions();
+    const contextValues = await resolveContextValues(
+        relewiseUIOptions.getContextValues,
+        searchOptions?.getContextValues,
+    );
     const builder = new PopularSearchTermsRecommendationBuilder(options.settings)
-        .contextValues(mergeContextValues(relewiseUIOptions.contextValues, searchOptions?.contextValues))
+        .contextValues(contextValues)
         .addEntityType(...options.targetEntityTypes);
 
     builder.recommendationSettings.numberOfRecommendations = options.take;
@@ -31,11 +35,15 @@ export function buildPopularSearchTermsRequest(options: PopularSearchTermsReques
     return builder.build();
 }
 
-export function buildSearchTermPredictionRequest(options: SearchTermPredictionRequestOptions): SearchTermPredictionRequest {
+export async function buildSearchTermPredictionRequest(options: SearchTermPredictionRequestOptions): Promise<SearchTermPredictionRequest> {
     const relewiseUIOptions = getRelewiseUIOptions();
     const searchOptions = getRelewiseUISearchOptions();
+    const contextValues = await resolveContextValues(
+        relewiseUIOptions.getContextValues,
+        searchOptions?.getContextValues,
+    );
     return new SearchTermPredictionBuilder(options.settings)
-        .contextValues(mergeContextValues(relewiseUIOptions.contextValues, searchOptions?.contextValues))
+        .contextValues(contextValues)
         .setTerm(options.term)
         .take(options.take)
         .addEntityType(...options.targetEntityTypes)

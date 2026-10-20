@@ -84,7 +84,7 @@ export class SearchCombobox extends RelewiseLitElement {
             || this.redirectSuggestions.length > 0);
     }
 
-    prepareBatchSearch(settings: Settings): SearchSuggestionsBatchSearch | null {
+    async prepareBatchSearch(settings: Settings): Promise<SearchSuggestionsBatchSearch | null> {
         const options = this.suggestions?.searchTermPredictions;
         const take = options?.take ?? defaultTake;
         const targetEntityTypes = options?.targetEntityTypes ?? this.targetEntityTypes;
@@ -97,7 +97,7 @@ export class SearchCombobox extends RelewiseLitElement {
         const responseIsCurrent = () => this.term === requestedTerm && this.inputInFocus && !this.dismissed;
 
         return {
-            request: buildSearchTermPredictionRequest({
+            request: await buildSearchTermPredictionRequest({
                 settings,
                 term: requestedTerm,
                 take,
@@ -336,7 +336,7 @@ export class SearchCombobox extends RelewiseLitElement {
                 return;
             }
 
-            const response = await getRecommender(getRelewiseUIOptions()).recommendPopularSearchTerms(buildPopularSearchTermsRequest({
+            const response = await getRecommender(getRelewiseUIOptions()).recommendPopularSearchTerms(await buildPopularSearchTermsRequest({
                 settings,
                 take,
                 targetEntityTypes,

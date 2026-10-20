@@ -37,18 +37,18 @@ suite('relewise-popular-search-terms', () => {
     test('requests and renders usable search terms', async() => {
         let targetedConfigurationApplied = false;
         const options = mockRelewiseOptions();
-        options.contextValues = { DeviceType: 'Desktop', Market: 'DK' };
+        options.getContextValues = async() => ({ DeviceType: 'Desktop', Market: 'DK' });
         options.targets = {
             recommendationTargets: configurations => configurations.add({
                 target: 'search terms target',
                 configuration: {
                     filters: () => targetedConfigurationApplied = true,
-                    contextValues: { DeviceType: 'Mobile' },
+                    getContextValues: async() => ({ DeviceType: 'Mobile' }),
                 },
             }),
         };
         initializeRelewiseUI(options).useRecommendations({
-            contextValues: { DeviceType: 'Tablet', PageId: 'page-1' },
+            getContextValues: async() => ({ DeviceType: 'Tablet', PageId: 'page-1' }),
             popularSearchTerms: {
                 targetEntityTypes: ['Product', 'ProductCategory'],
             },

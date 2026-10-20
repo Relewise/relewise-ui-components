@@ -1,7 +1,7 @@
 import { ContentSearchBuilder, ContentSearchRequest, Settings } from '@relewise/client';
 import { getSelectedContentProperties } from '../defaultSettings';
 import { RelewiseFacetBuilder } from '../facetBuilder';
-import { mergeContextValues } from '../helpers/contextValues';
+import { resolveContextValues } from '../helpers/contextValues';
 import { getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 import { QueryKeys } from '../helpers/urlState';
 import { applySelectedValuesToFacets } from './facetSelectionHelpers';
@@ -18,13 +18,17 @@ export type ContentSearchRequestResult = {
     facetLabels: string[];
 };
 
-export function buildContentSearchRequest(options: ContentSearchRequestOptions): ContentSearchRequestResult {
+export async function buildContentSearchRequest(options: ContentSearchRequestOptions): Promise<ContentSearchRequestResult> {
     const relewiseUIOptions = getRelewiseUIOptions();
     const searchOptions = getRelewiseUISearchOptions();
+    const contextValues = await resolveContextValues(
+        relewiseUIOptions.getContextValues,
+        searchOptions?.getContextValues,
+    );
     let facetLabels: string[] = [];
 
     const request = new ContentSearchBuilder(options.settings)
-        .contextValues(mergeContextValues(relewiseUIOptions.contextValues, searchOptions?.contextValues))
+        .contextValues(contextValues)
         .setContentProperties(getSelectedContentProperties(relewiseUIOptions))
         .setTerm(options.term)
         .pagination(p => p

@@ -162,13 +162,13 @@ suite('relewise-adaptive-discovery', () => {
         };
 
         const options = mockRelewiseOptions();
-        options.contextValues = { DeviceType: 'Desktop', Market: 'DK' };
+        options.getContextValues = async() => ({ DeviceType: 'Desktop', Market: 'DK' });
         options.filters = {
             product: () => productFilterApplied = true,
             content: () => contentFilterApplied = true,
         };
         initializeRelewiseUI(options).useShoppertainment({
-            contextValues: { DeviceType: 'Tablet', PageId: 'page-1' },
+            getContextValues: async() => ({ DeviceType: 'Tablet', PageId: 'page-1' }),
             adaptiveDiscovery: {
                 minimumPageSize: 12,
                 configurationKey: 'home-page',

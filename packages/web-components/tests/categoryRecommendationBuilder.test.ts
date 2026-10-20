@@ -24,10 +24,10 @@ suite('categoryRecommendationBuilder', () => {
             settings => new PopularContentCategoriesRecommendationBuilder(settings),
             'content categories',
         )).build();
-        const searchRequest = createProductCategorySearchBuilder(
+        const searchRequest = (await createProductCategorySearchBuilder(
             'category',
             await getRelewiseContextSettings('product category search'),
-        ).build();
+        )).build();
 
         assert.deepEqual(productRequest.settings.selectedProductCategoryProperties?.dataKeys, ['ImageUrl', 'Url']);
         assert.deepEqual(contentRequest.settings.selectedContentCategoryProperties?.dataKeys, ['ImageUrl', 'Url']);
