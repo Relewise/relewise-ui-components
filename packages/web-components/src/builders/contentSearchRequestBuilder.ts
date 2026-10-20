@@ -1,7 +1,7 @@
 import { ContentSearchBuilder, ContentSearchRequest, Settings } from '@relewise/client';
 import { getSelectedContentProperties } from '../defaultSettings';
 import { RelewiseFacetBuilder } from '../facetBuilder';
-import { getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
+import { getRelewiseUIOptions, getRelewiseUISearchOptions, mergeContextValues } from '../helpers/relewiseUIOptions';
 import { QueryKeys } from '../helpers/urlState';
 import { applySelectedValuesToFacets } from './facetSelectionHelpers';
 
@@ -23,6 +23,7 @@ export function buildContentSearchRequest(options: ContentSearchRequestOptions):
     let facetLabels: string[] = [];
 
     const request = new ContentSearchBuilder(options.settings)
+        .contextValues(mergeContextValues(relewiseUIOptions.contextValues, searchOptions?.contextValues))
         .setContentProperties(getSelectedContentProperties(relewiseUIOptions))
         .setTerm(options.term)
         .pagination(p => p

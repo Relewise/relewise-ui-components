@@ -11,6 +11,7 @@ export type TargetedSearchConfiguration = {
     filters?: (builder: FilterBuilder) => void;
     relevanceModifiers?: (builder: RelevanceModifierBuilder) => void;
     retailMedia?: (builder: RetailMediaTargetBuilder) => void;
+    contextValues?: Record<string, string>;
 };
 
 export class TargetedSearchConfigurations {
@@ -98,6 +99,10 @@ export class TargetedSearchConfigurations {
 
         if (configuration.relevanceModifiers) {
             builder.relevanceModifiers(b => configuration.relevanceModifiers!(b));
+        }
+
+        for (const [key, value] of Object.entries(configuration.contextValues ?? {})) {
+            builder.addContextValue(key, value);
         }
 
         return {

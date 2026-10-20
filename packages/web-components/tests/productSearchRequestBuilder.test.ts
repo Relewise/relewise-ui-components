@@ -131,6 +131,44 @@ suite('productSearchRequestBuilder', () => {
         assert.equal(result.request.facets?.items[0].field, 'Category');
     });
 
+    test('combines global, search, and targeted context values with later scopes taking precedence', () => {
+        const options = mockRelewiseOptions();
+        options.contextValues = {
+            DeviceType: 'Desktop',
+            Market: 'DK',
+        };
+        initializeRelewiseUI(options);
+        useSearch({
+            contextValues: {
+                DeviceType: 'Tablet',
+                SearchExperience: 'FullPage',
+            },
+        });
+        registerSearchTarget('mobile', {
+            contextValues: {
+                DeviceType: 'Mobile',
+                Campaign: 'Summer',
+            },
+        });
+
+        const result = buildProductSearchRequest({
+            term: 'shoe',
+            settings,
+            page: 1,
+            pageSize: 16,
+            productsLoaded: 0,
+            productsToFetch: null,
+            target: 'mobile',
+        });
+
+        assert.deepEqual(result.request.contextValues, {
+            DeviceType: 'Mobile',
+            Market: 'DK',
+            SearchExperience: 'FullPage',
+            Campaign: 'Summer',
+        });
+    });
+
     test('uses scoped sorting URL state for targeted searches', () => {
         useSearch();
         registerSearchTarget('campaign', {

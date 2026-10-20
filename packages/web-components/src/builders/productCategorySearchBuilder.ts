@@ -1,12 +1,13 @@
 import { ProductCategorySearchBuilder, Settings } from '@relewise/client';
 import { defaultProductCategoryProperties } from '../defaultSettings';
-import { getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers';
+import { getRelewiseUIOptions, getRelewiseUISearchOptions, mergeContextValues } from '../helpers';
 
 export function createProductCategorySearchBuilder(searchTerm: string | null | undefined, settings: Settings): ProductCategorySearchBuilder {
     const relewiseUIOptions = getRelewiseUIOptions();
     const searchOptions = getRelewiseUISearchOptions();
 
     return new ProductCategorySearchBuilder(settings)
+        .contextValues(mergeContextValues(relewiseUIOptions.contextValues, searchOptions?.contextValues))
         .setSelectedCategoryProperties(relewiseUIOptions.selectedPropertiesSettings?.productCategory ?? defaultProductCategoryProperties)
         .setTerm(searchTerm ? searchTerm : null)
         .relevanceModifiers(builder => {

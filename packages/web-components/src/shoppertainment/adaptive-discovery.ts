@@ -19,6 +19,8 @@ import {
     getRelewiseContextSettings,
     getRelewiseUIAdaptiveDiscoveryOptions,
     getRelewiseUIOptions,
+    getRelewiseUIShoppertainmentOptions,
+    mergeContextValues,
 } from '../helpers/relewiseUIOptions';
 import { templateHelpers } from '../helpers/templateHelpers';
 import { RelewiseLitElement } from '../relewise-lit-element';
@@ -127,6 +129,7 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
                 ?? defaultDwellThresholdMilliseconds;
 
             const options = getRelewiseUIOptions();
+            const shoppertainmentOptions = getRelewiseUIShoppertainmentOptions();
             const settings = await getRelewiseContextSettings(
                 this.displayedAtLocation ?? 'Relewise Adaptive Discovery',
             );
@@ -140,6 +143,7 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
                 minimumPageSize: configuration.minimumPageSize,
                 configurationKey: configuration.configurationKey,
             })
+                .contextValues(mergeContextValues(options.contextValues, shoppertainmentOptions?.contextValues))
                 .setSelectedProductProperties(getSelectedProductProperties(options))
                 .setSelectedVariantProperties(options.selectedPropertiesSettings?.variant ?? null)
                 .setSelectedContentProperties(getSelectedContentProperties(options))

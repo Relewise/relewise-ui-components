@@ -47,6 +47,7 @@ export interface RelewiseUIOptions {
     datasetId: string;
     apiKey: string;
     contextSettings: ContextSettings;
+    contextValues?: Record<string, string>;
     localization?: RelewiseUILocalization;
     selectedPropertiesSettings?: {
         product?: Partial<SelectedProductPropertiesSettings>;

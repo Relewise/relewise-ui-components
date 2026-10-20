@@ -6,6 +6,7 @@ import {
     Settings,
 } from '@relewise/client';
 import type { SearchSuggestionEntityType } from '../app';
+import { getRelewiseUIOptions, getRelewiseUISearchOptions, mergeContextValues } from '../helpers/relewiseUIOptions';
 
 type PopularSearchTermsRequestOptions = {
     settings: Settings;
@@ -18,7 +19,10 @@ type SearchTermPredictionRequestOptions = PopularSearchTermsRequestOptions & {
 };
 
 export function buildPopularSearchTermsRequest(options: PopularSearchTermsRequestOptions): PopularSearchTermsRecommendationRequest {
+    const relewiseUIOptions = getRelewiseUIOptions();
+    const searchOptions = getRelewiseUISearchOptions();
     const builder = new PopularSearchTermsRecommendationBuilder(options.settings)
+        .contextValues(mergeContextValues(relewiseUIOptions.contextValues, searchOptions?.contextValues))
         .addEntityType(...options.targetEntityTypes);
 
     builder.recommendationSettings.numberOfRecommendations = options.take;
@@ -27,7 +31,10 @@ export function buildPopularSearchTermsRequest(options: PopularSearchTermsReques
 }
 
 export function buildSearchTermPredictionRequest(options: SearchTermPredictionRequestOptions): SearchTermPredictionRequest {
+    const relewiseUIOptions = getRelewiseUIOptions();
+    const searchOptions = getRelewiseUISearchOptions();
     return new SearchTermPredictionBuilder(options.settings)
+        .contextValues(mergeContextValues(relewiseUIOptions.contextValues, searchOptions?.contextValues))
         .setTerm(options.term)
         .take(options.take)
         .addEntityType(...options.targetEntityTypes)

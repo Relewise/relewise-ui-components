@@ -11,6 +11,8 @@ import {
     getRelewiseContextSettings,
     getRelewiseRecommendationTargetedConfigurations,
     getRelewiseUIOptions,
+    getRelewiseUIRecommendationOptions,
+    mergeContextValues,
 } from '../helpers/relewiseUIOptions';
 
 export async function getProductCategoryRecommendationBuilderWithDefaults<T extends ProductCategorySettingsRecommendationBuilder>(
@@ -22,7 +24,9 @@ export async function getProductCategoryRecommendationBuilderWithDefaults<T exte
 
     const settings = await getRelewiseContextSettings(displayedAtLocation);
     const options = getRelewiseUIOptions();
+    const recommendationOptions = getRelewiseUIRecommendationOptions();
     const builder = createBuilder(settings)
+        .contextValues(mergeContextValues(options.contextValues, recommendationOptions?.contextValues))
         .setProductCategoryProperties(options.selectedPropertiesSettings?.productCategory ?? defaultProductCategoryProperties)
         .relevanceModifiers(modifiers => options.relevanceModifiers?.productCategory?.(modifiers))
         .filters(filters => options.filters?.productCategory?.(filters));
@@ -43,7 +47,9 @@ export async function getContentCategoryRecommendationBuilderWithDefaults<T exte
 
     const settings = await getRelewiseContextSettings(displayedAtLocation);
     const options = getRelewiseUIOptions();
+    const recommendationOptions = getRelewiseUIRecommendationOptions();
     const builder = createBuilder(settings)
+        .contextValues(mergeContextValues(options.contextValues, recommendationOptions?.contextValues))
         .setSelectedContentCategoryProperties(options.selectedPropertiesSettings?.contentCategory ?? defaultContentCategoryProperties)
         .relevanceModifiers(modifiers => options.relevanceModifiers?.contentCategory?.(modifiers))
         .filters(filters => options.filters?.contentCategory?.(filters));

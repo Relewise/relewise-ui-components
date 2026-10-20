@@ -1,6 +1,8 @@
 import { assert } from '@esm-bundle/chai';
 import { Settings, UserFactory } from '@relewise/client';
 import { buildPopularSearchTermsRequest, buildSearchTermPredictionRequest } from '../src/builders/searchSuggestionsRequestBuilder';
+import { initializeRelewiseUI, useSearch } from '../src';
+import { mockRelewiseOptions } from './util/mockRelewiseUIOptions';
 
 const settings: Settings = {
     currency: 'currency',
@@ -10,6 +12,13 @@ const settings: Settings = {
 };
 
 suite('searchSuggestionsRequestBuilder', () => {
+    setup(() => {
+        const options = mockRelewiseOptions();
+        options.contextValues = { DeviceType: 'Desktop', Market: 'DK' };
+        initializeRelewiseUI(options);
+        useSearch({ contextValues: { DeviceType: 'Mobile', SearchExperience: 'Universal' } });
+    });
+
     test('builds a popular search terms request', () => {
         const request = buildPopularSearchTermsRequest({
             settings,
@@ -19,6 +28,11 @@ suite('searchSuggestionsRequestBuilder', () => {
 
         assert.equal(request.settings?.numberOfRecommendations, 5);
         assert.deepEqual(request.settings?.targetEntityTypes, ['Product', 'Content']);
+        assert.deepEqual(request.contextValues, {
+            DeviceType: 'Mobile',
+            Market: 'DK',
+            SearchExperience: 'Universal',
+        });
     });
 
     test('builds a search term prediction request', () => {
@@ -32,5 +46,10 @@ suite('searchSuggestionsRequestBuilder', () => {
         assert.equal(request.term, 'shoe');
         assert.equal(request.take, 7);
         assert.deepEqual(request.settings?.targetEntityTypes, ['Product', 'ProductCategory', 'Content']);
+        assert.deepEqual(request.contextValues, {
+            DeviceType: 'Mobile',
+            Market: 'DK',
+            SearchExperience: 'Universal',
+        });
     });
 });

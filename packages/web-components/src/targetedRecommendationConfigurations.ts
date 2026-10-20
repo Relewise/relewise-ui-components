@@ -3,6 +3,7 @@ import { FilterBuilder, RecommendationRequestBuilder, RelevanceModifierBuilder }
 export type TargetedRecommendationConfiguration = {
   filters?: (builder: FilterBuilder) => void;
   relevanceModifiers?: (builder: RelevanceModifierBuilder) => void;
+  contextValues?: Record<string, string>;
 };
 
 export class TargetedRecommendationConfigurations {
@@ -42,5 +43,9 @@ export class TargetedRecommendationConfigurations {
         if (configuration.relevanceModifiers) {
             builder.relevanceModifiers(b => configuration.relevanceModifiers!(b));
         }
+
+        for (const [key, value] of Object.entries(configuration.contextValues ?? {})) {
+            builder.addContextValue(key, value);
+        }
     }
-}   
+}

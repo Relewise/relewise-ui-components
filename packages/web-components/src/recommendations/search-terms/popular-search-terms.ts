@@ -10,6 +10,7 @@ import {
     getRelewiseUIRecommendationOptions,
     getRelewiseRecommendationTargetedConfigurations,
     getRelewiseUIOptions,
+    mergeContextValues,
 } from '../../helpers/relewiseUIOptions';
 import { PopularSearchTermEntityType } from '../../app';
 import { getRecommender } from '../recommender';
@@ -100,10 +101,13 @@ export class PopularSearchTerms extends RecommendationStateElement {
     async buildRequest() {
         await new Promise(resolve => setTimeout(resolve, 0));
         const settings = await getRelewiseContextSettings(this.displayedAtLocation ?? 'Relewise Popular Search Terms');
+        const relewiseUIOptions = getRelewiseUIOptions();
+        const recommendationOptions = getRelewiseUIRecommendationOptions();
         const builder = new PopularSearchTermsRecommendationBuilder(settings)
+            .contextValues(mergeContextValues(relewiseUIOptions.contextValues, recommendationOptions?.contextValues))
             .setTerm(this.term || undefined)
             .take(this.numberOfRecommendations);
-        const targetEntityTypes: PopularSearchTermEntityType[] = getRelewiseUIRecommendationOptions()
+        const targetEntityTypes: PopularSearchTermEntityType[] = recommendationOptions
             ?.popularSearchTerms?.targetEntityTypes ?? [];
 
         if (targetEntityTypes.length > 0) {

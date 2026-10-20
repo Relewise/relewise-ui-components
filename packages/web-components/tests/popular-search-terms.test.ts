@@ -37,13 +37,18 @@ suite('relewise-popular-search-terms', () => {
     test('requests and renders usable search terms', async() => {
         let targetedConfigurationApplied = false;
         const options = mockRelewiseOptions();
+        options.contextValues = { DeviceType: 'Desktop', Market: 'DK' };
         options.targets = {
             recommendationTargets: configurations => configurations.add({
                 target: 'search terms target',
-                configuration: { filters: () => targetedConfigurationApplied = true },
+                configuration: {
+                    filters: () => targetedConfigurationApplied = true,
+                    contextValues: { DeviceType: 'Mobile' },
+                },
             }),
         };
         initializeRelewiseUI(options).useRecommendations({
+            contextValues: { DeviceType: 'Tablet', PageId: 'page-1' },
             popularSearchTerms: {
                 targetEntityTypes: ['Product', 'ProductCategory'],
             },
@@ -64,6 +69,11 @@ suite('relewise-popular-search-terms', () => {
         assert.equal(requests[0].term, 'trail');
         assert.equal(requests[0].settings?.numberOfRecommendations, 5);
         assert.deepEqual(requests[0].settings?.targetEntityTypes, ['Product', 'ProductCategory']);
+        assert.deepEqual(requests[0].contextValues, {
+            DeviceType: 'Mobile',
+            Market: 'DK',
+            PageId: 'page-1',
+        });
         assert.isTrue(targetedConfigurationApplied);
         assert.deepInclude(states, { loading: true, hasResults: false });
         assert.deepInclude(states, { loading: false, hasResults: true });
