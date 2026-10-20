@@ -17,7 +17,7 @@ suite('DataObject facets', () => {
         initializeRelewiseUI(mockRelewiseOptions());
     });
 
-    test('hydrates nested selections from the complete object path', () => {
+    test('hydrates nested selections from the complete object path', async() => {
         useSearch({
             facets: {
                 product(builder) {
@@ -29,7 +29,7 @@ suite('DataObject facets', () => {
 
         updateUrlStateValues(`${QueryKeys.facet}Databrand_values.brand_name`, ['Relewise']);
 
-        const result = buildProductSearchRequest({
+        const result = await buildProductSearchRequest({
             term: 'shoe',
             settings,
             page: 1,
@@ -49,7 +49,7 @@ suite('DataObject facets', () => {
         assert.equal('key' in nestedFacet ? nestedFacet.key : null, 'brand_name');
     });
 
-    test('hydrates nested selections for Universal Search entity builders', () => {
+    test('hydrates nested selections for Universal Search entity builders', async() => {
         useSearch({
             facets: {
                 content(builder) {
@@ -66,8 +66,8 @@ suite('DataObject facets', () => {
         updateUrlStateValues(`${QueryKeys.contentFacet}Datametadata.topic`, ['guide']);
         updateUrlStateValues(`${QueryKeys.productCategoryFacet}Datametadata.topic`, ['footwear']);
 
-        const contentResult = buildContentSearchRequest({ term: 'shoe', settings, page: 1, pageSize: 16 });
-        const productCategoryResult = buildProductCategorySearchRequest({ term: 'shoe', settings, page: 1, pageSize: 16 });
+        const contentResult = await buildContentSearchRequest({ term: 'shoe', settings, page: 1, pageSize: 16 });
+        const productCategoryResult = await buildProductCategorySearchRequest({ term: 'shoe', settings, page: 1, pageSize: 16 });
         const contentFacet = contentResult.request.facets?.items[0] as ContentDataObjectFacet;
         const productCategoryFacet = productCategoryResult.request.facets?.items[0] as ProductCategoryDataObjectFacet;
 
@@ -156,7 +156,7 @@ suite('DataObject facets', () => {
 
         const queryKey = `${QueryKeys.facet}Datametrics.score`;
         assert.deepEqual(new URL(window.location.href).searchParams.getAll(queryKey), ['-10-0', 'null-10']);
-        const request = buildProductSearchRequest({
+        const request = await buildProductSearchRequest({
             term: 'shoe',
             settings,
             page: 1,

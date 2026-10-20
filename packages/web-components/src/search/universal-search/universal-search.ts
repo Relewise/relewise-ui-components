@@ -285,8 +285,8 @@ export class UniversalSearch extends RelewiseLitElement {
             if (abortController.signal.aborted || this.searchTerm !== term) {
                 return;
             }
-            searches = tabs.map(tab => tab.prepareBatchSearch(settings));
-            const suggestionsSearch = this.renderRoot
+            searches = await Promise.all(tabs.map(tab => tab.prepareBatchSearch(settings)));
+            const suggestionsSearch = await this.renderRoot
                 .querySelector<SearchCombobox>('relewise-search-combobox')
                 ?.prepareBatchSearch(settings);
             if (suggestionsSearch) {

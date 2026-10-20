@@ -1,8 +1,10 @@
 import { FilterBuilder, RecommendationRequestBuilder, RelevanceModifierBuilder } from '@relewise/client';
+import type { GetContextValues } from './initialize';
 
 export type TargetedRecommendationConfiguration = {
   filters?: (builder: FilterBuilder) => void;
   relevanceModifiers?: (builder: RelevanceModifierBuilder) => void;
+  getContextValues?: GetContextValues;
 };
 
 export class TargetedRecommendationConfigurations {
@@ -27,7 +29,7 @@ export class TargetedRecommendationConfigurations {
         return this.templates.has(target);
     }
 
-    handle(target: string, builder: RecommendationRequestBuilder) {
+    async handle(target: string, builder: RecommendationRequestBuilder) {
         const configuration = this.templates.get(target);
     
         if (!configuration) {
@@ -42,5 +44,9 @@ export class TargetedRecommendationConfigurations {
         if (configuration.relevanceModifiers) {
             builder.relevanceModifiers(b => configuration.relevanceModifiers!(b));
         }
+
+        for (const [key, value] of Object.entries(await configuration.getContextValues?.() ?? {})) {
+            builder.addContextValue(key, value);
+        }
     }
-}   
+}

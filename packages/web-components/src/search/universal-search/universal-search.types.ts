@@ -18,6 +18,6 @@ export type UniversalSearchBatchSearch = {
 };
 
 export interface UniversalSearchBatchTab {
-    prepareBatchSearch(settings: Settings): UniversalSearchBatchSearch;
+    prepareBatchSearch(settings: Settings): Promise<UniversalSearchBatchSearch>;
     setError(): void;
 }

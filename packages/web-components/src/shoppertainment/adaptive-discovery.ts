@@ -13,12 +13,14 @@ import { ref } from 'lit/directives/ref.js';
 import type { AdaptiveDiscoveryCompositionTemplate } from '../adaptiveDiscovery';
 import { getSelectedContentProperties, getSelectedProductProperties } from '../defaultSettings';
 import formatPrice from '../helpers/formatPrice';
+import { resolveContextValues } from '../helpers/contextValues';
 import { Events } from '../helpers/events';
 import {
     getRelewiseAdaptiveDiscoveryTargetedConfigurations,
     getRelewiseContextSettings,
     getRelewiseUIAdaptiveDiscoveryOptions,
     getRelewiseUIOptions,
+    getRelewiseUIShoppertainmentOptions,
 } from '../helpers/relewiseUIOptions';
 import { templateHelpers } from '../helpers/templateHelpers';
 import { RelewiseLitElement } from '../relewise-lit-element';
@@ -127,6 +129,11 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
                 ?? defaultDwellThresholdMilliseconds;
 
             const options = getRelewiseUIOptions();
+            const shoppertainmentOptions = getRelewiseUIShoppertainmentOptions();
+            const contextValues = await resolveContextValues(
+                options.getContextValues,
+                shoppertainmentOptions?.getContextValues,
+            );
             const settings = await getRelewiseContextSettings(
                 this.displayedAtLocation ?? 'Relewise Adaptive Discovery',
             );
@@ -140,6 +147,7 @@ export class AdaptiveDiscovery extends RelewiseLitElement {
                 minimumPageSize: configuration.minimumPageSize,
                 configurationKey: configuration.configurationKey,
             })
+                .contextValues(contextValues)
                 .setSelectedProductProperties(getSelectedProductProperties(options))
                 .setSelectedVariantProperties(options.selectedPropertiesSettings?.variant ?? null)
                 .setSelectedContentProperties(getSelectedContentProperties(options))

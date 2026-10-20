@@ -236,7 +236,7 @@ suite('relewise-search-combobox', () => {
             </relewise-search-combobox>
         `) as SearchCombobox;
         const settings = await getRelewiseContextSettings('Standalone search');
-        const predictionSearch = element.prepareBatchSearch(settings);
+        const predictionSearch = await element.prepareBatchSearch(settings);
 
         assert.isNotNull(predictionSearch);
         assert.equal(predictionSearch?.request.term, 'shoe');
@@ -244,7 +244,7 @@ suite('relewise-search-combobox', () => {
         assert.deepEqual(predictionSearch?.request.settings?.targetEntityTypes, ['Product']);
 
         element.suggestions = { searchTermPredictions: { take: 3 } };
-        const fallbackPredictionSearch = element.prepareBatchSearch(settings);
+        const fallbackPredictionSearch = await element.prepareBatchSearch(settings);
         assert.deepEqual(fallbackPredictionSearch?.request.settings?.targetEntityTypes, ['Product', 'Content']);
 
         predictionSearch?.applyResponse({
@@ -271,7 +271,7 @@ suite('relewise-search-combobox', () => {
             </relewise-search-combobox>
         `) as SearchCombobox;
         const settings = await getRelewiseContextSettings('Standalone search');
-        const predictionSearch = element.prepareBatchSearch(settings);
+        const predictionSearch = await element.prepareBatchSearch(settings);
         const input = element.renderRoot.querySelector('input')!;
         const response = {
             responses: [{
@@ -287,7 +287,7 @@ suite('relewise-search-combobox', () => {
 
         assert.isNull(element.renderRoot.querySelector('[part~="suggestion"]'));
 
-        const currentPredictionSearch = element.prepareBatchSearch(settings);
+        const currentPredictionSearch = await element.prepareBatchSearch(settings);
         document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
         currentPredictionSearch?.applyResponse(response);
         await element.updateComplete;

@@ -47,6 +47,7 @@ export interface RelewiseUIOptions {
     datasetId: string;
     apiKey: string;
     contextSettings: ContextSettings;
+    getContextValues?: GetContextValues;
     localization?: RelewiseUILocalization;
     selectedPropertiesSettings?: {
         product?: Partial<SelectedProductPropertiesSettings>;
@@ -63,6 +64,8 @@ export interface RelewiseUIOptions {
     userEngagement?: UserEngagementOptions;
     components?: RelewiseComponentsOptions;
 }
+
+export type GetContextValues = () => Record<string, string> | Promise<Record<string, string>>;
 
 export interface Filters {
     product?: (builder: FilterBuilder) => void;

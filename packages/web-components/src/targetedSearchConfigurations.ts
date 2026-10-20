@@ -3,6 +3,7 @@ import { QueryKeys, readCurrentUrlState } from './helpers/urlState';
 import { RelewiseFacetBuilder } from './facetBuilder';
 import { RetailMediaTargetBuilder, RetailMediaTargetConfiguration } from './builders/retailMediaBuilder';
 import { SearchSortingOption, SearchSortingOptionsBuilder, getSearchSortingOptions, getSearchSortingSelection } from './builders/searchSortingBuilder';
+import type { GetContextValues } from './initialize';
 
 
 export type TargetedSearchConfiguration = {
@@ -11,6 +12,7 @@ export type TargetedSearchConfiguration = {
     filters?: (builder: FilterBuilder) => void;
     relevanceModifiers?: (builder: RelevanceModifierBuilder) => void;
     retailMedia?: (builder: RetailMediaTargetBuilder) => void;
+    getContextValues?: GetContextValues;
 };
 
 export class TargetedSearchConfigurations {
@@ -58,7 +60,7 @@ export class TargetedSearchConfigurations {
         return builder.build();
     }
 
-    handle(target: string, builder: ProductSearchBuilder, sortingQueryKey: string = QueryKeys.sortBy): { facetLabels?: string[] } {
+    async handle(target: string, builder: ProductSearchBuilder, sortingQueryKey: string = QueryKeys.sortBy): Promise<{ facetLabels?: string[] }> {
         const configuration = this.templates.get(target);
 
         if (!configuration) {
@@ -98,6 +100,10 @@ export class TargetedSearchConfigurations {
 
         if (configuration.relevanceModifiers) {
             builder.relevanceModifiers(b => configuration.relevanceModifiers!(b));
+        }
+
+        for (const [key, value] of Object.entries(await configuration.getContextValues?.() ?? {})) {
+            builder.addContextValue(key, value);
         }
 
         return {

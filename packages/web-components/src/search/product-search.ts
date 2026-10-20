@@ -184,7 +184,7 @@ export class ProductSearch extends RelewiseLitElement {
             }
 
             const pagination = this.getPagination(shouldClearOldResult, prepend);
-            const requestResult = buildProductSearchRequest({
+            const requestResult = await buildProductSearchRequest({
                 term,
                 settings,
                 page: this.page,

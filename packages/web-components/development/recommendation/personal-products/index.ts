@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 import { UserFactory } from '@relewise/client';
-import { initializeRelewiseUI } from '../../../src/index';
+import { initializeRelewiseUI, registerRecommendationTarget } from '../../../src/index';
 
 initializeRelewiseUI(
     {
@@ -17,5 +17,18 @@ initializeRelewiseUI(
         clientOptions: {
             serverUrl: import.meta.env.VITE_SERVER_URL,
         },
+        getContextValues: async () => ({
+            PageId: '1',
+        }),
     },
-).useRecommendations();
+).useRecommendations({
+    getContextValues: async () => ({
+        Device: 'Mobile',
+    }),
+});
+
+registerRecommendationTarget('block', {
+    getContextValues: async () => ({
+        Block: 'ABC',
+    }),
+});

@@ -20,6 +20,10 @@ initializeRelewiseUI(
             language: 'da-dk',
             currency: 'DKK',
         },
+        getContextValues: async() => ({
+            DeviceType: 'Desktop',
+            Market: 'DK',
+        }),
         datasetId: RELEWISE_DATASET_ID,
         apiKey: RELEWISE_API_KEY,
         clientOptions: {
@@ -31,6 +35,8 @@ initializeRelewiseUI(
 Replace the `RELEWISE_DATASET_ID`, `RELEWISE_API_KEY`, `RELEWISE_SERVER_URL` with your dataset, api-key and server-url found at [My.Relewise](https://my.relewise.com/developer-settings). 
 
 After which you have access to various components configured with the configuration provided.
+
+`getContextValues` is resolved before every supported search, recommendation, and Shoppertainment request and may return the values directly or as a Promise. Keys and values are case-sensitive strings used by Relewise merchandising rules and are visible in LiveView. Do not include sensitive information. Feature-level and targeted configurations can provide more specific values. When the same key exists in multiple scopes, precedence is global initialization, then feature configuration, then targeted configuration.
 
 ### Configuring render root
 Components render in Shadow DOM by default. To opt in to Light DOM rendering for all Relewise web components, set `components.domMode` during initialization.
@@ -71,6 +77,9 @@ Configure the Adaptive Discovery feed through the `adaptiveDiscovery` subsection
 initializeRelewiseUI({
     ...
 }).useShoppertainment({
+    getContextValues: async() => ({
+        PageId: 'frontpage',
+    }),
     adaptiveDiscovery: {
         minimumPageSize: 20,
         configurationKey: 'homepage',
@@ -100,6 +109,8 @@ initializeRelewiseUI({
     },
 });
 ```
+
+`useShoppertainment({ getContextValues })` applies values to Shoppertainment requests without adding them to search or ordinary recommendation requests. Values added by `adaptiveDiscovery.configure` take precedence for the feed request.
 
 A matching target replaces the default Adaptive Discovery configuration. An unknown target reports an error and falls back to the default when one is configured. Targets can also be used without a default configuration, which is useful when each rendered component registers a complete, instance-specific feed configuration.
 
@@ -579,11 +590,16 @@ The entity types used when recommending search terms can be configured when reco
 initializeRelewiseUI({
     // Other options...
 }).useRecommendations({
+    getContextValues: async() => ({
+        PageId: 'search-page',
+    }),
     popularSearchTerms: {
         targetEntityTypes: ['Product', 'ProductCategory', 'Content'],
     },
 });
 ```
+
+`useRecommendations({ getContextValues })` applies values to all recommendation components, including recommendation blocks rendered inside Universal Search. A targeted recommendation configuration takes precedence for matching keys.
 
 ##### CSS parts
 - `terms`: The list containing all recommended terms.
@@ -739,6 +755,9 @@ initializeRelewiseUI(
                     relevanceModifiers(builder) {
                         builder.addBrandIdRelevanceModifier('brand1', 1000);
                     },
+                    getContextValues: async() => ({
+                        DeviceType: 'Mobile',
+                    }),
                 }});
             },
         },
@@ -754,6 +773,9 @@ registerRecommendationTarget('target', {
     relevanceModifiers(builder) {
         builder.addBrandIdRelevanceModifier('brand1', 1000);
     },
+    getContextValues: async() => ({
+        DeviceType: 'Mobile',
+    }),
 });
 ```
 
@@ -777,10 +799,15 @@ Search requests are debounced by 300 milliseconds and begin from the first chara
 
 ```ts
 useSearch({
+    getContextValues: async() => ({
+        SearchExperience: 'FullPage',
+    }),
     debounceTimeInMs: 500,
     minimumQueryLength: 3,
 });
 ```
+
+`useSearch({ getContextValues })` applies values to product, product-category, and content searches, as well as search-term suggestions. It does not apply them to recommendation blocks inside Universal Search. A targeted search configuration takes precedence for matching keys.
 
 `minimumQueryLength` applies to non-empty terms in both the product search overlay and full-page product search. An empty full-page term continues to load products as before.
 
@@ -1589,6 +1616,9 @@ initializeRelewiseUI(
                         relevanceModifiers(builder) {
                             builder.addBrandIdRelevanceModifier('brand1', 1000);
                         },
+                        getContextValues: async() => ({
+                            DeviceType: 'Mobile',
+                        }),
                     },
                 });
             },
@@ -1614,6 +1644,9 @@ registerSearchTarget('target', {
     relevanceModifiers(builder) {
         builder.addBrandIdRelevanceModifier('brand1', 1000);
     },
+    getContextValues: async() => ({
+        DeviceType: 'Mobile',
+    }),
 });
 ```
 

@@ -162,15 +162,19 @@ suite('relewise-adaptive-discovery', () => {
         };
 
         const options = mockRelewiseOptions();
+        options.getContextValues = async() => ({ DeviceType: 'Desktop', Market: 'DK' });
         options.filters = {
             product: () => productFilterApplied = true,
             content: () => contentFilterApplied = true,
         };
         initializeRelewiseUI(options).useShoppertainment({
+            getContextValues: async() => ({ DeviceType: 'Tablet', PageId: 'page-1' }),
             adaptiveDiscovery: {
                 minimumPageSize: 12,
                 configurationKey: 'home-page',
-                configure: builder => builder.seed({ contentIds: ['seed-content'] }),
+                configure: builder => builder
+                    .addContextValue('DeviceType', 'Mobile')
+                    .seed({ contentIds: ['seed-content'] }),
             },
         });
 
@@ -185,6 +189,11 @@ suite('relewise-adaptive-discovery', () => {
         assert.equal(requests[0].feed.configurationKey, 'home-page');
         assert.deepEqual(requests[0].feed.seed?.contentIds, ['seed-content']);
         assert.equal(requests[0].displayedAtLocationType, 'Home page');
+        assert.deepEqual(requests[0].contextValues, {
+            DeviceType: 'Mobile',
+            Market: 'DK',
+            PageId: 'page-1',
+        });
         assert.isTrue(productFilterApplied);
         assert.isTrue(contentFilterApplied);
         assert.strictEqual(

@@ -21,7 +21,7 @@ suite('productSearchRequestBuilder', () => {
         window.relewiseUIRetailMediaConfiguration = null;
     });
 
-    test('builds product facets with labels and selected values from URL state', () => {
+    test('builds product facets with labels and selected values from URL state', async() => {
         useSearch({
             facets: {
                 product(builder) {
@@ -36,7 +36,7 @@ suite('productSearchRequestBuilder', () => {
         updateUrlState(QueryKeys.facetLowerbound + 'SalesPrice', '10');
         updateUrlState(QueryKeys.facetUpperbound + 'SalesPrice', '100');
 
-        const result = buildProductSearchRequest({
+        const result = await buildProductSearchRequest({
             term: 'shoe',
             settings,
             page: 1,
@@ -59,7 +59,7 @@ suite('productSearchRequestBuilder', () => {
         });
     });
 
-    test('can build product facets with selected values from scoped URL state', () => {
+    test('can build product facets with selected values from scoped URL state', async() => {
         useSearch({
             facets: {
                 product(builder) {
@@ -74,7 +74,7 @@ suite('productSearchRequestBuilder', () => {
         updateUrlState(QueryKeys.productFacetLowerbound + 'SalesPrice', '10');
         updateUrlState(QueryKeys.productFacetUpperbound + 'SalesPrice', '100');
 
-        const result = buildProductSearchRequest({
+        const result = await buildProductSearchRequest({
             term: 'shoe',
             settings,
             page: 1,
@@ -96,7 +96,7 @@ suite('productSearchRequestBuilder', () => {
         });
     });
 
-    test('uses targeted facets and sorting when target is provided', () => {
+    test('uses targeted facets and sorting when target is provided', async() => {
         useSearch({
             sorting: builder => builder
                 .clear()
@@ -113,7 +113,7 @@ suite('productSearchRequestBuilder', () => {
 
         updateUrlState(QueryKeys.sortBy, SortingEnum.PopularityDesc);
 
-        const result = buildProductSearchRequest({
+        const result = await buildProductSearchRequest({
             term: 'shoe',
             settings,
             page: 1,
@@ -131,7 +131,45 @@ suite('productSearchRequestBuilder', () => {
         assert.equal(result.request.facets?.items[0].field, 'Category');
     });
 
-    test('uses scoped sorting URL state for targeted searches', () => {
+    test('combines global, search, and targeted context values with later scopes taking precedence', async() => {
+        const options = mockRelewiseOptions();
+        options.getContextValues = async() => ({
+            DeviceType: 'Desktop',
+            Market: 'DK',
+        });
+        initializeRelewiseUI(options);
+        useSearch({
+            getContextValues: async() => ({
+                DeviceType: 'Tablet',
+                SearchExperience: 'FullPage',
+            }),
+        });
+        registerSearchTarget('mobile', {
+            getContextValues: async() => ({
+                DeviceType: 'Mobile',
+                Campaign: 'Summer',
+            }),
+        });
+
+        const result = await buildProductSearchRequest({
+            term: 'shoe',
+            settings,
+            page: 1,
+            pageSize: 16,
+            productsLoaded: 0,
+            productsToFetch: null,
+            target: 'mobile',
+        });
+
+        assert.deepEqual(result.request.contextValues, {
+            DeviceType: 'Mobile',
+            Market: 'DK',
+            SearchExperience: 'FullPage',
+            Campaign: 'Summer',
+        });
+    });
+
+    test('uses scoped sorting URL state for targeted searches', async() => {
         useSearch();
         registerSearchTarget('campaign', {
             overwriteSorting: builder => builder
@@ -142,7 +180,7 @@ suite('productSearchRequestBuilder', () => {
         updateUrlState(QueryKeys.sortBy, SortingEnum.Relevance);
         updateUrlState(QueryKeys.productSorting, SortingEnum.PopularityDesc);
 
-        const result = buildProductSearchRequest({
+        const result = await buildProductSearchRequest({
             term: 'shoe',
             settings,
             page: 1,
@@ -159,10 +197,10 @@ suite('productSearchRequestBuilder', () => {
         assert.deepEqual(result.request.sorting, expectedSorting.build());
     });
 
-    test('uses requested product count for initial load when rw-take is present', () => {
+    test('uses requested product count for initial load when rw-take is present', async() => {
         useSearch();
 
-        const result = buildProductSearchRequest({
+        const result = await buildProductSearchRequest({
             term: 'shoe',
             settings,
             page: 3,
@@ -176,7 +214,7 @@ suite('productSearchRequestBuilder', () => {
         assert.equal((result.request as any).skip, 0);
     });
 
-    test('adds retail media query configured for the product search target', () => {
+    test('adds retail media query configured for the product search target', async() => {
         Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1200 });
 
         useSearch();
@@ -201,7 +239,7 @@ suite('productSearchRequestBuilder', () => {
                     .atPosition({ position: 4 })),
         });
 
-        const result = buildProductSearchRequest({
+        const result = await buildProductSearchRequest({
             term: 'shoe',
             settings,
             page: 1,
@@ -234,7 +272,7 @@ suite('productSearchRequestBuilder', () => {
         assert.exists(window.relewiseUIRetailMediaConfiguration?.templates?.retailMediaDisplayAd);
     });
 
-    test('uses custom retail media variation min widths and falls back to first configured variation', () => {
+    test('uses custom retail media variation min widths and falls back to first configured variation', async() => {
         Object.defineProperty(window, 'innerWidth', { configurable: true, value: 700 });
 
         useSearch();
@@ -247,7 +285,7 @@ suite('productSearchRequestBuilder', () => {
                 .placement('Sponsored Grid'),
         });
 
-        const result = buildProductSearchRequest({
+        const result = await buildProductSearchRequest({
             term: 'shoe',
             settings,
             page: 1,
@@ -260,7 +298,7 @@ suite('productSearchRequestBuilder', () => {
         assert.equal(result.request.retailMedia?.location.variation.key, 'Tablet');
     });
 
-    test('uses the registered search target retail media configuration', () => {
+    test('uses the registered search target retail media configuration', async() => {
         Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1200 });
 
         useSearch();
@@ -273,7 +311,7 @@ suite('productSearchRequestBuilder', () => {
                 .placement('Targeted Placement'),
         });
 
-        const result = buildProductSearchRequest({
+        const result = await buildProductSearchRequest({
             term: 'shoe',
             settings,
             page: 1,
@@ -288,7 +326,7 @@ suite('productSearchRequestBuilder', () => {
         assert.deepEqual(result.request.retailMedia?.location.placements, [{ key: 'Targeted Placement' }]);
     });
 
-    test('skips incomplete retail media configuration', () => {
+    test('skips incomplete retail media configuration', async() => {
         useSearch();
         useRetailMedia(builder => builder
             .variation({ key: 'Desktop', minWidth: 1024 }));
@@ -296,7 +334,7 @@ suite('productSearchRequestBuilder', () => {
             retailMedia: target => target.placement('Sponsored Grid'),
         });
 
-        const result = buildProductSearchRequest({
+        const result = await buildProductSearchRequest({
             term: 'shoe',
             settings,
             page: 1,
@@ -309,7 +347,7 @@ suite('productSearchRequestBuilder', () => {
         assert.isNull(result.request.retailMedia);
     });
 
-    test('normalizes invalid and duplicate placements when the target is configured', () => {
+    test('normalizes invalid and duplicate placements when the target is configured', async() => {
         useSearch();
         useRetailMedia(builder => builder.variation({ key: 'Default', minWidth: 0 }));
         registerSearchTarget('campaign', {
@@ -321,7 +359,7 @@ suite('productSearchRequestBuilder', () => {
                 .placement(''),
         });
 
-        const result = buildProductSearchRequest({
+        const result = await buildProductSearchRequest({
             term: 'shoe',
             settings,
             page: 1,

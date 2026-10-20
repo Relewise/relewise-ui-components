@@ -17,11 +17,11 @@ export type ProductCategorySearchRequestResult = {
     facetLabels: string[];
 };
 
-export function buildProductCategorySearchRequest(options: ProductCategorySearchRequestOptions): ProductCategorySearchRequestResult {
+export async function buildProductCategorySearchRequest(options: ProductCategorySearchRequestOptions): Promise<ProductCategorySearchRequestResult> {
     const searchOptions = getRelewiseUISearchOptions();
     let facetLabels: string[] = [];
 
-    const request = createProductCategorySearchBuilder(options.term, options.settings)
+    const request = (await createProductCategorySearchBuilder(options.term, options.settings))
         .pagination(p => p
             .setPageSize(options.pageSize)
             .setPage(options.page))

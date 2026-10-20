@@ -76,12 +76,12 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
         updateUrlState(QueryKeys.contentTake, (this.pageSize * this.page).toString());
     }
 
-    prepareBatchSearch(settings: Settings): UniversalSearchBatchSearch {
+    async prepareBatchSearch(settings: Settings): Promise<UniversalSearchBatchSearch> {
         this.abortController.abort();
         this.resetForSearch();
-        const requestResult = this.buildRequest(settings, true);
         this.loading = true;
         this.user = settings.user;
+        const requestResult = await this.buildRequest(settings, true);
 
         return {
             request: requestResult.request,
@@ -112,7 +112,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
             // Let runtime configuration register before the automatic search starts.
             await new Promise(resolve => setTimeout(resolve, 0));
             const settings = await getRelewiseContextSettings(this.displayedAtLocation ?? 'Relewise Universal Search');
-            const requestResult = this.buildRequest(settings, reset);
+            const requestResult = await this.buildRequest(settings, reset);
             const response = await getSearcher(getRelewiseUIOptions()).searchContents(requestResult.request, { abortSignal: abortController.signal });
 
             if (abortController.signal.aborted) {
@@ -139,7 +139,7 @@ export class UniversalSearchContentTab extends RelewiseLitElement {
         }
     }
 
-    private buildRequest(settings: Settings, reset: boolean) {
+    private async buildRequest(settings: Settings, reset: boolean) {
         const resultsToFetch = this.getResultsToFetch();
         return buildContentSearchRequest({
             term: this.term,

@@ -1,5 +1,6 @@
 import { ContentSettingsRecommendationBuilder, Settings } from '@relewise/client';
-import { getRelewiseContextSettings, getRelewiseRecommendationTargetedConfigurations, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
+import { resolveContextValues } from '../helpers/contextValues';
+import { getRelewiseContextSettings, getRelewiseRecommendationTargetedConfigurations, getRelewiseUIOptions, getRelewiseUIRecommendationOptions } from '../helpers/relewiseUIOptions';
 import { getSelectedContentProperties } from '../defaultSettings';
 
 export async function getContentRecommendationBuilderWithDefaults<T extends ContentSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T, displayedAtLocation: string, target?: string | null): Promise<T> {
@@ -8,9 +9,15 @@ export async function getContentRecommendationBuilderWithDefaults<T extends Cont
 
     const settings = await getRelewiseContextSettings(displayedAtLocation);
     const relewiseUIOptions = getRelewiseUIOptions();
+    const recommendationOptions = getRelewiseUIRecommendationOptions();
     const targetedConfiguration = getRelewiseRecommendationTargetedConfigurations();
+    const contextValues = await resolveContextValues(
+        relewiseUIOptions.getContextValues,
+        recommendationOptions?.getContextValues,
+    );
 
     const builder = createBuilder(settings)
+        .contextValues(contextValues)
         .setSelectedContentProperties(getSelectedContentProperties(relewiseUIOptions))
         .relevanceModifiers(builder => {
             if (relewiseUIOptions.relevanceModifiers?.product) {
@@ -24,7 +31,7 @@ export async function getContentRecommendationBuilderWithDefaults<T extends Cont
         });
 
     if (target) {
-        targetedConfiguration.handle(target, builder);
+        await targetedConfiguration.handle(target, builder);
     }
 
     return builder;

@@ -1,5 +1,6 @@
 import { ProductSettingsRecommendationBuilder, Settings } from '@relewise/client';
-import { getRelewiseContextSettings, getRelewiseRecommendationTargetedConfigurations, getRelewiseUIOptions } from '../helpers/relewiseUIOptions';
+import { resolveContextValues } from '../helpers/contextValues';
+import { getRelewiseContextSettings, getRelewiseRecommendationTargetedConfigurations, getRelewiseUIOptions, getRelewiseUIRecommendationOptions } from '../helpers/relewiseUIOptions';
 import { getSelectedProductProperties } from '../defaultSettings';
 
 export async function getProductRecommendationBuilderWithDefaults<T extends ProductSettingsRecommendationBuilder>(createBuilder: (settings: Settings) => T, displayedAtLocation: string, target?: string | null): Promise<T> {
@@ -8,9 +9,15 @@ export async function getProductRecommendationBuilderWithDefaults<T extends Prod
 
     const settings = await getRelewiseContextSettings(displayedAtLocation);
     const relewiseUIOptions = getRelewiseUIOptions();
+    const recommendationOptions = getRelewiseUIRecommendationOptions();
     const targetedConfiguration = getRelewiseRecommendationTargetedConfigurations();
+    const contextValues = await resolveContextValues(
+        relewiseUIOptions.getContextValues,
+        recommendationOptions?.getContextValues,
+    );
 
     const builder = createBuilder(settings)
+        .contextValues(contextValues)
         .setSelectedProductProperties(getSelectedProductProperties(relewiseUIOptions))
         .setSelectedVariantProperties(relewiseUIOptions.selectedPropertiesSettings?.variant ?? null)
         .relevanceModifiers(builder => {
@@ -25,7 +32,7 @@ export async function getProductRecommendationBuilderWithDefaults<T extends Prod
         });
 
     if (target) {
-        targetedConfiguration.handle(target, builder);
+        await targetedConfiguration.handle(target, builder);
     }
 
     return builder;
