@@ -12,8 +12,8 @@ import {
     getRelewiseRecommendationTargetedConfigurations,
     getRelewiseUIOptions,
     getRelewiseUIRecommendationOptions,
-    mergeContextValues,
 } from '../helpers/relewiseUIOptions';
+import { mergeContextValues } from '../helpers/contextValues';
 
 export async function getProductCategoryRecommendationBuilderWithDefaults<T extends ProductCategorySettingsRecommendationBuilder>(
     createBuilder: (settings: Settings) => T,

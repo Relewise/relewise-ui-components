@@ -13,6 +13,7 @@ import { ref } from 'lit/directives/ref.js';
 import type { AdaptiveDiscoveryCompositionTemplate } from '../adaptiveDiscovery';
 import { getSelectedContentProperties, getSelectedProductProperties } from '../defaultSettings';
 import formatPrice from '../helpers/formatPrice';
+import { mergeContextValues } from '../helpers/contextValues';
 import { Events } from '../helpers/events';
 import {
     getRelewiseAdaptiveDiscoveryTargetedConfigurations,
@@ -20,7 +21,6 @@ import {
     getRelewiseUIAdaptiveDiscoveryOptions,
     getRelewiseUIOptions,
     getRelewiseUIShoppertainmentOptions,
-    mergeContextValues,
 } from '../helpers/relewiseUIOptions';
 import { templateHelpers } from '../helpers/templateHelpers';
 import { RelewiseLitElement } from '../relewise-lit-element';

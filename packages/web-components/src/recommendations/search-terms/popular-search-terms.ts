@@ -5,12 +5,12 @@ import {
 import { css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { Events } from '../../helpers/events';
+import { mergeContextValues } from '../../helpers/contextValues';
 import {
     getRelewiseContextSettings,
     getRelewiseUIRecommendationOptions,
     getRelewiseRecommendationTargetedConfigurations,
     getRelewiseUIOptions,
-    mergeContextValues,
 } from '../../helpers/relewiseUIOptions';
 import { PopularSearchTermEntityType } from '../../app';
 import { getRecommender } from '../recommender';

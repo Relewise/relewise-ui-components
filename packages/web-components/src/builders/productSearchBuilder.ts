@@ -1,6 +1,7 @@
 import { ProductSearchBuilder, Settings } from '@relewise/client';
 import { defaultMaxVariantsPerProduct, getSelectedProductProperties } from '../defaultSettings';
-import { getRelewiseUIOptions, getRelewiseUISearchOptions, mergeContextValues } from '../helpers';
+import { getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers';
+import { mergeContextValues } from '../helpers/contextValues';
 
 export function createProductSearchBuilder(searchTerm: string | null | undefined, settings: Settings): ProductSearchBuilder {
     const relewiseUIOptions = getRelewiseUIOptions();

@@ -6,7 +6,8 @@ import {
     Settings,
 } from '@relewise/client';
 import type { SearchSuggestionEntityType } from '../app';
-import { getRelewiseUIOptions, getRelewiseUISearchOptions, mergeContextValues } from '../helpers/relewiseUIOptions';
+import { mergeContextValues } from '../helpers/contextValues';
+import { getRelewiseUIOptions, getRelewiseUISearchOptions } from '../helpers/relewiseUIOptions';
 
 type PopularSearchTermsRequestOptions = {
     settings: Settings;
