@@ -6,9 +6,10 @@ export function stripHtmlClientSide<T>(value: T): StringTransformationResult<T> 
     }
 
     if (typeof document !== 'undefined') {
-        const container = document.createElement('div');
+        // Template contents stay inert while parsing untrusted HTML.
+        const container = document.createElement('template');
         container.innerHTML = value;
-        return (container.textContent ?? container.innerText ?? '') as StringTransformationResult<T>;
+        return (container.content.textContent ?? '') as StringTransformationResult<T>;
     }
 
     console.error('Relewise web component: stripHtmlClientSide can only be executed in a browser environment. Returning the raw string.');
