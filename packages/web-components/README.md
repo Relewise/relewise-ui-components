@@ -2200,6 +2200,8 @@ These mirror the surface exposed by `templateHelpers` inside the package.
 
 For example, use `helpers.stripHtmlClientSide` to remove any markup from the supplied string before rendering it. This helper only runs when the component executes in a browser; server-side rendering keeps the original string.
 
+HTML is parsed in an inert `<template>` so conversion does not load resources, run event handlers, or construct custom elements. Keep the result in normal Lit text interpolation as shown below: entity decoding can produce text resembling HTML, so do not pass the result to `unsafeHTML` or `innerHTML`.
+
 ```ts
 initializeRelewiseUI({
     ...
